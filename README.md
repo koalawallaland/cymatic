@@ -1,1 +1,34 @@
-# index.html
+cymatic field
+VOICE → GEOMETRY  ·  COHERENCE 0.976
+
+
+
+
+
+♡  LIVE VOICE
+dreaming quietly
+CHLADNI
+INTERFERENCE
+RADIAL
+FLUID
+
+FREQUENCY
+220 hz
+
+AMPLITUDE
+0.6
+
+COHERENCE
+0.976
+
+RESONANCE
+0.7
+
+NODES
+—
+SYMMETRY
+—
+REGISTER
+—
+* * *
+the instrument shapes the field
