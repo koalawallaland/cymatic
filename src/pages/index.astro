@@ -15,7 +15,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     <h1 class="modak">Koala Walla Land</h1>
     <p class="prompt">Pull caps off, swap them, or type. The flickering sign opens the lab.</p>
 
-    <div class="room" id="room">
+    <div class="band">
       <a class="pane brick" href="/wall/" aria-label="Graffiti wall">
         <svg viewBox="0 0 100 180" aria-hidden="true"><path d="M8 62q14-48 28-12q11 24 23-20q8-22 30 5" fill="none" stroke="#ff7ab8" stroke-width="7" stroke-linecap="round"/><path d="M10 96q24-13 76-5" fill="none" stroke="#58d8f5" stroke-width="5" stroke-linecap="round"/><path d="M18 130c9-15 22 3 12 11c-10-8 3-26 12-11M56 118l10 22l10-22" fill="none" stroke="#d8ff3e" stroke-width="4.500" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
@@ -85,7 +85,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .modak { margin: 0 0 .55rem; font: 400 clamp(2.05rem, 9.5vw, 3.3rem)/.95 "Modak", "Syne", sans-serif; letter-spacing: 0; background: linear-gradient(100deg,#fff 0%,#ffb6e4 18%,#d7f7ff 34%,#fff 46%,#b6a4ff 62%,#e8ffb0 78%,#fff 100%) 0 0 / 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: sheen 9s linear infinite; }
   @keyframes sheen { to { background-position: 220% 0; } }
   .prompt { margin: 0 0 .7rem; padding: .6rem .85rem; border: 1px solid rgba(255,245,251,.28); border-radius: 14px 14px 14px 4px; background: rgba(20,10,38,.7); backdrop-filter: blur(10px) saturate(1.5); -webkit-backdrop-filter: blur(10px) saturate(1.5); line-height: 1.35; }
-  .room { position: relative; display: grid; grid-template-columns: minmax(0,.82fr) repeat(3, minmax(0,1fr)); grid-template-rows: minmax(0,1fr); aspect-ratio: 16 / 11; min-height: 270px; width: 100%; overflow: hidden; border-block: 6px solid #0f0a14; box-shadow: 0 0 44px rgba(0,0,0,.75); }
+  .band { position: relative; display: grid; grid-template-columns: minmax(0,.82fr) repeat(3, minmax(0,1fr)); height: clamp(270px, 68vw, 400px); width: 100%; overflow: hidden; border-block: 6px solid #0f0a14; box-shadow: 0 0 44px rgba(0,0,0,.75); }
   .pane { display: block; min-width: 0; border-inline: 4px solid #150e15; background:
     repeating-linear-gradient(90deg, transparent 0 calc(25% - 2px), #17101a calc(25% - 2px) 25%),
     repeating-linear-gradient(0deg, transparent 0 calc(20% - 2px), #17101a calc(20% - 2px) 20%),
@@ -97,6 +97,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .neon.vert { writing-mode: vertical-rl; text-orientation: upright; letter-spacing: .08em; font-size: clamp(30px, 8.6vw, 50px); }
   .neon.vert.small { font-size: clamp(13px, 3.5vw, 21px); }
   .enter { left: 56%; top: 38%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: clamp(21px, 6vw, 33px); white-space: nowrap; pointer-events: auto; animation: tube 5.2s linear infinite; }
+  .enter span { color: #fff; }
   .enter small { font: 700 .4em/1 var(--font-body); letter-spacing: .2em; color: #ffd8d2; text-shadow: 0 0 7px var(--n); }
   .enter:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
   /* an old tube: long steady stretches with short dips, never a fast strobe */
