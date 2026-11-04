@@ -1127,7 +1127,7 @@ function thockWood(){const was=KB.type;KB.type='topre';thock(.45);KB.type=was}
 $('enter').onclick=()=>shojiGo(goLab);$('toRoom').onclick=()=>shojiGo(goRoom);
 $('toKb').onclick=()=>{const c=COLORS,pk=S.lastPicks||[0,1,2],nm=$('capName').value.trim()||'My pour';
   KB.mine.unshift({n:nm,a:c[pk[0]].c,m:c[pk[1]].c,x:c[pk[2]].c,l:legendOn(c[pk[0]].c),lm:legendOn(c[pk[1]].c),mine:true});KB.set.topre++;KB.set.mx++;KB.set[KB.type]=0;
-  try{const t=document.createElement('canvas');t.width=t.height=96;const sc=$('sawC');t.getContext('2d').drawImage(sc,sc.width*.21,sc.height*.21,sc.width*.58,sc.height*.58,0,0,96,96);KB.arts.unshift([nm,t.toDataURL('image/png')])}catch(_){ }
+  try{const t=document.createElement('canvas');t.width=t.height=96;const sc=$('sawC');t.getContext('2d').drawImage(sc,sc.width*.21,sc.height*.21,sc.width*.58,sc.height*.58,0,0,96,96);KB.arts.unshift([nm,t.toDataURL('image/png')]);try{const L=JSON.parse(localStorage.getItem('kwl-caps')||'[]');L.unshift({name:nm,img:KB.arts[0][1]});localStorage.setItem('kwl-caps',JSON.stringify(L.slice(0,12)))}catch(_){}/* site addition: hands the cap to the home page board */}catch(_){ }
   shojiGo(()=>{goRoom();renderSets();buildBoard();layoutRoom();say(`${nm} is on the board, and the cap you poured is in the tray.`)})};
 const legendOn=h=>rgb(h).reduce((a,v,k)=>a+v*[.3,.59,.11][k],0)<.5?'#fff5fb':'#1c1020';
 function neonTick(now){const e=$('enter');if(e.hidden)return;if(CALM){e.style.opacity=1;return}
