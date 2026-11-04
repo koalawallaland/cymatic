@@ -49,7 +49,7 @@ Koala Walla Land starts at the desk. Every page is plain HTML with no build step
 
   Click the neon kaomoji sign to change its face. The candle turns the lamp on and off.
 - **`studio.html`: the studio.** The cymatic field instrument, as its own tab.
-- **`lab/`: Mini Resin Lab.** Its neon signs are kaomoji too. `lab/part-c/` and `lab/classic/` are earlier versions.
+- **`lab/`: Mini Resin Lab.** Its neon signs are mainly kaomoji, each with a small traditional Chinese tube: 樹脂 (resin), 貓 (cat), 鍵帽 (keycap) and 入口 (entrance). `lab/part-c/` and `lab/classic/` are earlier versions.
 - **`wall/`, `shop/`:** the graffiti wall, and the shop (closed for now).
 - **`works/`:** every experiment: the keycap board, KeyKollectiv 65%, the ripple tank, and the first cymatic field.
 

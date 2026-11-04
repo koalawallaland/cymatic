@@ -107,6 +107,12 @@ label.name{display:flex;flex-direction:column;gap:5px;font-size:13px}
 .neon{position:absolute;margin:0;padding:6px 8px;font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;font-weight:900;line-height:1;color:#fff;background:rgba(10,4,20,.42);border:1px solid rgba(255,255,255,.14);border-radius:8px;
  text-shadow:0 0 3px #fff,0 0 8px var(--n),0 0 18px var(--n),0 0 34px var(--n),0 0 60px var(--n);box-shadow:0 0 24px color-mix(in srgb,var(--n) 42%,transparent)}
 .neon.v{writing-mode:vertical-rl;text-orientation:upright;letter-spacing:.08em}
+/* kaomoji lead; a short traditional Chinese tube sits beside it, read top to bottom like a hanging street sign */
+.neon:has(.han){display:flex;align-items:center;gap:.28em}
+.neon .han{writing-mode:vertical-rl;text-orientation:upright;font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei","Zen Maru Gothic",sans-serif;font-size:.62em;letter-spacing:.06em;line-height:1;padding:.18em .1em;border-inline:1px solid rgba(255,255,255,.28);border-radius:4px}
+.neon .han.one{writing-mode:horizontal-tb;font-size:.72em;padding:.08em .22em;border-inline:0;border-block:1px solid rgba(255,255,255,.28)}
+@media (min-width:700px){#room #nCat{top:calc(var(--wt,120px) + 14px)}}
+#enter .hanS{font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei","Zen Maru Gothic",sans-serif;letter-spacing:.08em}
 #nResin{--n:#ff2f9e;left:5%;top:calc(var(--wt,120px) + 14px);font-size:clamp(15px,4.4vw,30px);white-space:nowrap}
 #nCap{--n:#22e6ff;right:5%;top:calc(var(--wt,120px) + 14px);font-size:clamp(15px,4.4vw,30px);white-space:nowrap}
 #nCat{--n:#c6ff00;left:50%;transform:translateX(-50%);top:calc(var(--wt,120px) + 64px);font-size:clamp(17px,5vw,34px);white-space:nowrap}
@@ -159,9 +165,9 @@ label.name{display:flex;flex-direction:column;gap:5px;font-size:13px}
     <div class="pane"><svg id="shadowCat" viewBox="0 0 100 110"><path d="M18 108c-2-20 2-34 12-42C22 60 18 50 18 38L13 9l18 13c6-2 12-3 19-3s13 1 19 3L87 9l-5 29c0 12-4 22-12 28 10 8 14 22 12 42z"/></svg></div>
     <div class="pane"></div>
   </div>
-  <p class="neon" id="nResin" aria-hidden="true">(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧</p>
-  <p class="neon" id="nCat" aria-hidden="true">ฅ^•ﻌ•^ฅ</p>
-  <p class="neon" id="nCap" aria-hidden="true">ʕ•ᴥ•ʔ⌨</p>
+  <p class="neon" id="nResin" aria-hidden="true"><span class="han">樹脂</span><span class="kao">(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧</span></p>
+  <p class="neon" id="nCat" aria-hidden="true"><span class="kao">ฅ^•ﻌ•^ฅ</span><span class="han one">貓</span></p>
+  <p class="neon" id="nCap" aria-hidden="true"><span class="kao">ʕ•ᴥ•ʔ⌨</span><span class="han">鍵帽</span></p>
 </div>
 <div id="shoji" hidden><div class="door l"></div><div class="door r"></div></div>
 <p id="spell" hidden></p>
@@ -206,7 +212,7 @@ label.name{display:flex;flex-direction:column;gap:5px;font-size:13px}
 <p id="stamp" hidden>Cast failed</p>
 <svg id="wand" viewBox="0 0 96 150" hidden aria-hidden="true"><defs><linearGradient id="wg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".4" stop-color="#ff9bdc"/><stop offset=".7" stop-color="#b6f2ff"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><rect x="43" y="52" width="10" height="94" rx="5" fill="url(#wg)" stroke="#2b1650" stroke-width="2"/><path d="M48 2l11 27 29 2-22 18 7 28-25-15-25 15 7-28L8 31l29-2z" fill="url(#wg)" stroke="#2b1650" stroke-width="2.5" stroke-linejoin="round"/><circle cx="48" cy="41" r="9" fill="#fff"/><path d="M48 33l2.200 6 6 2.200-6 2.200-2.200 6-2.200-6-6-2.200 6-2.200z" fill="#ff5fb8"/></svg>
 <button id="tarot" hidden aria-label="Close card"><canvas id="tarotC" width="500" height="800"></canvas><b id="tarotName"></b><span id="tarotText"></span><small>Tap to put it back</small></button>
-<button id="enter" class="neon" hidden aria-label="Enter the lab to do a cast"><span id="enterT">(っ˘ω˘ς) ENTER</span><small>THE LAB</small></button>
+<button id="enter" class="neon" hidden aria-label="Enter the lab to do a cast"><span id="enterT">(っ˘ω˘ς) ENTER</span><small><span class="hanS">入口</span> · THE LAB</small></button>
 <aside id="saw" hidden><canvas id="sawC" width="160" height="160"></canvas><span>What you saw while pouring</span></aside>
 
 <div id="ui">
