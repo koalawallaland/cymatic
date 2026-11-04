@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KeyKollectiv — Artisan Keycaps</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Space+Mono&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #080808;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  padding: 40px 20px 60px;
+  overflow-x: hidden;
+}
+
+.blob {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+.blob1 {
+  width: 600px; height: 600px;
+  top: -140px; left: -100px;
+  background: radial-gradient(circle, rgba(124,58,237,0.07), transparent 70%);
+}
+.blob2 {
+  width: 500px; height: 500px;
+  bottom: -100px; right: -80px;
+  background: radial-gradient(circle, rgba(6,182,212,0.06), transparent 70%);
+}
+.blob3 {
+  width: 300px; height: 300px;
+  top: 50%; left: 55%;
+  background: radial-gradient(circle, rgba(244,63,94,0.04), transparent 70%);
+}
+
+header {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(36px, 6vw, 56px);
+  letter-spacing: 0.24em;
+  color: #f5f5f5;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.sub {
+  color: #2e2e2e;
+  font-size: 9px;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  margin-top: 12px;
+}
+
+.hint {
+  position: relative;
+  z-index: 1;
+  color: #2c2c2c;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 30px;
+  transition: color 0.4s;
+}
+
+.keyboard-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+.keyboard {
+  background: linear-gradient(170deg, #1e1e1e 0%, #141414 100%);
+  border-radius: 14px;
+  padding: 15px 14px 20px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.05),
+    0 0 0 1px rgba(0,0,0,0.8),
+    0 2px 0 rgba(255,255,255,0.025),
+    0 40px 100px rgba(0,0,0,0.9),
+    0 8px 24px rgba(0,0,0,0.7);
+  position: relative;
+  user-select: none;
+}
+
+.row {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 3px;
+}
+.row:last-child { margin-bottom: 0; }
+
+.key {
+  height: 43px;
+  border-radius: 5px;
+  background: linear-gradient(165deg, #2d2d2d 0%, #202020 100%);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.048),
+    0 4px 0 #0a0a0a,
+    inset 0 1px 0 rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: transform 0.11s ease, box-shadow 0.11s ease;
+  overflow: visible;
+}
+
+.key:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.13),
+    0 7px 0 #060606,
+    inset 0 1px 0 rgba(255,255,255,0.09);
+}
+
+.key.active {
+  transform: translateY(-4px);
+  box-shadow:
+    0 0 0 1.5px rgba(255,255,255,0.3),
+    0 8px 0 #050505,
+    inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.key.has-cap:hover {
+  box-shadow:
+    0 0 0 1px var(--glow),
+    0 7px 0 #060606,
+    0 0 20px var(--glow-dim),
+    inset 0 1px 0 rgba(255,255,255,0.09);
+}
+
+.key.has-cap.active {
+  box-shadow:
+    0 0 0 1.5px var(--glow),
+    0 8px 0 #050505,
+    0 0 30px var(--glow-dim),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.key-label {
+  font-size: 10px;
+  color: #424242;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  pointer-events: none;
+  font-family: 'Space Mono', monospace;
+  line-height: 1;
+  transition: opacity 0.15s;
+  position: relative;
+  z-index: 1;
+}
+
+.key.has-cap .key-label { opacity: 0; }
+
+.artisan {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.artisan-bubble {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.key:hover .artisan-bubble { transform: scale(1.12); }
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: var(--pb); }
+  50%       { box-shadow: var(--pp); }
+}
+
+.artisan-bubble { animation: glowPulse 2.8s ease-in-out infinite; }
+
+/* Selector tray */
+.tray {
+  margin-top: 18px;
+  background: #101010;
+  border: 1px solid #1e1e1e;
+  border-radius: 12px;
+  padding: 18px 20px 20px;
+  box-shadow: 0 16px 60px rgba(0,0,0,0.85);
+  animation: trayIn 0.16s ease;
+}
+
+@keyframes trayIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+.tray-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16px;
+}
+
+.tray-title {
+  font-size: 8px;
+  color: #2e2e2e;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+}
+
+.tray-key {
+  font-size: 8px;
+  color: #444;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.cap-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.cap-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  border: 2px solid transparent;
+  transition: transform 0.14s ease, border-color 0.14s, box-shadow 0.14s;
+  position: relative;
+}
+
+.cap-btn:hover { transform: scale(1.18); }
+
+.cap-btn.chosen { border-color: var(--glow); }
+
+.cap-tip {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #181818;
+  border: 1px solid #242424;
+  border-radius: 4px;
+  padding: 4px 9px;
+  font-size: 8px;
+  color: #777;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.cap-btn:hover .cap-tip { opacity: 1; }
+
+.remove-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  background: #0d0d0d;
+  border: 1px dashed #252525;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2e2e2e;
+  font-size: 22px;
+  transition: all 0.14s;
+  position: relative;
+}
+
+.remove-btn:hover {
+  border-color: #555;
+  color: #666;
+  transform: scale(1.1);
+}
+
+/* Status bar */
+.status {
+  position: relative;
+  z-index: 1;
+  margin-top: 26px;
+  font-size: 8px;
+  color: transparent;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  text-align: center;
+  transition: color 0.3s;
+  height: 14px;
+}
+
+.status.show { color: #3a3a3a; }
+
+/* Added when this was brought into the site: the board scrolls on narrow screens, plus a way back */
+.keyboard-wrap { max-width: 100%; overflow-x: auto; padding: 6px 2px 110px; }
+#back { position: fixed; z-index: 5; left: 0; top: 50%; transform: translateY(-50%); padding: 14px 7px; color: #fff; background: rgba(18,6,29,.72); border: 1px solid rgba(255,255,255,.35); border-left: 0; border-radius: 0 10px 10px 0; font: 700 14px/1 system-ui, sans-serif; text-decoration: none; }
+</style>
+</head>
+<body>
+<a href="../index.html" id="back" aria-label="Back to experiments">&larr;</a>
+
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+
+<header>
+  <h1>KeyKollectiv</h1>
+  <p class="sub">Artisan Keycap Collective</p>
+</header>
+
+<p class="hint" id="hint">Click any key to place an artisan cap</p>
+
+<div class="keyboard-wrap" id="wrap">
+  <div class="keyboard" id="kb"></div>
+  <div id="tray" style="display:none;"></div>
+</div>
+
+<p class="status" id="status"></p>
+
+<script>
+const U = 46, G = 3;
+const px = w => Math.round(w * U + (w - 1) * G);
+
+const CAPS = [
+  { id:"galaxy",   name:"Galaxy Burst",    bg:"radial-gradient(circle at 35% 33%, #d8b4fe, #7c3aed 52%, #1a0533)",               glow:"#a855f7", dim:"rgba(168,85,247,0.22)"  },
+  { id:"ocean",    name:"Deep Ocean",      bg:"radial-gradient(circle at 30% 28%, #a5f3fc, #0ea5e9 46%, #0c1445)",               glow:"#22d3ee", dim:"rgba(34,211,238,0.2)"   },
+  { id:"ember",    name:"Ember Core",      bg:"radial-gradient(circle at 50% 63%, #fde68a, #f97316 34%, #9f1239 74%, #150000)",  glow:"#fb923c", dim:"rgba(251,146,60,0.22)"  },
+  { id:"forest",   name:"Ancient Forest",  bg:"radial-gradient(circle at 38% 32%, #bbf7d0, #16a34a 50%, #052e16)",               glow:"#4ade80", dim:"rgba(74,222,128,0.18)"  },
+  { id:"void",     name:"Void Heart",      bg:"radial-gradient(circle at 50% 50%, #475569, #1e293b 56%, #000)",                  glow:"#64748b", dim:"rgba(100,116,139,0.18)" },
+  { id:"prism",    name:"Prism",           bg:"conic-gradient(from 180deg at 50% 50%, #f43f5e,#fb923c,#fbbf24,#34d399,#60a5fa,#a78bfa,#f43f5e)", glow:"#e2e8f0", dim:"rgba(226,232,240,0.28)" },
+  { id:"coral",    name:"Coral Bloom",     bg:"radial-gradient(circle at 38% 33%, #fecdd3, #fb7185 46%, #881337)",               glow:"#f43f5e", dim:"rgba(244,63,94,0.2)"    },
+  { id:"obsidian", name:"Obsidian",        bg:"radial-gradient(circle at 35% 30%, #94a3b8, #334155 52%, #020617)",               glow:"#94a3b8", dim:"rgba(148,163,184,0.18)" },
+  { id:"aurora",   name:"Aurora",          bg:"radial-gradient(circle at 40% 30%, #6ee7f7, #818cf8 45%, #1e1b4b)",               glow:"#818cf8", dim:"rgba(129,140,248,0.22)" },
+];
+
+const ROWS = [
+  [{id:"esc",l:"Esc",w:1},{id:"k1",l:"1",w:1},{id:"k2",l:"2",w:1},{id:"k3",l:"3",w:1},{id:"k4",l:"4",w:1},{id:"k5",l:"5",w:1},{id:"k6",l:"6",w:1},{id:"k7",l:"7",w:1},{id:"k8",l:"8",w:1},{id:"k9",l:"9",w:1},{id:"k0",l:"0",w:1},{id:"minus",l:"−",w:1},{id:"eq",l:"=",w:1},{id:"bksp",l:"⌫",w:2},{id:"del",l:"Del",w:1}],
+  [{id:"tab",l:"Tab",w:1.5},{id:"q",l:"Q",w:1},{id:"w",l:"W",w:1},{id:"e",l:"E",w:1},{id:"r",l:"R",w:1},{id:"t",l:"T",w:1},{id:"y",l:"Y",w:1},{id:"u",l:"U",w:1},{id:"i",l:"I",w:1},{id:"o",l:"O",w:1},{id:"p",l:"P",w:1},{id:"lbr",l:"[",w:1},{id:"rbr",l:"]",w:1},{id:"bsl",l:"\\",w:1.5},{id:"pgup",l:"PgUp",w:1}],
+  [{id:"caps",l:"Caps",w:1.75},{id:"a",l:"A",w:1},{id:"s",l:"S",w:1},{id:"d",l:"D",w:1},{id:"f",l:"F",w:1},{id:"g",l:"G",w:1},{id:"h",l:"H",w:1},{id:"j",l:"J",w:1},{id:"k",l:"K",w:1},{id:"l",l:"L",w:1},{id:"scol",l:";",w:1},{id:"apo",l:"'",w:1},{id:"ent",l:"Enter",w:2.25},{id:"pgdn",l:"PgDn",w:1}],
+  [{id:"lsft",l:"Shift",w:2.25},{id:"z",l:"Z",w:1},{id:"x",l:"X",w:1},{id:"c",l:"C",w:1},{id:"v",l:"V",w:1},{id:"b",l:"B",w:1},{id:"n",l:"N",w:1},{id:"m",l:"M",w:1},{id:"com",l:",",w:1},{id:"dot",l:".",w:1},{id:"sl",l:"/",w:1},{id:"rsft",l:"Shift",w:1.75},{id:"up",l:"↑",w:1}],
+  [{id:"lctl",l:"Ctrl",w:1.25},{id:"lwin",l:"❖",w:1.25},{id:"lalt",l:"Alt",w:1.25},{id:"spc",l:"",w:6.25},{id:"ralt",l:"Alt",w:1},{id:"fn",l:"Fn",w:1},{id:"lft",l:"←",w:1},{id:"dn",l:"↓",w:1},{id:"rgt",l:"→",w:1}],
+];
+
+const placed = {};
+let activeId = null;
+
+const kb = document.getElementById('kb');
+const trayEl = document.getElementById('tray');
+const hintEl = document.getElementById('hint');
+const statusEl = document.getElementById('status');
+
+function buildKeyboard() {
+  ROWS.forEach(row => {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'row';
+    row.forEach(key => {
+      const el = document.createElement('div');
+      el.className = 'key';
+      el.id = 'k-' + key.id;
+      el.style.width = px(key.w) + 'px';
+
+      const lbl = document.createElement('span');
+      lbl.className = 'key-label';
+      lbl.textContent = key.l;
+      el.appendChild(lbl);
+
+      const artisan = document.createElement('div');
+      artisan.className = 'artisan';
+      artisan.id = 'art-' + key.id;
+      el.appendChild(artisan);
+
+      el.addEventListener('click', e => { e.stopPropagation(); toggleTray(key); });
+      el.addEventListener('mouseenter', () => showStatus(key));
+      el.addEventListener('mouseleave', () => clearStatus());
+      rowEl.appendChild(el);
+    });
+    kb.appendChild(rowEl);
+  });
+}
+
+function showStatus(key) {
+  const cap = placed[key.id] ? CAPS.find(c => c.id === placed[key.id]) : null;
+  statusEl.textContent = cap ? cap.name : (key.l || 'Space');
+  statusEl.classList.add('show');
+}
+
+function clearStatus() {
+  statusEl.textContent = '';
+  statusEl.classList.remove('show');
+}
+
+function toggleTray(key) {
+  if (activeId === key.id) { closeAll(); return; }
+  activeId = key.id;
+  refreshActiveStyles();
+  renderTray(key);
+}
+
+function renderTray(key) {
+  trayEl.style.display = 'block';
+  trayEl.innerHTML = '';
+
+  const tray = document.createElement('div');
+  tray.className = 'tray';
+
+  const head = document.createElement('div');
+  head.className = 'tray-head';
+  const title = document.createElement('span');
+  title.className = 'tray-title';
+  title.textContent = 'Select Artisan Cap';
+  const kn = document.createElement('span');
+  kn.className = 'tray-key';
+  kn.textContent = key.l || 'Space';
+  head.appendChild(title);
+  head.appendChild(kn);
+  tray.appendChild(head);
+
+  const grid = document.createElement('div');
+  grid.className = 'cap-grid';
+
+  CAPS.forEach(cap => {
+    const btn = document.createElement('div');
+    btn.className = 'cap-btn' + (placed[key.id] === cap.id ? ' chosen' : '');
+    btn.style.background = cap.bg;
+    btn.style.boxShadow = `0 0 14px ${cap.dim}`;
+    btn.style.setProperty('--glow', cap.glow);
+    const tip = document.createElement('div');
+    tip.className = 'cap-tip';
+    tip.textContent = cap.name;
+    btn.appendChild(tip);
+    btn.addEventListener('click', e => { e.stopPropagation(); applyCap(key.id, cap.id); });
+    grid.appendChild(btn);
+  });
+
+  if (placed[key.id]) {
+    const rem = document.createElement('div');
+    rem.className = 'remove-btn';
+    rem.innerHTML = '×';
+    const remTip = document.createElement('div');
+    remTip.className = 'cap-tip';
+    remTip.textContent = 'Remove cap';
+    rem.appendChild(remTip);
+    rem.addEventListener('click', e => { e.stopPropagation(); applyCap(key.id, null); });
+    grid.appendChild(rem);
+  }
+
+  tray.appendChild(grid);
+  trayEl.appendChild(tray);
+}
+
+function applyCap(keyId, capId) {
+  if (capId === null) {
+    delete placed[keyId];
+  } else {
+    placed[keyId] = capId;
+  }
+  refreshKeyVisual(keyId);
+  closeAll();
+}
+
+function refreshKeyVisual(keyId) {
+  const keyEl = document.getElementById('k-' + keyId);
+  const artEl = document.getElementById('art-' + keyId);
+  if (!keyEl || !artEl) return;
+
+  artEl.innerHTML = '';
+
+  const cap = placed[keyId] ? CAPS.find(c => c.id === placed[keyId]) : null;
+
+  if (cap) {
+    keyEl.classList.add('has-cap');
+    keyEl.style.setProperty('--glow', cap.glow);
+    keyEl.style.setProperty('--glow-dim', cap.dim);
+    const bubble = document.createElement('div');
+    bubble.className = 'artisan-bubble';
+    bubble.style.background = cap.bg;
+    bubble.style.setProperty('--pb', `0 0 8px ${cap.dim}`);
+    bubble.style.setProperty('--pp', `0 0 16px ${cap.glow}88, 0 0 28px ${cap.dim}`);
+    artEl.appendChild(bubble);
+  } else {
+    keyEl.classList.remove('has-cap');
+    keyEl.style.removeProperty('--glow');
+    keyEl.style.removeProperty('--glow-dim');
+  }
+}
+
+function refreshActiveStyles() {
+  document.querySelectorAll('.key').forEach(el => el.classList.remove('active'));
+  if (activeId) {
+    const el = document.getElementById('k-' + activeId);
+    if (el) el.classList.add('active');
+  }
+}
+
+function closeAll() {
+  activeId = null;
+  trayEl.style.display = 'none';
+  trayEl.innerHTML = '';
+  refreshActiveStyles();
+}
+
+document.addEventListener('click', e => {
+  if (!document.getElementById('wrap').contains(e.target)) closeAll();
+});
+
+buildKeyboard();
+</script>
+</body>
+</html>
