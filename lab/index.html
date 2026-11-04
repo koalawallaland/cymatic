@@ -814,17 +814,10 @@ const winG=$('winC').getContext('2d');const winBase=document.createElement('canv
 function palm(g,x,y,hh,lean){g.strokeStyle='#1a0b33';g.lineWidth=4;g.lineCap='round';g.beginPath();g.moveTo(x,y);g.quadraticCurveTo(x+lean*.3,y-hh*.6,x+lean,y-hh);g.stroke();
   const tx=x+lean,ty=y-hh;g.lineWidth=3;for(let i=0;i<8;i++){const a=-Math.PI+i/7*Math.PI,l=hh*.36;g.beginPath();g.moveTo(tx,ty);g.quadraticCurveTo(tx+Math.cos(a)*l*.6,ty+Math.sin(a)*l*.7-6,tx+Math.cos(a)*l,ty+Math.sin(a)*l*.45+9);g.stroke()}}
 let winDone=false;
-function crystal(g,x,base,w,h,a,b){const top=base-h;g.fillStyle=a;g.beginPath();g.moveTo(x,base);g.lineTo(x+w*.12,top+h*.16);g.lineTo(x+w/2,top);g.lineTo(x+w/2,base);g.fill();g.fillStyle=b;g.beginPath();g.moveTo(x+w,base);g.lineTo(x+w*.88,top+h*.16);g.lineTo(x+w/2,top);g.lineTo(x+w/2,base);g.fill();g.strokeStyle='rgba(255,255,255,.75)';g.lineWidth=1;g.beginPath();g.moveTo(x+w/2,top);g.lineTo(x+w/2,base);g.moveTo(x+w*.12,top+h*.16);g.lineTo(x+w/2,top+h*.34);g.lineTo(x+w*.88,top+h*.16);g.stroke()}
-function drawWinStatic(){if(winDone)return;winDone=true;const g=winBase.getContext('2d');let b=g.createLinearGradient(0,0,0,220);b.addColorStop(0,'#241a78');b.addColorStop(.42,'#b645c5');b.addColorStop(.7,'#ff8fc0');b.addColorStop(1,'#ffe2b8');g.fillStyle=b;g.fillRect(0,0,300,220);
-  g.fillStyle='#fff';for(let i=0;i<34;i++){const x=(i*73)%300,y=(i*41)%90,z=.6+i%3*.5;g.fillRect(x,y,z,z)}
-  g.fillStyle='#fff6d0';g.beginPath();g.arc(226,86,17,0,6.3);g.fill();
-  /* crystal towers */
-  [[8,44,78],[44,34,108],[78,50,142],[122,38,96],[160,48,128],[208,34,86],[238,50,122],[278,34,92]].forEach((t,i)=>crystal(g,t[0],176,t[1],t[2],i%2?'#8fe9ff':'#c6a8ff',i%2?'#d9c8ff':'#7fd6ff'));
-  /* pink hotel with arched windows */
-  g.fillStyle='#ff9fc2';g.fillRect(84,136,134,44);g.fillStyle='#ffb8d3';g.fillRect(126,120,50,18);g.fillStyle='#2fa070';g.fillRect(80,132,142,6);g.fillRect(122,116,58,5);g.fillStyle='#fff3d2';for(let x=92;x<212;x+=16){g.beginPath();g.arc(x+4,152,4,Math.PI,0);g.rect(x,152,8,11);g.fill()}
-  /* boulevard and clipped hedges */
-  g.fillStyle='#2b6d5c';g.fillRect(0,176,300,12);g.fillStyle='#2a1259';g.fillRect(0,188,300,32);g.fillStyle='#ffd4e8';g.fillRect(0,203,300,2);
-  [30,70,232,272,118,186].forEach((x,i)=>palm(g,x,200,i<4?96+i*9:62,i%2?7:-7))}
+function drawWinStatic(){if(winDone)return;winDone=true;const g=winBase.getContext('2d');let b=g.createLinearGradient(0,0,0,220);b.addColorStop(0,'#3b1b86');b.addColorStop(.48,'#e84aa8');b.addColorStop(.72,'#ffb26b');b.addColorStop(1,'#ffe0a8');g.fillStyle=b;g.fillRect(0,0,300,220);
+  g.fillStyle='#fff3c8';g.beginPath();g.arc(205,120,24,0,6.3);g.fill();
+  for(let x=0;x<300;){const w=16+Math.random()*26,h=26+Math.random()*62;g.fillStyle='#2a1259';g.fillRect(x,180-h,w,h+40);g.fillStyle='#ffe58a';for(let yy=184-h;yy<175;yy+=9)for(let xx=x+3;xx<x+w-3;xx+=7)if(Math.random()<.32)g.fillRect(xx,yy,3,4);x+=w+1}
+  g.fillStyle='#160830';g.fillRect(0,192,300,28);palm(g,58,205,112,-10);palm(g,112,205,78,9);palm(g,258,205,134,12)}
 const UFO={t:-1,next:performance.now()/1000+40+Math.random()*50,seen:false};
 const UD=8.4;
 function ufoPos(){const t=UFO.t,e=q=>q*q*(3-2*q);let x;if(t<2)x=-40+e(t/2)*190;else if(t<6.2)x=150;else x=150+e((t-6.2)/2.2)*220;return[x+(t>=2&&t<6.2?Math.sin(t*3)*3:0),52+Math.sin(t*2.1)*5]}
