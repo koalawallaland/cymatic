@@ -9,7 +9,7 @@ Untouched copies of the uploaded files are in `originals/`.
 | `Mini_Resin_Lab.html` | First WebGL casting game: pour, tilt, cure, demold, tarot reveal, cat, rain and humidity failures | Preserved as the first version | `/lab/classic/` |
 | `Mini_Resin_Lab2.html` | Extended game: neon room, shoji entrance, Topre and full-size MX keyboards, keycap sets, sound, put-your-cap-on-the-keyboard | The main lab | `/lab/` |
 
-Also kept: `/lab/part-c/` (Lab2 with its original cat and the pun set names) and `/works/keykollectiv-65/` (the May 2026 KeyKollectiv keyboard, rebuilt from its chat with a back arrow and side-scroll added). `/lab/#desk` opens the lab desk directly.
+`/lab/` stars Part C, the pearl-white cat, because Katie prefers her. Also kept: `/lab/koala/` (the same lab with a koala) and `/works/keykollectiv-65/` (the May 2026 KeyKollectiv keyboard, rebuilt from its chat with a back arrow and side-scroll added). `/lab/#desk` opens the lab desk directly.
 
 The home page is now the desk: shoji screens, the lab's flickering sign and the graffiti wall sit behind it, and the real keycap board sits on it. The desk build's notes live at `/desk/` with its cymatic studio at `/desk/studio.html`. Its source is in `originals/desk-build/`.
 
