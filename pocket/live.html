@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>live field</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a night-desk console — the sand field on top, the pattern editor and step grid under it; side by side on wide screens. */
+:root {
+  color-scheme: dark;
+  --bg: #0d0a18;
+  --panel: #161127;
+  --line: #2c2347;
+  --ink: #f3eaff;
+  --muted: #9b90c2;
+  --pink: #ff7ac8;
+  --lilac: #b9a6ff;
+  --cyan: #6ff3ff;
+  --lime: #d8ff3e;
+  --display: "Silkscreen", ui-monospace, monospace;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font: 14px/1.5 var(--mono);
+  margin: 0; font-size: 13px;
+  padding-left: max(12px, env(safe-area-inset-left, 0px));
+  padding-right: max(12px, env(safe-area-inset-right, 0px));
+  padding-block: 10px 14px;
+}
+.wrap { max-width: 520px; margin: 0 auto; display: grid; gap: 10px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+h1 { margin: 0; font: 400 18px/1 var(--display); letter-spacing: .04em; color: var(--ink);
+  text-shadow: 0 0 6px var(--pink), 0 0 18px color-mix(in srgb, var(--pink) 60%, transparent); }
+.tag { color: var(--muted); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.panel { min-width: 0; }
+
+.stage { position: relative; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 10px; overflow: hidden; background: #05030c; }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+html.framed header { display: none; }
+.hud { position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; justify-content: space-between; gap: 8px;
+  font-size: 12px; color: var(--muted); pointer-events: none; text-shadow: 0 1px 2px #000; font-variant-numeric: tabular-nums; }
+.hud b { color: var(--cyan); font-weight: 600; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button, select { font: 600 12px/1 var(--mono); color: var(--ink); background: transparent; border: 1px solid var(--line);
+  border-radius: 999px; padding: 8px 12px; min-height: 36px; cursor: pointer; }
+button:hover, select:hover { border-color: var(--lilac); }
+button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+#play { background: var(--lime); color: var(--bg); border-color: var(--lime); min-width: 92px; }
+#play[aria-pressed="true"] { background: var(--pink); border-color: var(--pink); }
+select { background: var(--panel); }
+.bpm { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.bpm input { width: 80px; accent-color: var(--pink); }
+
+.editor { position: relative; }
+textarea { width: 100%; min-height: 150px; resize: vertical; background: #0a0816; color: var(--ink); border: 1px solid var(--line);
+  border-radius: 10px; padding: 12px; font: 13px/1.7 var(--mono); tab-size: 2; white-space: pre; overflow-x: auto; }
+.hint { color: var(--muted); font-size: 12px; margin: 6px 2px 0; }
+.err { color: var(--pink); font-size: 12px; margin: 6px 2px 0; min-height: 1.2em; white-space: pre-wrap; }
+
+.steps { display: grid; gap: 4px; overflow-x: auto; }
+.row { display: grid; grid-template-columns: 52px repeat(16, minmax(10px, 1fr)); gap: 3px; align-items: center; min-width: 300px; }
+.row .name { color: var(--muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cell { height: 16px; border-radius: 3px; background: #0a0816; border: 1px solid var(--line); }
+.cell.on { background: color-mix(in srgb, var(--c, var(--lilac)) 40%, #0a0816); border-color: var(--c, var(--lilac)); }
+.cell.head { box-shadow: 0 0 0 1px var(--ink) inset; }
+.cell.on.head { background: var(--c, var(--lilac)); box-shadow: 0 0 10px var(--c, var(--lilac)); }
+.ruler { display: grid; grid-template-columns: 52px repeat(4, 1fr); color: var(--muted); font-size: 10px; min-width: 300px; }
+.notes { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.notes b { color: var(--ink); font-weight: 600; }
+h2 { margin: 0 0 8px; font: 400 12px/1 var(--display); letter-spacing: .1em; color: var(--lilac); }
+.ref { color: var(--muted); font-size: 12px; line-height: 1.7; }
+.ref code { color: var(--cyan); }
+@media (prefers-reduced-motion: reduce) { h1 { text-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>live field ʕ•ᴥ•ʔ♪</h1>
+    <span class="tag">type a beat · the sand dances to it</span>
+  </header>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="stage">
+        <canvas id="field" aria-label="Cymatic sand field that moves with the music" role="img"></canvas>
+        <div class="hud"><span>bar <b id="bar">0</b> · step <b id="step">1</b>/16</span><span>note <b id="noteOut">—</b> · chord <b id="chordOut">—</b></span></div>
+      </div>
+    </div>
+
+    <div class="panel" style="display:grid;gap:10px">
+      <div class="controls">
+        <button id="play" aria-pressed="false">▶ play</button>
+        <button id="update" title="Ctrl or Cmd + Enter">update</button>
+        <select id="preset" aria-label="Load a sample pattern">
+          <option value="toast">milk toast</option>
+          <option value="drip">resin drip</option>
+          <option value="rain">lilac rain</option>
+        </select>
+        <label class="bpm" for="bpm">bpm <input id="bpm" type="range" min="70" max="170" value="124"><output id="bpmOut">124</output></label>
+      </div>
+      <div class="editor">
+        <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Pattern code"></textarea>
+        <p class="hint">Edit any line, then tap update (or Ctrl/Cmd + Enter). Delete a line to mute it.</p>
+        <p class="err" id="err" aria-live="polite"></p>
+      </div>
+      <div>
+        <h2>STEPS</h2>
+        <div class="steps" id="steps"></div>
+        <div class="notes" id="noteRows"></div>
+      </div>
+      <details class="ref">
+        <summary>how to write patterns</summary>
+        <p><code>s("bd*4")</code> four kicks a bar. Drums: <code>bd</code> <code>sd</code> <code>cp</code> <code>hh</code> <code>oh</code> <code>rim</code>.<br>
+        <code>~</code> is a rest. <code>[a b]</code> squeezes into one step. <code>&lt;a b&gt;</code> takes turns each bar. <code>x*2</code> repeats, <code>x!2</code> copies.<br>
+        <code>note("g2 eb2")</code> plays notes; <code>chord("&lt;Cm Ab&gt;")</code> plays chords.<br>
+        Add <code>.s("saw")</code> (saw, square, tri, sine, supersaw), <code>.lpf(1200)</code>, <code>.gain(.5)</code>, <code>.room(.4)</code>.</p>
+      </details>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+if (parent !== window) document.documentElement.classList.add('framed');
+const $ = id => document.getElementById(id);
+const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- sample patterns ---------- */
+const PRESETS = {
+toast: `// milk toast · warm and bouncy
+kick: s("bd*4")
+clap: s("~ cp ~ cp").room(.3)
+hats: s("[~ hh]*4").gain(.35)
+open: s("~ ~ ~ oh").gain(.25)
+bass: note("<g2 eb2 g2 bb1>*2").s("saw").lpf(900)
+keys: chord("<Cm Ab Eb Bb>").s("supersaw").lpf(2400).gain(.22).room(.4)`,
+drip: `// resin drip · slow pour
+kick: s("bd ~ ~ bd ~ ~ bd ~")
+snap: s("~ ~ rim ~").gain(.5)
+hats: s("hh*8").gain(.18)
+bass: note("<c2 [c2 eb2] f1 [g1 bb1]>").s("square").lpf(600).gain(.6)
+pad: chord("<Cm7 Fm7>").s("supersaw").lpf(1400).gain(.2).room(.6)`,
+rain: `// lilac rain · drum and bell
+kick: s("bd ~ [~ bd] ~")
+snare: s("~ sd ~ sd").room(.35)
+hats: s("[hh hh hh]*4").gain(.2)
+bell: note("<[e4 b4 g4 d5] [d4 a4 f#4 c#5]>*2").s("tri").gain(.28).room(.5)
+bass: note("<e2 d2>").s("sine").gain(.8)`
+};
+
+/* ---------- mini-notation ---------- */
+function tokenize(src) {
+  const out = []; let i = 0;
+  while (i < src.length) {
+    const c = src[i];
+    if (/\s/.test(c)) { i++; continue; }
+    if ('[]<>'.includes(c)) { out.push(c); i++; continue; }
+    if (c === '*' || c === '!') { const m = /^[*!](\d+(?:\.\d+)?)/.exec(src.slice(i)); if (!m) throw new Error(`"${c}" needs a number after it`); out.push(c + m[1]); i += m[0].length; continue; }
+    const m = /^[^\s\[\]<>*!]+/.exec(src.slice(i)); out.push(m[0]); i += m[0].length;
+  }
+  return out;
+}
+function parseMini(src) {
+  const t = tokenize(src); let p = 0;
+  function seq(end) {
+    const items = [];
+    while (p < t.length && t[p] !== end) {
+      let node;
+      const tk = t[p++];
+      if (tk === '[') { node = { type: 'seq', items: seq(']') }; if (t[p++] !== ']') throw new Error('missing ]'); }
+      else if (tk === '<') { node = { type: 'alt', items: seq('>') }; if (t[p++] !== '>') throw new Error('missing >'); }
+      else if (tk === ']' || tk === '>') throw new Error(`unexpected ${tk}`);
+      else if (tk[0] === '*' || tk[0] === '!') throw new Error(`"${tk[0]}" needs something before it`);
+      else node = tk === '~' ? { type: 'rest' } : { type: 'atom', v: tk };
+      while (p < t.length && (t[p][0] === '*' || t[p][0] === '!')) {
+        const mod = t[p++], n = parseFloat(mod.slice(1));
+        if (mod[0] === '*') node = { type: 'fast', n, node };
+        else for (let k = 1; k < n; k++) items.push(node);
+      }
+      items.push(node);
+    }
+    return items;
+  }
+  const items = seq(null);
+  if (p < t.length) throw new Error(`unexpected ${t[p]}`);
+  return { type: 'seq', items };
+}
+function evalNode(node, cycle, start, dur, out) {
+  switch (node.type) {
+    case 'atom': out.push({ start, dur, v: node.v }); break;
+    case 'rest': break;
+    case 'seq': { const n = node.items.length; node.items.forEach((it, i) => evalNode(it, cycle, start + i * dur / n, dur / n, out)); break; }
+    case 'alt': { const n = node.items.length; if (n) evalNode(node.items[((cycle % n) + n) % n], Math.floor(cycle / n), start, dur, out); break; }
+    case 'fast': { const n = Math.max(1, Math.round(node.n)); for (let k = 0; k < n; k++) evalNode(node.node, cycle * n + k, start + k * dur / n, dur / n, out); break; }
+  }
+}
+
+/* ---------- pitches ---------- */
+const PC = { c: 0, d: 2, e: 4, f: 5, g: 7, a: 9, b: 11 };
+function noteToMidi(v) {
+  if (/^-?\d+(\.\d+)?$/.test(v)) return +v;
+  const m = /^([a-g])(#|s|b)?(-?\d)?$/i.exec(v); if (!m) throw new Error(`"${v}" isn't a note name (try c3, eb2, f#4)`);
+  let pc = PC[m[1].toLowerCase()]; if (m[2] === '#' || m[2] === 's') pc++; if (m[2] === 'b') pc--;
+  return (parseInt(m[3] ?? '3', 10) + 1) * 12 + pc;
+}
+const QUAL = { '': [0, 4, 7], 'maj': [0, 4, 7], 'm': [0, 3, 7], 'min': [0, 3, 7], '7': [0, 4, 7, 10], 'maj7': [0, 4, 7, 11], 'm7': [0, 3, 7, 10], 'dim': [0, 3, 6], 'sus2': [0, 2, 7], 'sus4': [0, 5, 7], 'add9': [0, 4, 7, 14] };
+function chordToMidis(v) {
+  const m = /^([A-Ga-g])(#|b)?(.*)$/.exec(v); if (!m) throw new Error(`"${v}" isn't a chord (try Cm, Ab, F#7)`);
+  const q = QUAL[m[3]]; if (!q) throw new Error(`"${v}": unknown chord type "${m[3]}"`);
+  let pc = PC[m[1].toLowerCase()] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0);
+  let root = 48 + ((pc % 12) + 12) % 12; if (root > 55) root -= 12;   // keep voicings around middle C
+  return q.map(i => root + i + 12);
+}
+const NAMES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+const midiName = m => NAMES[((Math.round(m) % 12) + 12) % 12] + (Math.floor(Math.round(m) / 12) - 1);
+
+/* ---------- line parser ---------- */
+const DRUMS = ['bd', 'sd', 'cp', 'hh', 'oh', 'rim'];
+const WAVES = ['saw', 'sawtooth', 'square', 'tri', 'triangle', 'sine', 'supersaw'];
+function parseCode(code) {
+  const tracks = [], errors = [];
+  code.split('\n').forEach((raw, li) => {
+    const line = raw.replace(/\/\/.*$/, '').trim(); if (!line) return;
+    try {
+      const m = /^([\w-]+)\s*:\s*(.+)$/.exec(line); if (!m) throw new Error('write it as  name: s("bd*4")');
+      const calls = [...m[2].matchAll(/\.?\s*(\w+)\(\s*(?:"([^"]*)"|'([^']*)'|(-?[\d.]+))\s*\)/g)];
+      if (!calls.length) throw new Error('no pattern found, e.g. s("bd*4")');
+      const [first, ...rest] = calls, kind = first[1], text = first[2] ?? first[3];
+      if (!['s', 'sound', 'note', 'n', 'chord'].includes(kind) || text == null) throw new Error(`start with s("…"), note("…") or chord("…")`);
+      const tr = { name: m[1], kind: kind === 'sound' ? 's' : kind === 'n' ? 'note' : kind, ast: parseMini(text), gain: 1, lpf: 0, room: 0, wave: kind === 'chord' ? 'supersaw' : 'saw' };
+      for (const c of rest) {
+        const arg = c[2] ?? c[3] ?? c[4];
+        if (c[1] === 'gain') tr.gain = Math.max(0, Math.min(2, +arg));
+        else if (c[1] === 'lpf') tr.lpf = Math.max(40, Math.min(18000, +arg));
+        else if (c[1] === 'room') tr.room = Math.max(0, Math.min(1, +arg));
+        else if (c[1] === 's' && tr.kind !== 's') { if (!WAVES.includes(arg)) throw new Error(`.s("${arg}"): use ${WAVES.filter(w => !w.endsWith('tooth') && w !== 'triangle').join(', ')}`); tr.wave = arg; }
+        else throw new Error(`.${c[1]}() isn't supported here`);
+      }
+      // validate atoms once against two cycles
+      for (let cy = 0; cy < 4; cy++) { const ev = []; evalNode(tr.ast, cy, 0, 1, ev); ev.forEach(e => {
+        if (tr.kind === 's' && !DRUMS.includes(e.v)) throw new Error(`"${e.v}" isn't a drum (use ${DRUMS.join(', ')})`);
+        if (tr.kind === 'note') noteToMidi(e.v); if (tr.kind === 'chord') chordToMidis(e.v); }); }
+      tracks.push(tr);
+    } catch (e) { errors.push(`line ${li + 1}: ${e.message}`); }
+  });
+  return { tracks, errors };
+}
+
+/* ---------- audio ---------- */
+let ac = null, out, verb, noiseBuf;
+function initAudio() {
+  ac = new (window.AudioContext || window.webkitAudioContext)();
+  const comp = ac.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4;
+  out = ac.createGain(); out.gain.value = .8; out.connect(comp); comp.connect(ac.destination);
+  noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  const ir = ac.createBuffer(2, ac.sampleRate * 2.2, ac.sampleRate);
+  for (let c = 0; c < 2; c++) { const x = ir.getChannelData(c); for (let i = 0; i < x.length; i++) x[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / x.length, 3); }
+  verb = ac.createConvolver(); verb.buffer = ir; const vg = ac.createGain(); vg.gain.value = .5; verb.connect(vg); vg.connect(out);
+}
+function voiceOut(tr) {
+  const g = ac.createGain(); g.gain.value = tr.gain; g.connect(out);
+  if (tr.room > 0) { const s = ac.createGain(); s.gain.value = tr.room; g.connect(s); s.connect(verb); }
+  return g;
+}
+function noise(t, dur, type, freq, q, peak, dest) {
+  const src = ac.createBufferSource(); src.buffer = noiseBuf;
+  const f = ac.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+  const g = ac.createGain(); g.gain.setValueAtTime(peak, t); g.gain.exponentialRampToValueAtTime(.001, t + dur);
+  src.connect(f); f.connect(g); g.connect(dest); src.start(t); src.stop(t + dur + .02);
+}
+function drum(v, t, dest) {
+  if (v === 'bd') {
+    const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine';
+    o.frequency.setValueAtTime(155, t); o.frequency.exponentialRampToValueAtTime(42, t + .14);
+    g.gain.setValueAtTime(1, t); g.gain.exponentialRampToValueAtTime(.001, t + .42);
+    o.connect(g); g.connect(dest); o.start(t); o.stop(t + .45);
+    noise(t, .015, 'highpass', 3000, .7, .25, dest);
+  } else if (v === 'cp') {
+    for (let k = 0; k < 3; k++) noise(t + k * .011, .03, 'bandpass', 1400, 1.4, .8, dest);
+    noise(t + .033, .2, 'bandpass', 1300, 1.1, .5, dest);
+  } else if (v === 'sd') {
+    noise(t, .18, 'bandpass', 1900, .9, .7, dest);
+    const o = ac.createOscillator(), g = ac.createGain(); o.type = 'triangle'; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(140, t + .08);
+    g.gain.setValueAtTime(.5, t); g.gain.exponentialRampToValueAtTime(.001, t + .12); o.connect(g); g.connect(dest); o.start(t); o.stop(t + .14);
+  } else if (v === 'hh') noise(t, .045, 'highpass', 7600, .6, .5, dest);
+  else if (v === 'oh') noise(t, .32, 'highpass', 6800, .6, .4, dest);
+  else if (v === 'rim') {
+    const o = ac.createOscillator(), g = ac.createGain(); o.type = 'square'; o.frequency.value = 820;
+    g.gain.setValueAtTime(.35, t); g.gain.exponentialRampToValueAtTime(.001, t + .05); o.connect(g); g.connect(dest); o.start(t); o.stop(t + .06);
+  }
+}
+function tone(midis, t, dur, tr, dest) {
+  const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = tr.lpf || 6000; f.Q.value = 2;
+  const g = ac.createGain(), peak = .32 / Math.sqrt(midis.length), len = Math.max(.08, dur * .95);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + .006);
+  g.gain.setTargetAtTime(peak * .55, t + .01, .08); g.gain.setTargetAtTime(0, t + len, .04);
+  f.connect(g); g.connect(dest);
+  const type = { saw: 'sawtooth', sawtooth: 'sawtooth', supersaw: 'sawtooth', square: 'square', tri: 'triangle', triangle: 'triangle', sine: 'sine' }[tr.wave];
+  const detunes = tr.wave === 'supersaw' ? [-14, 0, 14] : [0];
+  midis.forEach(m => detunes.forEach(dt => {
+    const o = ac.createOscillator(); o.type = type; o.frequency.value = 440 * Math.pow(2, (m - 69) / 12); o.detune.value = dt;
+    const og = ac.createGain(); og.gain.value = 1 / detunes.length; o.connect(og); og.connect(f); o.start(t); o.stop(t + len + .3);
+  }));
+}
+
+/* ---------- scheduler ---------- */
+let tracks = [], bpm = 124, playing = false, t0 = 0, scheduledUntil = 0, timer = null;
+const cps = () => bpm / 60 / 4;          // one cycle = one 4-beat bar
+const visualQ = [];
+function cycleEvents(tr, cy) { const ev = []; evalNode(tr.ast, cy, 0, 1, ev); return ev; }
+function schedule() {
+  const ahead = ac.currentTime + .12;
+  const fromC = (scheduledUntil - t0) * cps(), toC = (ahead - t0) * cps();
+  for (const tr of tracks) {
+    for (let cy = Math.floor(fromC); cy <= Math.floor(toC); cy++) {
+      for (const e of cycleEvents(tr, cy)) {
+        const pos = cy + e.start; if (pos < fromC || pos >= toC) continue;
+        const t = t0 + pos / cps(), dur = e.dur / cps(), dest = voiceOut(tr);
+        if (tr.kind === 's') drum(e.v, t, dest);
+        else { const ms = tr.kind === 'chord' ? chordToMidis(e.v) : [noteToMidi(e.v)]; tone(ms, t, dur, tr, dest); }
+        visualQ.push({ t, tr, e, cy });
+      }
+    }
+  }
+  scheduledUntil = ahead;
+}
+function start() {
+  if (!ac) initAudio();
+  ac.resume();
+  t0 = ac.currentTime + .06; scheduledUntil = t0; playing = true;
+  timer = setInterval(schedule, 25); schedule();
+  $('play').setAttribute('aria-pressed', 'true'); $('play').textContent = '■ stop';
+}
+function stop() {
+  playing = false; clearInterval(timer); visualQ.length = 0;
+  $('play').setAttribute('aria-pressed', 'false'); $('play').textContent = '▶ play';
+}
+$('play').addEventListener('click', () => playing ? stop() : start());
+
+/* ---------- editor ---------- */
+const code = $('code');
+function apply() {
+  const r = parseCode(code.value);
+  $('err').textContent = r.errors.join('\n');
+  tracks = r.tracks; buildSteps();
+}
+$('update').addEventListener('click', apply);
+code.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); apply(); }
+  if (e.key === 'Tab') { e.preventDefault(); const s = code.selectionStart; code.setRangeText('  ', s, code.selectionEnd, 'end'); }
+});
+$('preset').addEventListener('change', e => { code.value = PRESETS[e.target.value]; apply(); });
+$('bpm').addEventListener('input', e => {
+  const nb = +e.target.value;
+  if (playing) { const now = ac.currentTime, pos = (now - t0) * cps(); bpm = nb; t0 = now - pos / cps(); scheduledUntil = now; }
+  else bpm = nb;
+  $('bpmOut').textContent = nb;
+});
+
+/* ---------- step grid ---------- */
+const TRACK_COLORS = ['--pink', '--cyan', '--lime', '--lilac'];
+let cells = [];
+function buildSteps() {
+  const box = $('steps'); box.innerHTML = ''; cells = [];
+  const ruler = document.createElement('div'); ruler.className = 'ruler'; ruler.innerHTML = '<span></span><span>1</span><span>2</span><span>3</span><span>4</span>'; box.appendChild(ruler);
+  tracks.forEach((tr, i) => {
+    const row = document.createElement('div'); row.className = 'row';
+    row.style.setProperty('--c', `var(${TRACK_COLORS[i % 4]})`);
+    row.innerHTML = `<span class="name">${tr.name.replace(/[<>&]/g, '')}</span>` + '<span class="cell"></span>'.repeat(16);
+    box.appendChild(row); cells.push([...row.querySelectorAll('.cell')]);
+  });
+  lastGridCycle = -1;
+}
+let lastGridCycle = -1, lastStep = -1;
+function paintGrid(cy, step) {
+  if (cy !== lastGridCycle) {
+    tracks.forEach((tr, i) => { const on = new Set(cycleEvents(tr, cy).map(e => Math.min(15, Math.floor(e.start * 16 + 1e-6)))); cells[i]?.forEach((c, k) => c.classList.toggle('on', on.has(k))); });
+    lastGridCycle = cy;
+  }
+  if (step !== lastStep) { cells.forEach(r => r.forEach((c, k) => c.classList.toggle('head', k === step))); lastStep = step; }
+}
+
+/* ---------- cymatic sand ---------- */
+const cv = $('field'), cx = cv.getContext('2d');
+let W = 0, H = 0, DPR = 1;
+function size() { DPR = Math.min(2, devicePixelRatio || 1); const r = cv.getBoundingClientRect(); W = Math.max(1, Math.round(r.width * DPR)); H = Math.max(1, Math.round(r.height * DPR)); cv.width = W; cv.height = H; }
+new ResizeObserver(size).observe(cv); size();
+const PAIRS = []; for (let n = 1; n <= 9; n++) for (let m = n + 1; m <= 10; m++) PAIRS.push([n, m]);
+PAIRS.sort((a, b) => (a[0] ** 2 + a[1] ** 2) - (b[0] ** 2 + b[1] ** 2));
+let pa = PAIRS[3], pb = PAIRS[3], blend = 1, shake = 0, glow = 0, hue = 0;
+const chl = (u, v, n, m) => (Math.cos(n * Math.PI * u) * Math.cos(m * Math.PI * v) - Math.cos(m * Math.PI * u) * Math.cos(n * Math.PI * v)) * .5;
+function field(x, y) { const u = (x + 1) / 2, v = (y + 1) / 2, e = blend * blend * (3 - 2 * blend); return chl(u, v, pa[0], pa[1]) * e + chl(u, v, pb[0], pb[1]) * (1 - e); }
+function setPitch(midi) { const idx = Math.max(0, Math.min(PAIRS.length - 1, Math.round((midi - 28) / 60 * (PAIRS.length - 1)))); if (PAIRS[idx] !== pa) { pb = pa; pa = PAIRS[idx]; blend = 0; } }
+const N = 2600, px = new Float32Array(N), py = new Float32Array(N);
+for (let i = 0; i < N; i++) { px[i] = Math.random() * 2 - 1; py[i] = Math.random() * 2 - 1; }
+const G = 120, off = document.createElement('canvas'); off.width = off.height = G; const og = off.getContext('2d'), img = og.createImageData(G, G);
+const COLS = { bd: [255, 122, 200], sd: [111, 243, 255], cp: [111, 243, 255], hh: [216, 255, 62], oh: [216, 255, 62], rim: [185, 166, 255] };
+let tint = [185, 166, 255];
+function draw() {
+  blend = Math.min(1, blend + .04);
+  const d = img.data;
+  for (let j = 0; j < G; j++) for (let i = 0; i < G; i++) {
+    const a = Math.abs(field(i / (G - 1) * 2 - 1, j / (G - 1) * 2 - 1)), n = Math.exp(-a * 26) * (.35 + glow * .9), o = (j * G + i) * 4;
+    d[o] = tint[0] * n * .7; d[o + 1] = tint[1] * n * .7; d[o + 2] = tint[2] * n * .8; d[o + 3] = 255;
+  }
+  og.putImageData(img, 0, 0); cx.imageSmoothingEnabled = true; cx.drawImage(off, 0, 0, W, H);
+  const e = .006, amp = .004 + shake * .05;
+  for (let i = 0; i < N; i++) {
+    let x = px[i], y = py[i]; const a = Math.abs(field(x, y));
+    const gx = (Math.abs(field(x + e, y)) - Math.abs(field(x - e, y))) / (2 * e), gy = (Math.abs(field(x, y + e)) - Math.abs(field(x, y - e))) / (2 * e);
+    x -= gx * .0016 + (Math.random() - .5) * amp * (a + .15); y -= gy * .0016 + (Math.random() - .5) * amp * (a + .15);
+    if (x < -1 || x > 1 || y < -1 || y > 1) { x = Math.random() * 2 - 1; y = Math.random() * 2 - 1; }
+    px[i] = x; py[i] = y;
+  }
+  cx.fillStyle = '#fff3fb'; const s = Math.max(1, DPR * 1.15), hw = W / 2, hh = H / 2;
+  for (let i = 0; i < N; i++) cx.fillRect(hw + px[i] * hw - s / 2, hh + py[i] * hh - s / 2, s, s);
+  shake *= .86; glow *= .9;
+}
+
+/* ---------- frame loop: fire visuals in time with the audio ---------- */
+function frame() {
+  if (playing && ac) {
+    const now = ac.currentTime;
+    while (visualQ.length && visualQ[0].t <= now) {
+      const { tr, e } = visualQ.shift();
+      if (tr.kind === 's') { if (e.v === 'bd') shake = Math.min(1.4, shake + (calm ? .3 : 1)); glow = Math.min(1, glow + .5); tint = COLS[e.v] || tint; }
+      else if (tr.kind === 'note') { const m = noteToMidi(e.v); setPitch(m); $('noteOut').textContent = midiName(m); }
+      else { const ms = chordToMidis(e.v); setPitch(ms[0] + 12); $('chordOut').textContent = e.v; }
+    }
+    const pos = Math.max(0, (now - t0) * cps()), cy = Math.floor(pos), step = Math.floor((pos - cy) * 16);
+    $('bar').textContent = cy + 1; $('step').textContent = step + 1; paintGrid(cy, step);
+  } else paintGrid(0, -1);
+  draw();
+  requestAnimationFrame(frame);
+}
+
+code.value = PRESETS.toast; apply();
+addEventListener('keydown', e => { if (e.key === 'Escape' && parent !== window) parent.postMessage('pocket:close', '*'); });
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

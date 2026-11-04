@@ -45,6 +45,11 @@
     border: 1px solid transparent;
   }
   .tabs a:hover { color: var(--ink); }
+  .tabs .live { font: inherit; font-size: 12px; letter-spacing: 0.16em; padding: 6px 14px; border-radius: 999px; cursor: pointer;
+    color: var(--ink); background: transparent; border: 1px solid var(--line); }
+  .tabs .live:hover { border-color: var(--pink); }
+  .tabs .live:focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; }
+
   .tabs a[aria-current="page"] { color: var(--bg); background: var(--pink); }
   .tabs a:focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; }
 
@@ -168,6 +173,7 @@
   <a href="studio.html">STUDIO</a>
   <a href="lab/index.html">LAB</a>
   <a href="works/index.html">WORKS</a>
+  <button type="button" class="live" data-pocket>♪ LIVE</button>
 </nav>
 
 <main>
@@ -301,6 +307,18 @@
           <g class="tag"><rect x="356" y="410" width="120" height="30" rx="15"/><text x="416" y="430" text-anchor="middle">KAPS</text></g>
         </a>
 
+        <!-- cassette → live field pocket -->
+        <g class="hot" data-pocket role="button" tabindex="0" aria-label="Cassette: open the live field">
+          <title>live field</title>
+          <g class="lift">
+            <rect class="ring" x="614" y="476" width="58" height="38" rx="5" fill="#b9a6ff"/>
+            <rect x="621" y="482" width="44" height="16" rx="3" fill="#f6ede2"/>
+            <circle cx="633" cy="490" r="4.5" fill="#2a1f33"/><circle cx="653" cy="490" r="4.5" fill="#2a1f33"/>
+            <rect x="629" y="503" width="28" height="7" rx="2" fill="#7a63c9"/>
+          </g>
+          <g class="tag"><rect x="583" y="436" width="120" height="30" rx="15"/><text x="643" y="456" text-anchor="middle">LIVE ♪</text></g>
+        </g>
+
         <!-- mug → café -->
         <a class="hot" href="#cafe" aria-label="Mug: café notes">
           <title>café</title>
@@ -334,6 +352,7 @@
 
     <ul class="drawer" aria-label="Sections">
       <li><a href="studio.html">studio</a></li>
+      <li><a href="#" data-pocket>live field ♪</a></li>
       <li><a href="lab/index.html">resin lab</a></li>
       <li><a href="wall/index.html">graffiti wall</a></li>
       <li><a href="shop/index.html">shop</a></li>
@@ -342,7 +361,7 @@
       <li><a href="#cafe">café</a></li>
       <li><a href="#play">play</a></li>
     </ul>
-    <p class="hint">Everything on the desk opens something. The neon changes its face, and the candle turns the lamp on or off.</p>
+    <p class="hint">Everything on the desk opens something. The cassette opens a little live field where you type a beat. The neon changes its face, and the candle turns the lamp on or off.</p>
   </div>
 
   <section id="rooms">
@@ -491,5 +510,6 @@
   g.addEventListener('input', brew); r.addEventListener('input', brew); brew();
 })();
 </script>
+<script src="pocket/pocket.js"></script>
 </body>
 </html>
