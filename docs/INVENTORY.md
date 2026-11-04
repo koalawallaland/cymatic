@@ -17,6 +17,10 @@ The real photos were removed from the site. Katie only wants photos that show he
 
 `cymatics-sim` is empty apart from its README, so there was nothing to bring in.
 
+Ported from `main` (the live plain-HTML site): the LIVE beat pocket (`public/pocket/`), the cross-stitch sampler, the desk page with its rooms, the kaomoji and traditional-character neon, and the original lab window. The eight photos on `main` were left out; only photos Katie confirms show her desk should return.
+
+Her lamps are drawn on the home page from the images she shared with ChatGPT. Which one is the CB2 Ada and which the Pottery Barn Delilah isn't confirmed.
+
 ## Overlaps still to decide
 
 - Two keyboards exist: the home page board (HHKB, pull-apart, swiping paw, drives the cymatic field) and the lab's room (Topre and MX layouts, sets, sound).
