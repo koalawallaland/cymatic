@@ -140,6 +140,7 @@ const ARTISANS: Artisan[] = [
   @keyframes bap { 20% { transform: translate(-3px,-5px) rotate(-11deg); } 55% { transform: translate(3px,-2px) rotate(8deg); } }
 
   @media (prefers-reduced-motion: reduce) { .cap { transition: none; } .cap.nope, .cap.bapped, .socket.bapped, .win, .win-body::after { animation: none; } }
+  @media (max-width: 560px) { .win-body { height: 74px !important; min-height: 0 !important; } .win { right: 8px; bottom: 8px; width: min(240px, calc(100vw - 16px)); } }
 </style>
 
 <script>
