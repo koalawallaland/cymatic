@@ -1,0 +1,458 @@
+---
+/**
+ * An HHKB-layout board with removable caps. Drag a cap off, drop it in the tray
+ * or onto another key to swap. Caps only fit sockets of the same width, like the
+ * real thing. Clicking a key or using a real keyboard types into the pop-up window.
+ * Keys type by position, as on a real board, so a swapped cap keeps its socket's letter.
+ * "Tap to rearrange" gives a no-drag way to move caps. Every so often a paw reaches in
+ * and swipes a random cap off the board.
+ *
+ * To add a real KeyKollectiv cap, add a line to ARTISANS with an `img` path
+ * (a square photo in /public).
+ */
+interface Artisan { id: string; label: string; css?: string; img?: string; }
+
+const ROWS: [string, number][][] = [
+  [['Esc',1],['1',1],['2',1],['3',1],['4',1],['5',1],['6',1],['7',1],['8',1],['9',1],['0',1],['-',1],['=',1],['\\',1],['`',1]],
+  [['Tab',1.5],['Q',1],['W',1],['E',1],['R',1],['T',1],['Y',1],['U',1],['I',1],['O',1],['P',1],['[',1],[']',1],['Del',1.5]],
+  [['Ctrl',1.75],['A',1],['S',1],['D',1],['F',1],['G',1],['H',1],['J',1],['K',1],['L',1],[';',1],["'",1],['Return',2.25]],
+  [['Shift',2.25],['Z',1],['X',1],['C',1],['V',1],['B',1],['N',1],['M',1],[',',1],['.',1],['/',1],['Shift',1.75],['Fn',1]],
+  [['',1.5],['Alt',1],['◇',1.5],['',7],['◇',1.5],['Alt',1],['',1.5]],
+];
+const CODES: Record<string, string> = { Esc:'Escape', '-':'Minus', '=':'Equal', '\\':'Backslash', '`':'Backquote', Tab:'Tab', '[':'BracketLeft', ']':'BracketRight', Del:'Backspace', Ctrl:'ControlLeft', ';':'Semicolon', "'":'Quote', Return:'Enter', ',':'Comma', '.':'Period', '/':'Slash', Fn:'Fn', '':'Space' };
+function codeOf(label: string, r: number, i: number) {
+  if (/^[A-Z]$/.test(label)) return 'Key' + label;
+  if (/^[0-9]$/.test(label)) return 'Digit' + label;
+  if (label === 'Shift') return i === 0 ? 'ShiftLeft' : 'ShiftRight';
+  if (label === 'Alt') return i < 3 ? 'AltLeft' : 'AltRight';
+  if (label === '◇') return i < 3 ? 'MetaLeft' : 'MetaRight';
+  return CODES[label] ?? label;
+}
+const MODS = new Set(['Esc','Tab','Del','Ctrl','Return','Shift','Fn','Alt','◇']);
+const ARTISANS: Artisan[] = [
+  { id: 'plum', label: 'plum swirl resin', css: 'radial-gradient(circle at 30% 25%, #e4a9bd, #6e3a56 55%, #3f2238)' },
+  { id: 'blush', label: 'blush pearl resin', css: 'linear-gradient(135deg, #fbf4ea, #f0cdd6 45%, #e4a9bd)' },
+  { id: 'film', label: 'soap film resin', css: 'conic-gradient(from 40deg, #7fe7ff, #ffb1e1, #fff0a8, #a7ffcf, #b6a8ff, #7fe7ff)' },
+  { id: 'night', label: 'night glitter resin', css: 'radial-gradient(circle at 25% 30%, #fff 0 1px, transparent 2px), radial-gradient(circle at 68% 60%, #ffd6ec 0 1px, transparent 2px), radial-gradient(circle at 45% 78%, #fff 0 1px, transparent 2px), linear-gradient(160deg, #26142a, #1a2150)' },
+  { id: 'cream', label: 'cream marble resin', css: 'repeating-linear-gradient(118deg, #f6ede2 0 7px, #e9d7c6 8px 10px, #f6ede2 11px 19px)' },
+  { id: 'lime', label: 'cat eye resin', css: 'radial-gradient(ellipse 18% 42% at 50% 50%, #111 95%, transparent), radial-gradient(circle at 50% 50%, #d7ff5e, #7fb50f 70%)' },
+];
+---
+<keycap-board class="kb">
+  <div class="inner">
+    <div class="scroll"><div class="board" role="group" aria-label="Keyboard. Pick up a keycap and place it on another key or in the tray.">
+      {ROWS.map((row, r) => (
+        <div class="row">
+          {row.map(([label, w], i) => label === '' && w === 1.5 ? (
+            <div class="gap" style={`--w:${w}`}></div>
+          ) : (
+            <div class="socket" style={`--w:${w}`} data-w={w} data-code={codeOf(label, r, i)} data-label={label}>
+              <button type="button" class:list={['cap', { mod: MODS.has(label) }]} style={`--w:${w}`} data-w={w} aria-label={label ? `${label} keycap` : 'Space bar keycap'}>
+                <span class="top">{label}</span>
+              </button>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div></div>
+    <div class="tray" data-tray aria-label="Keycap tray">
+      {ARTISANS.map((a) => (
+        <button type="button" class="cap artisan" style={`--w:1`} data-w="1" aria-label={`${a.label} keycap`}>
+          <span class="top" style={a.img ? `background-image:url(${a.img});background-size:cover` : `background:${a.css}`}></span>
+        </button>
+      ))}
+    </div>
+    <div class="bar">
+      <p class="status" data-status aria-live="polite">Type on the board or your keyboard. Pull caps off to swap them.</p>
+      <button type="button" class="mode" data-mode aria-pressed="false">tap to rearrange</button>
+    </div>
+    <section class="win" data-win hidden aria-label="Typing window">
+      <header class="win-title" data-win-title>
+        <span class="spark" aria-hidden="true">✦</span><span class="win-name">key_buffer.exe</span>
+        <button type="button" class="win-btn" data-clear aria-label="Clear text">clr</button>
+        <button type="button" class="win-btn" data-close aria-label="Close window">×</button>
+      </header>
+      <div class="win-body" data-output tabindex="0" aria-label="Typed text"></div>
+      <footer class="win-foot"><span data-count>0 chars</span></footer>
+    </section>
+    <div class="reach" data-paw hidden aria-hidden="true"><div class="arm"></div><img src="/cat-paw.webp" alt="" draggable="false" /></div>
+  </div>
+</keycap-board>
+
+<style>
+  .kb { display: block; container-type: inline-size; }
+  .inner { --u: calc(100cqw / 15.7); position: relative; }
+  .scroll, .tray, .bar { position: relative; z-index: 2; }
+  .board { padding: calc(var(--u) * .28); background: linear-gradient(#e7e4da, #cfccc1); border-radius: calc(var(--u) * .3); box-shadow: 0 calc(var(--u) * .3) calc(var(--u) * .8) -8px rgba(0,0,0,.7), inset 0 2px 0 rgba(255,255,255,.7); }
+  .row { display: flex; }
+  .gap, .socket { width: calc(var(--u) * var(--w)); height: var(--u); flex: none; }
+  .socket { position: relative; background: #3a3a40; box-shadow: inset 0 0 0 1px #222; border-radius: 2px; }
+  /* the switch underneath, visible once a cap comes off */
+  .socket::before, .socket::after { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #ff7ab8; border-radius: 1px; }
+  .socket::before { width: calc(var(--u) * .28); height: calc(var(--u) * .08); }
+  .socket::after { width: calc(var(--u) * .08); height: calc(var(--u) * .28); }
+  .socket.target { outline: 2px solid #ff7ab8; outline-offset: -2px; }
+
+  .cap { position: absolute; z-index: 1; inset: 0; width: calc(var(--u) * var(--w)); height: var(--u); padding: calc(var(--u) * .035); border: 0; background: transparent; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; transition: transform .14s cubic-bezier(.2,1.5,.5,1); }
+  .top { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: #55535a; background: linear-gradient(160deg, #f6f4ed, #dedbd0); font: 500 calc(var(--u) * .24)/1 var(--font-mono, monospace); border-radius: calc(var(--u) * .1); box-shadow: inset 0 calc(var(--u) * -.07) 0 rgba(0,0,0,.14), inset 0 calc(var(--u) * .03) 0 rgba(255,255,255,.75), 0 1px 2px rgba(0,0,0,.5); }
+  .mod .top { color: #f1f0ec; background: linear-gradient(160deg, #8d8e96, #6f7078); }
+  .artisan .top { box-shadow: inset 0 calc(var(--u) * -.07) 0 rgba(0,0,0,.22), inset 0 calc(var(--u) * .04) 0 rgba(255,255,255,.55), 0 1px 3px rgba(0,0,0,.6); }
+  .cap:hover { transform: translateY(-2px); }
+  .cap:focus-visible { outline: 2px solid #ff7ab8; outline-offset: 1px; border-radius: 4px; }
+  .cap.selected { transform: translateY(-5px); outline: 2px solid #ff7ab8; outline-offset: 1px; border-radius: 4px; }
+  .cap.dragging { position: fixed; inset: auto; z-index: 50; cursor: grabbing; pointer-events: none; transition: none; filter: drop-shadow(0 12px 10px rgba(0,0,0,.55)); }
+  .cap.nope { animation: nope .28s; }
+  @keyframes nope { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+
+  .cap.down { transform: translateY(2px) scale(.97); filter: brightness(.9); transition-duration: .03s; }
+  .socket.down { box-shadow: inset 0 0 0 2px #ff7ab8; }
+  .cap.tray-note { outline: 2px dashed #ff7ab8; }
+
+  .tray { display: flex; flex-wrap: wrap; gap: calc(var(--u) * .16); min-height: calc(var(--u) * 1.5); margin-top: 1rem; padding: calc(var(--u) * .24); border: 1px dashed var(--muted, #9c93ad); border-radius: calc(var(--u) * .25); }
+  .tray.target { border-color: #ff7ab8; }
+  .tray .cap { position: relative; inset: auto; }
+  .bar { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: center; justify-content: space-between; margin-top: .7rem; }
+  .mode { min-height: 36px; padding: 0 .8rem; color: var(--muted, #9c93ad); background: transparent; border: 1px solid var(--muted, #9c93ad); border-radius: 99px; font: .75rem var(--font-mono, monospace); cursor: pointer; }
+  .mode[aria-pressed='true'] { color: #16131b; background: #ff7ab8; border-color: #ff7ab8; }
+  .status { flex: 1 1 16rem; min-height: 1.6em; margin: 0; color: var(--muted, #9c93ad); font: .8rem/1.5 var(--font-mono, monospace); }
+
+  /* the pop-up: chunky silver bevels and a candy title bar */
+  .win { position: fixed; z-index: 40; color: #1d1830; background: linear-gradient(145deg, #eef0fb, #b9bedb); border: 2px solid; border-color: #fff #5d5f85 #5d5f85 #fff; border-radius: 10px 10px 4px 4px; box-shadow: 0 0 0 1px #2b2848, 5px 7px 0 rgba(255,122,184,.45), 0 16px 34px rgba(0,0,0,.55); font-family: var(--font-mono, monospace); }
+  .win { right: 20px; bottom: 20px; width: min(340px, calc(100vw - 32px)); animation: pop .22s cubic-bezier(.2,1.6,.4,1); }
+  @keyframes pop { from { transform: scale(.7) translateY(14px); opacity: 0; } }
+  .win[hidden] { display: none; }
+  .win-title { display: flex; align-items: center; gap: .4rem; padding: 4px 5px 4px 8px; color: #fff; background: linear-gradient(90deg, #ff7ab8, #a98bff 55%, #58d8f5); border-radius: 7px 7px 0 0; font-size: .78rem; font-weight: 700; text-shadow: 1px 1px 0 #4d2a7d; }
+  .win > .win-title { cursor: move; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .win-name { flex: 1; }
+  .win-btn { min-width: 30px; height: 26px; padding: 0 5px; color: #1d1830; background: linear-gradient(#fff, #c3c7e2); border: 1px solid; border-color: #fff #5d5f85 #5d5f85 #fff; border-radius: 3px; font: 700 .72rem var(--font-mono, monospace); cursor: pointer; }
+  .win-btn:active { border-color: #5d5f85 #fff #fff #5d5f85; }
+  .win-body { height: 150px; margin: 6px; padding: 8px; overflow-y: auto; color: #b9ffe6; background: #14102a; border: 2px solid; border-color: #5d5f85 #fff #fff #5d5f85; font-size: .85rem; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .win-body::after { content: '▮'; color: #ff7ab8; animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .win-foot { display: flex; justify-content: space-between; padding: 0 8px 5px; font-size: .68rem; }
+
+  /* a paw on a long furry arm, reaching down from above the board */
+  .reach { position: absolute; z-index: 3; left: 0; top: 0; width: clamp(40px, 8.5cqw, 66px); pointer-events: none; filter: drop-shadow(0 5px 4px rgba(0,0,0,.45)); }
+  .reach[hidden] { display: none; }
+  .reach img { position: relative; display: block; width: 100%; height: auto; }
+  .arm { position: absolute; left: 6%; right: 6%; bottom: 42%; height: clamp(150px, 34cqw, 240px); background: linear-gradient(90deg, #5d5e70, #8d8ea3 45%, #6f7083); border-radius: 46% 46% 30% 30%; -webkit-mask: linear-gradient(transparent, #000 70%); mask: linear-gradient(transparent, #000 70%); }
+  .cap.bapped, .socket.bapped { animation: bap .32s; }
+  @keyframes bap { 20% { transform: translate(-3px,-5px) rotate(-11deg); } 55% { transform: translate(3px,-2px) rotate(8deg); } }
+
+  /* a phone is too narrow for draggable keys at full size, so the board scrolls sideways */
+  @container (max-width: 560px) {
+    .inner { --u: 36px; }
+    .board { width: max-content; }
+    .scroll { overflow-x: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) { .cap { transition: none; } .cap.nope, .cap.bapped, .socket.bapped, .win, .win-body::after { animation: none; } }
+</style>
+
+<script>
+  class KeycapBoard extends HTMLElement {
+    held: HTMLElement | null = null;
+    selected: HTMLElement | null = null;
+    origin: HTMLElement | null = null;
+    start = { x: 0, y: 0 };
+    moved = false;
+    grab = { x: 0, y: 0 };
+    tray!: HTMLElement;
+    statusEl!: HTMLElement;
+    tapMode = false;
+    buf: string[] = [];
+    shift = false;
+    busy = false;
+    lastUse = 0;
+    pawTick = 0;
+    timers: number[] = [];
+    win!: HTMLElement;
+    out!: HTMLElement;
+    paw!: HTMLElement;
+    onKey = (e: KeyboardEvent) => this.keydown(e);
+
+    connectedCallback() {
+      this.tray = this.querySelector('[data-tray]')!;
+      this.statusEl = this.querySelector('[data-status]')!;
+      this.win = this.querySelector('[data-win]')!;
+      this.out = this.querySelector('[data-output]')!;
+      this.paw = this.querySelector('[data-paw]')!;
+      this.loadCastCaps();
+      this.querySelectorAll<HTMLElement>('.cap').forEach((c) => this.wire(c));
+      this.schedulePaw();
+      document.addEventListener('keydown', this.onKey);
+      this.querySelector('[data-close]')!.addEventListener('click', () => { this.win.hidden = true; });
+      this.querySelector('[data-clear]')!.addEventListener('click', () => { this.buf = []; this.paint(); });
+      this.dragWindow();
+      const mode = this.querySelector<HTMLElement>('[data-mode]')!;
+      mode.addEventListener('click', () => {
+        this.tapMode = !this.tapMode;
+        mode.setAttribute('aria-pressed', String(this.tapMode));
+        this.select(null);
+        this.say(this.tapMode ? 'Tap a cap, then tap where it should go.' : 'Back to typing.');
+      });
+      // clicks on the board: empty sockets still type; in rearrange mode they take the selected cap
+      this.querySelector('.inner')!.addEventListener('click', (e) => {
+        const t = e.target as HTMLElement;
+        if (t.closest('.cap, .win, .mode')) return;
+        if (!this.tapMode) {
+          const s = t.closest<HTMLElement>('.socket');
+          if (s) this.press(s);
+          return;
+        }
+        if (!this.selected) return;
+        const dest = t.closest<HTMLElement>('.socket, [data-tray]');
+        if (dest) { this.place(this.selected, dest); this.select(null); }
+      });
+    }
+
+    // caps cast in the resin lab arrive in the tray
+    loadCastCaps() {
+      let list: { name?: string; img?: string }[] = [];
+      try { list = JSON.parse(localStorage.getItem('kwl-caps') || '[]'); } catch { return; }
+      if (!Array.isArray(list)) return;
+      const fresh = list.filter((c) => typeof c?.img === 'string' && c.img.startsWith('data:image/'));
+      fresh.reverse().forEach((c) => {
+        // cloned so it keeps this component's scoped styling
+        const b = this.tray.querySelector('.cap')!.cloneNode(true) as HTMLElement;
+        b.setAttribute('aria-label', `${String(c.name || 'my pour').slice(0, 40)} keycap`);
+        b.querySelector<HTMLElement>('.top')!.style.background = `center / cover url("${c.img}")`;
+        this.tray.prepend(b);
+      });
+      if (fresh.length) this.say('Your cast caps from the lab are in the tray.');
+    }
+
+    say(s: string) { this.statusEl.textContent = s; }
+    name(c: HTMLElement) { return (c.getAttribute('aria-label') || 'keycap').replace(/ keycap$/, ''); }
+
+    select(c: HTMLElement | null) {
+      this.selected?.classList.remove('selected');
+      this.selected = c;
+      c?.classList.add('selected');
+      if (c) this.say(`${this.name(c)} picked up. Tap a key or the tray.`);
+    }
+
+    wire(cap: HTMLElement) {
+      cap.addEventListener('pointerdown', (e) => {
+        if (e.button) return;
+        this.held = cap;
+        this.moved = false;
+        this.start = { x: e.clientX, y: e.clientY };
+        const r = cap.getBoundingClientRect();
+        this.grab = { x: e.clientX - r.left, y: e.clientY - r.top };
+        cap.setPointerCapture(e.pointerId);
+      });
+      cap.addEventListener('pointermove', (e) => {
+        if (this.held !== cap) return;
+        if (!this.moved) {
+          if (Math.hypot(e.clientX - this.start.x, e.clientY - this.start.y) < 6) return;
+          this.moved = true;
+          this.select(null);
+          this.origin = cap.parentElement;
+          cap.classList.add('dragging');
+        }
+        cap.style.left = e.clientX - this.grab.x + 'px';
+        cap.style.top = e.clientY - this.grab.y + 'px';
+        this.mark(this.destAt(e.clientX, e.clientY));
+      });
+      const end = (e: PointerEvent) => {
+        if (this.held !== cap) return;
+        this.held = null;
+        if (!this.moved) return;
+        const dest = e.type === 'pointerup' ? this.destAt(e.clientX, e.clientY) : this.origin;
+        cap.classList.remove('dragging');
+        cap.style.left = cap.style.top = '';
+        this.mark(null);
+        // anywhere off the board counts as setting it down in the tray
+        this.place(cap, dest || this.tray);
+      };
+      cap.addEventListener('pointerup', end);
+      cap.addEventListener('pointercancel', end);
+      cap.addEventListener('click', (e) => {
+        if (this.moved) { this.moved = false; return; }
+        if (cap.closest('.win')) return;
+        if (!this.tapMode) {
+          const s = cap.closest<HTMLElement>('.socket');
+          if (s) this.press(s);
+          else this.say(`Drag ${this.name(cap)} onto the board to use it.`);
+          if ((e as MouseEvent).detail) cap.blur(); // keep later Space and Return presses from re-clicking it
+          return;
+        }
+        if (this.selected === cap) this.select(null);
+        else if (this.selected) { this.place(this.selected, cap.parentElement!); this.select(null); }
+        else this.select(cap);
+      });
+    }
+
+    disconnectedCallback() {
+      document.removeEventListener('keydown', this.onKey);
+      this.timers.forEach(clearTimeout);
+      clearTimeout(this.pawTick);
+    }
+
+    later(fn: () => void, ms: number) { this.timers.push(window.setTimeout(fn, ms)); }
+
+    keydown(e: KeyboardEvent) {
+      if (e.metaKey || e.ctrlKey || e.code === 'Tab') return;
+      const t = e.target as HTMLElement;
+      if (t.matches?.('input, textarea, select, [contenteditable]')) return;
+      this.lastUse = Date.now();
+      // Return or Space on a focused control (close, clear, mode...) keeps its normal meaning
+      if ((e.code === 'Enter' || e.code === 'Space') && t.closest?.('button') && !t.closest('.cap')) return;
+      const s = this.querySelector<HTMLElement>(`.socket[data-code="${e.code}"]`);
+      if (!s) return;
+      e.preventDefault();
+      if (e.repeat && e.key.length !== 1 && e.code !== 'Backspace') return;
+      this.flash(s);
+      if (e.key === 'Enter') this.input('\n');
+      else if (e.key === 'Backspace') this.backspace();
+      else if (e.key === 'Escape') { this.buf = []; this.paint(); }
+      else if (e.key.length === 1) this.input(e.key);
+    }
+
+    flash(s: HTMLElement) {
+      // tells anything else on the page (the cymatic field) which note this key plays
+      const i = [...this.querySelectorAll('.socket')].indexOf(s);
+      window.dispatchEvent(new CustomEvent('keytone', { detail: { freq: 110 * 2 ** ((i * 0.62) / 12) } }));
+      const cap = s.querySelector('.cap');
+      (cap || s).classList.add('down');
+      this.later(() => (cap || s).classList.remove('down'), 90);
+    }
+
+    // a key pressed on the board itself; what it types comes from the socket
+    press(s: HTMLElement) {
+      this.lastUse = Date.now();
+      this.flash(s);
+      const l = s.dataset.label!;
+      if (l === 'Shift') { this.shift = !this.shift; this.say(this.shift ? 'Shift is on for the next key.' : 'Shift is off.'); return; }
+      if (l === 'Del') return this.backspace();
+      if (l === 'Esc') { this.buf = []; this.paint(); return; }
+      if (l === 'Return') return this.input('\n');
+      if (l === 'Tab') return this.input('  ');
+      if (l === '') return this.input(' ');
+      if (l.length !== 1 || l === '◇') return;
+      const c = this.shift ? l : l.toLowerCase();
+      this.shift = false;
+      this.input(c);
+    }
+
+    input(c: string) {
+      this.buf.push(c);
+      this.paint();
+    }
+    backspace() { this.buf.pop(); this.paint(); }
+
+    paint() {
+      if (this.buf.length > 2000) this.buf.splice(0, this.buf.length - 2000);
+      this.win.hidden = false;
+      this.out.textContent = this.buf.join('');
+      this.out.scrollTop = this.out.scrollHeight;
+      this.querySelector('[data-count]')!.textContent = `${this.buf.length} chars`;
+    }
+
+    dragWindow() {
+      const bar = this.win.querySelector<HTMLElement>('[data-win-title]')!;
+      let off: { x: number; y: number } | null = null;
+      bar.addEventListener('pointerdown', (e) => {
+        if ((e.target as HTMLElement).closest('button')) return;
+        const r = this.win.getBoundingClientRect();
+        off = { x: e.clientX - r.left, y: e.clientY - r.top };
+        bar.setPointerCapture(e.pointerId);
+      });
+      bar.addEventListener('pointermove', (e) => {
+        if (!off) return;
+        const r = this.win.getBoundingClientRect();
+        this.win.style.left = Math.max(0, Math.min(innerWidth - r.width, e.clientX - off.x)) + 'px';
+        this.win.style.top = Math.max(0, Math.min(innerHeight - 40, e.clientY - off.y)) + 'px';
+        this.win.style.right = this.win.style.bottom = 'auto';
+      });
+      bar.addEventListener('pointerup', () => { off = null; });
+      bar.addEventListener('pointercancel', () => { off = null; });
+    }
+
+    // while someone is using the board, a paw turns up every 15-40 seconds
+    schedulePaw() {
+      clearTimeout(this.pawTick);
+      this.pawTick = window.setTimeout(() => {
+        const r = this.getBoundingClientRect();
+        const inUse = Date.now() - this.lastUse < 60000 && !document.hidden && r.bottom > 0 && r.top < innerHeight;
+        if (inUse && !this.held) this.swipeRandom();
+        this.schedulePaw();
+      }, 15000 + Math.random() * 25000);
+    }
+
+    swipeRandom() {
+      if (this.busy) return;
+      // leaves most of the board standing, and never takes the cap you've picked up
+      const filled = [...this.querySelectorAll<HTMLElement>('.socket')].filter((s) => {
+        const c = s.querySelector('.cap');
+        return c && c !== this.selected && s.dataset.w === '1';
+      });
+      if (filled.length < 30) return;
+      const s = filled[Math.floor(Math.random() * filled.length)];
+      this.busy = true;
+      const box = this.querySelector<HTMLElement>('.inner')!.getBoundingClientRect();
+      const t = s.getBoundingClientRect();
+      const tx = t.left + t.width / 2 - box.left;
+      const ty = t.top + t.height / 2 - box.top;
+      this.paw.hidden = false;
+      const pw = this.paw.offsetWidth, ph = this.paw.offsetHeight || pw;
+      const at = (x: number, y: number, r: number) => `translate(${x - pw / 2}px, ${y - ph / 2}px) rotate(${r}deg)`;
+      const dur = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 780;
+      const from = at(tx + 30, -ph - 30 - box.top, 8);
+      this.paw.animate(
+        [
+          { transform: from, offset: 0 },
+          { transform: at(tx - 18, ty - 10, 10), offset: .42 },
+          { transform: at(tx - 18, ty - 10, 10), offset: .5 },
+          { transform: at(tx + 22, ty + 2, -14), offset: .6 },
+          { transform: from, offset: 1 },
+        ],
+        { duration: dur, easing: 'ease-in-out' },
+      );
+      this.later(() => {
+        const cap = s.querySelector<HTMLElement>('.cap');
+        if (!cap || cap === this.held) return;
+        cap.classList.remove('bapped'); void cap.offsetWidth; cap.classList.add('bapped');
+        this.later(() => { cap.classList.remove('bapped'); this.tray.append(cap); this.say(`A paw swiped ${this.name(cap)} off the board.`); }, 170);
+      }, dur * .58);
+      this.later(() => { this.paw.hidden = true; this.busy = false; }, dur + 20);
+    }
+
+    destAt(x: number, y: number) {
+      const el = document.elementFromPoint(x, y);
+      return el?.closest<HTMLElement>('.socket, [data-tray]') || null;
+    }
+
+    mark(dest: HTMLElement | null) {
+      this.querySelectorAll('.target').forEach((n) => n.classList.remove('target'));
+      dest?.classList.add('target');
+    }
+
+    place(cap: HTMLElement, dest: HTMLElement) {
+      const from = cap.parentElement!;
+      this.lastUse = Date.now();
+      if (dest === from) return;
+      if (dest === this.tray) {
+        this.tray.append(cap);
+        this.say(`${this.name(cap)} is in the tray.`);
+        return;
+      }
+      if (dest.dataset.w !== cap.dataset.w) {
+        cap.classList.remove('nope');
+        void cap.offsetWidth;
+        cap.classList.add('nope');
+        this.say(`That ${cap.dataset.w}u cap doesn't fit a ${dest.dataset.w}u key.`);
+        return;
+      }
+      const occupant = dest.querySelector<HTMLElement>('.cap');
+      if (occupant) {
+        // swap when the two fit each other's spots, otherwise bump it to the tray
+        if (from === this.tray || from.dataset.w !== occupant.dataset.w) this.tray.append(occupant);
+        else from.append(occupant);
+      }
+      dest.append(cap);
+      this.say(occupant ? `Swapped ${this.name(cap)} with ${this.name(occupant)}.` : `${this.name(cap)} is on the board.`);
+    }
+  }
+  if (!customElements.get('keycap-board')) customElements.define('keycap-board', KeycapBoard);
+</script>

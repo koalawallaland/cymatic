@@ -1,0 +1,107 @@
+/* ---------------------------------------------------------------
+   Design tokens — change these five lines and the whole site follows.
+   --------------------------------------------------------------- */
+:root {
+  --bg: #16131b;        /* deep ink-violet, canvas work reads well on it */
+  --ink: #eae6f2;       /* soft off-white text */
+  --muted: #9c93ad;     /* metadata, captions */
+  --accent: #ff7ab8;    /* links, active states */
+  --line: #2c2637;      /* hairlines, borders */
+
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Atkinson Hyperlegible', system-ui, sans-serif;
+  --font-mono: 'Space Mono', monospace;
+
+  --measure: 42rem;     /* comfortable reading width */
+}
+
+* { box-sizing: border-box; }
+
+html {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-text-size-adjust: 100%;
+}
+
+body { margin: 0; }
+
+main {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 1rem 1.25rem 5rem;
+}
+
+/* Type */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+h1 { font-size: 2.1rem; margin: 0.5rem 0 0.25rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; }
+
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+code, .meta { font-family: var(--font-mono); font-size: 0.85em; }
+.meta { color: var(--muted); }
+
+img, video, canvas { max-width: 100%; height: auto; }
+
+hr { border: 0; border-top: 1px solid var(--line); margin: 3rem 0; }
+
+/* Post lists */
+ul.post-list { list-style: none; padding: 0; }
+ul.post-list li {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: baseline;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+}
+ul.post-list .meta { min-width: 6.5rem; }
+
+/* Header + nav */
+header.site {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 0;
+}
+header.site nav {
+  display: flex;
+  gap: 1.25rem;
+  align-items: baseline;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+header.site nav .home {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  margin-right: auto;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+/* Signature: ambient wavefield strip under the nav */
+#wavefield {
+  display: block;
+  width: 100%;
+  height: 56px;
+  margin-top: 0.9rem;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+footer.site {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 1.25rem 3rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}

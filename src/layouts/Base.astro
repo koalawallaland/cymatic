@@ -1,0 +1,90 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description = 'Blog and creative works in progress.' } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="/rss.xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Space+Mono&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="site">
+      <nav>
+        <a class="home" href="/">koalawallaland</a>
+        <a href="/blog/">blog</a>
+        <a href="/works/">experiments</a>
+        <a href="/rss.xml">rss</a>
+      </nav>
+      <canvas id="wavefield" aria-hidden="true"></canvas>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site">
+      <hr />
+      &copy; {new Date().getFullYear()} koalawallaland
+    </footer>
+
+    <script>
+      // Ambient two-source interference strip. Static frame if the
+      // visitor prefers reduced motion.
+      const c = document.getElementById('wavefield') as HTMLCanvasElement;
+      const ctx = c.getContext('2d')!;
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function size() {
+        c.width = c.clientWidth;
+        c.height = c.clientHeight;
+      }
+      size();
+      addEventListener('resize', size);
+
+      function draw(t: number) {
+        const { width: w, height: h } = c;
+        const img = ctx.createImageData(w, h);
+        const d = img.data;
+        const k = 0.19; // spatial frequency
+        for (let y = 0; y < h; y += 2) {
+          for (let x = 0; x < w; x += 2) {
+            const r1 = Math.hypot(x - w * 0.3, y - h * 0.5);
+            const r2 = Math.hypot(x - w * 0.7, y - h * 0.5);
+            const v = Math.sin(r1 * k - t) + Math.sin(r2 * k - t);
+            const a = Math.max(0, v) * 46; // only crests, faint
+            const i = (y * w + x) * 4;
+            d[i] = 255; d[i + 1] = 122; d[i + 2] = 184; d[i + 3] = a;
+          }
+        }
+        ctx.putImageData(img, 0, 0);
+      }
+
+      if (reduce) {
+        draw(0);
+      } else {
+        let t = 0;
+        (function loop() {
+          draw(t);
+          t += 0.05;
+          requestAnimationFrame(loop);
+        })();
+      }
+    </script>
+  </body>
+</html>

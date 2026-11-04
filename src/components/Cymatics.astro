@@ -1,0 +1,560 @@
+---
+/**
+ * The cymatic visualizer: one self-contained component. Markup, styles, audio
+ * analysis and all drawing code live in this file, so any page only needs:
+ *
+ *   <Cymatics />
+ *
+ * Props
+ *   modes    which views to offer. One view hides the selector entirely:
+ *            <Cymatics modes={['dome']} />
+ *   initial  which view opens first (defaults to the first in `modes`).
+ */
+type Mode = 'dome' | 'chladni' | 'interference' | 'radial' | 'fluid';
+
+interface Props {
+  modes?: Mode[];
+  initial?: Mode;
+}
+
+const { modes = ['dome', 'chladni', 'interference', 'radial', 'fluid'], initial } = Astro.props;
+const start = initial && modes.includes(initial) ? initial : modes[0];
+const bow = 'M50 30 C30 8, 4 8, 8 30 C4 52, 30 52, 50 30 Z M50 30 C70 8, 96 8, 92 30 C96 52, 70 52, 50 30 Z';
+---
+<cymatic-field class="cym" data-mode={start}>
+  <svg class="bow" viewBox="0 0 100 60" aria-hidden="true">
+    <path d={bow} fill="#e4a9bd" stroke="#6e3a56" stroke-width="1.4" />
+    <circle cx="50" cy="30" r="5" fill="#6e3a56" />
+    <path d="M48 33 C44 46, 40 52, 36 56 M52 33 C56 46, 60 52, 64 56" fill="none" stroke="#6e3a56" stroke-width="1.4" />
+  </svg>
+  <p class="subtitle">voice → geometry · coherence 0.976</p>
+
+  <div class="dish">
+    <svg class="corner tl" viewBox="0 0 100 60" aria-hidden="true">
+      <path d={bow} fill="#f0cdd6" stroke="#6e3a56" stroke-width="1.4" /><circle cx="50" cy="30" r="4.5" fill="#6e3a56" />
+    </svg>
+    <svg class="corner br" viewBox="0 0 100 60" aria-hidden="true">
+      <path d={bow} fill="#f0cdd6" stroke="#6e3a56" stroke-width="1.4" /><circle cx="50" cy="30" r="4.5" fill="#6e3a56" />
+    </svg>
+    <canvas data-el="canvas" width="512" height="512" role="img" aria-label="Cymatic pattern that responds to pitch and loudness"></canvas>
+    <div class="ring"></div><div class="ring r2"></div><div class="ring r3"></div>
+  </div>
+
+  <div class="note">
+    <div class="note-name" data-el="noteName"><span data-el="noteLetter">—</span><span class="oct" data-el="noteOct"></span></div>
+    <div class="note-sub" data-el="noteSub">sing to find a note</div>
+    <div class="tuner" aria-hidden="true">
+      <div class="tuner-track"></div><div class="tuner-center"></div><div class="tuner-dot" data-el="tunerDot"></div>
+    </div>
+  </div>
+
+  <div class="mic-row">
+    <button type="button" class="pill" data-el="micBtn" aria-pressed="false">♡ Live Voice</button>
+    <div class="status" data-el="status" aria-live="polite">microphone off — using sliders</div>
+  </div>
+
+  {modes.length > 1 && (
+    <div class="mode-row" role="group" aria-label="Pattern view">
+      {modes.map((m) => (
+        <button type="button" class:list={['mode-btn', { selected: m === start }]} data-view={m} aria-pressed={m === start ? 'true' : 'false'}>
+          {m === 'dome' ? 'soap film' : m}
+        </button>
+      ))}
+    </div>
+  )}
+
+  <div class="sliders">
+    <div class="slider-group">
+      <div class="slider-label">Input level <span data-el="lvlVal">—</span></div>
+      <div class="meter" aria-hidden="true"><div class="meter-fill" data-el="meterFill"></div><div class="meter-thresh" data-el="meterThresh"></div></div>
+    </div>
+    <label class="slider-group">
+      <div class="slider-label">Sensitivity <span data-el="sensVal">0.006</span></div>
+      <input type="range" data-el="sensSlider" min="1" max="60" value="6" step="1" />
+    </label>
+    <label class="slider-group">
+      <div class="slider-label">Frequency <span data-el="freqVal">220 Hz</span></div>
+      <input type="range" data-el="freqSlider" min="80" max="1400" value="220" step="1" />
+    </label>
+    <label class="slider-group">
+      <div class="slider-label">Coherence <span data-el="cohVal">0.976</span></div>
+      <input type="range" data-el="cohSlider" min="200" max="999" value="976" step="1" />
+    </label>
+  </div>
+
+  <div class="readout">
+    <div><div class="readout-label">register</div><div class="readout-value" data-el="regOut">middle</div></div>
+    <div><div class="readout-label">pattern</div><div class="readout-value" data-el="modeOut">—</div></div>
+    <div><div class="readout-label">symmetry</div><div class="readout-value" data-el="symOut">—</div></div>
+  </div>
+
+  <p class="foot">tap live voice · sustain a tone · slide up through your range</p>
+</cymatic-field>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital@0;1&display=swap');
+
+  .cym {
+    --cream: #f6ede2; --cream-2: #efe3d4; --blush: #e4a9bd; --blush-lt: #f0cdd6;
+    --plum: #6e3a56; --plum-dk: #3f2238; --ink: #2a1a26; --cym-line: rgba(110, 58, 86, 0.18);
+    display: block; position: relative; overflow: hidden; isolation: isolate;
+    padding: 1.2rem clamp(1rem, 4vw, 2rem) 1.6rem; border-radius: 18px;
+    background: radial-gradient(120% 90% at 50% -10%, #fbf4ea 0%, var(--cream) 45%, var(--cream-2) 100%);
+    color: var(--ink); font-family: 'Cormorant Garamond', Georgia, serif; line-height: 1.3;
+  }
+  /* grain */
+  .cym::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 5; opacity: 0.05; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .bow { display: block; width: 58px; margin: 0 auto; opacity: 0.85; }
+  .subtitle { margin: 0.35rem 0 3.2rem; text-align: center; font-style: italic; font-size: 1rem; letter-spacing: 0.14em; color: var(--plum); opacity: 0.75; }
+
+  /* leaves room for the outer rings at every width */
+  .dish { position: relative; width: min(100% - 84px, 440px); aspect-ratio: 1; margin: 0 auto 3.4rem; }
+  .dish canvas {
+    display: block; width: 100%; height: 100%; max-width: none; border-radius: 50%; background: var(--cream);
+    box-shadow: 0 0 0 1px rgba(110,58,86,.12), 0 18px 50px -18px rgba(63,34,56,.45), inset 0 0 60px rgba(246,237,226,.4);
+  }
+  .ring { position: absolute; inset: -14px; border-radius: 50%; border: 1px solid var(--cym-line); pointer-events: none; }
+  .ring.r2 { inset: -26px; border-color: rgba(110,58,86,.10); }
+  .ring.r3 { inset: -40px; border-color: rgba(110,58,86,.05); }
+  .corner { position: absolute; width: 46px; opacity: 0.8; pointer-events: none; z-index: 1; }
+  .corner.tl { top: -22px; left: -22px; transform: rotate(-18deg); }
+  .corner.br { bottom: -22px; right: -22px; transform: rotate(160deg); }
+
+  .note { text-align: center; margin-bottom: 1.5rem; }
+  .note-name { font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-weight: 500; font-size: 2.6rem; line-height: 1; color: var(--plum-dk); opacity: 0.4; transition: opacity .25s ease; }
+  .note-name.live { opacity: 1; }
+  .oct { font-size: 1.15rem; opacity: 0.55; vertical-align: super; margin-left: 1px; }
+  .note-sub { font-size: 0.95rem; font-style: italic; letter-spacing: 0.08em; color: var(--plum); margin-top: 0.35rem; min-height: 1.3em; }
+  .tuner { position: relative; width: 180px; height: 10px; margin: 0.65rem auto 0; }
+  .tuner-track { position: absolute; top: 4px; left: 0; right: 0; height: 2px; background: var(--cym-line); border-radius: 2px; }
+  .tuner-center { position: absolute; top: 0; left: 50%; width: 2px; height: 10px; background: var(--plum-dk); transform: translateX(-1px); opacity: .5; }
+  .tuner-dot { position: absolute; top: 0; left: 50%; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: linear-gradient(135deg, var(--blush), var(--plum)); opacity: 0; transition: left .12s ease, opacity .25s ease; }
+  .tuner-dot.live { opacity: 1; }
+
+  .mic-row, .mode-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; }
+  .mic-row { gap: .9rem; margin-bottom: 1rem; }
+  .mode-row { gap: .45rem; margin-bottom: 1.3rem; }
+  button { font-family: inherit; color: var(--plum-dk); background: transparent; cursor: pointer; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--plum); outline-offset: 3px; }
+  .pill { font-size: 1.1rem; letter-spacing: .08em; min-height: 44px; padding: .4rem 1.4rem; border-radius: 999px; border: 1px solid var(--plum); transition: background .3s ease; }
+  .pill:hover { background: var(--blush-lt); }
+  .pill.active { background: linear-gradient(135deg, var(--blush), var(--plum) 110%); color: var(--cream); border-color: transparent; }
+  .status { font-size: .95rem; font-style: italic; letter-spacing: .08em; color: var(--plum); }
+  .status.live::before { content: '●'; color: var(--blush); margin-right: .4rem; }
+  .mode-btn { font-size: 1rem; letter-spacing: .08em; min-height: 40px; padding: .25rem .9rem; border-radius: 999px; border: 1px solid var(--cym-line); color: var(--plum); }
+  .mode-btn:hover { border-color: var(--plum); }
+  .mode-btn.selected { background: var(--blush-lt); border-color: var(--plum); color: var(--plum-dk); }
+
+  .sliders { display: flex; flex-direction: column; gap: .9rem; padding: 0 .4rem; }
+  .slider-group { display: flex; flex-direction: column; gap: .35rem; }
+  .slider-label { display: flex; justify-content: space-between; font-size: .85rem; letter-spacing: .14em; text-transform: uppercase; color: var(--plum); }
+  .slider-label span { font-style: italic; text-transform: none; letter-spacing: 0; color: var(--plum-dk); font-size: 1rem; }
+  input[type='range'] { -webkit-appearance: none; appearance: none; width: 100%; height: 24px; background: linear-gradient(var(--cym-line), var(--cym-line)) center / 100% 2px no-repeat; }
+  input[type='range']:disabled { opacity: .45; }
+  input[type='range']::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg, var(--blush), var(--plum)); cursor: pointer; }
+  input[type='range']::-moz-range-thumb { width: 18px; height: 18px; border: 0; border-radius: 50%; background: linear-gradient(135deg, var(--blush), var(--plum)); cursor: pointer; }
+  .meter { position: relative; height: 8px; background: var(--cream-2); border: 1px solid var(--cym-line); border-radius: 999px; overflow: hidden; }
+  .meter-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: linear-gradient(90deg, var(--blush), var(--plum)); border-radius: 999px; }
+  .meter-thresh { position: absolute; top: -3px; bottom: -3px; left: 10%; width: 2px; background: var(--plum-dk); }
+
+  .readout { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; text-align: center; border-top: 1px solid var(--cym-line); padding-top: 1.1rem; margin-top: 1.2rem; }
+  .readout-label { font-size: .75rem; letter-spacing: .16em; text-transform: uppercase; color: var(--plum); }
+  .readout-value { font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-size: 1.15rem; color: var(--plum-dk); }
+  .foot { margin: 1.5rem 0 0; text-align: center; font-size: .9rem; font-style: italic; letter-spacing: .08em; color: var(--plum); opacity: .75; }
+</style>
+
+<script>
+  const RES = 300;
+  const CREAM = [246, 237, 226], BLUSH = [228, 169, 189], PLUM = [110, 58, 86], PLUMD = [63, 34, 56];
+  const NOTE_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+
+  const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+  const mix = (a: number[], b: number[], t: number) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
+  const logT = (f: number) => (Math.log(f) - Math.log(80)) / (Math.log(1400) - Math.log(80));
+
+  function register(f: number) {
+    if (f < 175) return 'chest';
+    if (f < 300) return 'middle';
+    if (f < 520) return 'head';
+    if (f < 900) return 'soprano';
+    return 'coloratura';
+  }
+
+  function freqToNote(f: number) {
+    const semis = 12 * Math.log2(f / 440);
+    const rounded = Math.round(semis);
+    const midi = rounded + 69;
+    return {
+      name: NOTE_NAMES[((midi % 12) + 12) % 12],
+      octave: Math.floor(midi / 12) - 1,
+      cents: Math.round((semis - rounded) * 100),
+    };
+  }
+
+  function rmsOf(buf: Float32Array) {
+    let s = 0;
+    for (let i = 0; i < buf.length; i++) s += buf[i] * buf[i];
+    return Math.sqrt(s / buf.length);
+  }
+
+  // Autocorrelation on the raw waveform tracks a sung fundamental; the loudest
+  // FFT bin locks onto formants instead. A repeating wave also correlates at
+  // every multiple of its period, so we take the SHORTEST lag that's nearly as
+  // strong as the best one, which stops readings dropping an octave.
+  function detectPitch(buf: Float32Array, sampleRate: number) {
+    if (rmsOf(buf) < 0.0015) return -1;
+    const size = buf.length;
+    const minLag = Math.floor(sampleRate / 1700);
+    const maxLag = Math.min(size - 1, Math.floor(sampleRate / 55));
+    const corr = new Float32Array(maxLag + 2);
+    let best = 0;
+    for (let lag = minLag; lag <= maxLag + 1; lag++) {
+      let sum = 0;
+      for (let i = 0; i < size - lag; i++) sum += buf[i] * buf[i + lag];
+      corr[lag] = sum / (size - lag);
+      if (lag <= maxLag && corr[lag] > best) best = corr[lag];
+    }
+    if (best < 0.0001) return -1;
+    let T = -1;
+    for (let lag = minLag + 1; lag <= maxLag; lag++) {
+      if (corr[lag] >= best * 0.9 && corr[lag] >= corr[lag - 1] && corr[lag] >= corr[lag + 1]) { T = lag; break; }
+    }
+    if (T < 0) return -1;
+    const a = (corr[T - 1] + corr[T + 1] - 2 * corr[T]) / 2;
+    const b = (corr[T + 1] - corr[T - 1]) / 2;
+    return sampleRate / (a ? T - b / (2 * a) : T);
+  }
+
+  class CymaticField extends HTMLElement {
+    els: Record<string, any> = {};
+    ctx!: CanvasRenderingContext2D;
+    off!: HTMLCanvasElement;
+    octx!: CanvasRenderingContext2D;
+    img!: ImageData;
+    mode = 'dome';
+    freq = 220;
+    coherence = 0.976;
+    sensitivity = 0.006;
+    phase = 0;
+    level = 0;
+    rms = 0;
+    floor = 0.003;
+    wasActive = false;
+    dirty = true;
+    micActive = false;
+    stream: MediaStream | null = null;
+    audioCtx: AudioContext | null = null;
+    analyser: AnalyserNode | null = null;
+    timeData: Float32Array | null = null;
+    droplets: { ang: number; rad: number; ph: number; s: number }[] = [];
+    raf = 0;
+    lastT = 0;
+    onTone = (e: Event) => {
+      if (this.micActive) return; // a live voice takes priority over the keys
+      this.freq = (e as CustomEvent).detail.freq;
+      this.els.freqSlider.value = String(Math.round(this.freq));
+      this.phase += 0.7;
+      this.dirty = true;
+    };
+    onVisible = () => {
+      if (!document.hidden && this.micActive && this.audioCtx?.state === 'suspended') this.audioCtx.resume();
+    };
+
+    connectedCallback() {
+      this.querySelectorAll<HTMLElement>('[data-el]').forEach((el) => { this.els[el.dataset.el!] = el; });
+      this.mode = this.dataset.mode || 'dome';
+      this.ctx = this.els.canvas.getContext('2d');
+      this.off = document.createElement('canvas');
+      this.off.width = this.off.height = RES;
+      this.octx = this.off.getContext('2d')!;
+      this.img = this.octx.createImageData(RES, RES);
+      for (let i = 0; i < 52; i++) {
+        this.droplets.push({ ang: Math.random() * Math.PI * 2, rad: Math.sqrt(Math.random()), ph: Math.random() * Math.PI * 2, s: 0.5 + Math.random() });
+      }
+
+      this.querySelectorAll<HTMLButtonElement>('[data-view]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          this.querySelectorAll<HTMLButtonElement>('[data-view]').forEach((b) => {
+            b.classList.toggle('selected', b === btn);
+            b.setAttribute('aria-pressed', String(b === btn));
+          });
+          this.mode = btn.dataset.view!;
+          this.dirty = true;
+        });
+      });
+      this.els.freqSlider.addEventListener('input', (e: Event) => {
+        this.freq = +(e.target as HTMLInputElement).value;
+        this.dirty = true;
+      });
+      this.els.cohSlider.addEventListener('input', (e: Event) => {
+        this.coherence = +(e.target as HTMLInputElement).value / 1000;
+        this.els.cohVal.textContent = this.coherence.toFixed(3);
+        this.dirty = true;
+      });
+      this.els.sensSlider.addEventListener('input', (e: Event) => {
+        this.sensitivity = +(e.target as HTMLInputElement).value / 1000;
+        this.els.sensVal.textContent = this.sensitivity.toFixed(3);
+      });
+      this.els.micBtn.addEventListener('click', () => this.toggleMic());
+      document.addEventListener('visibilitychange', this.onVisible);
+      window.addEventListener('keytone', this.onTone);
+      this.raf = requestAnimationFrame((t) => { this.lastT = t; this.frame(t); });
+    }
+
+    disconnectedCallback() {
+      cancelAnimationFrame(this.raf);
+      document.removeEventListener('visibilitychange', this.onVisible);
+      window.removeEventListener('keytone', this.onTone);
+      this.stopMic();
+    }
+
+    setStatus(text: string, live = false) {
+      this.els.status.textContent = text;
+      this.els.status.classList.toggle('live', live);
+    }
+
+    stopMic() {
+      this.micActive = false;
+      this.stream?.getTracks().forEach((t) => { t.onended = null; t.stop(); });
+      this.audioCtx?.close();
+      this.stream = this.audioCtx = this.analyser = null;
+      this.level = this.rms = 0;
+      this.dirty = true;
+      this.els.micBtn.classList.remove('active');
+      this.els.micBtn.setAttribute('aria-pressed', 'false');
+      this.els.freqSlider.disabled = false;
+      this.els.meterFill.style.width = '0';
+      this.els.lvlVal.textContent = '—';
+    }
+
+    async toggleMic() {
+      if (this.micActive) {
+        this.stopMic();
+        this.setStatus('microphone off — using sliders');
+        return;
+      }
+      if (!navigator.mediaDevices?.getUserMedia) {
+        this.setStatus('the mic needs a secure page (https or localhost)');
+        return;
+      }
+      try {
+        this.stream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: true },
+        });
+        this.audioCtx = new AudioContext();
+        if (this.audioCtx.state === 'suspended') await this.audioCtx.resume();
+        this.analyser = this.audioCtx.createAnalyser();
+        this.analyser.fftSize = 2048;
+        this.analyser.smoothingTimeConstant = 0;
+        this.timeData = new Float32Array(this.analyser.fftSize);
+        this.audioCtx.createMediaStreamSource(this.stream).connect(this.analyser);
+        this.stream.getAudioTracks().forEach((tr) => {
+          tr.onended = () => {
+            this.stopMic();
+            this.setStatus('mic input ended — tap Live Voice again');
+          };
+        });
+        this.floor = 0.02; // start high and settle down to this mic's real floor
+        this.wasActive = false;
+        this.micActive = true;
+        this.els.micBtn.classList.add('active');
+        this.els.micBtn.setAttribute('aria-pressed', 'true');
+        this.els.freqSlider.disabled = true;
+        this.setStatus('listening · sing to shape the field', true);
+      } catch {
+        this.stopMic();
+        this.setStatus('mic blocked — allow it in your browser settings');
+      }
+    }
+
+    frame(t: number) {
+      const dt = Math.min(0.1, (t - this.lastT) / 1000 || 0);
+      this.lastT = t;
+      let active = false;
+
+      if (this.micActive && this.analyser && this.timeData) {
+        if (this.audioCtx?.state === 'suspended') this.audioCtx.resume();
+        this.analyser.getFloatTimeDomainData(this.timeData as Float32Array<ArrayBuffer>);
+        this.rms = rmsOf(this.timeData);
+        // Adaptive floor: falls quickly in quiet, rises very slowly, so it fits
+        // any mic's gain and a long held note doesn't get mistaken for room noise.
+        this.floor = lerp(this.floor, this.rms, this.rms < this.floor ? 0.4 : 0.00015);
+        const scale = 0.1 / (this.sensitivity * 80 + 0.2);
+        const above = Math.max(0, this.rms - this.floor * 2 - 0.0006);
+        const target = Math.min(1, Math.sqrt(above / scale));
+        this.level = lerp(this.level, target, target > this.level ? 0.6 : 0.15);
+        active = target > 0.02;
+
+        this.els.meterFill.style.width = Math.min(100, (this.rms / 0.15) * 100) + '%';
+        this.els.meterThresh.style.left = Math.min(100, ((this.floor * 2 + 0.0006) / 0.15) * 100) + '%';
+        this.els.lvlVal.textContent = this.level > 0.02 ? '● hearing you' : this.rms.toFixed(4);
+
+        if (active) {
+          const p = detectPitch(this.timeData, this.audioCtx!.sampleRate);
+          if (p > 55 && p < 1700) {
+            this.freq = lerp(this.freq, p, 0.3);
+            this.els.freqSlider.value = String(Math.round(this.freq));
+          }
+        }
+        // motion scales with loudness: silence holds still
+        this.phase += dt * (0.5 + this.level * 7) * (1 + this.freq / 800);
+        if (active || this.wasActive || this.level > 0.01) this.dirty = true;
+        this.wasActive = active;
+      }
+
+      if (this.dirty) {
+        this.dirty = false;
+        if (this.mode === 'dome') this.drawDome();
+        else this.drawField();
+      }
+      this.updateNote(active);
+      this.raf = requestAnimationFrame((n) => this.frame(n));
+    }
+
+    updateNote(live: boolean) {
+      const n = freqToNote(this.freq);
+      const c = n.cents;
+      this.els.freqVal.textContent = Math.round(this.freq) + ' Hz';
+      this.els.noteLetter.textContent = n.name;
+      this.els.noteOct.textContent = String(n.octave);
+      this.els.noteSub.textContent = Math.round(this.freq) + ' Hz · ' + (Math.abs(c) <= 5 ? 'in tune' : c > 0 ? `+${c}¢ sharp` : `${c}¢ flat`);
+      this.els.tunerDot.style.left = Math.max(0, Math.min(100, 50 + c)) + '%';
+      this.els.noteName.classList.toggle('live', live || !this.micActive);
+      this.els.tunerDot.classList.toggle('live', live);
+    }
+
+    readouts(pattern: string, sym: string | number) {
+      this.els.regOut.textContent = register(this.freq);
+      this.els.modeOut.textContent = pattern;
+      this.els.symOut.textContent = String(sym);
+    }
+
+    // chladni / interference / radial / fluid: per-pixel standing-wave fields
+    drawField() {
+      const { mode, phase, coherence } = this;
+      const t = logT(this.freq);
+      const n = Math.round(1 + t * 8);
+      const m = Math.round(2 + t * 9);
+      const sharp = lerp(4, 60, coherence);
+      const amp = this.micActive ? 0.45 + this.level * 1.4 : 1;
+      const PI = Math.PI;
+      const sources = Math.max(3, Math.min(8, n));
+      const d = this.img.data;
+      let p = 0;
+      for (let j = 0; j < RES; j++) {
+        const y = (j / RES) * 2 - 1;
+        for (let i = 0; i < RES; i++, p += 4) {
+          const x = (i / RES) * 2 - 1;
+          d[p + 3] = 255;
+          if (x * x + y * y > 1) { d[p] = CREAM[0]; d[p + 1] = CREAM[1]; d[p + 2] = CREAM[2]; continue; }
+          let v = 0;
+          if (mode === 'chladni') {
+            v = Math.cos(n * PI * x + phase) * Math.cos(m * PI * y) - Math.cos(m * PI * x) * Math.cos(n * PI * y + phase);
+          } else if (mode === 'radial') {
+            v = Math.cos((4 + n * 1.4) * Math.hypot(x, y) * PI - phase) * Math.cos(n * Math.atan2(y, x));
+          } else if (mode === 'interference') {
+            for (let s = 0; s < sources; s++) {
+              const a = (s / sources) * PI * 2;
+              v += Math.sin(Math.hypot(x - 0.6 * Math.cos(a), y - 0.6 * Math.sin(a)) * (6 + n) * PI - phase);
+            }
+            v /= sources;
+          } else {
+            const k = 2 + n * 0.5;
+            v = 0.6 * Math.sin(k * x * PI + phase) + 0.4 * Math.cos(k * y * PI - phase * 0.7) +
+              0.4 * Math.sin(k * (x + y) * PI * 0.7 + phase * 1.3) + 0.3 * Math.cos(k * Math.hypot(x, y) * PI * 2 - phase);
+          }
+          v *= amp;
+          let col;
+          if (mode === 'fluid') {
+            col = mix(CREAM, mix(BLUSH, PLUM, Math.max(0, Math.min(1, v * 0.5 + 0.5))), 0.85);
+          } else {
+            col = mix(CREAM, PLUMD, Math.exp(-(v * v) * sharp));
+            col = mix(col, BLUSH, Math.max(0, Math.min(1, (Math.abs(v) - 0.45) * 1.6)) * 0.35);
+          }
+          d[p] = col[0]; d[p + 1] = col[1]; d[p + 2] = col[2];
+        }
+      }
+      this.octx.putImageData(this.img, 0, 0);
+      this.ctx.clearRect(0, 0, 512, 512);
+      this.ctx.drawImage(this.off, 0, 0, 512, 512);
+      this.readouts(`${n} · ${m}`, n + m);
+    }
+
+    // soap film: iridescent standing-wave lattice on an inflated membrane,
+    // floating over a dark dish. pitch sets line density, loudness inflates it.
+    drawDome() {
+      const { ctx, phase } = this;
+      const cx = 256;
+      const bg = ctx.createRadialGradient(cx, 300, 30, cx, 250, 320);
+      bg.addColorStop(0, '#1c1019'); bg.addColorStop(0.65, '#26141f'); bg.addColorStop(1, '#3a2233');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, 512, 512);
+
+      const t = logT(this.freq);
+      const nLat = Math.round(9 + t * 22);
+      const nLon = Math.round(12 + t * 28);
+      const amp = this.micActive ? 0.35 + this.level : 0.78;
+
+      // dish + droplets
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(cx, 372, 152, 44, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#150a13';
+      ctx.fill();
+      ctx.clip();
+      for (const d of this.droplets) {
+        const tw = 0.4 + 0.6 * Math.abs(Math.sin(phase * 2 * d.s + d.ph));
+        ctx.beginPath();
+        ctx.arc(cx + Math.cos(d.ang) * d.rad * 142, 372 + Math.sin(d.ang) * d.rad * 38, (0.8 + d.s) * (0.55 + amp), 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(244,224,232,${0.18 + 0.55 * tw * amp})`;
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // film
+      const inflate = 0.62 + amp * 0.5;
+      const apexY = 156 - inflate * 28;
+      const H = 150 * inflate;
+      const maxW = 118 + amp * 22;
+      const pts: [number, number][][] = [];
+      for (let i = 0; i <= nLat; i++) {
+        const v = i / nLat;
+        const R = (0.3 + 0.7 * Math.sin(v * Math.PI * 0.86 + 0.06)) * maxW;
+        const row: [number, number][] = [];
+        for (let j = 0; j <= nLon; j++) {
+          const th = (j / nLon) * Math.PI * 2 + phase * 0.18;
+          row.push([cx + R * Math.cos(th), apexY + v * H + R * 0.34 * Math.sin(th)]);
+        }
+        pts.push(row);
+      }
+      ctx.lineWidth = 1;
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i <= nLat; i++) {
+        ctx.strokeStyle = `hsla(${((i / nLat) * 230 + phase * 26) % 360},80%,72%,0.45)`;
+        ctx.beginPath();
+        pts[i].forEach((q, j) => (j ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1])));
+        ctx.stroke();
+      }
+      for (let j = 0; j <= nLon; j++) {
+        ctx.strokeStyle = `hsla(${((j / nLon) * 300 + phase * 26 + 70) % 360},80%,72%,0.4)`;
+        ctx.beginPath();
+        for (let i = 0; i <= nLat; i++) (i ? ctx.lineTo(pts[i][j][0], pts[i][j][1]) : ctx.moveTo(pts[i][j][0], pts[i][j][1]));
+        ctx.stroke();
+      }
+      const bloom = ctx.createRadialGradient(cx, apexY, 1, cx, apexY, 60 * inflate);
+      bloom.addColorStop(0, 'rgba(255,245,250,0.5)');
+      bloom.addColorStop(1, 'rgba(255,245,250,0)');
+      ctx.fillStyle = bloom;
+      ctx.beginPath();
+      ctx.arc(cx, apexY, 60 * inflate, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+      this.readouts(`${nLat}×${nLon}`, nLon);
+    }
+  }
+
+  if (!customElements.get('cymatic-field')) customElements.define('cymatic-field', CymaticField);
+</script>

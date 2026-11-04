@@ -1,0 +1,105 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Graffiti Wall — Koala Walla Land" description="Spray something. The public wall opens soon.">
+  <h1>Graffiti Wall</h1>
+  <p class="meta">Your tag stays in this browser. Nothing is uploaded, and the public wall opens soon.</p>
+  <div class="tools" role="group" aria-label="Drawing tools">
+    <button type="button" data-tool="spray" aria-pressed="true">spray</button>
+    <button type="button" data-tool="marker" aria-pressed="false">marker</button>
+    <button type="button" data-tool="sticker" aria-pressed="false">sticker ♡</button>
+    <span class="swatches">
+      {['#ff7ab8', '#58d8f5', '#d8ff3e', '#ffffff', '#b78cff'].map((c, i) => (
+        <button type="button" class="swatch" data-color={c} style={`background:${c}`} aria-label={`Color ${c}`} aria-pressed={i === 0 ? 'true' : 'false'}></button>
+      ))}
+    </span>
+    <button type="button" data-act="undo">undo</button>
+    <button type="button" data-act="clear">clear</button>
+  </div>
+  <canvas id="wall" width="1200" height="800" aria-label="Brick wall you can draw on"></canvas>
+  <p><button type="button" class="send" disabled>Send to the wall (opening soon)</button></p>
+  <p><a href="/">&larr; back to Koala Walla Land</a></p>
+</Base>
+
+<style>
+  .tools { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin: 1rem 0 .7rem; }
+  .tools button, .send { min-height: 40px; padding: 0 .8rem; color: var(--ink); background: transparent; border: 1px solid #4b4466; border-radius: 8px; font: .8rem var(--font-mono); cursor: pointer; }
+  .tools button[aria-pressed='true'] { color: #16131b; background: #58d8f5; border-color: #58d8f5; }
+  .tools button:focus-visible, .send:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .swatches { display: flex; gap: .3rem; }
+  .tools .swatch { width: 40px; padding: 0; border: 2px solid #4b4466; }
+  .tools .swatch[aria-pressed='true'] { border-color: #fff; background-clip: padding-box; }
+  #wall { display: block; width: 100%; height: auto; border: 1px solid #4b4466; border-radius: 10px; touch-action: none; cursor: crosshair; }
+  .send { margin-top: .4rem; opacity: .55; cursor: not-allowed; }
+</style>
+
+<script>
+  const c = document.getElementById('wall') as HTMLCanvasElement;
+  const g = c.getContext('2d')!;
+  const KEY = 'kwl-wall';
+  let tool = 'spray', color = '#ff7ab8', last: { x: number; y: number } | null = null;
+  const undo: ImageData[] = [];
+
+  function bricks() {
+    g.fillStyle = '#231d30';
+    g.fillRect(0, 0, c.width, c.height);
+    g.fillStyle = '#16121f';
+    for (let y = 0; y < c.height; y += 50) {
+      g.fillRect(0, y, c.width, 3);
+      for (let x = (y / 50) % 2 ? 60 : 0; x < c.width; x += 120) g.fillRect(x, y, 3, 50);
+    }
+  }
+  bricks();
+  try {
+    const saved = localStorage.getItem(KEY);
+    if (saved) { const im = new Image(); im.onload = () => g.drawImage(im, 0, 0); im.src = saved; }
+  } catch {}
+  const save = () => { try { localStorage.setItem(KEY, c.toDataURL('image/webp', 0.7)); } catch {} };
+  const at = (e: PointerEvent) => {
+    const r = c.getBoundingClientRect();
+    return { x: ((e.clientX - r.left) / r.width) * c.width, y: ((e.clientY - r.top) / r.height) * c.height };
+  };
+  function paint(p: { x: number; y: number }) {
+    g.fillStyle = g.strokeStyle = color;
+    if (tool === 'spray') {
+      for (let i = 0; i < 150; i++) {
+        const a = Math.random() * 6.283, d = Math.random() ** 1.6 * 34;
+        g.globalAlpha = 0.6;
+        g.fillRect(p.x + Math.cos(a) * d, p.y + Math.sin(a) * d, 3, 3);
+      }
+      g.globalAlpha = 1;
+    } else if (tool === 'marker' && last) {
+      g.lineWidth = 11; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(last.x, last.y); g.lineTo(p.x, p.y); g.stroke();
+    }
+    last = p;
+  }
+  c.addEventListener('pointerdown', (e) => {
+    undo.push(g.getImageData(0, 0, c.width, c.height));
+    if (undo.length > 12) undo.shift();
+    c.setPointerCapture(e.pointerId);
+    const p = at(e);
+    if (tool === 'sticker') {
+      g.fillStyle = color; g.font = '90px serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText('♡', p.x, p.y);
+      save();
+      return;
+    }
+    last = p;
+    paint(p);
+  });
+  c.addEventListener('pointermove', (e) => { if (last && tool !== 'sticker') paint(at(e)); });
+  const up = () => { if (last) save(); last = null; };
+  c.addEventListener('pointerup', up);
+  c.addEventListener('pointercancel', up);
+  document.querySelectorAll<HTMLButtonElement>('[data-tool]').forEach((b) => b.addEventListener('click', () => {
+    tool = b.dataset.tool!;
+    document.querySelectorAll('[data-tool]').forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
+  }));
+  document.querySelectorAll<HTMLButtonElement>('[data-color]').forEach((b) => b.addEventListener('click', () => {
+    color = b.dataset.color!;
+    document.querySelectorAll('[data-color]').forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
+  }));
+  document.querySelector('[data-act=undo]')!.addEventListener('click', () => { const u = undo.pop(); if (u) { g.putImageData(u, 0, 0); save(); } });
+  document.querySelector('[data-act=clear]')!.addEventListener('click', () => { undo.push(g.getImageData(0, 0, c.width, c.height)); bricks(); save(); });
+</script>

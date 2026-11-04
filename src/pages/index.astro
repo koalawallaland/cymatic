@@ -1,0 +1,111 @@
+---
+import Base from '../layouts/Base.astro';
+import KeycapBoard from '../components/KeycapBoard.astro';
+import Cymatics from '../components/Cymatics.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 5);
+---
+<Base title="koalawallaland">
+  <section class="hero">
+    <div class="portal">
+      <div class="halo" aria-hidden="true"></div>
+      <video autoplay loop muted playsinline poster="/cat-poster.webp" aria-label="A fluffy grey cat hugging a keyboard, kneading its keys">
+        <source src="/cat.webm" type="video/webm" />
+        <source src="/cat.mp4" type="video/mp4" />
+      </video>
+    </div>
+    <p class="sys">CRYNET SYSTEM // WELCOME TO THE INTERNET</p>
+    <h1 class="chrome">KOALA WALLA LAND</h1>
+    <p class="tag">sound · simulation · keycaps · whatever's on the bench</p>
+    <a class="down" href="#board">enter ↓</a>
+  </section>
+
+  <section id="board" class="module reveal">
+    <p class="index">01 / keyboard</p>
+    <h2 class="chrome">Pull it apart</h2>
+    <p>Drag the caps off and swap them. Type on it, and watch the field below change. Mind the paw.</p>
+    <KeycapBoard />
+  </section>
+
+  <section id="field" class="module reveal">
+    <p class="index">02 / cymatic field</p>
+    <h2 class="chrome">Sing to it</h2>
+    <p>Every key plays this field a new note. Turn on Live Voice and it follows your voice instead.</p>
+    <Cymatics />
+  </section>
+
+  <section id="rooms" class="module reveal">
+    <p class="index">03 / elsewhere</p>
+    <h2 class="chrome">More rooms</h2>
+    <div class="rooms">
+      <a class="room lab" href="/lab/"><b>Resin Lab</b><span>Mix, pour, cure, reveal. Your cap comes back to the board up top.</span></a>
+      <a class="room mydesk" href="/desk/"><b>Koala's Desk</b><span>Neon kaomoji, a candle lamp, kaps photos and the brew-ratio calculator.</span></a>
+      <a class="room desk" href="/lab/#desk"><b>Lab Desk</b><span>Pour-over, kettle, tarot cards, candle and the rainy window.</span></a>
+      <a class="room wall" href="/wall/"><b>Graffiti Wall</b><span>Spray something. The public wall opens soon.</span></a>
+      <a class="room shop" href="/shop/"><b>Shop</b><span>Closed for now. Peek in the window.</span></a>
+      <a class="room blog" href="/blog/"><b>Blog</b><span>Incoming transmission...</span></a>
+    </div>
+    <p class="more"><a href="/works/">All experiments &rarr;</a></p>
+  </section>
+</Base>
+
+<style>
+  .hero { padding: 2.2rem 0 2rem; text-align: center; overflow-x: clip; }
+  .portal { position: relative; width: min(100% - 34px, 380px); aspect-ratio: 1; margin: 0 auto 1.6rem; }
+  .portal video { position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; border-radius: 50%; }
+  /* a spinning liquid-chrome ring */
+  .halo { position: absolute; inset: -12px; border-radius: 50%; background: conic-gradient(#fff, #9fa6c9, #ff7ab8, #e8ecff, #58d8f5, #8b8fb3, #fff); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px)); mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px)); filter: drop-shadow(0 0 16px rgba(160, 200, 255, .55)); animation: spin 9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .chrome { background: linear-gradient(175deg, #fff 8%, #aab1d6 38%, #fdfdff 50%, #8d86b8 62%, #ffc8e4 95%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  h1.chrome { margin: 0; font-size: clamp(2.1rem, 9.5vw, 3.6rem); letter-spacing: -.03em; overflow-wrap: anywhere; }
+  .sys { margin: 0 0 .4rem; color: #58d8f5; font-family: var(--font-mono); font-size: .72rem; letter-spacing: .14em; }
+  .rooms { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: .8rem; margin-top: 1rem; }
+  .room { display: flex; flex-direction: column; gap: .3rem; min-height: 8.5rem; padding: 1rem; color: var(--ink); border: 1px solid #4b4466; border-radius: 12px; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease; }
+  .room b { font-family: var(--font-display); font-size: 1.25rem; }
+  .room span { color: var(--muted); font-size: .88rem; line-height: 1.4; }
+  .room:hover { transform: translateY(-3px); }
+  .lab { background: linear-gradient(150deg, #3a0f4f, #12061d 70%); box-shadow: inset 0 0 22px rgba(255,119,180,.28); }
+  .mydesk { background: linear-gradient(150deg, #264a5a, #14101f 75%); box-shadow: inset 0 0 22px rgba(255,122,184,.3); }
+  .desk { background: linear-gradient(150deg, #5a2a4a, #1c0f24 75%); box-shadow: inset 0 0 22px rgba(255,190,120,.3); }
+  .wall { background: repeating-linear-gradient(0deg, #231d30 0 26px, #1b1626 27px 28px); box-shadow: inset 0 0 22px rgba(216,255,62,.14); }
+  .shop { background: linear-gradient(150deg, #e9ecff22, #16131b 75%); box-shadow: inset 0 0 22px rgba(255,255,255,.14); }
+  .blog { background: #0d0b14; box-shadow: inset 0 0 22px rgba(88,216,245,.22); }
+  .blog span { color: #58d8f5; font-family: var(--font-mono); font-size: .8rem; }
+  .more { margin-top: 1rem; }
+  .tag { margin: .5rem 0 1.3rem; color: var(--muted); font-family: var(--font-mono); font-size: .8rem; letter-spacing: .08em; }
+  .down { display: inline-block; padding: .55rem 1.2rem; color: var(--ink); border: 1px solid #58d8f5; border-radius: 99px; box-shadow: 0 0 14px rgba(88, 216, 245, .35), inset 0 0 10px rgba(88, 216, 245, .2); font-family: var(--font-mono); font-size: .8rem; text-decoration: none; }
+
+  .module { padding: 3.2rem 0 1rem; scroll-margin-top: 1rem; }
+  .module h2 { margin: .2rem 0 .5rem; font-size: 2rem; }
+  .index { margin: 0; color: #58d8f5; font-family: var(--font-mono); font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; }
+
+  /* sections drift up as they scroll into view, and stay readable the whole time */
+  :global(html.js-reveal) .reveal { transform: translateY(26px); transition: transform .7s cubic-bezier(.2, .8, .2, 1); }
+  :global(html.js-reveal) .reveal.shown { transform: none; }
+  :global(html.js-reveal) .reveal.done { transform: none; transition: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .halo { animation: none; }
+    :global(html.js-reveal) .reveal { transform: none; transition: none; }
+  }
+</style>
+
+<script>
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (still) document.querySelector<HTMLVideoElement>('.portal video')?.pause();
+  document.documentElement.classList.add('js-reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('shown');
+      io.unobserve(e.target);
+      // drop the transform afterward so the fixed-position dragged cap and pop-up stay true to the screen
+      setTimeout(() => e.target.classList.add('done'), 800);
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach((s) => io.observe(s));
+</script>

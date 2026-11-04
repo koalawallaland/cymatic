@@ -1,0 +1,23 @@
+---
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  date: Date;
+  description?: string;
+  tags?: string[];
+}
+const { title, date, description, tags = [] } = Astro.props;
+const fmt = date.toLocaleDateString('en-US', {
+  year: 'numeric', month: 'short', day: 'numeric',
+});
+---
+<Base title={title} description={description}>
+  <p class="meta">
+    {fmt}{tags.length > 0 && <> &middot; {tags.join(', ')}</>}
+  </p>
+  <h1>{title}</h1>
+  <slot />
+  <hr />
+  <p><a href="/blog/">&larr; all posts</a></p>
+</Base>

@@ -1,0 +1,29 @@
+---
+import Base from '../../layouts/Base.astro';
+
+// Works are hand-listed here on purpose: each one is its own .astro
+// page with full creative control, so curation stays manual.
+const works = [
+  { href: '/desk/', title: "Koala's desk", blurb: 'An illustrated desk: neon kaomoji, a candle lamp, kaps photos, cafe notes and a brew-ratio calculator.' },
+  { href: '/desk/studio.html', title: 'Cymatic studio', blurb: 'The cymatic field with sand that settles on the still lines.' },
+  { href: '/lab/#desk', title: 'The lab desk', blurb: 'Pour-over, kettle, tarot cards, candle, monitors and the window.' },
+  { href: '/lab/part-c/', title: 'Mini Resin Lab, starring Part C', blurb: 'The second lab with its original pearl-white cat.' },
+  { href: '/lab/classic/', title: 'Mini Resin Lab, first version', blurb: 'The original casting game, before the neon room.' },
+  { href: '/works/keykollectiv-65/', title: 'KeyKollectiv 65%', blurb: 'May 2026. Dark and luxe: click a key to place a glowing artisan cap.' },
+  { href: '/works/keycaps/', title: 'Keycap board', blurb: 'The pull-apart board on its own page.' },
+  { href: '/works/cymatic-field/', title: 'Cymatic field', blurb: 'Sing into it. Soap film, Chladni, interference, radial and fluid.' },
+  { href: '/works/ripple/', title: 'Ripple tank', blurb: 'Two-source interference toy. Click to move the sources.' },
+];
+---
+<Base title="Experiments — Koala Walla Land">
+  <h1>Experiments</h1>
+  <p>Every version worth keeping, each still playable.</p>
+  <ul class="post-list">
+    {works.map((w) => (
+      <li>
+        <a href={w.href}>{w.title}</a>
+        <span class="meta">{w.blurb}</span>
+      </li>
+    ))}
+  </ul>
+</Base>

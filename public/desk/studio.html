@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cymatic studio</title>
+<meta name="description" content="Voice to geometry: a cymatic instrument where sound shapes standing-wave patterns.">
+<style>
+  :root {
+    --bg: #0d0b0a;
+    --panel: #15120f;
+    --line: #2a241e;
+    --ink: #efe6d8;
+    --muted: #8c8073;
+    --accent: #f3d9a4;
+    --heart: #e88b8b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 13px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    letter-spacing: 0.04em;
+  }
+  .tabs {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; gap: 4px;
+    padding: 10px 16px; background: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+  .tabs .brand { margin-right: auto; letter-spacing: 0.16em; font-size: 12px; color: var(--muted); }
+  .tabs a { text-decoration: none; padding: 6px 14px; border-radius: 999px; font-size: 12px; letter-spacing: 0.16em; color: var(--muted); }
+  .tabs a:hover { color: var(--ink); }
+  .tabs a[aria-current="page"] { color: var(--bg); background: var(--accent); }
+  .tabs a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .app {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 16px;
+    min-height: calc(100vh - 50px);
+    padding: 20px;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+  h1 { margin: 0; font-weight: 400; font-size: 18px; letter-spacing: 0.2em; text-transform: lowercase; }
+  .sub { color: var(--muted); font-size: 11px; letter-spacing: 0.18em; }
+  .stage {
+    position: relative;
+    border: 1px solid var(--line);
+    background: #000;
+    aspect-ratio: 1 / 1;
+    max-height: calc(100vh - 190px);
+    justify-self: center;
+    width: 100%;
+    max-width: calc(100vh - 190px);
+  }
+  canvas { display: block; width: 100%; height: 100%; }
+  aside {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 16px;
+    display: flex; flex-direction: column; gap: 16px;
+    align-self: start;
+  }
+  .voice {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 10px 12px;
+    background: transparent; color: var(--ink);
+    border: 1px solid var(--line); border-radius: 999px;
+    font: inherit; letter-spacing: 0.18em; cursor: pointer;
+  }
+  .voice:hover { border-color: var(--muted); }
+  .voice:focus-visible, .modes button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .voice .heart { color: var(--muted); transition: color .3s, transform .3s; }
+  .voice[aria-pressed="true"] { border-color: var(--heart); }
+  .voice[aria-pressed="true"] .heart { color: var(--heart); animation: beat 1.2s ease-in-out infinite; }
+  @keyframes beat { 0%,100% { transform: scale(1); } 50% { transform: scale(1.25); } }
+  .status { color: var(--muted); font-style: italic; margin-top: -8px; padding-left: 4px; min-height: 1.5em; }
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .modes button {
+    padding: 8px 4px; background: transparent; color: var(--muted);
+    border: 1px solid var(--line); font: inherit; font-size: 11px; letter-spacing: 0.14em; cursor: pointer;
+  }
+  .modes button[aria-checked="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+  .ctl label { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: 0.16em; color: var(--muted); }
+  .ctl output { color: var(--ink); }
+  input[type=range] { width: 100%; accent-color: var(--accent); margin: 6px 0 0; }
+  .readouts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; }
+  .readouts div { display: flex; flex-direction: column; gap: 2px; }
+  .readouts span:first-child { font-size: 10px; letter-spacing: 0.16em; color: var(--muted); }
+  .readouts span:last-child { font-size: 14px; }
+  footer { grid-column: 1 / -1; text-align: center; color: var(--muted); font-size: 11px; letter-spacing: 0.2em; }
+  footer .stars { display: block; margin-bottom: 4px; }
+  @media (max-width: 760px) {
+    .app { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+    .stage { max-width: none; max-height: none; }
+  }
+</style>
+</head>
+<body>
+<nav class="tabs" aria-label="Pages">
+  <span class="brand">ʕ•ᴥ•ʔ koala</span>
+  <a href="index.html">DESK</a>
+  <a href="studio.html" aria-current="page">STUDIO</a>
+</nav>
+<div class="app">
+  <header>
+    <h1>cymatic field</h1>
+    <div class="sub">VOICE → GEOMETRY &nbsp;·&nbsp; COHERENCE <span id="hdrCoh">0.976</span></div>
+  </header>
+
+  <div class="stage"><canvas id="field" aria-label="Cymatic pattern visualization" role="img"></canvas></div>
+
+  <aside>
+    <button class="voice" id="voiceBtn" aria-pressed="false"><span class="heart" aria-hidden="true">♡</span> LIVE VOICE</button>
+    <div class="status" id="status" aria-live="polite">dreaming quietly</div>
+
+    <div class="modes" role="radiogroup" aria-label="Field mode">
+      <button role="radio" aria-checked="true" data-mode="chladni">CHLADNI</button>
+      <button role="radio" aria-checked="false" data-mode="interference">INTERFERENCE</button>
+      <button role="radio" aria-checked="false" data-mode="radial">RADIAL</button>
+      <button role="radio" aria-checked="false" data-mode="fluid">FLUID</button>
+    </div>
+
+    <div class="ctl">
+      <label for="freq">FREQUENCY <output id="freqOut">220 hz</output></label>
+      <input type="range" id="freq" min="60" max="1200" step="1" value="220">
+    </div>
+    <div class="ctl">
+      <label for="amp">AMPLITUDE <output id="ampOut">0.6</output></label>
+      <input type="range" id="amp" min="0" max="1" step="0.01" value="0.6">
+    </div>
+    <div class="ctl">
+      <label for="coh">COHERENCE <output id="cohOut">0.976</output></label>
+      <input type="range" id="coh" min="0" max="1" step="0.001" value="0.976">
+    </div>
+    <div class="ctl">
+      <label for="res">RESONANCE <output id="resOut">0.7</output></label>
+      <input type="range" id="res" min="0" max="1" step="0.01" value="0.7">
+    </div>
+
+    <div class="readouts">
+      <div><span>NODES</span><span id="nodes">—</span></div>
+      <div><span>SYMMETRY</span><span id="sym">—</span></div>
+      <div><span>REGISTER</span><span id="reg">—</span></div>
+    </div>
+  </aside>
+
+  <footer><span class="stars">* * *</span>the instrument shapes the field</footer>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const canvas = $('field');
+  const ctx = canvas.getContext('2d');
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- state ----------
+  const S = { mode: 'chladni', freq: 220, amp: 0.6, coh: 0.976, res: 0.7, t: 0 };
+  const sliders = { freq: $('freq'), amp: $('amp'), coh: $('coh'), res: $('res') };
+  const outs = {
+    freq: v => `${Math.round(v)} hz`, amp: v => v.toFixed(2).replace(/0$/, ''),
+    coh: v => v.toFixed(3), res: v => v.toFixed(2).replace(/0$/, ''),
+  };
+  function setParam(k, v, fromVoice) {
+    S[k] = v;
+    if (fromVoice) sliders[k].value = v;
+    $(k + 'Out').textContent = outs[k](v);
+    if (k === 'coh') $('hdrCoh').textContent = v.toFixed(3);
+  }
+  for (const k in sliders) sliders[k].addEventListener('input', e => setParam(k, parseFloat(e.target.value)));
+
+  document.querySelectorAll('.modes button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.modes button').forEach(o => o.setAttribute('aria-checked', o === b));
+    S.mode = b.dataset.mode;
+    scatter();
+  }));
+
+  // ---------- mode geometry ----------
+  // Chladni (n, m) pairs on a square plate, ordered by eigenfrequency ∝ n² + m².
+  const PAIRS = [];
+  for (let n = 1; n <= 12; n++) for (let m = n + 1; m <= 12; m++) PAIRS.push([n, m]);
+  PAIRS.sort((a, b) => (a[0] ** 2 + a[1] ** 2) - (b[0] ** 2 + b[1] ** 2));
+  const FMIN = 60, FMAX = 1200;
+  const fpos = f => Math.log(f / FMIN) / Math.log(FMAX / FMIN); // 0..1, perceptual
+
+  let P = {}; // per-frame derived params
+  function derive() {
+    const x = fpos(S.freq);
+    const idx = x * 34;                       // continuous index into PAIRS
+    const i0 = Math.floor(idx), tb = idx - i0;
+    const ease = tb * tb * (3 - 2 * tb);
+    P = {
+      a: PAIRS[i0], b: PAIRS[Math.min(i0 + 1, PAIRS.length - 1)], blend: ease,
+      k: 4 + x * 26,                            // spatial wavenumber
+      s: 3 + Math.floor(x * 6),                 // rotational symmetry 3..8
+      noise: (1 - S.coh) * 0.9,
+      sharp: 6 + S.res * 34,
+      t: S.t,
+    };
+  }
+
+  const PI = Math.PI;
+  function chladniPair(u, v, n, m) {
+    return (Math.cos(n * PI * u) * Math.cos(m * PI * v) - Math.cos(m * PI * u) * Math.cos(n * PI * v)) * 0.5;
+  }
+  const MODES = {
+    chladni(x, y) {
+      const u = (x + 1) / 2, v = (y + 1) / 2;
+      return chladniPair(u, v, P.a[0], P.a[1]) * (1 - P.blend) + chladniPair(u, v, P.b[0], P.b[1]) * P.blend;
+    },
+    interference(x, y) {
+      let sum = 0;
+      const rot = P.t * 0.05;
+      for (let i = 0; i < P.s; i++) {
+        const th = rot + (2 * PI * i) / P.s;
+        const dx = x - 0.62 * Math.cos(th), dy = y - 0.62 * Math.sin(th);
+        sum += Math.cos(P.k * Math.sqrt(dx * dx + dy * dy) - P.t * 0.6);
+      }
+      return sum / P.s;
+    },
+    radial(x, y) {
+      const r = Math.sqrt(x * x + y * y), th = Math.atan2(y, x);
+      return Math.cos(P.k * r - PI / 4) * Math.cos(P.s * th + P.t * 0.04) / (1 + r * 0.6);
+    },
+    fluid(x, y) {
+      const t = P.t * 0.25;
+      const qx = x + 0.35 * Math.sin(2.1 * y + t) + 0.15 * Math.sin(4.3 * y - 1.3 * t);
+      const qy = y + 0.35 * Math.sin(1.7 * x - 0.8 * t) + 0.15 * Math.cos(3.9 * x + t);
+      return Math.sin(P.k * 0.5 * qx) * Math.sin(P.k * 0.5 * qy);
+    },
+  };
+  function field(x, y) {
+    let v = MODES[S.mode](x, y);
+    if (P.noise > 0) {
+      const t = P.t;
+      v += P.noise * 0.5 * Math.sin(11.3 * x + 2.7 * t) * Math.sin(13.7 * y - 3.1 * t) * Math.sin(7.9 * (x + y) + 1.9 * t);
+    }
+    return v;
+  }
+
+  // ---------- rendering ----------
+  const G = 180; // field resolution
+  const off = document.createElement('canvas'); off.width = off.height = G;
+  const octx = off.getContext('2d');
+  const img = octx.createImageData(G, G);
+
+  let W = 0, DPR = 1;
+  function resize() {
+    DPR = Math.min(2, window.devicePixelRatio || 1);
+    const r = canvas.getBoundingClientRect();
+    W = Math.max(1, Math.round(r.width * DPR));
+    canvas.width = canvas.height = W;
+  }
+  new ResizeObserver(resize).observe(canvas);
+
+  function drawField() {
+    const d = img.data, glow = 0.25 + S.amp * 0.75;
+    for (let j = 0; j < G; j++) {
+      const y = (j / (G - 1)) * 2 - 1;
+      for (let i = 0; i < G; i++) {
+        const x = (i / (G - 1)) * 2 - 1;
+        const v = field(x, y), a = Math.abs(v);
+        const node = Math.exp(-a * P.sharp) * glow;    // nodal lines glow
+        const body = a * 0.10 * S.amp;                  // antinodes dimly lit
+        const o = (j * G + i) * 4;
+        d[o]     = 255 * Math.min(1, node * 0.55 + body * (v > 0 ? 0.9 : 0.35));
+        d[o + 1] = 255 * Math.min(1, node * 0.45 + body * 0.45);
+        d[o + 2] = 255 * Math.min(1, node * 0.30 + body * (v > 0 ? 0.3 : 0.8));
+        d[o + 3] = 255;
+      }
+    }
+    octx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.globalAlpha = 1;
+    ctx.drawImage(off, 0, 0, W, W);
+  }
+
+  // Sand: particles shaken off antinodes, settling on nodal lines.
+  const N = 3500;
+  const px = new Float32Array(N), py = new Float32Array(N);
+  function scatter() { for (let i = 0; i < N; i++) { px[i] = Math.random() * 2 - 1; py[i] = Math.random() * 2 - 1; } }
+  scatter();
+  function stepParticles() {
+    const e = 0.006, step = 0.0009 * (0.4 + S.res), shake = 0.02 * S.amp;
+    const respawn = 0.0005 + P.noise * 0.01;
+    for (let i = 0; i < N; i++) {
+      let x = px[i], y = py[i];
+      const a = Math.abs(field(x, y));
+      const gx = (Math.abs(field(x + e, y)) - Math.abs(field(x - e, y))) / (2 * e);
+      const gy = (Math.abs(field(x, y + e)) - Math.abs(field(x, y - e))) / (2 * e);
+      x -= gx * step + (Math.random() - 0.5) * shake * a;
+      y -= gy * step + (Math.random() - 0.5) * shake * a;
+      if (x < -1 || x > 1 || y < -1 || y > 1 || Math.random() < respawn) { x = Math.random() * 2 - 1; y = Math.random() * 2 - 1; }
+      px[i] = x; py[i] = y;
+    }
+  }
+  function drawParticles() {
+    ctx.fillStyle = 'rgba(243, 230, 205, 0.85)';
+    const s = Math.max(1, DPR * 1.1), h = W / 2;
+    for (let i = 0; i < N; i++) ctx.fillRect(h + px[i] * h - s / 2, h + py[i] * h - s / 2, s, s);
+  }
+
+  // ---------- readouts ----------
+  function readouts() {
+    // Count sign changes along a slightly off-centre horizontal and vertical line.
+    let c = 0;
+    for (const axis of [0, 1]) {
+      let prev = 0;
+      for (let i = 0; i <= 160; i++) {
+        const a = (i / 160) * 2 - 1, b = 0.137;
+        const v = axis ? MODES[S.mode](b, a) : MODES[S.mode](a, b);
+        const sg = Math.sign(v);
+        if (sg && prev && sg !== prev) c++;
+        if (sg) prev = sg;
+      }
+    }
+    $('nodes').textContent = c;
+    $('sym').textContent = { chladni: 'D4', interference: 'C' + P.s, radial: 'D' + P.s, fluid: '∞' }[S.mode];
+    const f = S.freq;
+    $('reg').textContent = f < 130 ? 'bass' : f < 260 ? 'tenor' : f < 520 ? 'alto' : f < 900 ? 'soprano' : 'whistle';
+  }
+
+  // ---------- voice ----------
+  const status = $('status'), btn = $('voiceBtn');
+  let audio = null;
+  async function startVoice() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      const src = ac.createMediaStreamSource(stream);
+      const an = ac.createAnalyser(); an.fftSize = 2048;
+      src.connect(an);
+      audio = { ac, stream, an, buf: new Float32Array(an.fftSize) };
+      btn.setAttribute('aria-pressed', 'true');
+      status.textContent = 'listening…';
+    } catch (err) {
+      status.textContent = 'the field cannot hear you (mic unavailable)';
+    }
+  }
+  function stopVoice() {
+    if (!audio) return;
+    audio.stream.getTracks().forEach(t => t.stop());
+    audio.ac.close();
+    audio = null;
+    btn.setAttribute('aria-pressed', 'false');
+    status.textContent = 'dreaming quietly';
+  }
+  btn.addEventListener('click', () => (audio ? stopVoice() : startVoice()));
+
+  // Autocorrelation pitch detection; returns { f, clarity, rms }.
+  function detect() {
+    const { an, buf, ac } = audio;
+    an.getFloatTimeDomainData(buf);
+    const n = buf.length;
+    let rms = 0;
+    for (let i = 0; i < n; i++) rms += buf[i] * buf[i];
+    rms = Math.sqrt(rms / n);
+    if (rms < 0.01) return { f: 0, clarity: 0, rms };
+    const minLag = Math.floor(ac.sampleRate / FMAX), maxLag = Math.min(n >> 1, Math.ceil(ac.sampleRate / FMIN));
+    let r0 = 0; for (let i = 0; i < n - maxLag; i++) r0 += buf[i] * buf[i];
+    let best = -1, bestLag = 0, prev = 1, dipped = false;
+    for (let lag = minLag; lag <= maxLag; lag++) {
+      let r = 0; for (let i = 0; i < n - maxLag; i++) r += buf[i] * buf[i + lag];
+      r /= r0 || 1;
+      if (r < prev) dipped = true;
+      if (dipped && r > best) { best = r; bestLag = lag; }
+      prev = r;
+    }
+    if (best < 0.3 || !bestLag) return { f: 0, clarity: Math.max(0, best), rms };
+    return { f: ac.sampleRate / bestLag, clarity: best, rms };
+  }
+  function listen() {
+    if (!audio) return;
+    const { f, clarity, rms } = detect();
+    if (f) {
+      setParam('freq', S.freq + (Math.min(FMAX, Math.max(FMIN, f)) - S.freq) * 0.2, true);
+      setParam('coh', S.coh + (Math.min(1, clarity) - S.coh) * 0.1, true);
+      status.textContent = 'singing';
+    } else {
+      status.textContent = rms > 0.01 ? 'hearing breath' : 'listening…';
+    }
+    setParam('amp', S.amp + (Math.min(1, rms * 6) - S.amp) * 0.15, true);
+  }
+
+  // ---------- loop ----------
+  let last = performance.now(), frame = 0;
+  function tick(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    S.t += dt * (reduceMotion ? 0.2 : 1);
+    listen();
+    derive();
+    drawField();
+    stepParticles();
+    drawParticles();
+    if ((frame++ & 7) === 0) readouts();
+    requestAnimationFrame(tick);
+  }
+  resize();
+  requestAnimationFrame(tick);
+})();
+</script>
+<a href="/" id="kwlHome" aria-label="Back to Koala Walla Land" style="position:fixed;z-index:9999;left:0;top:50%;transform:translateY(-50%);padding:14px 7px;border-radius:0 10px 10px 0;color:#fff;background:rgba(18,6,29,.72);border:1px solid rgba(255,255,255,.35);border-left:0;font:700 14px/1 system-ui,sans-serif;text-decoration:none">&larr;</a></body>
+</html>
