@@ -35,9 +35,16 @@ the instrument shapes the field
 
 ---
 
-## play
+## pages
 
-Open `index.html` in a browser. No build step and no dependencies.
+- **`index.html`: the desk.** This is the landing page, a virtual desk. Click the monitor for the studio, the keyboard for kaps, the mug for café, and the handheld for play. Click the neon kaomoji sign to change its face. The candle turns the lamp on and off.
+- **`studio.html`: the studio.** The cymatic field instrument, kept separate from the desk.
+
+The photos in `img/` are resized, and all their metadata (including any location data) has been removed.
+
+## studio
+
+Open `studio.html` in a browser. There is no build step and no dependencies.
 
 - **♡ LIVE VOICE** asks for the microphone. Your pitch sets the frequency, your loudness sets the amplitude, and how clear your tone is sets the coherence.
 - **modes**: Chladni (square-plate eigenmodes that blend from one (n, m) pair to the next), interference (point sources arranged in a ring), radial (circular-membrane modes), fluid (a warped standing wave).
