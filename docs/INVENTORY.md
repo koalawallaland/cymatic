@@ -11,7 +11,9 @@ Untouched copies of the uploaded files are in `originals/`.
 
 Also kept: `/lab/part-c/` (Lab2 with its original cat and the pun set names) and `/works/keykollectiv-65/` (the May 2026 KeyKollectiv keyboard, rebuilt from its chat with a back arrow and side-scroll added). `/lab/#desk` opens the lab desk directly.
 
-The desk build (`claude/marsupial-milk-toast-n28q3z` on the `cymatic` repo) lives at `/desk/` with its cymatic studio at `/desk/studio.html`. Its source is in `originals/desk-build/`.
+The home page is now the desk: shoji screens, the lab's flickering sign and the graffiti wall sit behind it, and the real keycap board sits on it. The desk build's notes live at `/desk/` with its cymatic studio at `/desk/studio.html`. Its source is in `originals/desk-build/`.
+
+The real photos were removed from the site. Katie only wants photos that show her desk, so none should return until she picks them.
 
 `cymatics-sim` is empty apart from its README, so there was nothing to bring in.
 

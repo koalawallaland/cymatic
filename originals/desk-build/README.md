@@ -37,8 +37,21 @@ the instrument shapes the field
 
 ## pages
 
-- **`index.html`: the desk.** This is the landing page, a virtual desk. Click the monitor for the studio, the keyboard for kaps, the mug for café, and the handheld for play. Click the neon kaomoji sign to change its face. The candle turns the lamp on and off.
-- **`studio.html`: the studio.** The cymatic field instrument, kept separate from the desk.
+Koala Walla Land starts at the desk. Every page is plain HTML with no build step.
+
+- **`index.html`: the desk.** The landing page. Click things on it:
+  - the monitor opens the studio
+  - the resin bottles open the Resin Lab
+  - the graffiti poster opens the wall
+  - the hanging sign opens the shop
+  - the sticky note opens the experiments
+  - the keyboard, mug and handheld go to the kaps, café and play sections
+
+  Click the neon kaomoji sign to change its face. The candle turns the lamp on and off.
+- **`studio.html`: the studio.** The cymatic field instrument, as its own tab.
+- **`lab/`: Mini Resin Lab.** Its neon signs are mainly kaomoji, each with a small traditional Chinese tube: 樹脂 (resin), 貓 (cat), 鍵帽 (keycap) and 入口 (entrance). `lab/part-c/` and `lab/classic/` are earlier versions.
+- **`wall/`, `shop/`:** the graffiti wall, and the shop (closed for now).
+- **`works/`:** every experiment: the keycap board, KeyKollectiv 65%, the ripple tank, and the first cymatic field.
 
 The photos in `img/` are resized, and all their metadata (including any location data) has been removed.
 

@@ -9,25 +9,91 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .slice(0, 5);
 ---
 <Base title="koalawallaland">
-  <section class="hero">
-    <div class="portal">
-      <div class="halo" aria-hidden="true"></div>
-      <video autoplay loop muted playsinline poster="/cat-poster.webp" aria-label="A fluffy grey cat hugging a keyboard, kneading its keys">
+  <section class="deskhero" id="deskhero">
+    <p class="sys">CRYNET SYSTEM // WELCOME TO THE INTERNET</p>
+    <h1 class="chrome">KOALA WALLA LAND</h1>
+    <div class="scene" id="scene">
+      <svg viewBox="0 0 1000 560" role="group" aria-label="Koala's desk. Behind it are a graffiti wall and shoji screens glowing with the resin lab.">
+        <defs>
+          <linearGradient id="wallG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#20151f"/><stop offset="1" stop-color="#2c1d29"/></linearGradient>
+          <linearGradient id="deskG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2027"/><stop offset="1" stop-color="#1a1217"/></linearGradient>
+          <radialGradient id="paper" cx=".5" cy=".42" r=".72"><stop offset="0" stop-color="#ffe2f1"/><stop offset=".55" stop-color="#ff9fd0"/><stop offset="1" stop-color="#6d2f79"/></radialGradient>
+          <radialGradient id="candleGlow"><stop offset="0" stop-color="#ffd9a8" stop-opacity=".62"/><stop offset="1" stop-color="#ffd9a8" stop-opacity="0"/></radialGradient>
+          <pattern id="lattice" width="52" height="58" patternUnits="userSpaceOnUse"><path d="M0 0H52M0 0V58" stroke="#1b1118" stroke-width="3"/></pattern>
+          <pattern id="brick" width="60" height="40" patternUnits="userSpaceOnUse"><path d="M0 20H60M0 40H60M20 0V20M50 20V40" stroke="#3a3146" stroke-width="2"/></pattern>
+          <pattern id="sakura" width="70" height="70" patternUnits="userSpaceOnUse"><circle cx="15" cy="18" r="5" fill="#f2b8c6" opacity=".45"/><circle cx="52" cy="48" r="7" fill="#f2b8c6" opacity=".3"/></pattern>
+        </defs>
+        <rect width="1000" height="390" fill="url(#wallG)"/>
+
+        <a class="hot" href="/wall/" aria-label="Graffiti wall">
+          <g class="lift">
+            <rect x="0" y="16" width="196" height="372" fill="#2a2333"/><rect x="0" y="16" width="196" height="372" fill="url(#brick)"/>
+            <path d="M18 150q28-96 58-22q22 48 46-40q16-46 54 10" fill="none" stroke="#ff7ab8" stroke-width="11" stroke-linecap="round"/>
+            <path d="M22 214q46-26 146-10" fill="none" stroke="#58d8f5" stroke-width="8" stroke-linecap="round"/>
+            <path d="M34 284c18-30 44 6 24 22c-20-16 6-52 24-22M104 264l20 42l18-42" fill="none" stroke="#d8ff3e" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="162" cy="56" r="10" fill="#d8ff3e"/>
+          </g>
+          <g class="tag"><rect x="38" y="326" width="120" height="30" rx="15"/><text x="98" y="346" text-anchor="middle">WALL</text></g>
+        </a>
+
+        <a class="hot" href="/lab/" aria-label="Shoji screens: enter the resin lab">
+          <rect x="548" y="12" width="452" height="376" fill="#150e15"/>
+          <g class="shojiGlow"><rect x="556" y="20" width="142" height="360" fill="url(#paper)"/><rect x="706" y="20" width="142" height="360" fill="url(#paper)"/><rect x="856" y="20" width="144" height="360" fill="url(#paper)"/></g>
+          <g fill="#3b1646" opacity=".5"><rect x="600" y="280" width="30" height="72" rx="7"/><rect x="606" y="266" width="18" height="16" rx="3"/><rect x="640" y="280" width="30" height="72" rx="7"/><rect x="646" y="266" width="18" height="16" rx="3"/><path d="M890 352c-3-30 2-52 16-64c-11-9-16-24-16-40l-6-40l24 18c14-5 30-5 44 0l24-18l-6 40c0 16-5 31-16 40c14 12 19 34 16 64z"/></g>
+          <rect x="556" y="20" width="142" height="360" fill="url(#lattice)"/><rect x="706" y="20" width="142" height="360" fill="url(#lattice)"/><rect x="856" y="20" width="144" height="360" fill="url(#lattice)"/>
+          <g class="signs" font-family="ui-rounded, 'Hiragino Maru Gothic ProN', sans-serif" font-weight="700" text-anchor="middle">
+            <g class="sign" style="--n:#ff2f9e"><rect x="572" y="42" width="52" height="92" rx="8"/><text x="598" y="82" font-size="26">樹</text><text x="598" y="116" font-size="26">脂</text></g>
+            <g class="sign" style="--n:#22e6ff"><rect x="932" y="42" width="52" height="92" rx="8"/><text x="958" y="82" font-size="26">鍵</text><text x="958" y="116" font-size="26">帽</text></g>
+            <g class="sign flicker" style="--n:#ff4a3d"><rect x="668" y="150" width="220" height="72" rx="10"/><text x="778" y="186" font-size="30">(っ˘ω˘ς) ENTER</text><text x="778" y="210" font-size="15" letter-spacing="2">入口 · THE LAB</text></g>
+          </g>
+        </a>
+
+        <a class="hot" href="/shop/" aria-label="Shop, closed for now">
+          <path d="M336 8L319 34M336 8L384 34" stroke="#8a7a86" stroke-width="2" fill="none"/>
+          <g class="lift"><rect x="306" y="32" width="88" height="40" rx="6" fill="#f6ede2"/><text x="350" y="52" text-anchor="middle" font-size="14" fill="#16131b" font-family="ui-monospace, monospace">SHOP</text><text x="350" y="66" text-anchor="middle" font-size="9" fill="#6e3a56" font-family="ui-monospace, monospace">closed ♡</text></g>
+        </a>
+
+        <rect y="388" width="1000" height="172" fill="url(#deskG)"/><rect y="386" width="1000" height="4" fill="#3d2d37"/>
+        <rect x="40" y="418" width="920" height="142" rx="14" fill="#f3e2e8"/><rect x="40" y="418" width="920" height="142" rx="14" fill="url(#sakura)"/>
+
+        <ellipse class="candleLight" cx="141" cy="430" rx="170" ry="130" fill="url(#candleGlow)"/>
+
+        <a class="hot" href="/desk/studio.html" aria-label="Monitor: open the cymatic studio">
+          <rect x="335" y="330" width="50" height="70" fill="#e9c7cf"/><rect x="300" y="396" width="120" height="10" rx="4" fill="#e9c7cf"/>
+          <rect x="196" y="96" width="328" height="246" rx="10" fill="#f1e9ec"/><rect x="196" y="300" width="328" height="42" fill="#f2b8c6"/>
+          <rect x="214" y="114" width="292" height="186" fill="#000"/>
+        </a>
+
+        <a class="hot" href="/works/" aria-label="Sticky note: all experiments">
+          <g class="lift"><g transform="rotate(4 560 300)"><rect x="522" y="262" width="82" height="74" fill="#f7d9e3"/><text x="563" y="295" text-anchor="middle" font-size="13" fill="#5a3a4a" font-family="ui-monospace, monospace">make</text><text x="563" y="314" text-anchor="middle" font-size="13" fill="#5a3a4a" font-family="ui-monospace, monospace">things ♡</text></g></g>
+        </a>
+
+        <g class="hot" id="candle" role="button" tabindex="0" aria-label="Candle: light or blow out" aria-pressed="true">
+          <g class="lift"><rect x="110" y="452" width="62" height="78" rx="10" fill="#f6a9a0" opacity=".92"/><rect x="116" y="458" width="50" height="18" rx="6" fill="#ffd2b8" opacity=".6"/><line x1="141" y1="452" x2="141" y2="440" stroke="#3a2a20" stroke-width="2"/><path class="flame" d="M141 416Q150 430 141 442Q132 430 141 416Z" fill="#ffd27a"/></g>
+        </g>
+
+        <a class="hot" href="/desk/#cafe" aria-label="Mug: cafe notes">
+          <g class="steam"><path d="M700 395q-8-14 0-28q8-14 0-28"/><path d="M720 392q-8-14 0-28q8-14 0-28"/><path d="M740 395q-8-14 0-28q8-14 0-28"/></g>
+          <g class="lift"><path d="M770 430q38 4 32 40q-6 30-36 26" fill="none" stroke="#efe6d8" stroke-width="12"/><path d="M680 410L772 410L766 512Q726 524 686 512Z" fill="#efe6d8"/><ellipse cx="726" cy="410" rx="46" ry="11" fill="#c9a27e"/></g>
+        </a>
+
+        <a class="hot" href="/desk/#play" aria-label="Handheld: games in progress">
+          <g transform="rotate(-8 855 490)"><g class="lift"><rect x="800" y="456" width="130" height="66" rx="24" fill="#f2b8c6" opacity=".9"/><rect x="838" y="464" width="54" height="40" rx="4" fill="#5b4a5a"/><rect x="844" y="469" width="42" height="30" fill="#bfe3d0" opacity=".8"/><path d="M816 486h14M823 479v14" stroke="#fff" stroke-width="5" stroke-linecap="round"/></g></g>
+        </a>
+      </svg>
+      <video class="screen" autoplay loop muted playsinline poster="/cat-poster.webp" aria-label="A fluffy grey cat hugging a keyboard on the monitor.">
         <source src="/cat.webm" type="video/webm" />
         <source src="/cat.mp4" type="video/mp4" />
       </video>
     </div>
-    <p class="sys">CRYNET SYSTEM // WELCOME TO THE INTERNET</p>
-    <h1 class="chrome">KOALA WALLA LAND</h1>
-    <p class="tag">sound · simulation · keycaps · whatever's on the bench</p>
-    <a class="down" href="#board">enter ↓</a>
+    <button class="stepback" id="stepback" hidden>Back to the desk</button>
   </section>
 
-  <section id="board" class="module reveal">
+  <section id="board" class="module onDesk">
+    <KeycapBoard />
     <p class="index">01 / keyboard</p>
     <h2 class="chrome">Pull it apart</h2>
-    <p>Drag the caps off and swap them. Type on it, and watch the field below change. Mind the paw.</p>
-    <KeycapBoard />
+    <p>This is the keyboard on the desk. Drag the caps off and swap them, or type and watch the field below change. Mind the paw.</p>
   </section>
 
   <section id="field" class="module reveal">
@@ -42,7 +108,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     <h2 class="chrome">More rooms</h2>
     <div class="rooms">
       <a class="room lab" href="/lab/"><b>Resin Lab</b><span>Mix, pour, cure, reveal. Your cap comes back to the board up top.</span></a>
-      <a class="room mydesk" href="/desk/"><b>Koala's Desk</b><span>Neon kaomoji, a candle lamp, kaps photos and the brew-ratio calculator.</span></a>
+      <a class="room mydesk" href="/desk/"><b>Desk Notes</b><span>Kaps history, cafe notes and the brew calculator.</span></a>
       <a class="room desk" href="/lab/#desk"><b>Lab Desk</b><span>Pour-over, kettle, tarot cards, candle and the rainy window.</span></a>
       <a class="room wall" href="/wall/"><b>Graffiti Wall</b><span>Spray something. The public wall opens soon.</span></a>
       <a class="room shop" href="/shop/"><b>Shop</b><span>Closed for now. Peek in the window.</span></a>
@@ -53,6 +119,39 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
 </Base>
 
 <style>
+  .deskhero { padding: .6rem 0 0; text-align: center; }
+  .deskhero .sys { margin: 0; }
+  .deskhero h1 { margin: .15rem 0 .6rem; font-size: clamp(1.7rem, 6.4vw, 3.4rem); }
+  .scene { --w: min(100vw, 1080px, 106svh); position: relative; width: var(--w); margin-left: calc(50% - var(--w) / 2); max-height: 640px; overflow: hidden; transition: max-height .36s cubic-bezier(.3,.8,.3,1), opacity .25s; }
+  .scene svg { display: block; width: 100%; height: auto; }
+  .scene .screen { position: absolute; left: 21.4%; top: 20.36%; width: 29.2%; height: 33.2%; object-fit: cover; background: #000; }
+  .deskhero.close .scene { max-height: 0; opacity: 0; }
+  .stepback { margin: .5rem auto 0; }
+  .hot { cursor: pointer; outline: none; }
+  .hot .lift { transition: transform .22s; transform-box: fill-box; transform-origin: center bottom; }
+  .hot:hover .lift, .hot:focus-visible .lift { transform: translateY(-4px); }
+  .hot:focus-visible { outline: 2px dashed #ff7ab8; }
+  .hot .tag { opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .hot:hover .tag, .hot:focus-visible .tag { opacity: 1; }
+  .tag rect { fill: #120d12; stroke: #f2b8c6; }
+  .tag text { fill: #f4e9ee; font: 15px ui-monospace, Menlo, monospace; letter-spacing: .1em; }
+  .sign { --n: #fff; }
+  .sign rect { fill: rgba(10,4,20,.8); stroke: var(--n); stroke-width: 2; filter: drop-shadow(0 0 8px var(--n)); }
+  .sign text { fill: #fff; filter: drop-shadow(0 0 3px #fff) drop-shadow(0 0 8px var(--n)) drop-shadow(0 0 16px var(--n)); }
+  /* an old tube: long steady stretches with two short dips, never a fast strobe */
+  .flicker { animation: tube 5.2s linear infinite; }
+  @keyframes tube { 0%, 7%, 11%, 17%, 20%, 63%, 66%, 100% { opacity: 1; } 8%, 10%, 18%, 19%, 64%, 65% { opacity: .24; } }
+  .steam path { fill: none; stroke: #fff; stroke-opacity: .35; stroke-width: 3; stroke-linecap: round; animation: rise 3.2s ease-in-out infinite; }
+  .steam path:nth-child(2) { animation-delay: 1.1s; } .steam path:nth-child(3) { animation-delay: 2.1s; }
+  @keyframes rise { 0% { opacity: 0; transform: translateY(8px); } 45% { opacity: 1; } 100% { opacity: 0; transform: translateY(-14px); } }
+  .flame { animation: flick .3s infinite alternate; transform-box: fill-box; transform-origin: center bottom; }
+  @keyframes flick { to { transform: scaleY(.9) scaleX(1.08); } }
+  #candle[aria-pressed="false"] .flame { display: none; }
+  .candleLight { transition: opacity .3s; }
+  .scene.dark .candleLight { opacity: 0; }
+  .onDesk { margin-top: 0; padding-top: .9rem; }
+  @media (prefers-reduced-motion: reduce) { .flicker, .steam path, .flame { animation: none; } .scene { transition: none; } }
+
   .hero { padding: 2.2rem 0 2rem; text-align: center; overflow-x: clip; }
   .portal { position: relative; width: min(100% - 34px, 380px); aspect-ratio: 1; margin: 0 auto 1.6rem; }
   .portal video { position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; border-radius: 50%; }
@@ -108,4 +207,20 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     });
   }, { threshold: 0.08 });
   document.querySelectorAll('.reveal').forEach((s) => io.observe(s));
+</script>
+
+<script>
+  // the first time you play with the board, the desk steps back so the keyboard takes over
+  const hero = document.getElementById('deskhero');
+  const back = document.getElementById('stepback');
+  const board = document.getElementById('board');
+  let moved = false;
+  board?.addEventListener('pointerup', () => {
+    if (moved) return; moved = true; hero?.classList.add('close'); if (back) back.hidden = false;
+  });
+  back?.addEventListener('click', () => { hero?.classList.remove('close'); back.hidden = true; scrollTo({ top: 0, behavior: 'smooth' }); });
+  const candle = document.getElementById('candle'); const scene = document.getElementById('scene');
+  const toggle = () => { const lit = candle?.getAttribute('aria-pressed') !== 'true'; candle?.setAttribute('aria-pressed', String(lit)); scene?.classList.toggle('dark', !lit); };
+  candle?.addEventListener('click', toggle);
+  candle?.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
 </script>
