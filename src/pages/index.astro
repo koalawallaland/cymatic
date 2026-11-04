@@ -33,17 +33,43 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
       <!-- her lamps, drawn from the product images and room photos she shared -->
       <div class="pool" style="left:22%;--c:rgba(255,196,120,.5)" aria-hidden="true"></div>
       <div class="pool" style="left:81%;--c:rgba(255,190,110,.62)" aria-hidden="true"></div>
-      <svg class="lamp" style="left:85%;height:36%" viewBox="0 0 60 120" role="img" aria-label="Delilah, a lamp with a fluted ivory shade"><!-- Delilah: tall fluted ivory shade, glossy tapered base -->
+      <svg class="lamp lit" style="left:85%;height:36%" viewBox="0 0 60 120" role="img" aria-label="Delilah, a lamp with a fluted ivory shade"><!-- Delilah: tall fluted ivory shade, glossy tapered base -->
         <defs><linearGradient id="ivoryGlow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2cf"/><stop offset="1" stop-color="#ffc877"/></linearGradient><linearGradient id="gloss" x1="0" x2="1"><stop offset="0" stop-color="#d8d3cc"/><stop offset=".3" stop-color="#fff"/><stop offset="1" stop-color="#bdb6b0"/></linearGradient></defs>
         <rect x="10" y="3" width="40" height="52" rx="2" fill="url(#ivoryGlow)"/>
         <path d="M14 3v52M18 3v52M22 3v52M26 3v52M30 3v52M34 3v52M38 3v52M42 3v52M46 3v52" stroke="#d99c55" stroke-width=".8" opacity=".55"/>
         <path d="M26 55h8q1 16 5 30q6 18 3 32H18q-3-14 3-32q4-14 5-30z" fill="url(#gloss)"/>
       </svg>
-      <svg class="lamp" style="left:18%;height:28%;bottom:44%" viewBox="0 0 70 110" aria-hidden="true"><!-- pink guardian-lion base, white drum shade -->
-        <rect x="9" y="2" width="52" height="42" rx="2" fill="#fbf8f4"/><rect x="9" y="2" width="52" height="42" rx="2" fill="none" stroke="#d9d0c8"/>
-        <rect x="33" y="44" width="4" height="8" fill="#e8c26f"/>
-        <g fill="#f7a8c6" stroke="#b4557f" stroke-width="1.4" stroke-linejoin="round"><path d="M18 106V90q0-10 6-16q-3-10 11-20q14 10 11 20q6 6 6 16v16z"/><circle cx="35" cy="66" r="11"/><circle cx="24" cy="60" r="4"/><circle cx="46" cy="60" r="4"/></g>
-        <g fill="#fff"><circle cx="31" cy="65" r="2"/><circle cx="39" cy="65" r="2"/></g><path d="M31 71q4 3 8 0" fill="none" stroke="#8c3a63" stroke-width="1.3"/><rect x="14" y="104" width="42" height="5" rx="1" fill="#e77fa9"/>
+      <svg class="lamp" style="left:16.500%;height:38%;bottom:44%" viewBox="0 0 70 150" role="img" aria-label="Pink foo dog lamp with a white drum shade, one paw resting on a ball"><!-- foo dog lamp -->
+        <defs><linearGradient id="fooGlaze" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc4dc"/><stop offset=".55" stop-color="#f58fb8"/><stop offset="1" stop-color="#d9628f"/></linearGradient></defs>
+        <rect x="6" y="1" width="58" height="33" rx="2" fill="#fbf8f4" stroke="#d9d0c8"/>
+        <rect x="29" y="34" width="12" height="8" fill="#f58fb8" stroke="#a84373" stroke-width="1"/>
+        <g transform="translate(0 40)">
+          <g fill="url(#fooGlaze)" stroke="#a84373" stroke-width="1.100" stroke-linejoin="round">
+            <path d="M12 102q2-5 7-5h32q5 0 7 5v8H12z"/>
+            <rect x="14" y="89" width="42" height="13"/>
+            <rect x="9" y="84" width="52" height="5" rx="1"/>
+            <path d="M17 82q-3-24 9-43h18q13 19 10 43z"/>
+            <circle cx="48" cy="76" r="9" fill="#ffd9e8"/>
+            <path d="M20 51h11v28h-11z"/>
+            <path d="M42 51h11v19h-11z"/>
+            <path d="M18 74h15q2 0 2 5v2H16v-2q0-5 2-5z"/>
+            <path d="M40 65h15q2 0 2 4v2H38v-2q0-4 2-4z"/>
+          </g>
+          <path d="M23 76v5M28 76v5M45 67v4M50 67v4" stroke="#a84373" fill="none" stroke-width="1"/>
+          <path d="M42 76a6 6 0 0 0 12 0" stroke="#d9628f" fill="none" stroke-width="1"/>
+          <g fill="#b2406f" opacity=".85"><rect x="18" y="92" width="6" height="7"/><rect x="27" y="92" width="6" height="7"/><rect x="36" y="92" width="6" height="7"/><rect x="45" y="92" width="6" height="7"/></g>
+          <g fill="url(#fooGlaze)" stroke="#a84373" stroke-width="1"><circle cx="18" cy="7" r="4.4"/><circle cx="18" cy="39" r="4.4"/><circle cx="24" cy="7" r="4.4"/><circle cx="24" cy="39" r="4.4"/><circle cx="30" cy="7" r="4.4"/><circle cx="30" cy="39" r="4.4"/><circle cx="36" cy="7" r="4.4"/><circle cx="36" cy="39" r="4.4"/><circle cx="42" cy="7" r="4.4"/><circle cx="42" cy="39" r="4.4"/><circle cx="48" cy="7" r="4.4"/><circle cx="48" cy="39" r="4.4"/><circle cx="18" cy="13" r="4.4"/><circle cx="52" cy="13" r="4.4"/><circle cx="18" cy="19" r="4.4"/><circle cx="52" cy="19" r="4.4"/><circle cx="18" cy="25" r="4.4"/><circle cx="52" cy="25" r="4.4"/><circle cx="18" cy="31" r="4.4"/><circle cx="52" cy="31" r="4.4"/></g>
+          <rect x="15" y="7" width="40" height="33" rx="6" fill="url(#fooGlaze)"/>
+          <g fill="none" stroke="#a84373" stroke-width=".9" stroke-linecap="round"><path d="M16 12a2.4 2.4 0 1 1 2.4 2.4a1.2 1.2 0 1 1 -1.2 -1.2"/><path d="M16 22a2.4 2.4 0 1 1 2.4 2.4a1.2 1.2 0 1 1 -1.2 -1.2"/><path d="M16 32a2.4 2.4 0 1 1 2.4 2.4a1.2 1.2 0 1 1 -1.2 -1.2"/><path d="M49 12a2.4 2.4 0 1 1 2.4 2.4a1.2 1.2 0 1 1 -1.2 -1.2"/><path d="M49 22a2.4 2.4 0 1 1 2.4 2.4a1.2 1.2 0 1 1 -1.2 -1.2"/><path d="M49 32a2.4 2.4 0 1 1 2.4 2.4a1.2 1.2 0 1 1 -1.2 -1.2"/><path d="M24 5a2.4 2.4 0 1 1 2.4 2.4a1.2 1.2 0 1 1 -1.2 -1.2"/><path d="M33 4a2.4 2.4 0 1 1 2.4 2.4a1.2 1.2 0 1 1 -1.2 -1.2"/><path d="M42 5a2.4 2.4 0 1 1 2.4 2.4a1.2 1.2 0 1 1 -1.2 -1.2"/></g>
+          <path d="M22 15q6-6 11 0q-3-1-4 1M48 15q-6-6-11 0q3-1 4 1" fill="none" stroke="#7d2a52" stroke-width="1.700" stroke-linecap="round"/>
+          <circle cx="27" cy="20" r="4.200" fill="#fff" stroke="#7d2a52" stroke-width="1.100"/><circle cx="43" cy="20" r="4.200" fill="#fff" stroke="#7d2a52" stroke-width="1.100"/>
+          <circle cx="27.500" cy="20.500" r="1.900" fill="#2a1420"/><circle cx="42.500" cy="20.500" r="1.900" fill="#2a1420"/>
+          <rect x="19" y="25" width="32" height="14" rx="6" fill="#ffc4dc" stroke="#a84373" stroke-width="1.100"/>
+          <path d="M31 24h8q2 0 1 2l-3 3h-4l-3-3q-1-2 1-2z" fill="#a84373"/>
+          <path d="M23 31q12 3 24 0q-1 7-12 7t-12-7z" fill="#4c1630" stroke="#7d2a52" stroke-width=".8"/>
+          <path d="M26 32l1.500 3 1.500-2.500 1.500 2.800 1.500-2.600 1.500 2.800 1.500-2.800 1.500 2.800 1.500-2.800 1.500 2.800 1.500-2.600 1.500 2.300 1.500-3" fill="#fff" stroke="#fff" stroke-width=".3"/>
+          <path d="M20 31q-2 2-1 5M50 31q2 2 1 5" fill="none" stroke="#a84373" stroke-width="1" stroke-linecap="round"/>
+        </g>
       </svg>
       <svg class="lamp" style="left:72%;height:31%" viewBox="0 0 70 110" role="img" aria-label="Ada, a matte white lamp with a smooth shade"><!-- Ada: smooth broad shallow cone, small cap, straight matte white stem -->
         <defs><linearGradient id="adaMatte" x1="0" x2="1"><stop offset="0" stop-color="#cfc9c4"/><stop offset=".4" stop-color="#f4f0ea"/><stop offset="1" stop-color="#bdb6b0"/></linearGradient></defs>
@@ -136,11 +162,15 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   @keyframes tube { 0%, 7%, 11%, 17%, 20%, 63%, 66%, 100% { opacity: 1; } 8%, 10%, 18%, 19%, 64%, 65% { opacity: .24; } }
   .shopsign { position: absolute; left: 1.5%; top: 3%; padding: .2em .5em; color: #16131b; background: #f6ede2; border-radius: 5px; font: 700 clamp(10px, 2.6vw, 13px)/1.1 var(--font-mono); text-align: center; text-decoration: none; transform: rotate(-3deg); }
   .shopsign small { display: block; font-size: .72em; color: #6e3a56; }
-  .ledge { position: absolute; left: 0; right: 0; bottom: 0; height: 24%; display: flex; align-items: flex-end; justify-content: space-between; gap: 2%; padding: 0 3.5% 2.5%; background: linear-gradient(160deg, #fff0fa, #f6c8ea 45%, #d7e7ff 75%, #cfc2ff); box-shadow: 0 -2px 0 #fff, 0 -6px 16px rgba(0,0,0,.45); }
+  .ledge { position: absolute; left: 0; right: 0; bottom: 0; height: 24%; display: flex; align-items: flex-end; justify-content: space-between; gap: 2%; padding: 0 3.5% 2.5%; background: linear-gradient(160deg, #5d4769, #4c3a62 45%, #3e4066 75%, #3a3560); box-shadow: 0 -2px 0 #fff, 0 -6px 16px rgba(0,0,0,.45); }
   .obj { display: block; padding: 0; min-height: 0; background: none; border: 0; cursor: pointer; transition: transform .2s; }
   .obj:hover, .obj:focus-visible { transform: translateY(-4px); }
   .obj:focus-visible, .monitor:focus-visible { outline: 2px solid #ff4a3d; outline-offset: 2px; }
   .obj svg { display: block; width: 100%; height: auto; overflow: visible; }
+  /* the keyboard is the brightest surface: the room sits a step down from it */
+  .band::after { content: ""; position: absolute; inset: 0; background: rgba(8, 4, 16, .24); pointer-events: none; }
+  #board.onDesk :global(.kb) { border-radius: 14px; box-shadow: 0 0 70px rgba(255, 244, 224, .34), 0 18px 60px rgba(255, 214, 238, .16); }
+  .neon.enter, .lamp.lit { z-index: 1; }
   .lamp { position: absolute; bottom: 20%; width: auto; pointer-events: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
   .pool { position: absolute; bottom: 0; width: 34%; height: 75%; transform: translateX(-30%); background: radial-gradient(50% 50% at 50% 55%, var(--c), transparent 72%); pointer-events: none; }
   .sampler { position: absolute; left: 59%; top: 8%; width: 15%; padding: 3px; background: #c9367f; border: 2px solid #ff7ac8; border-radius: 2px; cursor: pointer; }

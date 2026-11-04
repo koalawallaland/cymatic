@@ -19,7 +19,7 @@ The real photos were removed from the site. Katie only wants photos that show he
 
 Ported from `main` (the live plain-HTML site): the LIVE beat pocket (`public/pocket/`), the cross-stitch sampler, the desk page with its rooms, the kaomoji and traditional-character neon, and the original dusk window (on `/lab/koala`; `/lab` keeps the crystal skyline). The eight photos on `main` were left out; only photos Katie confirms show her desk should return.
 
-Her lamps are drawn on the home page from the images she shared with ChatGPT. Katie says Delilah (Pottery Barn) has the fluted shade and Ada (CB2) the smooth one. The pink lion and small lavender lamp come from product images and aren't confirmed as hers.
+Her lamps are drawn on the home page from the images she shared with ChatGPT. Katie says Delilah (Pottery Barn) has the fluted shade and Ada (CB2) the smooth one. The pink foo dog lamp is drawn from her product image. The small lavender lamp also comes from a product image and isn't confirmed as hers.
 
 ## Overlaps still to decide
 
