@@ -34,6 +34,11 @@
   .tabs a:hover { color: var(--ink); }
   .tabs a[aria-current="page"] { color: var(--bg); background: var(--accent); }
   .tabs a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (max-width: 560px) {
+    .tabs { justify-content: space-between; padding: 10px 12px; }
+    .tabs .brand { display: none; }
+    .tabs a { padding: 6px 10px; letter-spacing: 0.1em; }
+  }
   .app {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 280px;
@@ -102,9 +107,11 @@
 </head>
 <body>
 <nav class="tabs" aria-label="Pages">
-  <span class="brand">ʕ•ᴥ•ʔ koala</span>
+  <span class="brand">ʕ•ᴥ•ʔ koalawallaland</span>
   <a href="index.html">DESK</a>
   <a href="studio.html" aria-current="page">STUDIO</a>
+  <a href="lab/index.html">LAB</a>
+  <a href="works/index.html">WORKS</a>
 </nav>
 <div class="app">
   <header>

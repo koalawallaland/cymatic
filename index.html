@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>koala's desk</title>
-<meta name="description" content="A virtual desk: keycaps, coffee, games in progress, and a cymatic studio.">
+<title>koalawallaland</title>
+<meta name="description" content="Koala Walla Land starts at the desk: keycaps, coffee, games, the resin lab, the graffiti wall and a cymatic studio.">
 <style>
   :root {
     --bg: #120d12;
@@ -48,6 +48,11 @@
   .tabs a[aria-current="page"] { color: var(--bg); background: var(--pink); }
   .tabs a:focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; }
 
+  @media (max-width: 560px) {
+    .tabs { justify-content: space-between; padding: 10px 12px; }
+    .tabs .brand { display: none; }
+    .tabs a { padding: 6px 10px; letter-spacing: 0.1em; }
+  }
   main { max-width: 1120px; margin: 0 auto; padding: 0 16px 64px; }
 
   /* ---- the desk ---- */
@@ -141,14 +146,28 @@
     background: var(--pink); color: var(--bg); letter-spacing: .14em; font-size: 12px;
   }
   .btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .rooms { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .room {
+    display: flex; flex-direction: column; gap: 4px; min-height: 120px; padding: 16px;
+    text-decoration: none; border: 1px solid var(--line); border-radius: 10px; background: var(--panel);
+    transition: transform .2s, border-color .2s;
+  }
+  .room b { font-weight: 400; letter-spacing: .14em; color: var(--ink); }
+  .room span { color: var(--muted); font-size: 13px; }
+  .room:hover, .room:focus-visible { transform: translateY(-3px); border-color: var(--pink); outline: none; }
+  .room.lab { background: linear-gradient(150deg, #3a0f4f, var(--panel) 70%); }
+  .room.wall { background: repeating-linear-gradient(0deg, #231d30 0 26px, #1b1626 27px 28px); }
+  .lede a { color: var(--pink); }
   footer { text-align: center; color: var(--muted); font-size: 12px; letter-spacing: .16em; padding: 40px 16px; }
 </style>
 </head>
 <body>
 <nav class="tabs" aria-label="Pages">
-  <span class="brand">ʕ•ᴥ•ʔ koala</span>
+  <span class="brand">ʕ•ᴥ•ʔ koalawallaland</span>
   <a href="index.html" aria-current="page">DESK</a>
   <a href="studio.html">STUDIO</a>
+  <a href="lab/index.html">LAB</a>
+  <a href="works/index.html">WORKS</a>
 </nav>
 
 <main>
@@ -181,11 +200,60 @@
         <!-- neon backing board -->
         <rect x="300" y="22" width="400" height="104" rx="18" fill="#160e15" stroke="#3b2736"/>
         <!-- sticky note -->
-        <g transform="rotate(4 650 200)">
-          <rect x="610" y="160" width="86" height="80" fill="#f7d9e3"/>
+        <a class="hot" href="works/index.html" aria-label="Sticky note: all experiments">
+        <title>experiments</title>
+        <g class="lift"><g transform="rotate(4 650 200)">
+          <rect class="ring" x="610" y="160" width="86" height="80" fill="#f7d9e3"/>
           <text x="653" y="195" text-anchor="middle" font-size="13" fill="#5a3a4a" font-family="ui-monospace, monospace">make</text>
           <text x="653" y="214" text-anchor="middle" font-size="13" fill="#5a3a4a" font-family="ui-monospace, monospace">things ♡</text>
-        </g>
+        </g></g>
+        <g class="tag"><rect x="593" y="250" width="120" height="30" rx="15"/><text x="653" y="270" text-anchor="middle">WORKS</text></g>
+        </a>
+
+        <!-- graffiti poster -> wall -->
+        <a class="hot" href="wall/index.html" aria-label="Graffiti poster: the graffiti wall">
+          <title>graffiti wall</title>
+          <g class="lift">
+            <rect class="ring" x="40" y="70" width="140" height="150" rx="4" fill="#2a2333" stroke="#4b4466"/>
+            <g stroke="#3a3146" stroke-width="2">
+              <path d="M40 100h140M40 130h140M40 160h140M40 190h140"/>
+              <path d="M80 70v30M130 70v30M60 100v30M110 100v30M160 100v30M80 130v30M130 130v30M60 160v30M110 160v30M160 160v30M80 190v30M130 190v30"/>
+            </g>
+            <path d="M58 168 q18 -60 38 -14 q14 30 30 -26 q10 -30 34 6" fill="none" stroke="#ff7ab8" stroke-width="7" stroke-linecap="round"/>
+            <path d="M64 196 q30 -16 92 -6" fill="none" stroke="#58d8f5" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="150" cy="96" r="7" fill="#d8ff3e"/>
+          </g>
+          <g class="tag"><rect x="50" y="230" width="120" height="30" rx="15"/><text x="110" y="250" text-anchor="middle">WALL</text></g>
+        </a>
+
+        <!-- resin shelf -> lab -->
+        <a class="hot" href="lab/index.html" aria-label="Resin bottles and mold: the Mini Resin Lab">
+          <title>resin lab</title>
+          <g class="lift">
+            <rect class="ring" x="30" y="340" width="160" height="8" rx="2" fill="#5a4450"/>
+            <rect x="46" y="292" width="28" height="48" rx="6" fill="#ffb238" opacity=".9"/>
+            <rect x="52" y="282" width="16" height="12" rx="2" fill="#efe6d8"/>
+            <rect x="82" y="292" width="28" height="48" rx="6" fill="#c7a8ff" opacity=".9"/>
+            <rect x="88" y="282" width="16" height="12" rx="2" fill="#efe6d8"/>
+            <rect x="120" y="312" width="58" height="28" rx="7" fill="#ff77b4"/>
+            <rect x="130" y="318" width="38" height="16" rx="5" fill="#c9367f"/>
+            <circle cx="149" cy="326" r="4" fill="#d8ff3e" opacity=".9"/>
+          </g>
+          <g class="tag"><rect x="45" y="352" width="130" height="30" rx="15"/><text x="110" y="372" text-anchor="middle">RESIN LAB</text></g>
+        </a>
+
+        <!-- hanging sign -> shop -->
+        <a class="hot" href="shop/index.html" aria-label="Shop sign: the shop, closed for now">
+          <title>shop</title>
+          <path d="M752 20 L735 54 M752 20 L800 54" stroke="#8a7a86" stroke-width="2" fill="none"/>
+          <circle cx="752" cy="20" r="3" fill="#8a7a86"/>
+          <g class="lift">
+            <rect class="ring" x="722" y="52" width="88" height="40" rx="6" fill="#f6ede2"/>
+            <text x="766" y="72" text-anchor="middle" font-size="14" fill="#16131b" font-family="ui-monospace, monospace">SHOP</text>
+            <text x="766" y="86" text-anchor="middle" font-size="9" fill="#6e3a56" font-family="ui-monospace, monospace">closed ♡</text>
+          </g>
+          <g class="tag"><rect x="706" y="100" width="120" height="30" rx="15"/><text x="766" y="120" text-anchor="middle">SHOP</text></g>
+        </a>
 
         <!-- lamp -->
         <ellipse class="lampglow" cx="895" cy="300" rx="190" ry="170" fill="url(#glow)"/>
@@ -266,16 +334,32 @@
 
     <ul class="drawer" aria-label="Sections">
       <li><a href="studio.html">studio</a></li>
+      <li><a href="lab/index.html">resin lab</a></li>
+      <li><a href="wall/index.html">graffiti wall</a></li>
+      <li><a href="shop/index.html">shop</a></li>
+      <li><a href="works/index.html">experiments</a></li>
       <li><a href="#kaps">kaps</a></li>
       <li><a href="#cafe">café</a></li>
       <li><a href="#play">play</a></li>
     </ul>
-    <p class="hint">Tap things on the desk. The neon changes its face, and the candle turns the lamp on or off.</p>
+    <p class="hint">Everything on the desk opens something. The neon changes its face, and the candle turns the lamp on or off.</p>
   </div>
+
+  <section id="rooms">
+    <h2>ROOMS <span class="k">ᕕ( ᐛ )ᕗ</span></h2>
+    <p class="lede">The rest of Koala Walla Land.</p>
+    <div class="rooms">
+      <a class="room lab" href="lab/index.html"><b>Resin Lab</b><span>Mix, pour, cure, reveal, then put your cap on the board.</span></a>
+      <a class="room" href="lab/index.html#desk"><b>Lab Desk</b><span>Pour-over, kettle, tarot cards, a candle and the rainy window.</span></a>
+      <a class="room wall" href="wall/index.html"><b>Graffiti Wall</b><span>Spray something. Your tag stays in your browser for now.</span></a>
+      <a class="room" href="shop/index.html"><b>Shop</b><span>Closed for now. Peek in the window.</span></a>
+      <a class="room" href="works/index.html"><b>Experiments</b><span>Every version worth keeping, each still playable.</span></a>
+    </div>
+  </section>
 
   <section id="kaps">
     <h2>KAPS <span class="k">ʕ•ᴥ•ʔ</span></h2>
-    <p class="lede">koala_t_kaps. Keyboards, blank caps, artisans and coiled cables, collected since 2016.</p>
+    <p class="lede">koala_t_kaps. Keyboards, blank caps, artisans and coiled cables, collected since 2016. Or play with them: <a href="works/keycaps/index.html">pull the board apart</a>, or <a href="works/keykollectiv-65/index.html">place glowing artisans</a>.</p>
     <div class="grid">
       <figure class="wide"><img src="img/kaps-2016.jpg" alt="Black HHKB keyboard with a green skull artisan and a paw artisan, resting on a lap" loading="lazy"><figcaption>the HHKB days · 2016</figcaption></figure>
       <figure><img src="img/kaps-hhkb-cables.jpg" alt="Pink and black HHKB keyboards with paw artisan caps above a row of braided cables in pink, mint, black and white" loading="lazy"><figcaption>pastel paws + braided cables</figcaption></figure>
