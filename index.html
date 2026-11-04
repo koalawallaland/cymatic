@@ -114,6 +114,7 @@
   @media (prefers-reduced-motion: reduce) { .neon, .steam path, .flame { animation: none; } }
 
   .scene .lampglow, .scene .wallwash { transition: opacity .6s; }
+  .scene .lampglow, .scene .wallwash { pointer-events: none; }
   .scene.dim .lampglow { opacity: 0; }
   .scene .shade { transition: fill .6s; }
   .scene.dim .shade { fill: #5a4a4c; }
@@ -163,6 +164,12 @@
   .room.lab { background: linear-gradient(150deg, #3a0f4f, var(--panel) 70%); }
   .room.wall { background: repeating-linear-gradient(0deg, #231d30 0 26px, #1b1626 27px 28px); }
   .lede a { color: var(--pink); }
+  #samplerDlg { width: min(720px, calc(100vw - 32px)); padding: 14px; border: 6px solid var(--pink); border-radius: 10px; background: #c9367f; }
+  #samplerDlg::backdrop { background: rgba(10, 6, 12, .72); }
+  .scene #samplerDlg svg { position: static; inset: auto; display: block; width: 100%; height: auto; aspect-ratio: 100 / 56; }
+  #samplerDlg form { display: flex; justify-content: flex-end; margin-top: 10px; }
+  #samplerDlg button { font: inherit; font-size: 12px; letter-spacing: .14em; padding: 8px 16px; border-radius: 999px; border: 0; background: var(--bg); color: var(--ink); cursor: pointer; }
+  #samplerDlg button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   footer { text-align: center; color: var(--muted); font-size: 12px; letter-spacing: .16em; padding: 40px 16px; }
 </style>
 </head>
@@ -198,6 +205,16 @@
             <circle cx="52" cy="48" r="7" fill="#f2b8c6" opacity=".3"/>
             <circle cx="40" cy="10" r="2.5" fill="#e79bb0" opacity=".5"/>
           </pattern>
+          <symbol id="sampler" viewBox="0 0 100 56">
+            <rect width="100" height="56" fill="#fbe3ef"/>
+            <rect x="1.5" y="1.5" width="97" height="53" fill="none" stroke="#e05a8a" stroke-width="1"/>
+            <g id="stitches" stroke-width=".55" stroke-linecap="round"></g>
+            <g font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="6.6" fill="#2a1f33" letter-spacing=".2">
+              <text x="47" y="21">I have no</text>
+              <text x="47" y="31">mouth and I</text>
+              <text x="47" y="41">must scream.</text>
+            </g>
+          </symbol>
         </defs>
 
         <!-- wall + light -->
@@ -260,6 +277,17 @@
           </g>
           <g class="tag"><rect x="706" y="100" width="120" height="30" rx="15"/><text x="766" y="120" text-anchor="middle">SHOP</text></g>
         </a>
+
+        <!-- cross-stitch sampler -->
+        <g class="hot" id="samplerHot" role="button" tabindex="0" aria-label="Cross-stitch sampler: I have no mouth and I must scream. Open a closer look">
+          <title>cross-stitch</title>
+          <g class="lift">
+            <rect class="ring" x="707" y="146" width="132" height="81" rx="3" fill="#ff7ac8"/>
+            <rect x="711" y="150" width="124" height="73" fill="#c9367f"/>
+            <use href="#sampler" x="714" y="153" width="118" height="67"/>
+          </g>
+          <g class="tag"><rect x="713" y="236" width="120" height="30" rx="15"/><text x="773" y="256" text-anchor="middle">LOOK CLOSER</text></g>
+        </g>
 
         <!-- lamp -->
         <ellipse class="lampglow" cx="895" cy="300" rx="190" ry="170" fill="url(#glow)"/>
@@ -347,6 +375,10 @@
       </svg>
 
       <canvas class="screen" id="screen" aria-hidden="true"></canvas>
+      <dialog id="samplerDlg" aria-label="Cross-stitch sampler">
+        <svg viewBox="0 0 100 56" role="img" aria-label="Cross-stitched koala with a pink bow and no mouth, beside the words: I have no mouth and I must scream."><use href="#sampler"/></svg>
+        <form method="dialog"><button>close</button></form>
+      </dialog>
       <button class="neon" id="neon" aria-label="Neon kaomoji sign, click to change"></button>
     </div>
 
@@ -427,6 +459,37 @@
 (() => {
   'use strict';
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // cross-stitch koala (no mouth, pink bow)
+  {
+    const KOALA = [
+      '.gg.......rr.rr',
+      'gllg......rrkrr',
+      'gllgggggggggllg',
+      '.ggggggggggggg.',
+      '.gggegggggeggg.',
+      '.gggggnnnggggg.',
+      '.gggggnnnggggg.',
+      '..ggggggggggg..',
+      '...ggggggggg...',
+      '..gggglllgggg..',
+      '..gggglllgggg..',
+      '...ggg...ggg...',
+    ];
+    const THREAD = { g: '#9d93ad', l: '#f2b8c6', e: '#2a1f33', n: '#3a3146', r: '#ff4f93', k: '#b3245f' };
+    const C = 2.5, X0 = 7, Y0 = 13, NS = 'http://www.w3.org/2000/svg', g = document.getElementById('stitches');
+    KOALA.forEach((row, j) => [...row].forEach((ch, i) => {
+      if (!THREAD[ch]) return;
+      const x = X0 + i * C, y = Y0 + j * C, p = document.createElementNS(NS, 'path');
+      p.setAttribute('d', `M${x + .35} ${y + .35}L${x + C - .35} ${y + C - .35}M${x + C - .35} ${y + .35}L${x + .35} ${y + C - .35}`);
+      p.setAttribute('stroke', THREAD[ch]); g.appendChild(p);
+    }));
+    const dlg = document.getElementById('samplerDlg'), hot = document.getElementById('samplerHot');
+    const openDlg = () => { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); };
+    hot.addEventListener('click', openDlg);
+    hot.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDlg(); } });
+    dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+  }
 
   // keyboard keys
   const keys = document.getElementById('keys');
