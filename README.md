@@ -54,7 +54,6 @@ Koala Walla Land starts at the desk. Every page is plain HTML with no build step
 - **`wall/`, `shop/`:** the graffiti wall, and the shop (closed for now).
 - **`works/`:** every experiment: the keycap board, KeyKollectiv 65%, the ripple tank, and the first cymatic field.
 
-The photos in `img/` are resized, and all their metadata (including any location data) has been removed.
 
 ## studio
 
