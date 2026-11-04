@@ -21,6 +21,8 @@ Ported from `main` (the live plain-HTML site): the LIVE beat pocket (`public/poc
 
 The keycap tray is now four trinket trays with Katie's own doodles cut from her marker sheet (`public/doodles/`), and the pixel diamond engraved on the ornate silver one. Off-board caps land on the silver tray.
 
+Keyboard sounds are generated live by `public/keysound.js`, on the home board and in the lab. Four sounds: Creamy, Topre thock, Clicky, Marble clack.
+
 A small soldering station sits on the opening ledge and links to the lab desk.
 
 Her lamps are drawn on the home page from the images she shared with ChatGPT. Katie says Delilah (Pottery Barn) has the fluted shade and Ada (CB2) the smooth one. The pink foo dog lamp is drawn from her product image. The small lavender lamp also comes from a product image and isn't confirmed as hers.
