@@ -770,7 +770,7 @@ function catLeave(){EV.cat='gone';catSay(EV.hairs?'':'mrow!');catGo(-130,moldBox
 function rainStart(){EV.rain=true;if(EV.open)say('It\u2019s raining and the window is open. Tap the window to close it before the lab gets too humid.')}
 function goLab(){S.stage='lab';$('room').hidden=true;$('enter').hidden=true;$('labWin').hidden=true;$('stamp').hidden=true;$('saw').hidden=true;$('spell').hidden=true;$('wand').toggleAttribute('hidden',true);
   setStep(-1);show('tLab');S.picks=[];syncPalette();say('Your lab. Tap anything on the desk, or start a pour when you\u2019re ready.');
-  const c=$('catBtn'),L=sceneMap();c.hidden=false;catGo((L.ox+288*L.sc)/dpr,(L.oy+556*L.sc)/dpr,true);catSay('');EV.cat='sit';S.pitchT=.95;$('turn').textContent='Turn it over'}
+  const c=$('catBtn'),L=sceneMap();c.hidden=false;catGo((L.ox+L.d.cat[0]*L.sc)/dpr,(L.oy+L.d.cat[1]*L.sc)/dpr,true);catSay('');EV.cat='sit';S.pitchT=.95;$('turn').textContent='Turn it over'}
 function goFill(){S.stage='mix';$('labWin').hidden=true;$('catBtn').hidden=true;$('stamp').hidden=true;S.pitchT=.95;$('turn').textContent='Turn it over';S.sub='fill';S.fillA=S.fillB=0;S.stir=0;S.spin=0;S.picks=[];S.bloom=0;
   setStep(0);show('tFill');$('saw').hidden=true;$('spell').hidden=true;renderChips();syncPalette();
   say('Hold each bottle to pour. Fill both to the white line, equal parts. This is a 1:1 resin.')}
@@ -864,7 +864,12 @@ $('catBtn').onclick=()=>{if(EV.cat==='in')catLeave();else catSay('mrrp')};
 const sc2=document.createElement('canvas');let sg=sc2.getContext('2d');const tS=gl.createTexture();
 const base=document.createElement('canvas');let baseFor='';
 const OUT='#2b1650';
-function sceneMap(){const sc=Math.min(W/400,H/760);return{sc,ox:(W-400*sc)/2,oy:(H-760*sc)/2}}
+/* the desk has two arrangements: spread out on wide screens, in clear rows on phones. Each group keeps its drawing and moves as one piece. */
+const DESK={
+  wide:{w:1000,h:620,desk:372,stand:51,cat:[885,425],mon:[1.5,47.5,-87],win:[1.5,264,-81],pot:[1.2,25,-96],brew:[1.2,95,-124],tumbler:[1,175,-30],cards:[1.05,589,-161],candle:[1.05,598,-125]},
+  tall:{w:400,h:760,desk:332,stand:65,cat:[285,525],mon:[1,0,12],win:[1,0,18],pot:[.78,-4.5,76],brew:[.78,20,62],tumbler:[.8,32,48],cards:[1,0,-26],candle:[1,0,-26]}};
+function sceneMap(){const d=W/H>=1.15?DESK.wide:DESK.tall,sc=Math.min(W/d.w,H/d.h);return{sc,ox:(W-d.w*sc)/2,oy:(H-d.h*sc)/2,d}}
+const place=(g,d,n)=>{const q=d[n];g.save();g.transform(q[0],0,0,q[0],q[1],q[2])};
 function rr(g,x,y,w,h,r){g.beginPath();g.roundRect(x,y,w,h,r)}
 function lg(g,x0,y0,x1,y1,...st){const b=g.createLinearGradient(x0,y0,x1,y1);st.forEach((c,i)=>b.addColorStop(i/(st.length-1),c));return b}
 const CHROME=['#fff','#ff9bdc','#e9fbff','#9f8cff','#dcff8a'];
@@ -883,13 +888,14 @@ function drawPot(g,cx,cy,k,psi,t,zone){g.save();g.translate(cx,cy);g.scale(k,k);
 function drawBase(){const L=sceneMap(),key=W+'x'+H;if(baseFor===key)return;baseFor=key;base.width=W;base.height=H;const g=base.getContext('2d');
   g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,W,H);
   /* desk runs off both screen edges */
-  const dy=L.oy+444*L.sc;g.fillStyle=lg(g,0,dy,W*.6,H,'#fff0fa','#f6c8ea','#d7e7ff','#ffe4f4','#cfc2ff');g.fillRect(0,dy,W,H-dy);
+  const dy=L.oy+L.d.desk*L.sc;g.fillStyle='rgba(14,6,30,.68)';g.fillRect(0,0,W,dy);g.fillStyle=lg(g,0,dy,W*.6,H,'#fff0fa','#f6c8ea','#d7e7ff','#ffe4f4','#cfc2ff');g.fillRect(0,dy,W,H-dy);
   g.fillStyle='rgba(255,255,255,.7)';g.fillRect(0,dy,W,3*L.sc);
   for(let i=0;i<5;i++){g.fillStyle=`rgba(255,255,255,${.12-i*.015})`;g.beginPath();const x=W*(.1+i*.22);g.moveTo(x,dy);g.lineTo(x+60*L.sc,dy);g.lineTo(x+150*L.sc-W*.2,H);g.lineTo(x+40*L.sc-W*.2,H);g.fill()}
   g.setTransform(L.sc,0,0,L.sc,L.ox,L.oy);g.lineJoin='round';g.lineCap='round';
-  /* monitors: bezels and stands */
-  for(const m of MON){g.fillStyle=lg(g,m.x,m.y,m.x+m.w,m.y+m.h,...CHROME);rr(g,m.x-5,m.y-5,m.w+10,m.h+10,11);g.fill();g.lineWidth=2.5;g.strokeStyle=OUT;g.stroke();
+  /* one monitor, with stand; tap it to change what's on screen */
+  place(g,L.d,'mon');for(const m of [{...MON[0],sx:L.d.stand}]){g.fillStyle=lg(g,m.x,m.y,m.x+m.w,m.y+m.h,...CHROME);rr(g,m.x-5,m.y-5,m.w+10,m.h+10,11);g.fill();g.lineWidth=2.5;g.strokeStyle=OUT;g.stroke();
     g.fillStyle='#d9c8ff';rr(g,m.x+m.w/2-8,m.y+m.h+5,16,m.sx||20,3);g.fill();g.stroke()}
+  g.restore();place(g,L.d,'brew');
   /* kettle: gooseneck, pink body, wood handle */
   g.lineWidth=2.5;g.strokeStyle=OUT;
   g.lineWidth=8;g.beginPath();g.moveTo(144,462);g.bezierCurveTo(118,462,132,405,104,400);g.stroke();g.lineWidth=4.5;g.strokeStyle='#ff9ed4';g.beginPath();g.moveTo(144,462);g.bezierCurveTo(118,462,132,405,104,400);g.stroke();
@@ -907,6 +913,7 @@ function drawBase(){const L=sceneMap(),key=W+'x'+H;if(baseFor===key)return;baseF
   g.strokeStyle='rgba(164,70,120,.42)';g.lineWidth=1.5;for(let i=0;i<5;i++){g.beginPath();g.moveTo(226+i*14,400);g.quadraticCurveTo(238+i*8,420,247+i*3.2,438);g.stroke()}
   g.strokeStyle=OUT;g.lineWidth=2.5;g.fillStyle='#f4b1cd';g.beginPath();g.ellipse(254,398,39,5,0,0,6.3);g.fill();g.stroke();
   g.lineWidth=7;g.strokeStyle=OUT;g.beginPath();g.arc(294,420,10,-1.2,1.3);g.stroke();g.lineWidth=3.5;g.strokeStyle='#f4b1cd';g.beginPath();g.arc(294,420,10,-1.2,1.3);g.stroke();
+  g.restore();place(g,L.d,'tumbler');
   /* tumbler: almond rose, handle, lid and straw */
   g.lineWidth=2.5;g.strokeStyle=OUT;
   g.lineWidth=6;g.beginPath();g.moveTo(350,330);g.lineTo(358,270);g.stroke();g.lineWidth=2.8;g.strokeStyle='#f6dfd8';g.beginPath();g.moveTo(350,330);g.lineTo(358,270);g.stroke();
@@ -916,14 +923,16 @@ function drawBase(){const L=sceneMap(),key=W+'x'+H;if(baseFor===key)return;baseF
   g.fillStyle=lg(g,311,0,382,0,'#c99585','#ecc4b7','#dcae9f','#bf8a7a');g.beginPath();g.moveTo(311,344);g.lineTo(382,344);g.lineTo(372,450);g.lineTo(366,496);g.lineTo(327,496);g.lineTo(321,450);g.closePath();g.fill();g.stroke();
   g.fillStyle='rgba(255,255,255,.34)';g.beginPath();g.moveTo(320,352);g.lineTo(330,352);g.lineTo(334,446);g.lineTo(327,446);g.fill();
   g.fillStyle='#ecc4b7';rr(g,306,328,81,18,6);g.fill();g.stroke();
+  g.restore();place(g,L.d,'cards');
   /* tarot: a spread of face-down cards */
   const back=(x,y,a)=>{g.save();g.translate(x,y);g.rotate(a);g.fillStyle=lg(g,-26,-42,26,42,'#3b1b86','#b43fa8','#39c7e6');rr(g,-27,-43,54,86,6);g.fill();g.lineWidth=2.5;g.strokeStyle=OUT;g.stroke();
     g.strokeStyle='#ffe9f6';g.lineWidth=1.5;rr(g,-21,-37,42,74,4);g.stroke();g.fillStyle='#ffe9f6';g.beginPath();for(let i=0;i<8;i++){const r=i%2?4:13,q=i/8*6.283;g.lineTo(Math.cos(q)*r,Math.sin(q)*r)}g.closePath();g.fill();g.restore()};
   back(60,590,-.22);back(106,578,-.07);back(152,578,.07);back(198,590,.22);
+  g.restore();place(g,L.d,'candle');
   /* candle holder */
   g.lineWidth=2.5;g.strokeStyle=OUT;g.fillStyle=lg(g,226,0,272,0,...CHROME);g.beginPath();g.ellipse(249,612,27,8,0,0,6.3);g.fill();g.stroke();
   g.fillStyle=lg(g,233,0,265,0,'#ffc8ea','#fff','#ffa3d7');rr(g,233,540,32,70,5);g.fill();g.stroke();
-  g.fillStyle='rgba(255,255,255,.8)';g.beginPath();g.moveTo(243,540);g.quadraticCurveTo(243,566,247,567);g.quadraticCurveTo(250,552,252,540);g.fill();
+  g.fillStyle='rgba(255,255,255,.8)';g.beginPath();g.moveTo(243,540);g.quadraticCurveTo(243,566,247,567);g.quadraticCurveTo(250,552,252,540);g.fill();g.restore();
   g.setTransform(1,0,0,1,0,0);
 }
 const MON=[{x:16,y:138,w:178,h:112,sx:12},{x:16,y:272,w:178,h:112,sx:58},{x:216,y:276,w:72,h:108,sx:58}];
@@ -963,18 +972,19 @@ function sceneDraw(t){drawBase();const g=sg;if(sc2.width!==W||sc2.height!==H){sc
     return}
   g.drawImage(base,0,0);g.setTransform(L.sc,0,0,L.sc,L.ox,L.oy);
   /* window */
-  g.save();g.translate(224,134);rr(g,-5,-5,170,126,12);g.fillStyle=lg(g,0,0,160,116,...CHROME);g.fill();g.strokeStyle=OUT;g.lineWidth=2.5;g.stroke();rr(g,0,0,160,116,8);g.clip();g.scale(160/300,116/220);paintWin(g,t);g.restore();
-  monGame(g,t);monEdit(g,t);monFeed(g,t);
-  drawPot(g,70,430,.82,S.labPsi||42,t,[40,60]);
+  place(g,L.d,'win');g.save();g.translate(224,134);rr(g,-5,-5,170,126,12);g.fillStyle=lg(g,0,0,160,116,...CHROME);g.fill();g.strokeStyle=OUT;g.lineWidth=2.5;g.stroke();rr(g,0,0,160,116,8);g.clip();g.scale(160/300,116/220);paintWin(g,t);g.restore();g.restore();
+  place(g,L.d,'mon');{const sc=S.screen||0,m=MON[0];if(sc===0)monGame(g,t);else if(sc===1){g.save();g.translate(0,m.y-MON[1].y);monEdit(g,t);g.restore()}else{g.fillStyle='#17102b';rr(g,m.x,m.y,m.w,m.h,6);g.fill();g.save();g.translate(m.x+(m.w-MON[2].w)/2-MON[2].x,m.y+2-MON[2].y);monFeed(g,t);g.restore()}}g.restore();
+  place(g,L.d,'pot');drawPot(g,70,430,.82,S.labPsi||42,t,[40,60]);g.restore();
   /* candle flame */
-  if(S.candle!==false){const gl2=g.createRadialGradient(249,528,2,249,528,62);gl2.addColorStop(0,'rgba(255,214,150,.65)');gl2.addColorStop(1,'rgba(255,170,220,0)');g.fillStyle=gl2;g.beginPath();g.arc(249,528,62,0,6.3);g.fill();
+  place(g,L.d,'candle');if(S.candle!==false){const gl2=g.createRadialGradient(249,528,2,249,528,62);gl2.addColorStop(0,'rgba(255,214,150,.65)');gl2.addColorStop(1,'rgba(255,170,220,0)');g.fillStyle=gl2;g.beginPath();g.arc(249,528,62,0,6.3);g.fill();
     const fw=1+.14*Math.sin(t*9)+.07*Math.sin(t*17),lean=Math.sin(t*3.1)*2.2;g.fillStyle=lg(g,0,510,0,540,'#fff7b0','#ffbe58','#ff5fb8');g.beginPath();g.moveTo(249,540);g.bezierCurveTo(238*1+11-11*fw,530,244,520,249+lean,508-3*fw);g.bezierCurveTo(254,520,260+11*(fw-1),530,249,540);g.fill()}
-  g.strokeStyle=OUT;g.lineWidth=2;g.beginPath();g.moveTo(249,541);g.lineTo(249,534);g.stroke();
+  g.strokeStyle=OUT;g.lineWidth=2;g.beginPath();g.moveTo(249,541);g.lineTo(249,534);g.stroke();g.restore();
   /* kettle steam and coffee drip */
-  if(S.brew>0){for(let i=0;i<7;i++){const u=(t*.45+i/7)%1;g.strokeStyle=`rgba(255,255,255,${.65*(1-u)})`;g.lineWidth=3;g.beginPath();g.moveTo(104+Math.sin(u*9+i)*5,396-u*42);g.lineTo(106+Math.sin(u*9+i+.5)*5,388-u*42);g.stroke()}
+  place(g,L.d,'brew');if(S.brew>0){for(let i=0;i<7;i++){const u=(t*.45+i/7)%1;g.strokeStyle=`rgba(255,255,255,${.65*(1-u)})`;g.lineWidth=3;g.beginPath();g.moveTo(104+Math.sin(u*9+i)*5,396-u*42);g.lineTo(106+Math.sin(u*9+i+.5)*5,388-u*42);g.stroke()}
     const u=(t*1.5)%1;g.fillStyle='#6d3f22';g.beginPath();g.arc(254,444+u*30,2.2,0,6.3);g.fill()}
+  g.restore();
   /* magic sparkles over the pot */
-  for(let i=0;i<7;i++){const a=t*.8+i*.9,x=70+Math.cos(a)*(46+i*2),y=412+Math.sin(a*1.3)*30,z=1.8+Math.sin(t*2+i)*.9;g.fillStyle=['#fff','#d8ff3e','#ff9bdc'][i%3];g.save();g.translate(x,y);g.rotate(.78);g.fillRect(-z,-z,z*2,z*2);g.restore()}
+  place(g,L.d,'pot');for(let i=0;i<7;i++){const a=t*.8+i*.9,x=70+Math.cos(a)*(46+i*2),y=412+Math.sin(a*1.3)*30,z=1.8+Math.sin(t*2+i)*.9;g.fillStyle=['#fff','#d8ff3e','#ff9bdc'][i%3];g.save();g.translate(x,y);g.rotate(.78);g.fillRect(-z,-z,z*2,z*2);g.restore()}g.restore();
   if(S.toast&&S.toastT>0){g.font='700 13px "Atkinson Hyperlegible",sans-serif';g.textAlign='center';g.lineWidth=4;g.strokeStyle='#12061d';g.fillStyle='#fff';const y=S.toastY-(1.6-S.toastT)*22;g.strokeText(S.toast,S.toastX,y);g.fillText(S.toast,S.toastX,y);g.textAlign='left'}
 }
 function floatText(x,y,t){S.toast=t;S.toastX=x;S.toastY=y;S.toastT=1.6}
@@ -999,17 +1009,17 @@ function drawCard(c){const g=$('tarotC').getContext('2d');g.setTransform(1,0,0,1
   if(c.id==='ufo'){g.save();g.translate(0,-40);g.fillStyle='rgba(255,190,235,.5)';g.beginPath();g.moveTo(-40,20);g.lineTo(40,20);g.lineTo(115,180);g.lineTo(-115,180);g.fill();g.fillStyle='#d9f4ff';g.beginPath();g.ellipse(0,-20,50,54,0,Math.PI,0);g.fill();g.stroke();g.fillStyle=lg(g,-115,0,115,0,'#ff7cc7','#ffe2f4','#ff5fb8');g.beginPath();g.ellipse(0,0,115,36,0,0,6.3);g.fill();g.stroke();g.restore()}
   g.restore();
   g.fillStyle='#fff';g.font='400 46px "Modak","Trebuchet MS",sans-serif';g.textAlign='center';g.fillText(c.n,250,660);g.font='700 22px "Atkinson Hyperlegible",sans-serif';g.fillText(['I','II','III','IV','V','VI'][CARDS.indexOf(c)],250,86);g.textAlign='left'}
-function sceneTap(e){const L=sceneMap(),x=(e.clientX*dpr-L.ox)/L.sc,y=(e.clientY*dpr-L.oy)/L.sc;
-  if(x>=224&&x<=384&&y>=134&&y<=250){if(ufoTap())return;say('Palm trees, a pink sky and nothing unusual. Probably.');return}
-  if(y>=530&&y<=650&&x>=20&&x<=225){const c=CARDS[Math.random()*CARDS.length|0];S.fate=c.id;drawCard(c);$('tarotName').textContent=c.n;$('tarotText').textContent=c.t;$('tarot').hidden=false;return}
-  if(x>=226&&x<=272&&y>=500&&y<=625){S.candle=S.candle===false;floatText(249,496,S.candle?'lit':'*fff*');return}
-  if(x>=100&&x<=228&&y>=395&&y<=495){S.brew=S.brew>0?0:1;floatText(165,392,S.brew?'+10 Focus':'Brew paused');return}
-  if(x>=216&&x<=300&&y>=395&&y<=495){S.brew=1;floatText(255,392,'+1 Pour Over');return}
-  if(x>=305&&x<=400&&y>=270&&y<=500){floatText(340,316,'+50 Hydration');return}
-  if(x>=16&&x<=125&&y>=372&&y<=500){S.labPsi=S.labPsi>=60?42:(S.labPsi||42)+9;floatText(70,370,'The pot hums');return}
-  if(x>=16&&x<=194&&y>=138&&y<=250){floatText(105,134,'Quest: one more cap');return}
-  if(x>=16&&x<=194&&y>=272&&y<=384){floatText(105,268,'Render: 99%');return}
-  if(x>=216&&x<=288&&y>=276&&y<=384){floatText(252,270,'Just one more scroll');return}
+function sceneTap(e){const L=sceneMap(),X=(e.clientX*dpr-L.ox)/L.sc,Y=(e.clientY*dpr-L.oy)/L.sc,d=L.d;
+  const hit=(n,x0,y0,x1,y1)=>{const q=d[n],x=(X-q[1])/q[0],y=(Y-q[2])/q[0];return x>=x0&&x<=x1&&y>=y0&&y<=y1};
+  const pop=(n,x,y,s)=>{const q=d[n];floatText(x*q[0]+q[1],y*q[0]+q[2],s)};
+  if(hit('win',224,134,384,250)){if(ufoTap())return;say('Palm trees, a pink sky and nothing unusual. Probably.');return}
+  if(hit('cards',20,530,225,650)){const c=CARDS[Math.random()*CARDS.length|0];S.fate=c.id;drawCard(c);$('tarotName').textContent=c.n;$('tarotText').textContent=c.t;$('tarot').hidden=false;return}
+  if(hit('candle',226,500,272,625)){S.candle=S.candle===false;pop('candle',249,496,S.candle?'lit':'*fff*');return}
+  if(hit('brew',100,395,216,495)){S.brew=S.brew>0?0:1;pop('brew',165,392,S.brew?'+10 Focus':'Brew paused');return}
+  if(hit('brew',216,395,300,495)){S.brew=1;pop('brew',255,392,'+1 Pour Over');return}
+  if(hit('tumbler',305,270,400,500)){pop('tumbler',340,316,'+50 Hydration');return}
+  if(hit('pot',16,372,125,500)){S.labPsi=S.labPsi>=60?42:(S.labPsi||42)+9;pop('pot',70,370,'The pot hums');return}
+  if(hit('mon',16,138,194,250)){S.screen=((S.screen||0)+1)%3;pop('mon',105,158,['Quest: one more cap','Render: 99%','Just one more scroll'][S.screen]);return}
 }
 function drawSceneOverlay(t){
   sceneDraw(t);

@@ -25,6 +25,8 @@ Keyboard sounds are generated live by `public/keysound.js`, on the home board an
 
 The first cat-and-halo hero now lives on `/works/`. The cymatic field on the home page is a small pop-up opened from the singing dish, with the full version at `/works/cymatic-field/`. A small Instagram panel links to the main and reposts views. Part C sits on the right of the opening and links to the lab.
 
+The lab desk has a spread layout for wide screens and rows for phones. One monitor cycles the game, editor and feed when tapped.
+
 A small soldering station sits on the opening ledge and links to the lab desk.
 
 Her lamps are drawn on the home page from the images she shared with ChatGPT. Katie says Delilah (Pottery Barn) has the fluted shade and Ada (CB2) the smooth one. The pink foo dog lamp is drawn from her product image. The small lavender lamp also comes from a product image and isn't confirmed as hers.
