@@ -6,6 +6,7 @@
 <title>koalawallaland. CRYNET</title>
 <meta name="description" content="koalawallaland. CRYNET">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="prefetch" href="home.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Modak&family=Zen+Maru+Gothic:wght@900&display=swap">
 <style>
@@ -42,6 +43,12 @@
   .name { font: 400 clamp(38px, 10.5vw, 104px)/.95 "Modak", "Arial Rounded MT Bold", sans-serif; color: #fff; -webkit-text-stroke: 1px #6b1a5c; text-shadow: 0 0 2px #fff, 0 0 14px #ff4fa8, 0 0 34px #ff4fa8, 0 5px 0 #b22a84; }
   .net { padding: .24em .5em .28em .74em; font: 900 clamp(20px, 5vw, 44px)/1 "Zen Maru Gothic", sans-serif; letter-spacing: .24em; color: #fff; background: rgba(10,4,20,.72); border-radius: 10px; text-shadow: 0 0 3px #fff, 0 0 10px #22e6ff, 0 0 24px #22e6ff; box-shadow: 0 0 24px rgba(34,230,255,.45); }
   @media (prefers-reduced-motion: reduce) { .lock.jig, .lock.jig .shackle { animation: none; } }
+  .doors i, .glow, .seam, .floor, .ghost, main { transition: transform .85s cubic-bezier(.65,0,.3,1), opacity .5s ease; }
+  .shackle { transition: transform .3s cubic-bezier(.3,1.6,.5,1); }
+  .open .shackle { transform: translateY(-16px); }
+  .open.sliding .doors i:nth-child(-n+2) { transform: translateX(-200%); }
+  .open.sliding .doors i:nth-child(n+3) { transform: translateX(200%); }
+  .open.sliding .glow, .open.sliding .seam, .open.sliding .floor, .open.sliding .ghost, .open.sliding main { opacity: 0; }
 </style>
 </head>
 <body>
@@ -70,7 +77,7 @@
   </svg>
 </div>
 <main>
-  <button type="button" class="lock" aria-label="Padlock. The shoji screens are locked.">
+  <button type="button" class="lock" aria-label="Padlock. Open the shoji screens to go to the desk.">
     <svg viewBox="0 0 160 190" aria-hidden="true">
       <defs>
         <linearGradient id="pearl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffafd"/><stop offset=".4" stop-color="#fde6f1"/><stop offset=".7" stop-color="#f7cfe3"/><stop offset="1" stop-color="#fdeef6"/></linearGradient>
@@ -89,7 +96,19 @@
 </main>
 <script>
   const l = document.querySelector('.lock');
-  l.addEventListener('click', () => { l.classList.remove('jig'); void l.offsetWidth; l.classList.add('jig'); });
+  const b = document.body;
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let opening = false;
+  l.addEventListener('click', () => {
+    if (opening) return;
+    opening = true;
+    if (calm) { location.href = 'home.html'; return; }
+    b.classList.add('open');
+    setTimeout(() => b.classList.add('sliding'), 300);
+    setTimeout(() => { location.href = 'home.html'; }, 1150);
+  });
+  // coming back to this page shows the lock closed again
+  addEventListener('pageshow', () => { opening = false; b.classList.remove('open', 'sliding'); });
 </script>
 </body>
 </html>
