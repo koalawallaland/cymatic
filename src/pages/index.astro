@@ -9,8 +9,8 @@ import OuijaBoard from '../components/OuijaBoard.astro';
 import TarotDeck from '../components/TarotDeck.astro';
 import { getCollection } from 'astro:content';
 
-// Paste a public Apple Music playlist link here and the player switches to it.
-const APPLE_PLAYLIST = '';
+// A public Apple Music album, song or playlist link. Empty falls back to the beat pocket.
+const APPLE_PLAYLIST = 'https://music.apple.com/us/album/wine-pon-you-sped-up-single/1729472925';
 const embed = APPLE_PLAYLIST.replace('https://music.apple.com', 'https://embed.music.apple.com');
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
@@ -35,14 +35,14 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
         <section aria-labelledby="h-mu">
           <h2 id="h-mu">Music</h2>
           {embed ? (
-            <iframe class="am" title="Apple Music playlist" src={embed} height="150" loading="lazy" allow="autoplay *; encrypted-media *; fullscreen *" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"></iframe>
+            <iframe class="am" title="wine pon you (sped up), Rosie xo and Brown Eyed Girl, on Apple Music" src={embed} height="175" loading="lazy" allow="autoplay *; encrypted-media *; fullscreen *" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"></iframe>
           ) : (
             <button type="button" class="player" data-pocket>
               <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
               <span>Play the beat pocket</span>
             </button>
-            <a class="amlink" href="https://music.apple.com/profile/koalawallaland" target="_blank" rel="noopener">Apple Music</a>
           )}
+          <p class="mlinks"><a href="https://music.apple.com/profile/koalawallaland" target="_blank" rel="noopener">My Apple Music</a>{embed && <button type="button" data-pocket>Beat pocket</button>}</p>
         </section>
       </div>
       <section aria-labelledby="h-ou">
@@ -91,8 +91,8 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     .centre :global(.scene) { max-width: min(100%, 72vh); }
   }
   h2 { margin: 0 0 .65rem; font: 900 1.05rem/1.2 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', sans-serif; letter-spacing: 0; color: #ffd3e8; text-shadow: 0 0 10px rgba(255,79,168,.6); }
-  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  .ig { display: grid; grid-template-columns: 1fr 1fr; gap: .35rem; }
+  .pair { display: grid; gap: 1.6rem; }
+  .ig { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; max-width: 220px; }
   .ig a { display: flex; flex-direction: column; align-items: center; gap: .2rem; padding: .45rem .15rem; color: #27341a; background: linear-gradient(150deg, #fffdf6, #f6e6ee); border-radius: 10px; text-decoration: none; font-size: .72rem; }
   .ig img { width: 32px; height: 32px; object-fit: contain; }
   .player { display: flex; width: 100%; min-height: 66px; flex-direction: column; align-items: center; justify-content: center; gap: .3rem; padding: .4rem; font: inherit; font-size: .74rem; line-height: 1.2; color: #fff; background: linear-gradient(160deg, #3b1d66, #1a0d33); border: 1px solid rgba(255,245,251,.3); border-radius: 12px; cursor: pointer; }
@@ -101,7 +101,8 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .player .eq i { width: 5px; height: 100%; background: linear-gradient(0deg, #d8ff3e, #ff4fa8); transform-origin: bottom; animation: peq 1s ease-in-out infinite alternate; }
   .player .eq i:nth-child(2) { animation-delay: -.4s; } .player .eq i:nth-child(3) { animation-delay: -.7s; }
   @keyframes peq { from { transform: scaleY(.25); } to { transform: scaleY(1); } }
-  .amlink { display: block; margin-top: .35rem; font-size: .76rem; text-align: center; }
+  .mlinks { display: flex; gap: .9rem; align-items: baseline; margin: .4rem 0 0; font-size: .8rem; }
+  .mlinks button { padding: 0; font: inherit; color: var(--accent); background: none; border: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
   .am { display: block; width: 100%; border: 0; border-radius: 12px; overflow: hidden; }
   @media (prefers-reduced-motion: reduce) { .player .eq i { animation: none; } }
 </style>
