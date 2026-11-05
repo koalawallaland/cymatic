@@ -247,6 +247,8 @@ const bow = 'M50 30 C30 8, 4 8, 8 30 C4 52, 30 52, 50 30 Z M50 30 C70 8, 96 8, 9
     micActive = false;
     stream: MediaStream | null = null;
     audioCtx: AudioContext | null = null;
+    micRequest = 0; // bumped on every stop, so a permission answer that arrives after closing is discarded
+    micStarting = false;
     analyser: AnalyserNode | null = null;
     timeData: Float32Array | null = null;
     droplets: { ang: number; rad: number; ph: number; s: number }[] = [];
@@ -317,6 +319,8 @@ const bow = 'M50 30 C30 8, 4 8, 8 30 C4 52, 30 52, 50 30 Z M50 30 C70 8, 96 8, 9
     }
 
     stopMic() {
+      this.micRequest++;
+      this.micStarting = false;
       this.micActive = false;
       this.stream?.getTracks().forEach((t) => { t.onended = null; t.stop(); });
       this.audioCtx?.close();
@@ -331,7 +335,7 @@ const bow = 'M50 30 C30 8, 4 8, 8 30 C4 52, 30 52, 50 30 Z M50 30 C70 8, 96 8, 9
     }
 
     async toggleMic() {
-      if (this.micActive) {
+      if (this.micActive || this.micStarting) {
         this.stopMic();
         this.setStatus('microphone off — using sliders');
         return;
@@ -340,12 +344,19 @@ const bow = 'M50 30 C30 8, 4 8, 8 30 C4 52, 30 52, 50 30 Z M50 30 C70 8, 96 8, 9
         this.setStatus('the mic needs a secure page (https or localhost)');
         return;
       }
+      const request = ++this.micRequest;
+      this.micStarting = true;
+      // pressed while the permission prompt is open, so closing the pop-up can cancel it
+      this.els.micBtn.setAttribute('aria-pressed', 'true');
       try {
-        this.stream = await navigator.mediaDevices.getUserMedia({
+        const stream = await navigator.mediaDevices.getUserMedia({
           audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: true },
         });
+        if (request !== this.micRequest) { stream.getTracks().forEach((t) => t.stop()); return; }
+        this.stream = stream;
         this.audioCtx = new AudioContext();
         if (this.audioCtx.state === 'suspended') await this.audioCtx.resume();
+        if (request !== this.micRequest) return; // stopMic has already released the stream
         this.analyser = this.audioCtx.createAnalyser();
         this.analyser.fftSize = 2048;
         this.analyser.smoothingTimeConstant = 0;
@@ -359,12 +370,14 @@ const bow = 'M50 30 C30 8, 4 8, 8 30 C4 52, 30 52, 50 30 Z M50 30 C70 8, 96 8, 9
         });
         this.floor = 0.02; // start high and settle down to this mic's real floor
         this.wasActive = false;
+        this.micStarting = false;
         this.micActive = true;
         this.els.micBtn.classList.add('active');
         this.els.micBtn.setAttribute('aria-pressed', 'true');
         this.els.freqSlider.disabled = true;
         this.setStatus('listening · sing to shape the field', true);
       } catch {
+        if (request !== this.micRequest) return;
         this.stopMic();
         this.setStatus('mic blocked — allow it in your browser settings');
       }
