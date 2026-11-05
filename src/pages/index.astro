@@ -335,8 +335,10 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
 
 <script>
   const pop = document.getElementById('cymPop')!;
-  document.querySelectorAll('[data-cym-open]').forEach((b) => b.addEventListener('click', () => { pop.hidden = !pop.hidden; }));
-  pop.querySelector('[data-cym-close]')!.addEventListener('click', () => { pop.hidden = true; });
+  // closing it also turns off the microphone if Live Voice was on
+  const closeCym = () => { pop.hidden = true; pop.querySelector<HTMLElement>('[data-el="micBtn"][aria-pressed="true"]')?.click(); };
+  document.querySelectorAll('[data-cym-open]').forEach((b) => b.addEventListener('click', () => { if (pop.hidden) pop.hidden = false; else closeCym(); }));
+  pop.querySelector('[data-cym-close]')!.addEventListener('click', closeCym);
   const ig = document.getElementById('igPanel') as HTMLDetailsElement;
   if (matchMedia('(min-width: 1101px)').matches) ig.open = true;
 </script>
