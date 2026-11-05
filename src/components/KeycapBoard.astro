@@ -108,6 +108,7 @@ const ARTISANS: Artisan[] = [
           <option value="marble">Marble clack</option>
         </select>
         <button type="button" class="mode" data-mode aria-pressed="false">tap to rearrange</button>
+        <button type="button" class="mode" data-reset>reset board</button>
       </div>
     </div>
     <section class="win" data-win hidden aria-label="Typing window">
@@ -129,7 +130,7 @@ const ARTISANS: Artisan[] = [
   .kb { display: block; container-type: inline-size; }
   .inner { --u: calc(100cqw / 15.7); position: relative; }
   .scroll, .tray, .bar { position: relative; z-index: 2; }
-  .board { padding: calc(var(--u) * .28); background: linear-gradient(150deg,#fff,#ffd6ee 28%,#cfe8ff 54%,#fff 70%,#d9caff); border-radius: calc(var(--u) * .3); box-shadow: 0 calc(var(--u) * .3) calc(var(--u) * .8) -8px rgba(0,0,0,.7), inset 0 2px 0 rgba(255,255,255,.7); }
+  .board { padding: calc(var(--u) * .28); background: linear-gradient(150deg,#fffdf6,#f4f0e4 42%,#e8ead9 72%,#fbf7ec); border-radius: calc(var(--u) * .3); box-shadow: 0 calc(var(--u) * .3) calc(var(--u) * .8) -8px rgba(0,0,0,.7), inset 0 2px 0 rgba(255,255,255,.7); }
   .row { display: flex; }
   .gap, .socket { width: calc(var(--u) * var(--w)); height: var(--u); flex: none; }
   .socket { position: relative; background: #3a3a40; box-shadow: inset 0 0 0 1px #222; border-radius: 2px; }
@@ -140,8 +141,9 @@ const ARTISANS: Artisan[] = [
   .socket.target { outline: 2px solid #ff7ab8; outline-offset: -2px; }
 
   .cap { position: absolute; z-index: 1; inset: 0; width: calc(var(--u) * var(--w)); height: var(--u); padding: calc(var(--u) * .035); border: 0; background: transparent; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; transition: transform .14s cubic-bezier(.2,1.5,.5,1); }
-  .top { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: #27341a; background: linear-gradient(160deg, #d6e6a2, #bdd28a); font: 500 calc(var(--u) * .24)/1 var(--font-mono, monospace); border-radius: calc(var(--u) * .1); box-shadow: inset 0 calc(var(--u) * -.07) 0 rgba(0,0,0,.14), inset 0 calc(var(--u) * .03) 0 rgba(255,255,255,.75), 0 1px 2px rgba(0,0,0,.5); }
-  .mod .top { color: #27341a; background: linear-gradient(160deg, #9fb26e, #8ba05e); }
+  .top { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: #27341a; background: linear-gradient(160deg, #c6d898, #a9bd7a); font: 700 calc(var(--u) * .26)/1 var(--font-body, system-ui, sans-serif); border-radius: calc(var(--u) * .1); box-shadow: inset 0 calc(var(--u) * -.07) 0 rgba(0,0,0,.14), inset 0 calc(var(--u) * .03) 0 rgba(255,255,255,.75), 0 1px 2px rgba(0,0,0,.5); }
+  .mod .top { color: #27341a; background: linear-gradient(160deg, #a2b673, #92a765); }
+  .socket[data-code='Escape'] .top, .socket[data-code='Enter'] .top { background: linear-gradient(160deg, #dde8bd, #c9d8a2); }
   .artisan .top { box-shadow: inset 0 calc(var(--u) * -.07) 0 rgba(0,0,0,.22), inset 0 calc(var(--u) * .04) 0 rgba(255,255,255,.55), 0 1px 3px rgba(0,0,0,.6); }
   .cap:hover { transform: translateY(-2px); }
   .cap:focus-visible { outline: 2px solid #ff7ab8; outline-offset: 1px; border-radius: 4px; }
@@ -242,6 +244,7 @@ const ARTISANS: Artisan[] = [
       if (K) { prof.value = K.profile; paintSound(); }
       soundBtn.addEventListener('click', () => { if (K) { K.on = !K.on; paintSound(); if (K.on) K.key({ code: 'KeyK' }); } });
       prof.addEventListener('change', () => { if (K) { K.profile = prof.value; K.on = true; paintSound(); K.key({ code: 'KeyK' }); } });
+      this.querySelector('[data-reset]')?.addEventListener('click', () => { try { localStorage.removeItem('kwl-board'); } catch {} location.reload(); });
       const mode = this.querySelector<HTMLElement>('[data-mode]')!;
       mode.addEventListener('click', () => {
         this.tapMode = !this.tapMode;
@@ -266,21 +269,50 @@ const ARTISANS: Artisan[] = [
 
     // caps cast in the resin lab arrive in the tray
     loadCastCaps() {
-      let list: { name?: string; img?: string }[] = [];
+      // every cap keeps the same id between visits, so positions can be remembered
+      this.querySelectorAll<HTMLElement>('.socket .cap').forEach((c) => { c.dataset.id = 'k:' + c.parentElement!.dataset.code; });
+      this.querySelectorAll<HTMLElement>('.tray .cap').forEach((c, i) => { c.dataset.id = 'a:' + i; });
+      let list: { id?: string; name?: string; img?: string }[] = [];
       try { list = JSON.parse(localStorage.getItem('kwl-caps') || '[]'); } catch { return; }
       if (!Array.isArray(list)) return;
       const fresh = list.filter((c) => typeof c?.img === 'string' && c.img.startsWith('data:image/'));
+      if (!fresh.length) this.restore();
       fresh.reverse().forEach((c) => {
         // cloned so it keeps this component's scoped styling
         const b = this.querySelector('.cap.artisan')!.cloneNode(true) as HTMLElement;
+        b.dataset.id = c.id || `c:${c.name}:${c.img!.length}`;
         b.setAttribute('aria-label', `${String(c.name || 'my pour').slice(0, 40)} keycap`);
         b.querySelector<HTMLElement>('.top')!.style.background = `center / cover url("${c.img}")`;
         this.tray.prepend(b);
       });
-      if (fresh.length) this.say('Your cast caps from the lab are on the silver tray.');
+      if (fresh.length) {
+        this.restore();
+        this.say(`${String(list[0].name || 'Your cast')} and your other lab casts are here.`);
+      }
     }
 
     say(s: string) { this.statusEl.textContent = s; }
+    restore() {
+      let map: Record<string, string> = {};
+      try { map = JSON.parse(localStorage.getItem('kwl-board') || '{}'); } catch { return; }
+      const moves = Object.entries(map).map(([id, at]) => {
+        const cap = this.querySelector<HTMLElement>(`.cap[data-id="${CSS.escape(id)}"]`);
+        const dest = at.startsWith('s:') ? this.querySelector<HTMLElement>(`.socket[data-code="${CSS.escape(at.slice(2))}"]`) : this.querySelector<HTMLElement>(`[data-tray-name="${CSS.escape(at.slice(2))}"]`);
+        return cap && dest ? { cap, dest } : null;
+      }).filter(Boolean) as { cap: HTMLElement; dest: HTMLElement }[];
+      moves.forEach(({ cap }) => cap.remove());
+      moves.forEach(({ cap, dest }) => dest.append(cap));
+    }
+
+    saveBoard() {
+      const map: Record<string, string> = {};
+      this.querySelectorAll<HTMLElement>('.cap[data-id]').forEach((c) => {
+        const at = c.parentElement!;
+        map[c.dataset.id!] = at.classList.contains('socket') ? 's:' + at.dataset.code : 't:' + at.dataset.trayName;
+      });
+      try { localStorage.setItem('kwl-board', JSON.stringify(map)); } catch {}
+    }
+
     name(c: HTMLElement) { return (c.getAttribute('aria-label') || 'keycap').replace(/ keycap$/, ''); }
 
     select(c: HTMLElement | null) {
@@ -475,7 +507,7 @@ const ARTISANS: Artisan[] = [
         const cap = s.querySelector<HTMLElement>('.cap');
         if (!cap || cap === this.held) return;
         cap.classList.remove('bapped'); void cap.offsetWidth; cap.classList.add('bapped'); (window as any).KWLKeys?.pop(); (window as any).KWLKeys?.swish();
-        this.later(() => { cap.classList.remove('bapped'); this.tray.append(cap); (window as any).KWLKeys?.land('silver'); this.say(`A paw swiped ${this.name(cap)} onto the silver tray.`); }, 170);
+        this.later(() => { cap.classList.remove('bapped'); this.tray.append(cap); this.saveBoard(); (window as any).KWLKeys?.land('silver'); this.say(`A paw swiped ${this.name(cap)} onto the silver tray.`); }, 170);
       }, dur * .58);
       this.later(() => { this.paw.hidden = true; this.busy = false; }, dur + 20);
     }
@@ -497,6 +529,7 @@ const ARTISANS: Artisan[] = [
       if (dest.hasAttribute('data-tray')) {
         dest.append(cap);
         (window as any).KWLKeys?.land(dest.dataset.soundKind);
+        this.saveBoard();
         this.say(`${this.name(cap)} is on the ${dest.dataset.trayName}.`);
         return;
       }
@@ -516,6 +549,7 @@ const ARTISANS: Artisan[] = [
       }
       dest.append(cap);
       (window as any).KWLKeys?.land('socket');
+      this.saveBoard();
       this.say(occupant ? `Swapped ${this.name(cap)} with ${this.name(occupant)}.` : `${this.name(cap)} is on the board.`);
     }
   }

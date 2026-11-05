@@ -104,42 +104,56 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
         </button>
         <button class="obj cassette" data-pocket aria-label="Cassette: open the live field"><svg viewBox="0 0 58 38" aria-hidden="true"><rect width="58" height="38" rx="5" fill="#b9a6ff"/><rect x="7" y="6" width="44" height="16" rx="3" fill="#f6ede2"/><circle cx="19" cy="14" r="4.500" fill="#2a1f33"/><circle cx="39" cy="14" r="4.500" fill="#2a1f33"/><rect x="15" y="27" width="28" height="7" rx="2" fill="#7a63c9"/></svg></button>
         <a class="obj solder" href="/lab/#desk" aria-label="Soldering station: go to the lab desk"><svg viewBox="0 0 60 44" aria-hidden="true"><rect x="2" y="24" width="30" height="18" rx="3" fill="#2a2433" stroke="#0f0a14"/><rect x="6" y="28" width="13" height="8" rx="1" fill="#7fe7ff"/><circle cx="26" cy="33" r="3.200" fill="#ff7ac8"/><path d="M36 42h20M46 42v-8" stroke="#b9b4c4" stroke-width="2.500" stroke-linecap="round"/><path d="M46 34q-5-4-6-10" fill="none" stroke="#b9b4c4" stroke-width="1.500"/><path d="M34 8l19 19" stroke="#ff7ac8" stroke-width="6" stroke-linecap="round"/><path d="M34 8L28 2" stroke="#d9d4e0" stroke-width="2"/><path d="M53 27q6 5 0 9T32 36" fill="none" stroke="#0f0a14" stroke-width="1.500"/></svg></a>
+        <button class="obj cymbtn" data-cym-open aria-label="Singing dish: open the small cymatic field"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="cdSheen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#ffb6e4"/><stop offset=".55" stop-color="#c4f4ff"/><stop offset=".8" stop-color="#d8ff3e"/><stop offset="1" stop-color="#b6a4ff"/></linearGradient></defs><circle cx="24" cy="24" r="22" fill="url(#cdSheen)" stroke="#2b1650" stroke-width="2"/><g fill="none" stroke="#2b1650" stroke-width="1.100" opacity=".55"><circle cx="24" cy="24" r="15"/><path d="M24 2q8 22 0 44M2 24q22 8 44 0"/></g><circle cx="24" cy="24" r="4" fill="#fff" stroke="#2b1650" stroke-width="1.500"/></svg></button>
         <a class="obj mug" href="/desk/#cafe" aria-label="Mug: cafe notes"><svg viewBox="0 0 54 50" aria-hidden="true"><path d="M38 16q15 1 12 15q-3 11-14 9" fill="none" stroke="#2b1650" stroke-width="6"/><path d="M38 16q15 1 12 15q-3 11-14 9" fill="none" stroke="#fff0fa" stroke-width="3"/><path d="M4 8H40L37 44Q22 49 7 44Z" fill="#fff0fa" stroke="#2b1650" stroke-width="2"/><ellipse cx="22" cy="9" rx="17" ry="4" fill="#9a6a45" stroke="#2b1650" stroke-width="2"/></svg></a>
         <a class="obj handheld" href="/desk/#play" aria-label="Handheld: games in progress"><svg viewBox="0 0 74 40" aria-hidden="true"><rect x="2" y="2" width="70" height="36" rx="13" fill="#ffb3d9" stroke="#2b1650" stroke-width="2"/><rect x="23" y="7" width="28" height="23" rx="2" fill="#7fe7ff" stroke="#2b1650" stroke-width="2"/><path d="M9 20h9M13.500 15v10" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="60" cy="16" r="3" fill="#fff"/><circle cx="65" cy="24" r="3" fill="#fff"/></svg></a>
       </div>
     </div>
+    <a class="partc" href="/lab/" aria-label="Part C the cat: go to her lab">
+<svg viewBox="0 0 120 120" aria-hidden="true">
+      <defs>
+      <linearGradient id="fur" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#f2e8ff"/><stop offset="1" stop-color="#c9ecff"/></linearGradient>
+      <linearGradient id="chr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#ff9bdc"/><stop offset=".5" stop-color="#e9fbff"/><stop offset=".72" stop-color="#9f8cff"/><stop offset="1" stop-color="#dcff8a"/></linearGradient>
+      <linearGradient id="iris" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a1a8c"/><stop offset=".45" stop-color="#e13dc3"/><stop offset=".75" stop-color="#38e8ff"/><stop offset="1" stop-color="#d8ff3e"/></linearGradient>
+      </defs>
+      <g stroke="#2b1650" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M84 96c20 3 27-13 19-25-3-5-10-4-10 2 0 5 6 5 4 11-2 5-9 5-14 3z" fill="url(#fur)"/>
+      <circle cx="93" cy="69" r="6.5" fill="url(#chr)"/>
+      <path d="M36 112c-6-20 4-37 24-37s30 17 24 37c-1 3-4 4-7 4H43c-3 0-6-1-7-4z" fill="url(#fur)"/>
+      <path d="M44 116c-2-7-1-13 2-17 3 4 3 11 2 17zM76 116c2-7 1-13-2-17-3 4-3 11-2 17z" fill="#d9c8ff" stroke-width="1.6"/>
+      <path d="M23 34 19 8c-.4-3 2-4 4-2l22 16zM97 34l4-26c.4-3-2-4-4-2L75 22z" fill="url(#fur)"/>
+      <path d="M28 27 25 14l12 9zM92 27l3-13-12 9z" fill="#ffa3d7" stroke="none"/>
+      <path d="M60 19c28 0 43 15 43 34 0 7-3 12-6 15l5 5-10 1-3 5-7-3c-7 3-14 4-22 4s-15-1-22-4l-7 3-3-5-10-1 5-5c-3-3-6-8-6-15 0-19 15-34 43-34z" fill="url(#fur)"/>
+      </g>
+      <path d="M60 22c-24 0-38 12-40 28 7-14 21-21 40-21s33 7 40 21c-2-16-16-28-40-28z" fill="#fff" opacity=".9"/>
+      <g stroke="#2b1650" stroke-width="2">
+      <ellipse cx="41" cy="55" rx="12.5" ry="16" fill="url(#iris)"/>
+      <ellipse cx="79" cy="55" rx="12.5" ry="16" fill="url(#iris)"/>
+      </g>
+      <ellipse cx="41" cy="56" rx="5" ry="9" fill="#180a33"/><ellipse cx="79" cy="56" rx="5" ry="9" fill="#180a33"/>
+      <g fill="#fff"><ellipse cx="36" cy="47" rx="5" ry="6.5"/><ellipse cx="74" cy="47" rx="5" ry="6.5"/><circle cx="46" cy="63" r="2.6"/><circle cx="84" cy="63" r="2.6"/><path d="M42 42l1 3 3 1-3 1-1 3-1-3-3-1 3-1zM80 42l1 3 3 1-3 1-1 3-1-3-3-1 3-1z"/></g>
+      <path d="M28 44c4-5 9-7 14-6M92 44c-4-5-9-7-14-6" fill="none" stroke="#2b1650" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M60 66c-1.500-2-5-1-4 1.500.5 1.500 2.500 2.500 4 4 1.500-1.500 3.500-2.500 4-4 1-2.500-2.500-3.500-4-1.500z" fill="#ff6fbf" stroke="#2b1650" stroke-width="1.2"/>
+      <path d="M60 72c-1 3-5 3-6 0M60 72c1 3 5 3 6 0" fill="none" stroke="#2b1650" stroke-width="1.8" stroke-linecap="round"/>
+      <g stroke="#2b1650" stroke-width="1.3" stroke-linecap="round" opacity=".75"><path d="M18 60 4 57M18 66 5 69M102 60l14-3M102 66l13 3"/></g>
+      <ellipse cx="24" cy="68" rx="6" ry="3" fill="#ffa3d7" opacity=".6"/><ellipse cx="96" cy="68" rx="6" ry="3" fill="#ffa3d7" opacity=".6"/>
+      <path d="M39 84c13 7 29 7 42 0l1 6c-14 7-30 7-44 0z" fill="url(#chr)" stroke="#2b1650" stroke-width="1.8" stroke-linejoin="round"/>
+      <rect x="53" y="89" width="14" height="13" rx="3.500" fill="url(#chr)" stroke="#2b1650" stroke-width="1.8"/><rect x="56" y="91" width="8" height="7" rx="2" fill="#fff" opacity=".85"/>
+      <ellipse cx="60" cy="13" rx="29" ry="6.500" fill="none" stroke="url(#chr)" stroke-width="3.500"/>
+      <g fill="#fff"><path d="M109 22l1.500 5 5 1.500-5 1.500-1.500 5-1.500-5-5-1.500 5-1.500zM10 84l1 3.500 3.500 1-3.500 1-1 3.500-1-3.500-3.500-1 3.500-1z"/></g>
+      </svg></button>
+    </a>
   </section>
 
   <section id="board" class="module onDesk">
     <KeycapBoard />
     <p class="index">01 / keyboard</p>
     <h2 class="chrome">Pull it apart</h2>
-    <p>This is the keyboard on the desk. Drag the caps off and swap them, or type and watch the field below change. Mind the paw.</p>
-  </section>
-
-  <section id="field" class="module reveal">
-    <p class="index">02 / cymatic field</p>
-    <h2 class="chrome">Sing to it</h2>
-    <p>Every key plays this field a new note. Turn on Live Voice and it follows your voice instead.</p>
-    <Cymatics />
-  </section>
-
-  <section class="hero reveal" id="portal">
-    <div class="portal">
-      <div class="halo" aria-hidden="true"></div>
-      <video autoplay loop muted playsinline poster="/cat-poster.webp" aria-label="A fluffy grey cat hugging a keyboard, kneading its keys">
-        <source src="/cat.webm" type="video/webm" />
-        <source src="/cat.mp4" type="video/mp4" />
-      </video>
-    </div>
-    <p class="sys">CRYNET SYSTEM // WELCOME TO THE INTERNET</p>
-    <p class="h1like chrome">KOALA WALLA LAND</p>
-    <p class="tag">sound · simulation · keycaps · whatever's on the bench</p>
-    <a class="down" href="#rooms">enter ↓</a>
+    <p>This is the keyboard on the desk. Drag the caps off and swap them, or type. <button type="button" class="singlink" data-cym-open>Open the singing dish</button> and each key plays it a new note. Mind the paw.</p>
   </section>
 
   <section id="rooms" class="module reveal">
-    <p class="index">03 / elsewhere</p>
+    <p class="index">02 / elsewhere</p>
     <h2 class="chrome">More rooms</h2>
     <div class="rooms">
       <a class="room lab" href="/lab/"><b>Resin Lab</b><span>Mix, pour, cure, reveal. Your cap comes back to the board up top.</span></a>
@@ -151,12 +165,60 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     </div>
     <p class="more"><a href="/works/">All experiments &rarr;</a></p>
   </section>
+  <details class="ig" id="igPanel">
+    <summary>insta ✦</summary>
+    <div class="igtiles">
+      <a href="https://www.instagram.com/koalawallaland/" target="_blank" rel="noopener"><img src="/doodles/round-eye.webp" alt="" /><b>main</b></a>
+      <a href="https://www.instagram.com/koalawallaland/reposts/" target="_blank" rel="noopener"><img src="/doodles/wing-b.webp" alt="" /><b>reposts</b></a>
+    </div>
+    <p>@koalawallaland</p>
+  </details>
+
+  <aside class="cympop" id="cymPop" hidden aria-label="Small cymatic field">
+    <header><span>✦ singing_dish.exe</span><a href="/works/cymatic-field/">full</a><button type="button" data-cym-close aria-label="Close the cymatic field">×</button></header>
+    <Cymatics />
+  </aside>
 </Base>
 
 <style>
   :global(#wavefield) { height: 1px; margin: 0; border: 0; opacity: 0; }
   :global(html) { background: #0a0614; }
   .opening { padding-top: .2rem; }
+  .opening { position: relative; }
+  .partc { position: absolute; z-index: 4; right: -146px; bottom: -14px; width: 186px; filter: drop-shadow(0 8px 12px rgba(0,0,0,.55)); transition: transform .2s; animation: partcBob 3.6s ease-in-out infinite; }
+  .partc:hover, .partc:focus-visible { transform: translateY(-5px) rotate(-2deg); }
+  .partc :global(svg) { display: block; width: 100%; height: auto; overflow: visible; }
+  @keyframes partcBob { 50% { translate: 0 -4px; } }
+  .cymbtn { width: 7%; }
+  .singlink { padding: 0; color: var(--accent); background: none; border: 0; font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  @media (max-width: 1100px) {
+    .partc { right: -2px; bottom: -8px; width: clamp(90px, 25%, 170px); }
+    .ledge { justify-content: flex-start; gap: .8%; padding-right: 25%; }
+    .monitor { width: 24%; }
+    .candle { width: 5%; } .cassette { width: 6.5%; } .solder { width: 6%; } .cymbtn { width: 6%; } .mug { width: 6%; } .handheld { width: 10%; }
+  }
+  .ig { margin: 1.2rem 0 0; padding: .6rem .7rem; color: var(--ink); background: rgba(20,10,38,.72); border: 1px solid rgba(255,245,251,.28); border-radius: 14px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); font: .78rem var(--font-mono); }
+  .ig summary { min-height: 30px; line-height: 30px; cursor: pointer; }
+  .igtiles { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; margin-top: .3rem; }
+  .igtiles a { display: flex; flex-direction: column; align-items: center; gap: .3rem; padding: .55rem .3rem; color: #27341a; background: linear-gradient(150deg,#fffdf6,#f6e6ee); border-radius: 10px; text-decoration: none; }
+  .igtiles img { width: 38px; height: 38px; object-fit: contain; }
+  .ig p { margin: .4rem 0 0; color: var(--muted); font-size: .68rem; text-align: center; }
+  @media (min-width: 1101px) { .ig { position: fixed; z-index: 30; left: 12px; top: 116px; width: 188px; margin: 0; } }
+  .cympop { position: fixed; z-index: 45; left: 12px; bottom: 12px; width: min(236px, calc(100vw - 24px)); overflow: hidden; color: #1d1830; background: linear-gradient(145deg,#eef0fb,#b9bedb); border: 2px solid; border-color: #fff #5d5f85 #5d5f85 #fff; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,.6); }
+  .cympop[hidden] { display: none; }
+  .cympop header { display: flex; align-items: center; gap: .4rem; padding: .25rem .4rem; color: #16131b; background: linear-gradient(90deg,#ff7ac8,#b9a6ff 60%,#6ff3ff); font: 700 .68rem var(--font-mono); }
+  .cympop header span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cympop header a { color: inherit; }
+  .cympop header button { width: 28px; height: 28px; padding: 0; color: inherit; background: rgba(255,255,255,.55); border: 0; border-radius: 4px; font: 700 .9rem var(--font-mono); cursor: pointer; }
+  .cympop :global(.cym) { padding: .5rem .5rem .6rem !important; border-radius: 0 !important; }
+  .cympop :global(.bow), .cympop :global(.subtitle), .cympop :global(.corner), .cympop :global(.note-sub), .cympop :global(.tuner), .cympop :global(.mode-row), .cympop :global(.sliders), .cympop :global(.readout), .cympop :global(.foot), .cympop :global(.status) { display: none !important; }
+  .cympop :global(.dish) { width: 100% !important; margin: 0 auto .35rem !important; }
+  .cympop :global(.note) { margin: 0 0 .3rem !important; }
+  .cympop :global(.note-name) { font-size: 1.15rem !important; }
+  .cympop :global(.mic-row) { margin: 0 !important; }
+  .cympop :global(.pill) { min-height: 36px !important; padding: .1rem .8rem !important; font-size: .85rem !important; }
+  @media (max-width: 560px) { .cympop { width: 164px; } }
+  @media (prefers-reduced-motion: reduce) { .partc { animation: none; } }
   .modak { margin: 0 0 .55rem; font: 400 clamp(2.05rem, 9.5vw, 3.3rem)/.95 "Modak", "Syne", sans-serif; letter-spacing: 0; background: linear-gradient(100deg,#fff 0%,#ffb6e4 18%,#d7f7ff 34%,#fff 46%,#b6a4ff 62%,#e8ffb0 78%,#fff 100%) 0 0 / 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: sheen 9s linear infinite; }
   @keyframes sheen { to { background-position: 220% 0; } }
   .prompt { margin: 0 0 .7rem; padding: .6rem .85rem; border: 1px solid rgba(255,245,251,.28); border-radius: 14px 14px 14px 4px; background: rgba(20,10,38,.7); backdrop-filter: blur(10px) saturate(1.5); -webkit-backdrop-filter: blur(10px) saturate(1.5); line-height: 1.35; }
@@ -221,16 +283,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   #board.onDesk { margin-top: 0; padding-top: .7rem; }
   @media (prefers-reduced-motion: reduce) { .modak, .enter, .flame { animation: none; } }
 
-  .hero { padding: 2.2rem 0 2rem; text-align: center; overflow-x: clip; }
-  .portal { position: relative; width: min(100% - 34px, 380px); aspect-ratio: 1; margin: 0 auto 1.6rem; }
-  .portal video { position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; border-radius: 50%; }
-  /* a spinning liquid-chrome ring */
-  .halo { position: absolute; inset: -12px; border-radius: 50%; background: conic-gradient(#fff, #9fa6c9, #ff7ab8, #e8ecff, #58d8f5, #8b8fb3, #fff); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px)); mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px)); filter: drop-shadow(0 0 16px rgba(160, 200, 255, .55)); animation: spin 9s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
   .chrome { background: linear-gradient(175deg, #fff 8%, #aab1d6 38%, #fdfdff 50%, #8d86b8 62%, #ffc8e4 95%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .h1like.chrome { margin: 0; font-size: clamp(2.1rem, 9.5vw, 3.6rem); letter-spacing: -.03em; overflow-wrap: anywhere; }
-  .sys { margin: 0 0 .4rem; color: #58d8f5; font-family: var(--font-mono); font-size: .72rem; letter-spacing: .14em; }
   .rooms { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: .8rem; margin-top: 1rem; }
   .room { display: flex; flex-direction: column; gap: .3rem; min-height: 8.5rem; padding: 1rem; color: var(--ink); border: 1px solid #4b4466; border-radius: 12px; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease; }
   .room b { font-family: var(--font-display); font-size: 1.25rem; }
@@ -244,8 +297,6 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .blog { background: #0d0b14; box-shadow: inset 0 0 22px rgba(88,216,245,.22); }
   .blog span { color: #58d8f5; font-family: var(--font-mono); font-size: .8rem; }
   .more { margin-top: 1rem; }
-  .tag { margin: .5rem 0 1.3rem; color: var(--muted); font-family: var(--font-mono); font-size: .8rem; letter-spacing: .08em; }
-  .down { display: inline-block; padding: .55rem 1.2rem; color: var(--ink); border: 1px solid #58d8f5; border-radius: 99px; box-shadow: 0 0 14px rgba(88, 216, 245, .35), inset 0 0 10px rgba(88, 216, 245, .2); font-family: var(--font-mono); font-size: .8rem; text-decoration: none; }
 
   .module { padding: 3.2rem 0 1rem; scroll-margin-top: 1rem; }
   .module h2 { margin: .2rem 0 .5rem; font-size: 2rem; }
@@ -257,14 +308,12 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   :global(html.js-reveal) .reveal.done { transform: none; transition: none; }
 
   @media (prefers-reduced-motion: reduce) {
-    .halo { animation: none; }
     :global(html.js-reveal) .reveal { transform: none; transition: none; }
   }
 </style>
 
 <script>
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (still) document.querySelector<HTMLVideoElement>('.portal video')?.pause();
   document.documentElement.classList.add('js-reveal');
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e) => {
@@ -282,6 +331,14 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   const dlg = document.getElementById('samplerDlg') as HTMLDialogElement;
   document.getElementById('samplerBtn')!.addEventListener('click', () => dlg.showModal());
   dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+</script>
+
+<script>
+  const pop = document.getElementById('cymPop')!;
+  document.querySelectorAll('[data-cym-open]').forEach((b) => b.addEventListener('click', () => { pop.hidden = !pop.hidden; }));
+  pop.querySelector('[data-cym-close]')!.addEventListener('click', () => { pop.hidden = true; });
+  const ig = document.getElementById('igPanel') as HTMLDetailsElement;
+  if (matchMedia('(min-width: 1101px)').matches) ig.open = true;
 </script>
 
 <script>

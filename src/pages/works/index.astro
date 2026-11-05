@@ -17,6 +17,20 @@ const works = [
 ];
 ---
 <Base title="Experiments — Koala Walla Land">
+  <section class="hero" id="portal">
+    <div class="portal">
+      <div class="halo" aria-hidden="true"></div>
+      <video autoplay loop muted playsinline poster="/cat-poster.webp" aria-label="A fluffy grey cat hugging a keyboard, kneading its keys">
+        <source src="/cat.webm" type="video/webm" />
+        <source src="/cat.mp4" type="video/mp4" />
+      </video>
+    </div>
+    <p class="sys">CRYNET SYSTEM // WELCOME TO THE INTERNET</p>
+    <p class="h1like chrome">KOALA WALLA LAND</p>
+    <p class="tag">sound · simulation · keycaps · whatever's on the bench</p>
+    <a class="down" href="/">back to the desk</a>
+  </section>
+
   <h1>Experiments</h1>
   <p>Every version worth keeping, each still playable.</p>
   <ul class="post-list">
@@ -28,3 +42,21 @@ const works = [
     ))}
   </ul>
 </Base>
+
+<style>
+
+  .chrome { background: linear-gradient(175deg, #fff 8%, #aab1d6 38%, #fdfdff 50%, #8d86b8 62%, #ffc8e4 95%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  .hero { padding: 2.2rem 0 2rem; text-align: center; overflow-x: clip; }
+  .portal { position: relative; width: min(100% - 34px, 380px); aspect-ratio: 1; margin: 0 auto 1.6rem; }
+  .portal video { position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; border-radius: 50%; }
+  /* a spinning liquid-chrome ring */
+  .halo { position: absolute; inset: -12px; border-radius: 50%; background: conic-gradient(#fff, #9fa6c9, #ff7ab8, #e8ecff, #58d8f5, #8b8fb3, #fff); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px)); mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px)); filter: drop-shadow(0 0 16px rgba(160, 200, 255, .55)); animation: spin 9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .h1like.chrome { margin: 0; font-size: clamp(2.1rem, 9.5vw, 3.6rem); letter-spacing: -.03em; overflow-wrap: anywhere; }
+  .sys { margin: 0 0 .4rem; color: #58d8f5; font-family: var(--font-mono); font-size: .72rem; letter-spacing: .14em; }
+  .tag { margin: .5rem 0 1.3rem; color: var(--muted); font-family: var(--font-mono); font-size: .8rem; letter-spacing: .08em; }
+  .down { display: inline-block; padding: .55rem 1.2rem; color: var(--ink); border: 1px solid #58d8f5; border-radius: 99px; box-shadow: 0 0 14px rgba(88, 216, 245, .35), inset 0 0 10px rgba(88, 216, 245, .2); font-family: var(--font-mono); font-size: .8rem; text-decoration: none; }
+    .halo { animation: none; }
+  @media (prefers-reduced-motion: reduce) { .halo { animation: none; } }
+</style>

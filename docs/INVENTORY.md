@@ -23,6 +23,8 @@ The keycap tray is now four trinket trays with Katie's own doodles cut from her 
 
 Keyboard sounds are generated live by `public/keysound.js`, on the home board and in the lab. Four sounds: Creamy, Topre thock, Clicky, Marble clack.
 
+The first cat-and-halo hero now lives on `/works/`. The cymatic field on the home page is a small pop-up opened from the singing dish, with the full version at `/works/cymatic-field/`. A small Instagram panel links to the main and reposts views. Part C sits on the right of the opening and links to the lab.
+
 A small soldering station sits on the opening ledge and links to the lab desk.
 
 Her lamps are drawn on the home page from the images she shared with ChatGPT. Katie says Delilah (Pottery Barn) has the fluted shade and Ada (CB2) the smooth one. The pink foo dog lamp is drawn from her product image. The small lavender lamp also comes from a product image and isn't confirmed as hers.
@@ -34,7 +36,7 @@ Her lamps are drawn on the home page from the images she shared with ChatGPT. Ka
 
 ## Links between rooms
 
-Casting a cap in `/lab/` and choosing "Put it on the keyboard" saves it in the visitor's browser. It then appears in the home page tray.
+Casting a cap in `/lab/` and choosing "Put it on the keyboard" saves the rendered cap with its own id in the visitor's browser. It appears on the silver tray at home, and every cap's position is remembered until "reset board".
 
 ## Not built yet
 
