@@ -45,56 +45,76 @@ const { posts } = Astro.props;
     <button type="button" class="book" data-book aria-label="Midori notebook. Open it to read the blog."><span class="cover"></span></button>
 
     <div class="pour" data-pour>
-      <svg viewBox="0 0 300 300">
+      <svg viewBox="-16 20 336 290">
         <defs>
-          <linearGradient id="dsPink" x1="0" x2="1"><stop offset="0" stop-color="#ff9fcb"/><stop offset=".5" stop-color="#ffc4de"/><stop offset="1" stop-color="#ee7fb1"/></linearGradient>
-          <linearGradient id="dsMatte" x1="0" x2="1"><stop offset="0" stop-color="#f3bfd1"/><stop offset=".45" stop-color="#fde0e9"/><stop offset="1" stop-color="#eeb4c8"/></linearGradient>
-          <linearGradient id="dsWood" x1="0" x2="1"><stop offset="0" stop-color="#a97545"/><stop offset=".5" stop-color="#d8ae7d"/><stop offset="1" stop-color="#b98955"/></linearGradient>
-          <linearGradient id="dsRose" x1="0" x2="1"><stop offset="0" stop-color="#d8a9a0"/><stop offset=".5" stop-color="#f1cfc6"/><stop offset="1" stop-color="#c8958c"/></linearGradient>
+          <linearGradient id="dsPink" x1="0" x2="1"><stop offset="0" stop-color="#f08dbb"/><stop offset=".38" stop-color="#ffc9e0"/><stop offset="1" stop-color="#e477aa"/></linearGradient>
+          <linearGradient id="dsRose" x1="0" x2="1"><stop offset="0" stop-color="#c58f85"/><stop offset=".35" stop-color="#f3d6cd"/><stop offset="1" stop-color="#b98278"/></linearGradient>
+          <linearGradient id="dsMatte" x1="0" x2="1"><stop offset="0" stop-color="#e9a9c0"/><stop offset=".3" stop-color="#fbd9e4"/><stop offset=".62" stop-color="#f8cfdc"/><stop offset="1" stop-color="#d98fac"/></linearGradient>
+          <linearGradient id="dsPlate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fde3eb"/><stop offset="1" stop-color="#f5c3d4"/></linearGradient>
+          <linearGradient id="dsWood" x1="0" x2="1"><stop offset="0" stop-color="#9c6a3c"/><stop offset=".45" stop-color="#deb684"/><stop offset="1" stop-color="#b08049"/></linearGradient>
+          <linearGradient id="dsGlass" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset=".2" stop-color="#fff" stop-opacity=".08"/><stop offset=".8" stop-color="#fff" stop-opacity=".06"/><stop offset="1" stop-color="#fff" stop-opacity=".32"/></linearGradient>
+          <filter id="dsSoft" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
           <clipPath id="dsCone"><path d="M112 118h76l-26 52h-24z"/></clipPath>
           <clipPath id="dsCarafe"><path d="M118 188h64q10 40 12 76q0 22-16 22h-56q-16 0-16-22q2-36 12-76z"/></clipPath>
           <clipPath id="dsCup"><path d="M226 216h52l-4 68q-1 8-10 8h-24q-9 0-10-8z"/></clipPath>
+          <clipPath id="dsBody"><path d="M31 170C28 205 14 245 6 268Q3 284 20 284H78Q95 284 92 268C84 245 70 205 67 170Z"/></clipPath>
         </defs>
-        <!-- carafe -->
-        <g class="hit" data-carafe role="button" tabindex="0" aria-label="Carafe. Pour a cup.">
-          <rect x="84" y="170" width="132" height="124" fill="transparent"/>
-          <g clip-path="url(#dsCarafe)"><rect data-coffee x="100" y="288" width="100" height="0" fill="#4b2413"/></g>
-          <path d="M118 188h64q10 40 12 76q0 22-16 22h-56q-16 0-16-22q2-36 12-76z" fill="rgba(235,245,255,.2)" stroke="#fff" stroke-width="3"/>
+        <g aria-hidden="true" fill="#0d0612" opacity=".55" filter="url(#dsSoft)">
+          <ellipse cx="46" cy="300" rx="66" ry="7"/><ellipse cx="176" cy="292" rx="52" ry="6"/><ellipse cx="278" cy="295" rx="30" ry="5"/>
         </g>
-        <!-- matte pink dripper with grounds -->
-        <g clip-path="url(#dsCone)"><ellipse data-grounds cx="150" cy="156" rx="30" ry="9" fill="#4b2d1d"/><rect data-water x="108" y="170" width="84" height="0" fill="rgba(112,66,35,.72)"/></g>
-        <path d="M108 112h84l-28 62h-28z" fill="url(#dsPink)" fill-opacity=".92"/>
-        <path d="M120 174h60l6 12h-72z" fill="url(#dsPink)"/>
-        <path d="M192 124q18 4 10 24q-5 10-18 8" fill="none" stroke="#ee7fb1" stroke-width="6"/>
-        <!-- drip -->
-        <circle class="drop" data-drop cx="150" cy="190" r="3" fill="#6f3a1b" opacity="0"/>
-        <!-- stream from the kettle spout -->
-        <path data-stream d="M136 100C144 102 150 108 150 124" fill="none" stroke="#bfe9ff" stroke-width="4" stroke-linecap="round" opacity="0"/>
-        <!-- tumbler -->
-        <g class="hit" data-cup role="button" tabindex="0" aria-label="Almond rose tumbler. Take a sip.">
-          <rect x="216" y="190" width="72" height="106" fill="transparent"/>
-          <g clip-path="url(#dsCup)"><rect data-cupfill x="222" y="292" width="60" height="0" fill="#6a3417"/></g>
-          <path d="M226 216h52l-4 68q-1 8-10 8h-24q-9 0-10-8z" fill="url(#dsRose)" fill-opacity=".55" stroke="#f6dcd5" stroke-width="2.500"/>
-          <path data-steam class="steam" d="M244 204q-7-10 0-20q7-10 0-20M260 204q-7-10 0-20q7-10 0-20" fill="none" stroke="#fff" stroke-width="2.500" stroke-linecap="round" opacity="0"/>
+        <g transform="translate(26 0)">
+          <!-- carafe -->
+          <g class="hit" data-carafe role="button" tabindex="0" aria-label="Carafe. Pour a cup.">
+            <rect x="84" y="170" width="132" height="124" fill="transparent"/>
+            <g clip-path="url(#dsCarafe)"><rect data-coffee x="100" y="288" width="100" height="0" fill="#4b2413"/></g>
+            <path d="M118 188h64q10 40 12 76q0 22-16 22h-56q-16 0-16-22q2-36 12-76z" fill="url(#dsGlass)" stroke="#f4f7ff" stroke-width="2.500"/>
+            <path d="M113 212q-5 28-6 52" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".75"/>
+          </g>
+          <!-- matte pink dripper with grounds -->
+          <g clip-path="url(#dsCone)"><ellipse data-grounds cx="150" cy="156" rx="30" ry="9" fill="#4b2d1d"/><rect data-water x="108" y="170" width="84" height="0" fill="rgba(112,66,35,.72)"/></g>
+          <path d="M192 122q20 2 14 24q-5 14-22 10" fill="none" stroke="#e98bb6" stroke-width="7" stroke-linecap="round"/>
+          <path d="M106 110q44 8 88 0l-30 66h-28z" fill="url(#dsPink)" fill-opacity=".94"/>
+          <ellipse cx="150" cy="110" rx="44" ry="7" fill="#ffd9ea" stroke="#e88fba" stroke-width="1.500"/>
+          <ellipse cx="150" cy="111" rx="37" ry="4.500" fill="#b65f8c"/>
+          <path d="M120 128l20 42M134 124l10 46M166 124l-10 46M180 128l-20 42" stroke="#d96fa3" stroke-width="1.200" opacity=".55"/>
+          <path d="M122 176h56q8 1 8 7v2q0 3-4 3h-64q-4 0-4-3v-2q0-6 8-7z" fill="url(#dsPink)"/>
+          <!-- drip -->
+          <circle class="drop" data-drop cx="150" cy="190" r="3" fill="#6f3a1b" opacity="0"/>
+          <!-- stream from the kettle spout -->
+          <path data-stream d="M134 98C142 99 150 106 150 124" fill="none" stroke="#c9eeff" stroke-width="3.500" stroke-linecap="round" opacity="0"/>
+          <!-- tumbler -->
+          <g class="hit" data-cup role="button" tabindex="0" aria-label="Almond rose tumbler. Take a sip.">
+            <rect x="216" y="190" width="72" height="106" fill="transparent"/>
+            <g clip-path="url(#dsCup)"><rect data-cupfill x="222" y="292" width="60" height="0" fill="#6a3417"/></g>
+            <path d="M226 216h52l-4 68q-1 8-10 8h-24q-9 0-10-8z" fill="url(#dsRose)" fill-opacity=".5" stroke="#f6dcd5" stroke-width="2.500"/>
+            <path d="M233 224l3 54" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".6"/>
+            <path data-steam class="steam" d="M244 204q-7-10 0-20q7-10 0-20M260 204q-7-10 0-20q7-10 0-20" fill="none" stroke="#fff" stroke-width="2.500" stroke-linecap="round" opacity="0"/>
+          </g>
         </g>
-        <!-- gooseneck kettle -->
+        <!-- base stays on the desk when the kettle lifts -->
         <g aria-hidden="true">
-          <path d="M-4 284h88l6 8q0 4-4 4H-8q-4 0-4-4z" fill="url(#dsMatte)" stroke="#dca0b8" stroke-width="1.500"/>
-          <ellipse cx="4" cy="290" rx="6" ry="2" fill="#2b1a22"/>
-          <rect x="66" y="287" width="13" height="5" rx="2.500" fill="#fff0f5"/>
+          <path d="M0 281h98l14 15H-14z" fill="url(#dsPlate)"/>
+          <path d="M-14 296h126v5q0 2-2 2H-12q-2 0-2-2z" fill="#dd9fb7"/>
+          <ellipse cx="4" cy="291" rx="8" ry="2.500" fill="#23141c"/>
+          <ellipse cx="94" cy="291" rx="9" ry="3" fill="#fff4f8" stroke="#dda0b8"/>
         </g>
         <g class="kettle" data-kettle role="button" tabindex="0" aria-label="Kettle. Hold to pour water over the coffee.">
-          <rect x="-14" y="170" width="124" height="116" fill="transparent"/>
-          <!-- gooseneck: leaves low on the body, climbs thin, tips out at the top -->
-          <path d="M70 276q12 2 16-14q4-20 7-56q1-16 4-22q2-5 9-7" fill="none" stroke="#f5c7d6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="-16" y="146" width="146" height="142" fill="transparent"/>
+          <!-- gooseneck, tapering from body to tip -->
+          <path d="M76 256C84 261 90 268 94 266C104 262 104 240 106 214C107 190 108 168 112 158C113 154 117 151 124 150L125 155C120 156 118 159 117 163C114 175 114 195 113 216C111 246 111 274 94 277C87 278 80 274 73 268Z" fill="url(#dsMatte)" stroke="#d695af" stroke-width="1"/>
           <!-- angled wood handle -->
-          <path d="M28 204l-10-6q-5-2-7 3l-14 44q-3 8 5 9q7 1 9-6l9-27q2-6 8-7z" fill="url(#dsWood)"/>
+          <path d="M33 177L20 169Q13 166 10 174L-9 230Q-12 243-2 244Q6 245 9 236L28 199Q31 192 31 186Z" fill="url(#dsWood)"/>
+          <path d="M16 176L-3 232M23 182L6 228" stroke="#8a5a30" stroke-width=".8" opacity=".45"/>
           <!-- matte conical body -->
-          <path d="M28 194h34l15 76q3 14-11 15H22q-14-1-11-15z" fill="url(#dsMatte)" stroke="#e0a8bf" stroke-width="1.500"/>
-          <path d="M11 271q33 7 66 0" fill="none" stroke="#e0a8bf" stroke-width="1"/>
+          <path d="M31 170C28 205 14 245 6 268Q3 284 20 284H78Q95 284 92 268C84 245 70 205 67 170Z" fill="url(#dsMatte)"/>
+          <g clip-path="url(#dsBody)">
+            <path d="M38 174C36 206 26 240 18 276" fill="none" stroke="#fff" stroke-width="9" opacity=".32" filter="url(#dsSoft)"/>
+            <rect x="0" y="276" width="100" height="10" fill="#c9829f" opacity=".5"/>
+          </g>
           <!-- lid and wood knob -->
-          <ellipse cx="45" cy="194" rx="17" ry="3.500" fill="#fff0f5" stroke="#e0a8bf" stroke-width="1"/>
-          <path d="M36 193q0-7 9-7t9 7q-9 3-18 0z" fill="url(#dsWood)"/>
+          <ellipse cx="49" cy="170" rx="18.500" ry="4" fill="#fde3ec" stroke="#dca0b8"/>
+          <path d="M37 168v-6q0-1 1-1.500q11-4 22 0q1 .5 1 1.500v6q-12 4-24 0z" fill="url(#dsWood)"/>
+          <ellipse cx="49" cy="160.500" rx="12" ry="3" fill="#e6c294"/>
         </g>
       </svg>
     </div>
@@ -145,7 +165,7 @@ const { posts } = Astro.props;
   .deskback { left: 0; right: 0; top: 62%; height: 38%; background: linear-gradient(#1b0f24, #08040d); }
   .desk { left: 0; right: 0; top: 60%; height: 31%; clip-path: polygon(7% 0, 93% 0, 100% 100%, 0 100%); background: linear-gradient(180deg, #4a3f5a, #6d5f79 55%, #8a7a8f); }
   .stage::after { content: ''; position: absolute; left: 0; right: 0; top: 91%; height: 2.2%; background: linear-gradient(#5a4b63, #2c2233); z-index: 1; pointer-events: none; }
-  .pool { z-index: 2; left: 2%; top: 44%; width: 92%; height: 46%; background: radial-gradient(52% 50% at 46% 62%, rgba(255,214,150,.72), rgba(255,190,110,.32) 45%, transparent 72%); mix-blend-mode: screen; pointer-events: none; transition: opacity .35s; }
+  .pool { z-index: 2; left: 2%; top: 44%; width: 92%; height: 46%; background: radial-gradient(52% 50% at 42% 62%, rgba(255,214,150,.72), rgba(255,190,110,.32) 45%, transparent 72%); mix-blend-mode: screen; pointer-events: none; transition: opacity .35s; }
 
   /* monitors */
   .mon { z-index: 2; display: block; padding: .55cqw; border: 0; background: linear-gradient(160deg, #e9e4f3, #a79fb9); border-radius: 1cqw; box-shadow: 0 1.2cqw 2cqw rgba(0,0,0,.55); cursor: pointer; }
@@ -178,7 +198,7 @@ const { posts } = Astro.props;
   /* the same board you play with in the sidebar, in perspective */
   .books { z-index: 3; left: 10%; top: 58%; width: 14.4%; height: auto; transform: rotate(-3deg); transform-origin: 50% 100%; filter: drop-shadow(.8cqw 1cqw 1cqw rgba(30,10,40,.6)); pointer-events: none; transition: filter .35s; }
   .stage.dark .books { filter: brightness(.5) drop-shadow(.8cqw 1cqw 1cqw rgba(30,10,40,.6)); }
-  .minikb { z-index: 3; left: 21%; top: 63%; width: 53%; padding: 0; border: 0; background: none; cursor: pointer; perspective: 60cqw; transition: filter .35s; }
+  .minikb { z-index: 3; left: 15.5%; top: 63%; width: 50%; padding: 0; border: 0; background: none; cursor: pointer; perspective: 60cqw; transition: filter .35s; }
   .kbcase { display: block; padding: 1%; background: linear-gradient(150deg, #fdfbff, #e7e4f2); border-radius: .7cqw; transform: rotateX(48deg); transform-origin: 50% 100%; box-shadow: 0 2.2cqw 2.2cqw -1cqw rgba(0,0,0,.7); }
   .kbcase :global(.mr) { display: flex; height: 3.3cqw; }
   .kbcase :global(.mk) { flex: var(--w) 0 0; padding: .12cqw; }
@@ -186,7 +206,7 @@ const { posts } = Astro.props;
   .kbcase :global(.mk.none) { background: #3a3a40; }
   .kbcase :global(.mk.none > b) { background: none !important; box-shadow: none; }
 
-  .minitrays { z-index: 3; left: 27%; top: 79.5%; width: 44%; display: grid; grid-template-columns: 1fr 1fr 1.6fr 1fr; gap: 2%; transition: filter .35s; }
+  .minitrays { z-index: 3; left: 24%; top: 79.5%; width: 40%; display: grid; grid-template-columns: 1fr 1fr 1.6fr 1fr; gap: 2%; transition: filter .35s; }
   .minitrays :global(.mt) { display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: .25cqw; min-height: 4cqw; padding: .4cqw; border-radius: 50%; background: radial-gradient(circle at 40% 30%, #fff, #ffd5e7 70%, #e39ec1); box-shadow: 0 .7cqw 1cqw rgba(0,0,0,.55); }
   .minitrays :global(.mt.flat) { border-radius: .8cqw; background: linear-gradient(150deg, #fbfbff, #bcc0cf 60%, #eceef6); }
   .minitrays :global(.mt > b) { width: 1.3cqw; height: 1.3cqw; border-radius: .25cqw; background-size: cover; }
@@ -198,12 +218,12 @@ const { posts } = Astro.props;
   .book:hover .cover { transform: rotateX(40deg) rotateZ(-7deg) translateY(-.8cqw); }
 
   /* pour-over */
-  .pour { z-index: 4; left: 72%; top: 55%; width: 27%; aspect-ratio: 1; }
+  .pour { z-index: 4; left: 65.5%; top: 49%; width: 34%; aspect-ratio: 336/290; }
   .pour svg { display: block; width: 100%; height: 100%; overflow: visible; }
   .pour :global(.hit), .pour :global(.kettle) { cursor: pointer; outline: none; }
-  .pour :global(.kettle) { touch-action: none; transform-box: view-box; transform-origin: 45px 240px; transition: transform .45s cubic-bezier(.3,.9,.3,1); }
+  .pour :global(.kettle) { touch-action: none; transform-box: view-box; transform-origin: 49px 240px; transition: transform .45s cubic-bezier(.3,.9,.3,1); }
   .pour :global(.kettle:focus-visible path), .pour :global(.hit:focus-visible path) { stroke: #fff; stroke-width: 4; }
-  .pour :global(.pouring) { transform: translate(10px, -116px) rotate(28deg); }
+  .pour :global(.pouring) { transform: translate(7px, -102px) rotate(30deg); }
   .steam { animation: steam 3s ease-in-out infinite; }
   @keyframes steam { 50% { transform: translateY(-5px); } }
 
