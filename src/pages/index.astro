@@ -41,6 +41,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
               <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
               <span>Play the beat pocket</span>
             </button>
+            <a class="amlink" href="https://music.apple.com/profile/koalawallaland" target="_blank" rel="noopener">Apple Music</a>
           )}
         </section>
       </div>
@@ -94,12 +95,13 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .ig { display: grid; grid-template-columns: 1fr 1fr; gap: .35rem; }
   .ig a { display: flex; flex-direction: column; align-items: center; gap: .2rem; padding: .45rem .15rem; color: #27341a; background: linear-gradient(150deg, #fffdf6, #f6e6ee); border-radius: 10px; text-decoration: none; font-size: .72rem; }
   .ig img { width: 32px; height: 32px; object-fit: contain; }
-  .player { display: flex; width: 100%; height: calc(100% - 2rem); min-height: 72px; flex-direction: column; align-items: center; justify-content: center; gap: .3rem; padding: .4rem; font: inherit; font-size: .74rem; line-height: 1.2; color: #fff; background: linear-gradient(160deg, #3b1d66, #1a0d33); border: 1px solid rgba(255,245,251,.3); border-radius: 12px; cursor: pointer; }
+  .player { display: flex; width: 100%; min-height: 66px; flex-direction: column; align-items: center; justify-content: center; gap: .3rem; padding: .4rem; font: inherit; font-size: .74rem; line-height: 1.2; color: #fff; background: linear-gradient(160deg, #3b1d66, #1a0d33); border: 1px solid rgba(255,245,251,.3); border-radius: 12px; cursor: pointer; }
   .player:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
   .player .eq { display: flex; align-items: flex-end; gap: 3px; height: 20px; }
   .player .eq i { width: 5px; height: 100%; background: linear-gradient(0deg, #d8ff3e, #ff4fa8); transform-origin: bottom; animation: peq 1s ease-in-out infinite alternate; }
   .player .eq i:nth-child(2) { animation-delay: -.4s; } .player .eq i:nth-child(3) { animation-delay: -.7s; }
   @keyframes peq { from { transform: scaleY(.25); } to { transform: scaleY(1); } }
+  .amlink { display: block; margin-top: .35rem; font-size: .76rem; text-align: center; }
   .am { display: block; width: 100%; border: 0; border-radius: 12px; overflow: hidden; }
   @media (prefers-reduced-motion: reduce) { .player .eq i { animation: none; } }
 </style>
