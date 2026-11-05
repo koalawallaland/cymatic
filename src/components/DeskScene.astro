@@ -25,6 +25,7 @@ const { posts } = Astro.props;
 
     <div class="desk" aria-hidden="true"></div>
     <div class="pool" data-pool aria-hidden="true"></div>
+    <img class="books" src="/desk/books.webp" width="616" height="1075" alt="A stack of three books: Hyperpop by Julie Ackermann, Gritos de Neon by Kit Mackintosh and The Future Is Not Lost by Matt Bluemink." loading="lazy" decoding="async" draggable="false">
 
     <button type="button" class="lamp" data-lamp aria-pressed="true" aria-label="Lamp. Turn it off or on.">
       <svg viewBox="0 0 60 120" aria-hidden="true">
@@ -164,6 +165,8 @@ const { posts } = Astro.props;
   .stage.dark .minitrays { filter: brightness(.5); }
 
   /* the same board you play with in the sidebar, in perspective */
+  .books { z-index: 3; left: 10%; top: 58%; width: 14.4%; height: auto; transform: rotate(-3deg); transform-origin: 50% 100%; filter: drop-shadow(.8cqw 1cqw 1cqw rgba(30,10,40,.6)); pointer-events: none; transition: filter .35s; }
+  .stage.dark .books { filter: brightness(.5) drop-shadow(.8cqw 1cqw 1cqw rgba(30,10,40,.6)); }
   .minikb { z-index: 3; left: 21%; top: 63%; width: 53%; padding: 0; border: 0; background: none; cursor: pointer; perspective: 60cqw; transition: filter .35s; }
   .kbcase { display: block; padding: 1%; background: linear-gradient(150deg, #fdfbff, #e7e4f2); border-radius: .7cqw; transform: rotateX(48deg); transform-origin: 50% 100%; box-shadow: 0 2.2cqw 2.2cqw -1cqw rgba(0,0,0,.7); }
   .kbcase :global(.mr) { display: flex; height: 3.3cqw; }
