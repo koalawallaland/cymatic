@@ -1,0 +1,102 @@
+---
+// The dusk window. Every so often a pink UFO takes the rooftop koala. Tap to call it.
+---
+<figure class="kw" data-no-type>
+  <button type="button" class="pane" data-kw aria-label="Window at dusk. Tap to call the UFO."><canvas width="600" height="440"></canvas></button>
+  <figcaption data-kw-say aria-live="polite">Palm trees, a pink sky and nothing unusual.</figcaption>
+</figure>
+<style>
+  .kw { margin: 0; }
+  .pane { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 10px; }
+  .pane canvas { display: block; width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 0 5px #f4edff, 0 0 0 7px #2b1650, 0 0 30px rgba(255,120,200,.35); }
+  .pane:focus-visible { outline: 2px solid #fff; outline-offset: 9px; }
+  figcaption { margin-top: .8rem; color: var(--muted); font-size: .8rem; line-height: 1.35; }
+</style>
+<script>
+  const btn = document.querySelector('[data-kw]') as HTMLElement;
+  const cv = btn.querySelector('canvas') as HTMLCanvasElement;
+  const g = cv.getContext('2d')!;
+  const say = document.querySelector('[data-kw-say]') as HTMLElement;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const base = document.createElement('canvas'); base.width = 300; base.height = 220;
+  (() => {
+    const b = base.getContext('2d')!;
+    const sky = b.createLinearGradient(0, 0, 0, 220);
+    sky.addColorStop(0, '#3b2a8f'); sky.addColorStop(.45, '#c95cc6'); sky.addColorStop(.75, '#ff9ec6'); sky.addColorStop(1, '#ffd6a8');
+    b.fillStyle = sky; b.fillRect(0, 0, 300, 220);
+    b.fillStyle = 'rgba(255,240,250,.9)'; b.beginPath(); b.arc(238, 44, 15, 0, 6.3); b.fill();
+    b.fillStyle = '#fff'; for (let i = 0; i < 26; i++) b.fillRect((i * 83) % 297, (i * 37) % 80, 1.4, 1.4);
+    // crystal towers
+    for (const [x, w, h] of [[8, 24, 92], [36, 18, 126], [58, 28, 76], [206, 26, 100], [236, 18, 136], [258, 34, 84]]) {
+      const c = b.createLinearGradient(x, 0, x + w, 0);
+      c.addColorStop(0, 'rgba(120,235,255,.75)'); c.addColorStop(.5, 'rgba(240,215,255,.85)'); c.addColorStop(1, 'rgba(255,140,220,.75)');
+      b.fillStyle = c; b.beginPath(); b.moveTo(x, 200); b.lineTo(x, 200 - h); b.lineTo(x + w / 2, 186 - h); b.lineTo(x + w, 200 - h); b.lineTo(x + w, 200); b.fill();
+    }
+    // palm
+    for (const [x, h] of [[104, 72], [188, 58]]) {
+      b.strokeStyle = '#2b1650'; b.lineWidth = 3; b.beginPath(); b.moveTo(x, 200); b.quadraticCurveTo(x + 4, 200 - h / 2, x, 200 - h); b.stroke();
+      b.lineWidth = 2.4; for (let a = 0; a < 7; a++) { const t = -2.9 + a * .47; b.beginPath(); b.moveTo(x, 200 - h); b.quadraticCurveTo(x + Math.cos(t) * 12, 200 - h + Math.sin(t) * 12 - 5, x + Math.cos(t) * 22, 200 - h + Math.sin(t) * 12 + 7); b.stroke(); }
+    }
+    // rooftop
+    b.fillStyle = '#2b1650'; b.fillRect(0, 196, 300, 24); b.fillStyle = '#ff7ab8'; b.fillRect(0, 196, 300, 2);
+  })();
+  const D = 8.4;
+  let t = -1, next = 3, clock = 0, seen = false, visible = false, last = 0, running = false;
+  const pos = () => {
+    const e = (q: number) => q * q * (3 - 2 * q);
+    const x = t < 2 ? -40 + e(t / 2) * 190 : t < 6.2 ? 150 : 150 + e((t - 6.2) / 2.2) * 220;
+    return [x + (t >= 2 && t < 6.2 ? Math.sin(t * 3) * 3 : 0), 52 + Math.sin(t * 2.1) * 5];
+  };
+  const sparkle = (x: number, y: number, z: number) => { g.beginPath(); g.moveTo(x, y - z); g.lineTo(x + z * .22, y - z * .22); g.lineTo(x + z, y); g.lineTo(x + z * .22, y + z * .22); g.lineTo(x, y + z); g.lineTo(x - z * .22, y + z * .22); g.lineTo(x - z, y); g.lineTo(x - z * .22, y - z * .22); g.closePath(); g.fill(); };
+  function koala(x: number, y: number, k: number, wig: number) {
+    g.save(); g.translate(x, y); g.scale(k, k); g.rotate(wig); g.lineWidth = 1.8; g.strokeStyle = '#2b1650';
+    g.fillStyle = '#c9c6dc'; g.beginPath(); g.ellipse(0, 13, 10, 12, 0, 0, 6.3); g.fill(); g.stroke();
+    g.fillStyle = '#fff'; g.beginPath(); g.ellipse(0, 16, 6, 7, 0, 0, 6.3); g.fill();
+    g.fillStyle = '#c9c6dc'; for (const s of [-1, 1]) { g.beginPath(); g.ellipse(s * 11, 8, 3.6, 7, s * .9, 0, 6.3); g.fill(); g.stroke(); g.beginPath(); g.ellipse(s * 7, 23, 4, 3, 0, 0, 6.3); g.fill(); g.stroke(); }
+    for (const s of [-1, 1]) { g.fillStyle = '#c9c6dc'; g.beginPath(); g.arc(s * 14, -9, 9, 0, 6.3); g.fill(); g.stroke(); g.fillStyle = '#ffc3e0'; g.beginPath(); g.arc(s * 14, -8, 5, 0, 6.3); g.fill(); }
+    g.fillStyle = '#d8d5ea'; g.beginPath(); g.arc(0, -4, 14, 0, 6.3); g.fill(); g.stroke();
+    g.fillStyle = '#2b1650'; g.beginPath(); g.ellipse(0, -1, 3.8, 5, 0, 0, 6.3); g.fill();
+    for (const s of [-1, 1]) { g.fillStyle = '#2b1650'; g.beginPath(); g.ellipse(s * 7, -5, 3.2, 3.8, 0, 0, 6.3); g.fill(); g.fillStyle = '#fff'; g.beginPath(); g.arc(s * 7 - 1, -6.4, 1.4, 0, 6.3); g.fill(); g.fillStyle = '#ff9fd2'; g.beginPath(); g.ellipse(s * 10, 1, 2.6, 1.5, 0, 0, 6.3); g.fill(); }
+    g.restore();
+  }
+  function paint() {
+    g.setTransform(2, 0, 0, 2, 0, 0);
+    g.drawImage(base, 0, 0);
+    if (t < 0) { koala(150, 172, .92, 0); return frame(); }
+    const [x, y] = pos();
+    const lift = t < 2.6 ? 0 : Math.min(1, (t - 2.6) / 2.8), ky = 172 + (y + 8 - 172) * lift * lift * (3 - 2 * lift);
+    const beam = t > 2.1 && t < 6.1 ? Math.min(1, (t - 2.1) / .35, (6.1 - t) / .35) : 0;
+    if (beam > 0) {
+      g.save(); g.globalAlpha = beam;
+      const b = g.createLinearGradient(0, y, 0, 206); b.addColorStop(0, 'rgba(255,230,247,.95)'); b.addColorStop(.6, 'rgba(255,155,224,.55)'); b.addColorStop(1, 'rgba(143,233,255,.1)');
+      g.fillStyle = b; g.beginPath(); g.moveTo(x - 11, y + 6); g.lineTo(x + 11, y + 6); g.lineTo(x + 48, 206); g.lineTo(x - 48, 206); g.fill();
+      for (let i = 0; i < 20; i++) { const u = (t * .55 + i * .11) % 1, py = 206 - u * (206 - y), sw = Math.sin(i * 7.7 + t * 2) * (10 + 36 * (1 - u)); g.globalAlpha = beam * (.35 + .65 * Math.abs(Math.sin(t * 2 + i))); g.fillStyle = ['#fff', '#ffb8e6', '#c9fbff', '#f2ff9e'][i % 4]; sparkle(x + sw, py, 3 + (i % 3) * 2.2); }
+      g.restore();
+    }
+    if (t < 5.6) koala(x, ky, .92, t > 2.6 ? Math.sin(t * 2.4) * .32 : 0);
+    g.save(); g.translate(x, y); g.rotate(t < 2 || t > 6.2 ? Math.sin(t * 2.3) * .14 : Math.sin(t * 2.8) * .05); g.lineWidth = 2; g.strokeStyle = '#2b1650';
+    g.fillStyle = 'rgba(205,240,255,.9)'; g.beginPath(); g.ellipse(0, -5, 12, 13, 0, Math.PI, 0); g.fill(); g.stroke();
+    const b = g.createLinearGradient(-26, 0, 26, 0); b.addColorStop(0, '#ff7cc7'); b.addColorStop(.5, '#ffe2f4'); b.addColorStop(1, '#ff5fb8'); g.fillStyle = b; g.beginPath(); g.ellipse(0, 0, 27, 9, 0, 0, 6.3); g.fill(); g.stroke();
+    for (let i = -2; i <= 2; i++) { g.fillStyle = (Math.floor(t * 3) + i) % 2 ? '#d8ff3e' : '#8fe9ff'; g.beginPath(); g.arc(i * 9, 2, 2.3, 0, 6.3); g.fill(); }
+    g.restore();
+    frame();
+  }
+  function frame() { g.strokeStyle = 'rgba(244,237,255,.85)'; g.lineWidth = 3; g.beginPath(); g.moveTo(150, 0); g.lineTo(150, 220); g.stroke(); g.fillStyle = 'rgba(190,230,255,.1)'; g.fillRect(0, 0, 300, 220); }
+  function tick(now: number) {
+    if (!running) return;
+    const dt = Math.min(.05, (now - last) / 1000); last = now; clock += dt;
+    if (t >= 0) { t += dt; if (t > D) { t = -1; seen = false; next = clock + 18 + Math.random() * 14; say.textContent = 'Palm trees, a pink sky and nothing unusual.'; } }
+    else if (!reduce && clock > next) t = 0;
+    paint();
+    if (t < 0 && reduce) { running = false; return; }
+    requestAnimationFrame(tick);
+  }
+  function go() { if (running || !visible || document.hidden) return; running = true; last = performance.now(); requestAnimationFrame(tick); }
+  btn.addEventListener('click', () => {
+    if (t < 0) { t = 0; go(); return; }
+    if (!seen) { seen = true; say.textContent = 'You didn’t see a koala. Nobody saw a koala.'; }
+  });
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (!visible) running = false; else go(); }).observe(btn);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) running = false; else go(); });
+  paint();
+</script>

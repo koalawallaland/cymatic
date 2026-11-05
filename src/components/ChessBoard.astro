@@ -1,0 +1,177 @@
+---
+// Play Part C here, or call Katie. A game with Katie relays moves through ntfy.sh,
+// a free push service, because this site has no server. Katie gets the invite in
+// the ntfy app by subscribing to NOTIFY_TOPIC below. Anyone reading this source
+// could send to that topic, so treat it as a doorbell, not a secret.
+---
+<div class="cb" data-cb data-no-type>
+  <div class="grid" data-grid role="grid" aria-label="Chess board"></div>
+  <p class="st" data-st aria-live="polite"></p>
+  <div class="acts">
+    <button type="button" class="call" data-call>Play Katie</button>
+    <button type="button" data-new>New game with Part C</button>
+  </div>
+</div>
+<style>
+  .grid { display: grid; grid-template-columns: repeat(8, 1fr); border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 4px #fff, 0 0 0 6px #d9659f, 0 0 26px rgba(255,122,184,.3); touch-action: manipulation; }
+  :global(.sq) { position: relative; aspect-ratio: 1; padding: 0; border: 0; background: #ffe3f0; cursor: pointer; font-size: clamp(22px, 7cqw, 34px); line-height: 1; display: grid; place-items: center; font-family: 'Segoe UI Symbol', 'Apple Symbols', 'Noto Sans Symbols2', 'DejaVu Sans', sans-serif; }
+  .cb { container-type: inline-size; }
+  :global(.sq.dk) { background: #b9cf88; }
+  :global(.sq.w) { color: #fffdf9; text-shadow: 0 0 1px #8e2b67, 1px 0 #8e2b67, -1px 0 #8e2b67, 0 1px #8e2b67, 0 -1px #8e2b67, 0 2px 2px rgba(80,10,60,.45); }
+  :global(.sq.b) { color: #5a1d78; text-shadow: 0 1px 0 rgba(255,255,255,.55); }
+  :global(.sq.sel) { box-shadow: inset 0 0 0 3px #ff4fa8; }
+  :global(.sq.last) { background-image: linear-gradient(rgba(255,214,70,.42), rgba(255,214,70,.42)); }
+  :global(.sq.can::after) { content: ''; position: absolute; width: 26%; aspect-ratio: 1; border-radius: 50%; background: rgba(255,79,168,.68); }
+  :global(.sq:focus-visible) { outline: 2px solid #2b1650; outline-offset: -3px; }
+  .st { margin: .7rem 0 .4rem; min-height: 2.7em; font-size: .85rem; line-height: 1.4; }
+  .acts { display: flex; flex-wrap: wrap; gap: .4rem .9rem; align-items: center; }
+  .acts button { font: inherit; font-size: .82rem; color: var(--accent); background: none; border: 0; padding: .35rem 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .acts .call { padding: .45rem .9rem; color: #3c0b34; font-weight: 700; text-decoration: none; background: linear-gradient(180deg, #ffd3e8, #ff8fc4); border-radius: 999px; }
+  .acts button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+</style>
+<script>
+  import { Chess, type Move, type Square } from 'chess.js';
+  const NTFY = 'https://ntfy.sh';
+  const NOTIFY_TOPIC = 'kwl-katie-chess-7hq2xv9d4m';
+  const SAVE = 'kwl-chess-online';
+  const GLYPH: Record<string, string> = { k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' };
+  const VAL: Record<string, number> = { p: 1, n: 3, b: 3.2, r: 5, q: 9, k: 0 };
+
+  const root = document.querySelector('[data-cb]') as HTMLElement;
+  const grid = root.querySelector('[data-grid]') as HTMLElement;
+  const st = root.querySelector('[data-st]') as HTMLElement;
+  const call = root.querySelector('[data-call]') as HTMLButtonElement;
+
+  let game = new Chess();
+  let me: 'w' | 'b' = 'w';
+  let online: { id: string; moves: string[] } | null = null;
+  let es: EventSource | null = null;
+  let sel: Square | null = null, lastMove: Move | null = null;
+  const squares = new Map<string, HTMLButtonElement>();
+
+  for (let r = 8; r >= 1; r--) for (const f of 'abcdefgh') {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'sq' + ((f.charCodeAt(0) + r) % 2 === 0 ? ' dk' : '');
+    b.addEventListener('click', () => tap(`${f}${r}` as Square));
+    squares.set(`${f}${r}`, b); grid.append(b);
+  }
+  const opp = () => (online ? (me === 'b' ? 'Your opponent' : 'Katie') : 'Part C');
+  function status(extra = '') {
+    const who = game.turn() === me ? 'Your move.' : `${opp()} is thinking.`;
+    let s = who;
+    if (game.isCheckmate()) s = game.turn() === me ? `Checkmate. ${opp()} wins.` : 'Checkmate. You win!';
+    else if (game.isDraw()) s = 'Draw.';
+    else if (game.isCheck()) s = 'Check. ' + who;
+    st.textContent = extra ? `${extra} ${s}` : s;
+  }
+  function paint() {
+    const ranks = me === 'w' ? [8,7,6,5,4,3,2,1] : [1,2,3,4,5,6,7,8], files = me === 'w' ? 'abcdefgh' : 'hgfedcba';
+    grid.replaceChildren(...ranks.flatMap((r) => [...files].map((f) => squares.get(`${f}${r}`)!)));
+    const can = new Set(sel ? game.moves({ square: sel, verbose: true }).map((m) => m.to) : []);
+    for (const [sq, b] of squares) {
+      const p = game.get(sq as Square);
+      b.textContent = p ? GLYPH[p.type] + '︎' : '';
+      b.classList.toggle('w', p?.color === 'w'); b.classList.toggle('b', p?.color === 'b');
+      b.classList.toggle('sel', sq === sel); b.classList.toggle('can', can.has(sq as Square));
+      b.classList.toggle('last', !!lastMove && (lastMove.from === sq || lastMove.to === sq));
+      b.setAttribute('aria-label', sq + (p ? ` ${p.color === 'w' ? 'white' : 'black'} ${({ k:'king',q:'queen',r:'rook',b:'bishop',n:'knight',p:'pawn' } as any)[p.type]}` : ''));
+    }
+  }
+  function tap(sq: Square) {
+    if (game.turn() !== me || game.isGameOver()) return;
+    if (sel) {
+      const legal = game.moves({ square: sel, verbose: true }).find((m) => m.to === sq);
+      if (legal) {
+        const m = game.move({ from: sel, to: sq, promotion: 'q' });
+        sel = null; lastMove = m; paint(); status();
+        if (online) send(m.san); else setTimeout(partC, 450);
+        return;
+      }
+    }
+    const p = game.get(sq);
+    sel = p && p.color === me && sel !== sq ? sq : null;
+    paint();
+  }
+  // Part C looks one reply ahead, and sometimes just does something cat-like.
+  function score(g: Chess, side: 'w' | 'b') {
+    let s = 0;
+    for (const row of g.board()) for (const p of row) if (p) s += (p.color === side ? 1 : -1) * VAL[p.type];
+    return s;
+  }
+  function partC() {
+    if (online || game.turn() === me || game.isGameOver()) return;
+    const moves = game.moves({ verbose: true }), side = game.turn();
+    let best = moves[0], bv = -Infinity;
+    for (const m of moves) {
+      game.move(m);
+      let v = -Infinity;
+      if (game.isCheckmate()) v = 1000;
+      else {
+        v = Infinity;
+        for (const r of game.moves({ verbose: true })) { game.move(r); v = Math.min(v, game.isCheckmate() ? -1000 : score(game, side)); game.undo(); }
+        if (v === Infinity) v = 0;
+      }
+      game.undo();
+      v += Math.random() * 1.6;
+      if (v > bv) { bv = v; best = m; }
+    }
+    lastMove = game.move(best); paint(); status();
+  }
+  const persist = () => { if (online) try { localStorage.setItem(SAVE, JSON.stringify({ id: online.id, me, moves: game.history() })); } catch {} };
+  async function send(san: string) {
+    persist();
+    try {
+      const res = await fetch(`${NTFY}/kwl-chess-${online!.id}`, { method: 'POST', body: JSON.stringify({ p: game.history().length, san }) });
+      if (!res.ok) throw 0;
+    } catch { status('That move didn’t reach Katie. Check your connection and reload.'); }
+  }
+  function listen() {
+    es?.close();
+    es = new EventSource(`${NTFY}/kwl-chess-${online!.id}/sse?since=all`);
+    es.onmessage = (e) => {
+      let d: { p: number; san: string };
+      try { d = JSON.parse(JSON.parse(e.data).message); } catch { return; }
+      if (!online || d.p !== game.history().length + 1) return; // already applied, or out of order
+      try { lastMove = game.move(d.san); } catch { return; }
+      sel = null; persist(); paint(); status();
+    };
+  }
+  function startOnline(id: string, side: 'w' | 'b', moves: string[] = []) {
+    online = { id, moves };
+    me = side; game = new Chess(); lastMove = null; sel = null;
+    for (const m of moves) try { lastMove = game.move(m); } catch { break; }
+    call.hidden = true;
+    listen(); paint();
+    status(side === 'w' && !moves.length ? 'Katie has been notified. Make your first move. Your game stays saved in this browser for 12 hours.' : '');
+  }
+  function newLocal() {
+    es?.close(); es = null; online = null; me = 'w'; game = new Chess(); lastMove = null; sel = null; call.hidden = false; call.disabled = false;
+    try { localStorage.removeItem(SAVE); } catch {}
+    paint(); status('You’re playing Part C, who has paws.');
+  }
+  call.addEventListener('click', async () => {
+    call.disabled = true;
+    const a = new Uint8Array(9); crypto.getRandomValues(a);
+    const id = [...a].map((x) => x.toString(36).padStart(2, '0')).join('');
+    const url = new URL(location.href); url.search = `?chess=${id}`; url.hash = 'chess';
+    try {
+      const res = await fetch(`${NTFY}/`, { method: 'POST', body: JSON.stringify({ topic: NOTIFY_TOPIC, title: 'Someone wants to play chess', message: 'Tap to open the board. You’re playing black.', click: url.href, tags: ['crown'] }) });
+      if (!res.ok) throw 0;
+      startOnline(id, 'w');
+    } catch {
+      call.disabled = false;
+      status('Katie couldn’t be reached. Try again, or keep playing Part C.');
+    }
+  });
+  root.querySelector('[data-new]')!.addEventListener('click', newLocal);
+
+  const param = new URLSearchParams(location.search).get('chess');
+  let saved: any = null;
+  try { saved = JSON.parse(localStorage.getItem(SAVE) || 'null'); } catch {}
+  if (param && /^[a-z0-9]{6,24}$/.test(param)) {
+    startOnline(param, saved?.id === param ? saved.me : 'b', saved?.id === param ? saved.moves : []);
+    status('You’re black in this game. Moves appear here as they’re played.');
+    root.scrollIntoView({ block: 'center' });
+  } else if (saved?.id) startOnline(saved.id, saved.me, saved.moves);
+  else newLocal();
+</script>

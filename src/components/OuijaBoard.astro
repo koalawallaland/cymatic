@@ -1,6 +1,8 @@
 ---
 // A small pink talking board. Drag the heart, rest its window on a letter to
 // spell. Left alone, it moves by itself and spells lines from the poem.
+interface Props { lines?: string[]; }
+const { lines = ['LOW ONE STAYS', 'HOLD ONE TONE', 'SHE FINDS ME STILL', 'HIGH ONE LEAVES', 'I CAN TASTE IT'] } = Astro.props;
 const W = 640, H = 430;
 const arc = (chars: string, cx: number, cy: number, rx: number, ry: number) =>
   [...chars].map((c, i) => {
@@ -20,7 +22,7 @@ const words = [
   { c: 'GOODBYE', x: 320, y: 384 },
 ];
 ---
-<figure class="tb" data-tb>
+<figure class="tb" data-tb data-no-type data-lines={lines.join("|")}>
   <svg class="board" viewBox={`0 0 ${W} ${H}`} role="group" aria-label="A small pink talking board with a heart-shaped planchette">
     <defs>
       <linearGradient id="tb-pearl" x1="0" y1="0" x2="1" y2="1">
@@ -67,7 +69,7 @@ const words = [
 </figure>
 
 <style>
-  .tb { margin: 3rem 0 0; }
+  .tb { margin: var(--tb-gap, 3rem) 0 0; }
   .board { display: block; width: 100%; height: auto; overflow: visible; user-select: none; -webkit-user-select: none; filter: drop-shadow(0 0 26px rgba(255, 122, 184, .34)); }
   .t { fill: #7d1252; font-family: 'Zen Maru Gothic', ui-rounded, system-ui, sans-serif; font-weight: 900; transition: fill .18s; pointer-events: none; }
   .t.on { fill: #fff; paint-order: stroke; stroke: #e0177f; stroke-width: 7px; stroke-linejoin: round; }
@@ -98,8 +100,8 @@ const words = [
   }));
   const byChar = new Map(targets.map((t) => [t.c, t]));
 
-  // Her words only: when it moves on its own, it spells the poem back.
-  const LINES = ['LOW ONE STAYS', 'HOLD ONE TONE', 'SHE FINDS ME STILL', 'HIGH ONE LEAVES', 'I CAN TASTE IT'];
+  // Her words only: when it moves on its own, it spells these back.
+  const LINES = root.dataset.lines!.split('|');
   const HOME = { x: 320, y: 236 };
   const IDLE_MS = 7000, DWELL_MS = 420;
 

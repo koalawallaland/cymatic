@@ -401,7 +401,7 @@ const ARTISANS: Artisan[] = [
     keydown(e: KeyboardEvent) {
       if (e.metaKey || e.ctrlKey || e.code === 'Tab') return;
       const t = e.target as HTMLElement;
-      if (t.matches?.('input, textarea, select, [contenteditable]')) return;
+      if (t.matches?.('input, textarea, select, [contenteditable]') || t.closest?.('[data-no-type], dialog')) return;
       this.lastUse = Date.now();
       // Return or Space on a focused control (close, clear, mode...) keeps its normal meaning
       if ((e.code === 'Enter' || e.code === 'Space') && t.closest?.('button') && !t.closest('.cap')) return;

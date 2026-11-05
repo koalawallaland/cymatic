@@ -1,0 +1,349 @@
+---
+import Base from '../../layouts/Base.astro';
+import KeycapBoard from '../../components/KeycapBoard.astro';
+import Cymatics from '../../components/Cymatics.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 5);
+---
+<Base title="koalawallaland">
+  
+  <section class="opening">
+    <h1 class="modak">Koala Walla Land</h1>
+    <p class="prompt">Pull caps off, swap them, or type. The flickering sign opens the lab.</p>
+
+    <div class="band">
+      <a class="pane brick" href="/wall/" aria-label="Graffiti wall">
+        <svg viewBox="0 0 100 180" aria-hidden="true"><path d="M8 62q14-48 28-12q11 24 23-20q8-22 30 5" fill="none" stroke="#ff7ab8" stroke-width="7" stroke-linecap="round"/><path d="M10 96q24-13 76-5" fill="none" stroke="#58d8f5" stroke-width="5" stroke-linecap="round"/><path d="M18 130c9-15 22 3 12 11c-10-8 3-26 12-11M56 118l10 22l10-22" fill="none" stroke="#d8ff3e" stroke-width="4.500" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="pane" href="/lab/" aria-label="Shoji screen: the resin lab" tabindex="-1"></a>
+      <a class="pane" href="/lab/" aria-label="Shoji screen: the resin lab" tabindex="-1"></a>
+      <a class="pane third" href="/lab/" aria-label="Shoji screen: the resin lab" tabindex="-1"></a>
+
+      <p class="neon vert" style="--n:#ff2f9e;left:27%;top:7%" aria-hidden="true">樹脂</p>
+      <p class="neon" style="--n:#c6ff00;left:49%;top:7%;font-size:clamp(20px,5.4vw,30px)" aria-hidden="true">猫</p>
+      <p class="neon vert small" style="--n:#22e6ff;right:3%;top:6%" aria-hidden="true">キーキャップ</p>
+      <a class="neon enter" href="/lab/" aria-label="Enter the lab to do a cast" style="--n:#ff4a3d"><span>入口 ENTER</span><small>THE LAB</small></a>
+      <a class="shopsign" href="/shop/" aria-label="Shop, closed for now">SHOP<small>closed ♡</small></a>
+
+
+      <!-- her lamps, drawn from the product images and room photos she shared -->
+      <div class="pool" style="left:22%;--c:rgba(255,196,120,.5)" aria-hidden="true"></div>
+      <div class="pool" style="left:81%;--c:rgba(255,190,110,.62)" aria-hidden="true"></div>
+      <svg class="lamp lit l-del" viewBox="0 0 60 120" role="img" aria-label="Delilah, a lamp with a fluted ivory shade"><!-- Delilah: tall fluted ivory shade, glossy tapered base -->
+        <defs><linearGradient id="ivoryGlow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2cf"/><stop offset="1" stop-color="#ffc877"/></linearGradient><linearGradient id="gloss" x1="0" x2="1"><stop offset="0" stop-color="#d8d3cc"/><stop offset=".3" stop-color="#fff"/><stop offset="1" stop-color="#bdb6b0"/></linearGradient></defs>
+        <rect x="10" y="3" width="40" height="52" rx="2" fill="url(#ivoryGlow)"/>
+        <path d="M14 3v52M18 3v52M22 3v52M26 3v52M30 3v52M34 3v52M38 3v52M42 3v52M46 3v52" stroke="#d99c55" stroke-width=".8" opacity=".55"/>
+        <path d="M26 55h8q1 16 5 30q6 18 3 32H18q-3-14 3-32q4-14 5-30z" fill="url(#gloss)"/>
+      </svg>
+      <svg class="lamp lit l-foo" viewBox="0 0 110 196" role="img" aria-label="Pink foo dog table lamp with a wide white drum shade"><!-- foo dog lamp, glossy single-glaze ceramic -->
+        <defs>
+          <linearGradient id="fooG" gradientUnits="userSpaceOnUse" x1="30" y1="100" x2="80" y2="196"><stop offset="0" stop-color="#fde3ec"/><stop offset=".5" stop-color="#f9c6d8"/><stop offset="1" stop-color="#f0abc5"/></linearGradient>
+          <linearGradient id="fooShade" x1="0" x2="1"><stop offset="0" stop-color="#eee6dc"/><stop offset=".3" stop-color="#fffdf7"/><stop offset=".7" stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfd2"/></linearGradient>
+        </defs>
+        <rect x="50.500" y="0" width="9" height="11" rx="1" fill="url(#fooG)"/><path d="M52 3.500q3 1.500 6 0M52 6.500q3 1.500 6 0" fill="none" stroke="#eda3bf" stroke-width=".6"/>
+        <path d="M2 11q0-2 2-2h102q2 0 2 2v82q0 2-2 2H4q-2 0-2-2z" fill="url(#fooShade)"/>
+        <path d="M2 14.500h106M2 90h106" stroke="#d8cfc3" stroke-width=".7"/>
+        <rect x="52.500" y="95" width="5" height="12" fill="url(#fooG)"/>
+        <!-- pedestal -->
+        <path d="M37 183h36l5 9v4H32v-4z" fill="url(#fooG)"/><path d="M32 192h46" stroke="#eda3bf" stroke-width=".7"/>
+        <rect x="36" y="172.500" width="38" height="11" fill="url(#fooG)"/>
+        <rect x="38.2" y="175.500" width="3.800" height="5" rx="1.500" fill="#d27d9f"/><rect x="39.3" y="176.900" width="1.600" height="2.200" rx=".6" fill="#eda3bf"/><rect x="42.7" y="175.500" width="3.800" height="5" rx="1.500" fill="#d27d9f"/><rect x="43.8" y="176.900" width="1.600" height="2.200" rx=".6" fill="#eda3bf"/><rect x="47.2" y="175.500" width="3.800" height="5" rx="1.500" fill="#d27d9f"/><rect x="48.3" y="176.900" width="1.600" height="2.200" rx=".6" fill="#eda3bf"/><rect x="51.7" y="175.500" width="3.800" height="5" rx="1.500" fill="#d27d9f"/><rect x="52.8" y="176.900" width="1.600" height="2.200" rx=".6" fill="#eda3bf"/><rect x="56.2" y="175.500" width="3.800" height="5" rx="1.500" fill="#d27d9f"/><rect x="57.3" y="176.900" width="1.600" height="2.200" rx=".6" fill="#eda3bf"/><rect x="60.7" y="175.500" width="3.800" height="5" rx="1.500" fill="#d27d9f"/><rect x="61.8" y="176.900" width="1.600" height="2.200" rx=".6" fill="#eda3bf"/><rect x="65.2" y="175.500" width="3.800" height="5" rx="1.500" fill="#d27d9f"/><rect x="66.3" y="176.900" width="1.600" height="2.200" rx=".6" fill="#eda3bf"/><rect x="69.7" y="175.500" width="3.800" height="5" rx="1.500" fill="#d27d9f"/><rect x="70.8" y="176.900" width="1.600" height="2.200" rx=".6" fill="#eda3bf"/>
+        <path d="M31 167h48l2.500 6h-53z" fill="#fde3ec"/><path d="M28.500 173h53" stroke="#eda3bf" stroke-width=".9"/>
+        <!-- seated body and haunches -->
+        <path d="M43 136q-6 12-7 22q-1 7 2 10h34q3-3 2-10q-1-10-7-22z" fill="url(#fooG)"/>
+        <path d="M37 160q-2-9 4-14M73 160q2-9-4-14" fill="none" stroke="#eda3bf" stroke-width=".9"/>
+        <!-- chest with collar and tassel -->
+        <path d="M46 137q9 7 18 0" fill="none" stroke="#eda3bf" stroke-width="1.300"/>
+        <circle cx="55" cy="143" r="2.500" fill="#fde3ec" stroke="#eda3bf" stroke-width=".7"/><path d="M53.200 146h3.600l1 6h-5.600z" fill="#f9c6d8" stroke="#eda3bf" stroke-width=".6"/>
+        <!-- ball, then the paw resting on it -->
+        <circle cx="66" cy="160.500" r="7.800" fill="url(#fooG)" stroke="#eda3bf" stroke-width=".7"/><path d="M61.500 157.500a5.500 5.500 0 0 1 4-3" fill="none" stroke="#fff" stroke-width="1.200" stroke-linecap="round"/>
+        <path d="M60 139q-2 7 0 12q-1 2 0 4h12q2-2 1-4q2-6-1-12z" fill="url(#fooG)"/><path d="M61 141q-1 7 0 11M71 141q2 6 0 11" fill="none" stroke="#eda3bf" stroke-width=".7"/>
+        <path d="M63.500 150.500v4M66.500 150.500v4.500M69.500 150.500v4" stroke="#eda3bf" stroke-width=".8"/>
+        <!-- planted leg and paw -->
+        <path d="M39 141q-2 11 0 20h-1.500q-2 1-2 4v2.500h15V165q0-3-3-4q1-9-.5-20z" fill="url(#fooG)"/><path d="M40.500 145q-1 8 0 15" fill="none" stroke="#eda3bf" stroke-width=".7"/>
+        <path d="M39.500 163.500v4M43 163.500v4M46.500 163.500v4" stroke="#eda3bf" stroke-width=".8"/>
+        <!-- head -->
+        <circle cx="41" cy="113" r="4.6" fill="url(#fooG)"/><path d="M38.7 113.5a2.3 2.3 0 1 1 4.1 1.1" fill="none" stroke="#eda3bf" stroke-width=".7"/><circle cx="47" cy="108" r="4.6" fill="url(#fooG)"/><path d="M44.7 108.5a2.3 2.3 0 1 1 4.1 1.1" fill="none" stroke="#eda3bf" stroke-width=".7"/><circle cx="55" cy="106.5" r="5" fill="url(#fooG)"/><path d="M52.5 107.0a2.5 2.5 0 1 1 4.5 1.2" fill="none" stroke="#eda3bf" stroke-width=".7"/><circle cx="63" cy="108" r="4.6" fill="url(#fooG)"/><path d="M60.7 108.5a2.3 2.3 0 1 1 4.1 1.1" fill="none" stroke="#eda3bf" stroke-width=".7"/><circle cx="69" cy="113" r="4.6" fill="url(#fooG)"/><path d="M66.7 113.5a2.3 2.3 0 1 1 4.1 1.1" fill="none" stroke="#eda3bf" stroke-width=".7"/><circle cx="38.8" cy="120" r="4.2" fill="url(#fooG)"/><path d="M36.7 120.4a2.1 2.1 0 1 1 3.8 1.1" fill="none" stroke="#eda3bf" stroke-width=".7"/><circle cx="71.2" cy="120" r="4.2" fill="url(#fooG)"/><path d="M69.1 120.4a2.1 2.1 0 1 1 3.8 1.1" fill="none" stroke="#eda3bf" stroke-width=".7"/><circle cx="38.8" cy="127" r="3.9" fill="url(#fooG)"/><path d="M36.8 127.4a1.9 1.9 0 1 1 3.5 1.0" fill="none" stroke="#eda3bf" stroke-width=".7"/><circle cx="71.2" cy="127" r="3.9" fill="url(#fooG)"/><path d="M69.2 127.4a1.9 1.9 0 1 1 3.5 1.0" fill="none" stroke="#eda3bf" stroke-width=".7"/><circle cx="41.5" cy="133" r="3.6" fill="url(#fooG)"/><path d="M39.7 133.4a1.8 1.8 0 1 1 3.2 0.9" fill="none" stroke="#eda3bf" stroke-width=".7"/><circle cx="68.5" cy="133" r="3.6" fill="url(#fooG)"/><path d="M66.7 133.4a1.8 1.8 0 1 1 3.2 0.9" fill="none" stroke="#eda3bf" stroke-width=".7"/>
+        <path d="M44 112q11-5 22 0q5 6 4.500 15q-.5 8-4 11q-11 4-23 0q-3.500-3-4-11q-.5-9 4.500-15z" fill="url(#fooG)"/>
+        <path d="M41 108l-3-6q5 1 7 4zM69 108l3-6q-5 1-7 4z" fill="#f9c6d8"/>
+        <!-- brows, eyes, broad nose -->
+        <path d="M43 116q5-4 10 0M67 116q-5-4-10 0" fill="none" stroke="#eda3bf" stroke-width="1.700" stroke-linecap="round"/>
+        <path d="M45 119.500q3.500-2 7 .5M65 119.500q-3.500-2-7 .5" fill="none" stroke="#d27d9f" stroke-width="1.100" stroke-linecap="round"/>
+        <path d="M51.500 120q3.500-1 7 0l1 4q-4.500 2.500-9 0z" fill="#fde3ec" stroke="#eda3bf" stroke-width=".7"/>
+        <circle cx="52.800" cy="124" r=".8" fill="#d27d9f"/><circle cx="57.200" cy="124" r=".8" fill="#d27d9f"/>
+        <!-- wide open mouth with soft bumps -->
+        <path d="M44 128q11 4 22 0q-1 7-11 7.500q-10-.5-11-7.500z" fill="#d27d9f"/>
+        <path d="M46 129q9 3 18 0q-.5 1.800-1 2.300q-8 2.200-16 0z" fill="#fde3ec"/>
+        <path d="M47 135q8 4 16 0" fill="none" stroke="#eda3bf" stroke-width="1"/>
+        <circle cx="48" cy="137" r="1.500" fill="#f9c6d8" stroke="#eda3bf" stroke-width=".5"/><circle cx="62" cy="137" r="1.500" fill="#f9c6d8" stroke="#eda3bf" stroke-width=".5"/>
+      </svg>
+      <svg class="lamp l-ada" viewBox="0 0 70 110" role="img" aria-label="Ada, a matte white lamp with a smooth shade"><!-- Ada: smooth broad shallow cone, small cap, straight matte white stem -->
+        <defs><linearGradient id="adaMatte" x1="0" x2="1"><stop offset="0" stop-color="#cfc9c4"/><stop offset=".4" stop-color="#f4f0ea"/><stop offset="1" stop-color="#bdb6b0"/></linearGradient></defs>
+        <rect x="29" y="2" width="12" height="9" rx="1" fill="url(#adaMatte)"/>
+        <path d="M26 11h18L66 40H4z" fill="url(#adaMatte)"/>
+        <rect x="27" y="40" width="16" height="68" fill="url(#adaMatte)"/>
+      </svg>
+      <svg class="lamp l-lav" viewBox="0 0 70 110" aria-hidden="true"><!-- lavender pleated cone, slender brass frame, open square base -->
+        <path d="M35 4L66 42H4z" fill="#c9a8ee"/>
+        <path d="M35 4L9 42M35 4L16 42M35 4L23 42M35 4L30 42M35 4L37 42M35 4L44 42M35 4L51 42M35 4L58 42" stroke="#8d68bd" stroke-width=".9"/>
+        <path d="M35 42V94M35 94L15 104M35 94L55 104M15 104H55" fill="none" stroke="#d4ad58" stroke-width="2"/>
+      </svg>
+
+      <button class="sampler" id="samplerBtn" aria-label="Cross-stitch sampler: open a closer look"><svg viewBox="0 0 100 56" role="img" aria-label="Cross-stitched koala with a pink bow and no mouth, beside the words: I have no mouth and I must scream."><rect width="100" height="56" fill="#fbe3ef"/><rect x="1.5" y="1.5" width="97" height="53" fill="none" stroke="#e05a8a"/><g stroke-width=".55" stroke-linecap="round"><path d="M9.85 13.35L11.65 15.15M11.65 13.35L9.85 15.15" stroke="#9d93ad"/><path d="M12.35 13.35L14.15 15.15M14.15 13.35L12.35 15.15" stroke="#9d93ad"/><path d="M32.35 13.35L34.15 15.15M34.15 13.35L32.35 15.15" stroke="#ff4f93"/><path d="M34.85 13.35L36.65 15.15M36.65 13.35L34.85 15.15" stroke="#ff4f93"/><path d="M39.85 13.35L41.65 15.15M41.65 13.35L39.85 15.15" stroke="#ff4f93"/><path d="M42.35 13.35L44.15 15.15M44.15 13.35L42.35 15.15" stroke="#ff4f93"/><path d="M7.35 15.85L9.15 17.65M9.15 15.85L7.35 17.65" stroke="#9d93ad"/><path d="M9.85 15.85L11.65 17.65M11.65 15.85L9.85 17.65" stroke="#f2b8c6"/><path d="M12.35 15.85L14.15 17.65M14.15 15.85L12.35 17.65" stroke="#f2b8c6"/><path d="M14.85 15.85L16.65 17.65M16.65 15.85L14.85 17.65" stroke="#9d93ad"/><path d="M32.35 15.85L34.15 17.65M34.15 15.85L32.35 17.65" stroke="#ff4f93"/><path d="M34.85 15.85L36.65 17.65M36.65 15.85L34.85 17.65" stroke="#ff4f93"/><path d="M37.35 15.85L39.15 17.65M39.15 15.85L37.35 17.65" stroke="#b3245f"/><path d="M39.85 15.85L41.65 17.65M41.65 15.85L39.85 17.65" stroke="#ff4f93"/><path d="M42.35 15.85L44.15 17.65M44.15 15.85L42.35 17.65" stroke="#ff4f93"/><path d="M7.35 18.35L9.15 20.15M9.15 18.35L7.35 20.15" stroke="#9d93ad"/><path d="M9.85 18.35L11.65 20.15M11.65 18.35L9.85 20.15" stroke="#f2b8c6"/><path d="M12.35 18.35L14.15 20.15M14.15 18.35L12.35 20.15" stroke="#f2b8c6"/><path d="M14.85 18.35L16.65 20.15M16.65 18.35L14.85 20.15" stroke="#9d93ad"/><path d="M17.35 18.35L19.15 20.15M19.15 18.35L17.35 20.15" stroke="#9d93ad"/><path d="M19.85 18.35L21.65 20.15M21.65 18.35L19.85 20.15" stroke="#9d93ad"/><path d="M22.35 18.35L24.15 20.15M24.15 18.35L22.35 20.15" stroke="#9d93ad"/><path d="M24.85 18.35L26.65 20.15M26.65 18.35L24.85 20.15" stroke="#9d93ad"/><path d="M27.35 18.35L29.15 20.15M29.15 18.35L27.35 20.15" stroke="#9d93ad"/><path d="M29.85 18.35L31.65 20.15M31.65 18.35L29.85 20.15" stroke="#9d93ad"/><path d="M32.35 18.35L34.15 20.15M34.15 18.35L32.35 20.15" stroke="#9d93ad"/><path d="M34.85 18.35L36.65 20.15M36.65 18.35L34.85 20.15" stroke="#9d93ad"/><path d="M37.35 18.35L39.15 20.15M39.15 18.35L37.35 20.15" stroke="#f2b8c6"/><path d="M39.85 18.35L41.65 20.15M41.65 18.35L39.85 20.15" stroke="#f2b8c6"/><path d="M42.35 18.35L44.15 20.15M44.15 18.35L42.35 20.15" stroke="#9d93ad"/><path d="M9.85 20.85L11.65 22.65M11.65 20.85L9.85 22.65" stroke="#9d93ad"/><path d="M12.35 20.85L14.15 22.65M14.15 20.85L12.35 22.65" stroke="#9d93ad"/><path d="M14.85 20.85L16.65 22.65M16.65 20.85L14.85 22.65" stroke="#9d93ad"/><path d="M17.35 20.85L19.15 22.65M19.15 20.85L17.35 22.65" stroke="#9d93ad"/><path d="M19.85 20.85L21.65 22.65M21.65 20.85L19.85 22.65" stroke="#9d93ad"/><path d="M22.35 20.85L24.15 22.65M24.15 20.85L22.35 22.65" stroke="#9d93ad"/><path d="M24.85 20.85L26.65 22.65M26.65 20.85L24.85 22.65" stroke="#9d93ad"/><path d="M27.35 20.85L29.15 22.65M29.15 20.85L27.35 22.65" stroke="#9d93ad"/><path d="M29.85 20.85L31.65 22.65M31.65 20.85L29.85 22.65" stroke="#9d93ad"/><path d="M32.35 20.85L34.15 22.65M34.15 20.85L32.35 22.65" stroke="#9d93ad"/><path d="M34.85 20.85L36.65 22.65M36.65 20.85L34.85 22.65" stroke="#9d93ad"/><path d="M37.35 20.85L39.15 22.65M39.15 20.85L37.35 22.65" stroke="#9d93ad"/><path d="M39.85 20.85L41.65 22.65M41.65 20.85L39.85 22.65" stroke="#9d93ad"/><path d="M9.85 23.35L11.65 25.15M11.65 23.35L9.85 25.15" stroke="#9d93ad"/><path d="M12.35 23.35L14.15 25.15M14.15 23.35L12.35 25.15" stroke="#9d93ad"/><path d="M14.85 23.35L16.65 25.15M16.65 23.35L14.85 25.15" stroke="#9d93ad"/><path d="M17.35 23.35L19.15 25.15M19.15 23.35L17.35 25.15" stroke="#2a1f33"/><path d="M19.85 23.35L21.65 25.15M21.65 23.35L19.85 25.15" stroke="#9d93ad"/><path d="M22.35 23.35L24.15 25.15M24.15 23.35L22.35 25.15" stroke="#9d93ad"/><path d="M24.85 23.35L26.65 25.15M26.65 23.35L24.85 25.15" stroke="#9d93ad"/><path d="M27.35 23.35L29.15 25.15M29.15 23.35L27.35 25.15" stroke="#9d93ad"/><path d="M29.85 23.35L31.65 25.15M31.65 23.35L29.85 25.15" stroke="#9d93ad"/><path d="M32.35 23.35L34.15 25.15M34.15 23.35L32.35 25.15" stroke="#2a1f33"/><path d="M34.85 23.35L36.65 25.15M36.65 23.35L34.85 25.15" stroke="#9d93ad"/><path d="M37.35 23.35L39.15 25.15M39.15 23.35L37.35 25.15" stroke="#9d93ad"/><path d="M39.85 23.35L41.65 25.15M41.65 23.35L39.85 25.15" stroke="#9d93ad"/><path d="M9.85 25.85L11.65 27.65M11.65 25.85L9.85 27.65" stroke="#9d93ad"/><path d="M12.35 25.85L14.15 27.65M14.15 25.85L12.35 27.65" stroke="#9d93ad"/><path d="M14.85 25.85L16.65 27.65M16.65 25.85L14.85 27.65" stroke="#9d93ad"/><path d="M17.35 25.85L19.15 27.65M19.15 25.85L17.35 27.65" stroke="#9d93ad"/><path d="M19.85 25.85L21.65 27.65M21.65 25.85L19.85 27.65" stroke="#9d93ad"/><path d="M22.35 25.85L24.15 27.65M24.15 25.85L22.35 27.65" stroke="#3a3146"/><path d="M24.85 25.85L26.65 27.65M26.65 25.85L24.85 27.65" stroke="#3a3146"/><path d="M27.35 25.85L29.15 27.65M29.15 25.85L27.35 27.65" stroke="#3a3146"/><path d="M29.85 25.85L31.65 27.65M31.65 25.85L29.85 27.65" stroke="#9d93ad"/><path d="M32.35 25.85L34.15 27.65M34.15 25.85L32.35 27.65" stroke="#9d93ad"/><path d="M34.85 25.85L36.65 27.65M36.65 25.85L34.85 27.65" stroke="#9d93ad"/><path d="M37.35 25.85L39.15 27.65M39.15 25.85L37.35 27.65" stroke="#9d93ad"/><path d="M39.85 25.85L41.65 27.65M41.65 25.85L39.85 27.65" stroke="#9d93ad"/><path d="M9.85 28.35L11.65 30.15M11.65 28.35L9.85 30.15" stroke="#9d93ad"/><path d="M12.35 28.35L14.15 30.15M14.15 28.35L12.35 30.15" stroke="#9d93ad"/><path d="M14.85 28.35L16.65 30.15M16.65 28.35L14.85 30.15" stroke="#9d93ad"/><path d="M17.35 28.35L19.15 30.15M19.15 28.35L17.35 30.15" stroke="#9d93ad"/><path d="M19.85 28.35L21.65 30.15M21.65 28.35L19.85 30.15" stroke="#9d93ad"/><path d="M22.35 28.35L24.15 30.15M24.15 28.35L22.35 30.15" stroke="#3a3146"/><path d="M24.85 28.35L26.65 30.15M26.65 28.35L24.85 30.15" stroke="#3a3146"/><path d="M27.35 28.35L29.15 30.15M29.15 28.35L27.35 30.15" stroke="#3a3146"/><path d="M29.85 28.35L31.65 30.15M31.65 28.35L29.85 30.15" stroke="#9d93ad"/><path d="M32.35 28.35L34.15 30.15M34.15 28.35L32.35 30.15" stroke="#9d93ad"/><path d="M34.85 28.35L36.65 30.15M36.65 28.35L34.85 30.15" stroke="#9d93ad"/><path d="M37.35 28.35L39.15 30.15M39.15 28.35L37.35 30.15" stroke="#9d93ad"/><path d="M39.85 28.35L41.65 30.15M41.65 28.35L39.85 30.15" stroke="#9d93ad"/><path d="M12.35 30.85L14.15 32.65M14.15 30.85L12.35 32.65" stroke="#9d93ad"/><path d="M14.85 30.85L16.65 32.65M16.65 30.85L14.85 32.65" stroke="#9d93ad"/><path d="M17.35 30.85L19.15 32.65M19.15 30.85L17.35 32.65" stroke="#9d93ad"/><path d="M19.85 30.85L21.65 32.65M21.65 30.85L19.85 32.65" stroke="#9d93ad"/><path d="M22.35 30.85L24.15 32.65M24.15 30.85L22.35 32.65" stroke="#9d93ad"/><path d="M24.85 30.85L26.65 32.65M26.65 30.85L24.85 32.65" stroke="#9d93ad"/><path d="M27.35 30.85L29.15 32.65M29.15 30.85L27.35 32.65" stroke="#9d93ad"/><path d="M29.85 30.85L31.65 32.65M31.65 30.85L29.85 32.65" stroke="#9d93ad"/><path d="M32.35 30.85L34.15 32.65M34.15 30.85L32.35 32.65" stroke="#9d93ad"/><path d="M34.85 30.85L36.65 32.65M36.65 30.85L34.85 32.65" stroke="#9d93ad"/><path d="M37.35 30.85L39.15 32.65M39.15 30.85L37.35 32.65" stroke="#9d93ad"/><path d="M14.85 33.35L16.65 35.15M16.65 33.35L14.85 35.15" stroke="#9d93ad"/><path d="M17.35 33.35L19.15 35.15M19.15 33.35L17.35 35.15" stroke="#9d93ad"/><path d="M19.85 33.35L21.65 35.15M21.65 33.35L19.85 35.15" stroke="#9d93ad"/><path d="M22.35 33.35L24.15 35.15M24.15 33.35L22.35 35.15" stroke="#9d93ad"/><path d="M24.85 33.35L26.65 35.15M26.65 33.35L24.85 35.15" stroke="#9d93ad"/><path d="M27.35 33.35L29.15 35.15M29.15 33.35L27.35 35.15" stroke="#9d93ad"/><path d="M29.85 33.35L31.65 35.15M31.65 33.35L29.85 35.15" stroke="#9d93ad"/><path d="M32.35 33.35L34.15 35.15M34.15 33.35L32.35 35.15" stroke="#9d93ad"/><path d="M34.85 33.35L36.65 35.15M36.65 33.35L34.85 35.15" stroke="#9d93ad"/><path d="M12.35 35.85L14.15 37.65M14.15 35.85L12.35 37.65" stroke="#9d93ad"/><path d="M14.85 35.85L16.65 37.65M16.65 35.85L14.85 37.65" stroke="#9d93ad"/><path d="M17.35 35.85L19.15 37.65M19.15 35.85L17.35 37.65" stroke="#9d93ad"/><path d="M19.85 35.85L21.65 37.65M21.65 35.85L19.85 37.65" stroke="#9d93ad"/><path d="M22.35 35.85L24.15 37.65M24.15 35.85L22.35 37.65" stroke="#f2b8c6"/><path d="M24.85 35.85L26.65 37.65M26.65 35.85L24.85 37.65" stroke="#f2b8c6"/><path d="M27.35 35.85L29.15 37.65M29.15 35.85L27.35 37.65" stroke="#f2b8c6"/><path d="M29.85 35.85L31.65 37.65M31.65 35.85L29.85 37.65" stroke="#9d93ad"/><path d="M32.35 35.85L34.15 37.65M34.15 35.85L32.35 37.65" stroke="#9d93ad"/><path d="M34.85 35.85L36.65 37.65M36.65 35.85L34.85 37.65" stroke="#9d93ad"/><path d="M37.35 35.85L39.15 37.65M39.15 35.85L37.35 37.65" stroke="#9d93ad"/><path d="M12.35 38.35L14.15 40.15M14.15 38.35L12.35 40.15" stroke="#9d93ad"/><path d="M14.85 38.35L16.65 40.15M16.65 38.35L14.85 40.15" stroke="#9d93ad"/><path d="M17.35 38.35L19.15 40.15M19.15 38.35L17.35 40.15" stroke="#9d93ad"/><path d="M19.85 38.35L21.65 40.15M21.65 38.35L19.85 40.15" stroke="#9d93ad"/><path d="M22.35 38.35L24.15 40.15M24.15 38.35L22.35 40.15" stroke="#f2b8c6"/><path d="M24.85 38.35L26.65 40.15M26.65 38.35L24.85 40.15" stroke="#f2b8c6"/><path d="M27.35 38.35L29.15 40.15M29.15 38.35L27.35 40.15" stroke="#f2b8c6"/><path d="M29.85 38.35L31.65 40.15M31.65 38.35L29.85 40.15" stroke="#9d93ad"/><path d="M32.35 38.35L34.15 40.15M34.15 38.35L32.35 40.15" stroke="#9d93ad"/><path d="M34.85 38.35L36.65 40.15M36.65 38.35L34.85 40.15" stroke="#9d93ad"/><path d="M37.35 38.35L39.15 40.15M39.15 38.35L37.35 40.15" stroke="#9d93ad"/><path d="M14.85 40.85L16.65 42.65M16.65 40.85L14.85 42.65" stroke="#9d93ad"/><path d="M17.35 40.85L19.15 42.65M19.15 40.85L17.35 42.65" stroke="#9d93ad"/><path d="M19.85 40.85L21.65 42.65M21.65 40.85L19.85 42.65" stroke="#9d93ad"/><path d="M29.85 40.85L31.65 42.65M31.65 40.85L29.85 42.65" stroke="#9d93ad"/><path d="M32.35 40.85L34.15 42.65M34.15 40.85L32.35 42.65" stroke="#9d93ad"/><path d="M34.85 40.85L36.65 42.65M36.65 40.85L34.85 42.65" stroke="#9d93ad"/></g><g font-family="ui-monospace,Menlo,monospace" font-size="6.6" fill="#2a1f33"><text x="47" y="21">I have no</text><text x="47" y="31">mouth and I</text><text x="47" y="41">must scream.</text></g></svg></button>
+      <dialog id="samplerDlg" aria-label="Cross-stitch sampler"><svg viewBox="0 0 100 56" role="img" aria-label="Cross-stitched koala with a pink bow and no mouth, beside the words: I have no mouth and I must scream."><rect width="100" height="56" fill="#fbe3ef"/><rect x="1.5" y="1.5" width="97" height="53" fill="none" stroke="#e05a8a"/><g stroke-width=".55" stroke-linecap="round"><path d="M9.85 13.35L11.65 15.15M11.65 13.35L9.85 15.15" stroke="#9d93ad"/><path d="M12.35 13.35L14.15 15.15M14.15 13.35L12.35 15.15" stroke="#9d93ad"/><path d="M32.35 13.35L34.15 15.15M34.15 13.35L32.35 15.15" stroke="#ff4f93"/><path d="M34.85 13.35L36.65 15.15M36.65 13.35L34.85 15.15" stroke="#ff4f93"/><path d="M39.85 13.35L41.65 15.15M41.65 13.35L39.85 15.15" stroke="#ff4f93"/><path d="M42.35 13.35L44.15 15.15M44.15 13.35L42.35 15.15" stroke="#ff4f93"/><path d="M7.35 15.85L9.15 17.65M9.15 15.85L7.35 17.65" stroke="#9d93ad"/><path d="M9.85 15.85L11.65 17.65M11.65 15.85L9.85 17.65" stroke="#f2b8c6"/><path d="M12.35 15.85L14.15 17.65M14.15 15.85L12.35 17.65" stroke="#f2b8c6"/><path d="M14.85 15.85L16.65 17.65M16.65 15.85L14.85 17.65" stroke="#9d93ad"/><path d="M32.35 15.85L34.15 17.65M34.15 15.85L32.35 17.65" stroke="#ff4f93"/><path d="M34.85 15.85L36.65 17.65M36.65 15.85L34.85 17.65" stroke="#ff4f93"/><path d="M37.35 15.85L39.15 17.65M39.15 15.85L37.35 17.65" stroke="#b3245f"/><path d="M39.85 15.85L41.65 17.65M41.65 15.85L39.85 17.65" stroke="#ff4f93"/><path d="M42.35 15.85L44.15 17.65M44.15 15.85L42.35 17.65" stroke="#ff4f93"/><path d="M7.35 18.35L9.15 20.15M9.15 18.35L7.35 20.15" stroke="#9d93ad"/><path d="M9.85 18.35L11.65 20.15M11.65 18.35L9.85 20.15" stroke="#f2b8c6"/><path d="M12.35 18.35L14.15 20.15M14.15 18.35L12.35 20.15" stroke="#f2b8c6"/><path d="M14.85 18.35L16.65 20.15M16.65 18.35L14.85 20.15" stroke="#9d93ad"/><path d="M17.35 18.35L19.15 20.15M19.15 18.35L17.35 20.15" stroke="#9d93ad"/><path d="M19.85 18.35L21.65 20.15M21.65 18.35L19.85 20.15" stroke="#9d93ad"/><path d="M22.35 18.35L24.15 20.15M24.15 18.35L22.35 20.15" stroke="#9d93ad"/><path d="M24.85 18.35L26.65 20.15M26.65 18.35L24.85 20.15" stroke="#9d93ad"/><path d="M27.35 18.35L29.15 20.15M29.15 18.35L27.35 20.15" stroke="#9d93ad"/><path d="M29.85 18.35L31.65 20.15M31.65 18.35L29.85 20.15" stroke="#9d93ad"/><path d="M32.35 18.35L34.15 20.15M34.15 18.35L32.35 20.15" stroke="#9d93ad"/><path d="M34.85 18.35L36.65 20.15M36.65 18.35L34.85 20.15" stroke="#9d93ad"/><path d="M37.35 18.35L39.15 20.15M39.15 18.35L37.35 20.15" stroke="#f2b8c6"/><path d="M39.85 18.35L41.65 20.15M41.65 18.35L39.85 20.15" stroke="#f2b8c6"/><path d="M42.35 18.35L44.15 20.15M44.15 18.35L42.35 20.15" stroke="#9d93ad"/><path d="M9.85 20.85L11.65 22.65M11.65 20.85L9.85 22.65" stroke="#9d93ad"/><path d="M12.35 20.85L14.15 22.65M14.15 20.85L12.35 22.65" stroke="#9d93ad"/><path d="M14.85 20.85L16.65 22.65M16.65 20.85L14.85 22.65" stroke="#9d93ad"/><path d="M17.35 20.85L19.15 22.65M19.15 20.85L17.35 22.65" stroke="#9d93ad"/><path d="M19.85 20.85L21.65 22.65M21.65 20.85L19.85 22.65" stroke="#9d93ad"/><path d="M22.35 20.85L24.15 22.65M24.15 20.85L22.35 22.65" stroke="#9d93ad"/><path d="M24.85 20.85L26.65 22.65M26.65 20.85L24.85 22.65" stroke="#9d93ad"/><path d="M27.35 20.85L29.15 22.65M29.15 20.85L27.35 22.65" stroke="#9d93ad"/><path d="M29.85 20.85L31.65 22.65M31.65 20.85L29.85 22.65" stroke="#9d93ad"/><path d="M32.35 20.85L34.15 22.65M34.15 20.85L32.35 22.65" stroke="#9d93ad"/><path d="M34.85 20.85L36.65 22.65M36.65 20.85L34.85 22.65" stroke="#9d93ad"/><path d="M37.35 20.85L39.15 22.65M39.15 20.85L37.35 22.65" stroke="#9d93ad"/><path d="M39.85 20.85L41.65 22.65M41.65 20.85L39.85 22.65" stroke="#9d93ad"/><path d="M9.85 23.35L11.65 25.15M11.65 23.35L9.85 25.15" stroke="#9d93ad"/><path d="M12.35 23.35L14.15 25.15M14.15 23.35L12.35 25.15" stroke="#9d93ad"/><path d="M14.85 23.35L16.65 25.15M16.65 23.35L14.85 25.15" stroke="#9d93ad"/><path d="M17.35 23.35L19.15 25.15M19.15 23.35L17.35 25.15" stroke="#2a1f33"/><path d="M19.85 23.35L21.65 25.15M21.65 23.35L19.85 25.15" stroke="#9d93ad"/><path d="M22.35 23.35L24.15 25.15M24.15 23.35L22.35 25.15" stroke="#9d93ad"/><path d="M24.85 23.35L26.65 25.15M26.65 23.35L24.85 25.15" stroke="#9d93ad"/><path d="M27.35 23.35L29.15 25.15M29.15 23.35L27.35 25.15" stroke="#9d93ad"/><path d="M29.85 23.35L31.65 25.15M31.65 23.35L29.85 25.15" stroke="#9d93ad"/><path d="M32.35 23.35L34.15 25.15M34.15 23.35L32.35 25.15" stroke="#2a1f33"/><path d="M34.85 23.35L36.65 25.15M36.65 23.35L34.85 25.15" stroke="#9d93ad"/><path d="M37.35 23.35L39.15 25.15M39.15 23.35L37.35 25.15" stroke="#9d93ad"/><path d="M39.85 23.35L41.65 25.15M41.65 23.35L39.85 25.15" stroke="#9d93ad"/><path d="M9.85 25.85L11.65 27.65M11.65 25.85L9.85 27.65" stroke="#9d93ad"/><path d="M12.35 25.85L14.15 27.65M14.15 25.85L12.35 27.65" stroke="#9d93ad"/><path d="M14.85 25.85L16.65 27.65M16.65 25.85L14.85 27.65" stroke="#9d93ad"/><path d="M17.35 25.85L19.15 27.65M19.15 25.85L17.35 27.65" stroke="#9d93ad"/><path d="M19.85 25.85L21.65 27.65M21.65 25.85L19.85 27.65" stroke="#9d93ad"/><path d="M22.35 25.85L24.15 27.65M24.15 25.85L22.35 27.65" stroke="#3a3146"/><path d="M24.85 25.85L26.65 27.65M26.65 25.85L24.85 27.65" stroke="#3a3146"/><path d="M27.35 25.85L29.15 27.65M29.15 25.85L27.35 27.65" stroke="#3a3146"/><path d="M29.85 25.85L31.65 27.65M31.65 25.85L29.85 27.65" stroke="#9d93ad"/><path d="M32.35 25.85L34.15 27.65M34.15 25.85L32.35 27.65" stroke="#9d93ad"/><path d="M34.85 25.85L36.65 27.65M36.65 25.85L34.85 27.65" stroke="#9d93ad"/><path d="M37.35 25.85L39.15 27.65M39.15 25.85L37.35 27.65" stroke="#9d93ad"/><path d="M39.85 25.85L41.65 27.65M41.65 25.85L39.85 27.65" stroke="#9d93ad"/><path d="M9.85 28.35L11.65 30.15M11.65 28.35L9.85 30.15" stroke="#9d93ad"/><path d="M12.35 28.35L14.15 30.15M14.15 28.35L12.35 30.15" stroke="#9d93ad"/><path d="M14.85 28.35L16.65 30.15M16.65 28.35L14.85 30.15" stroke="#9d93ad"/><path d="M17.35 28.35L19.15 30.15M19.15 28.35L17.35 30.15" stroke="#9d93ad"/><path d="M19.85 28.35L21.65 30.15M21.65 28.35L19.85 30.15" stroke="#9d93ad"/><path d="M22.35 28.35L24.15 30.15M24.15 28.35L22.35 30.15" stroke="#3a3146"/><path d="M24.85 28.35L26.65 30.15M26.65 28.35L24.85 30.15" stroke="#3a3146"/><path d="M27.35 28.35L29.15 30.15M29.15 28.35L27.35 30.15" stroke="#3a3146"/><path d="M29.85 28.35L31.65 30.15M31.65 28.35L29.85 30.15" stroke="#9d93ad"/><path d="M32.35 28.35L34.15 30.15M34.15 28.35L32.35 30.15" stroke="#9d93ad"/><path d="M34.85 28.35L36.65 30.15M36.65 28.35L34.85 30.15" stroke="#9d93ad"/><path d="M37.35 28.35L39.15 30.15M39.15 28.35L37.35 30.15" stroke="#9d93ad"/><path d="M39.85 28.35L41.65 30.15M41.65 28.35L39.85 30.15" stroke="#9d93ad"/><path d="M12.35 30.85L14.15 32.65M14.15 30.85L12.35 32.65" stroke="#9d93ad"/><path d="M14.85 30.85L16.65 32.65M16.65 30.85L14.85 32.65" stroke="#9d93ad"/><path d="M17.35 30.85L19.15 32.65M19.15 30.85L17.35 32.65" stroke="#9d93ad"/><path d="M19.85 30.85L21.65 32.65M21.65 30.85L19.85 32.65" stroke="#9d93ad"/><path d="M22.35 30.85L24.15 32.65M24.15 30.85L22.35 32.65" stroke="#9d93ad"/><path d="M24.85 30.85L26.65 32.65M26.65 30.85L24.85 32.65" stroke="#9d93ad"/><path d="M27.35 30.85L29.15 32.65M29.15 30.85L27.35 32.65" stroke="#9d93ad"/><path d="M29.85 30.85L31.65 32.65M31.65 30.85L29.85 32.65" stroke="#9d93ad"/><path d="M32.35 30.85L34.15 32.65M34.15 30.85L32.35 32.65" stroke="#9d93ad"/><path d="M34.85 30.85L36.65 32.65M36.65 30.85L34.85 32.65" stroke="#9d93ad"/><path d="M37.35 30.85L39.15 32.65M39.15 30.85L37.35 32.65" stroke="#9d93ad"/><path d="M14.85 33.35L16.65 35.15M16.65 33.35L14.85 35.15" stroke="#9d93ad"/><path d="M17.35 33.35L19.15 35.15M19.15 33.35L17.35 35.15" stroke="#9d93ad"/><path d="M19.85 33.35L21.65 35.15M21.65 33.35L19.85 35.15" stroke="#9d93ad"/><path d="M22.35 33.35L24.15 35.15M24.15 33.35L22.35 35.15" stroke="#9d93ad"/><path d="M24.85 33.35L26.65 35.15M26.65 33.35L24.85 35.15" stroke="#9d93ad"/><path d="M27.35 33.35L29.15 35.15M29.15 33.35L27.35 35.15" stroke="#9d93ad"/><path d="M29.85 33.35L31.65 35.15M31.65 33.35L29.85 35.15" stroke="#9d93ad"/><path d="M32.35 33.35L34.15 35.15M34.15 33.35L32.35 35.15" stroke="#9d93ad"/><path d="M34.85 33.35L36.65 35.15M36.65 33.35L34.85 35.15" stroke="#9d93ad"/><path d="M12.35 35.85L14.15 37.65M14.15 35.85L12.35 37.65" stroke="#9d93ad"/><path d="M14.85 35.85L16.65 37.65M16.65 35.85L14.85 37.65" stroke="#9d93ad"/><path d="M17.35 35.85L19.15 37.65M19.15 35.85L17.35 37.65" stroke="#9d93ad"/><path d="M19.85 35.85L21.65 37.65M21.65 35.85L19.85 37.65" stroke="#9d93ad"/><path d="M22.35 35.85L24.15 37.65M24.15 35.85L22.35 37.65" stroke="#f2b8c6"/><path d="M24.85 35.85L26.65 37.65M26.65 35.85L24.85 37.65" stroke="#f2b8c6"/><path d="M27.35 35.85L29.15 37.65M29.15 35.85L27.35 37.65" stroke="#f2b8c6"/><path d="M29.85 35.85L31.65 37.65M31.65 35.85L29.85 37.65" stroke="#9d93ad"/><path d="M32.35 35.85L34.15 37.65M34.15 35.85L32.35 37.65" stroke="#9d93ad"/><path d="M34.85 35.85L36.65 37.65M36.65 35.85L34.85 37.65" stroke="#9d93ad"/><path d="M37.35 35.85L39.15 37.65M39.15 35.85L37.35 37.65" stroke="#9d93ad"/><path d="M12.35 38.35L14.15 40.15M14.15 38.35L12.35 40.15" stroke="#9d93ad"/><path d="M14.85 38.35L16.65 40.15M16.65 38.35L14.85 40.15" stroke="#9d93ad"/><path d="M17.35 38.35L19.15 40.15M19.15 38.35L17.35 40.15" stroke="#9d93ad"/><path d="M19.85 38.35L21.65 40.15M21.65 38.35L19.85 40.15" stroke="#9d93ad"/><path d="M22.35 38.35L24.15 40.15M24.15 38.35L22.35 40.15" stroke="#f2b8c6"/><path d="M24.85 38.35L26.65 40.15M26.65 38.35L24.85 40.15" stroke="#f2b8c6"/><path d="M27.35 38.35L29.15 40.15M29.15 38.35L27.35 40.15" stroke="#f2b8c6"/><path d="M29.85 38.35L31.65 40.15M31.65 38.35L29.85 40.15" stroke="#9d93ad"/><path d="M32.35 38.35L34.15 40.15M34.15 38.35L32.35 40.15" stroke="#9d93ad"/><path d="M34.85 38.35L36.65 40.15M36.65 38.35L34.85 40.15" stroke="#9d93ad"/><path d="M37.35 38.35L39.15 40.15M39.15 38.35L37.35 40.15" stroke="#9d93ad"/><path d="M14.85 40.85L16.65 42.65M16.65 40.85L14.85 42.65" stroke="#9d93ad"/><path d="M17.35 40.85L19.15 42.65M19.15 40.85L17.35 42.65" stroke="#9d93ad"/><path d="M19.85 40.85L21.65 42.65M21.65 40.85L19.85 42.65" stroke="#9d93ad"/><path d="M29.85 40.85L31.65 42.65M31.65 40.85L29.85 42.65" stroke="#9d93ad"/><path d="M32.35 40.85L34.15 42.65M34.15 40.85L32.35 42.65" stroke="#9d93ad"/><path d="M34.85 40.85L36.65 42.65M36.65 40.85L34.85 42.65" stroke="#9d93ad"/></g><g font-family="ui-monospace,Menlo,monospace" font-size="6.6" fill="#2a1f33"><text x="47" y="21">I have no</text><text x="47" y="31">mouth and I</text><text x="47" y="41">must scream.</text></g></svg><form method="dialog"><button>close</button></form></dialog>
+
+      <div class="ledge">
+        <a class="monitor" href="/desk/studio.html" aria-label="Monitor: open the cymatic studio">
+          <video autoplay loop muted playsinline poster="/cat-poster.webp" aria-label="A fluffy grey cat hugging a keyboard."><source src="/cat.webm" type="video/webm" /><source src="/cat.mp4" type="video/mp4" /></video>
+        </a>
+        <button class="obj candle" id="candle" aria-label="Candle: light or blow out" aria-pressed="true">
+          <svg viewBox="0 0 34 60" aria-hidden="true"><path class="flame" d="M17 2Q25 14 17 24Q9 14 17 2Z" fill="#ffd27a"/><rect x="5" y="24" width="24" height="34" rx="5" fill="#ffc8ea" stroke="#2b1650" stroke-width="2"/></svg>
+        </button>
+        <button class="obj cassette" data-pocket aria-label="Cassette: open the live field"><svg viewBox="0 0 58 38" aria-hidden="true"><rect width="58" height="38" rx="5" fill="#b9a6ff"/><rect x="7" y="6" width="44" height="16" rx="3" fill="#f6ede2"/><circle cx="19" cy="14" r="4.500" fill="#2a1f33"/><circle cx="39" cy="14" r="4.500" fill="#2a1f33"/><rect x="15" y="27" width="28" height="7" rx="2" fill="#7a63c9"/></svg></button>
+        <a class="obj solder" href="/lab/#desk" aria-label="Soldering station: go to the lab desk"><svg viewBox="0 0 60 44" aria-hidden="true"><rect x="2" y="24" width="30" height="18" rx="3" fill="#2a2433" stroke="#0f0a14"/><rect x="6" y="28" width="13" height="8" rx="1" fill="#7fe7ff"/><circle cx="26" cy="33" r="3.200" fill="#ff7ac8"/><path d="M36 42h20M46 42v-8" stroke="#b9b4c4" stroke-width="2.500" stroke-linecap="round"/><path d="M46 34q-5-4-6-10" fill="none" stroke="#b9b4c4" stroke-width="1.500"/><path d="M34 8l19 19" stroke="#ff7ac8" stroke-width="6" stroke-linecap="round"/><path d="M34 8L28 2" stroke="#d9d4e0" stroke-width="2"/><path d="M53 27q6 5 0 9T32 36" fill="none" stroke="#0f0a14" stroke-width="1.500"/></svg></a>
+        <button class="obj cymbtn" data-cym-open aria-label="Singing dish: open the small cymatic field"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="cdSheen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#ffb6e4"/><stop offset=".55" stop-color="#c4f4ff"/><stop offset=".8" stop-color="#d8ff3e"/><stop offset="1" stop-color="#b6a4ff"/></linearGradient></defs><circle cx="24" cy="24" r="22" fill="url(#cdSheen)" stroke="#2b1650" stroke-width="2"/><g fill="none" stroke="#2b1650" stroke-width="1.100" opacity=".55"><circle cx="24" cy="24" r="15"/><path d="M24 2q8 22 0 44M2 24q22 8 44 0"/></g><circle cx="24" cy="24" r="4" fill="#fff" stroke="#2b1650" stroke-width="1.500"/></svg></button>
+        <a class="obj mug" href="/desk/#cafe" aria-label="Mug: cafe notes"><svg viewBox="0 0 54 50" aria-hidden="true"><path d="M38 16q15 1 12 15q-3 11-14 9" fill="none" stroke="#2b1650" stroke-width="6"/><path d="M38 16q15 1 12 15q-3 11-14 9" fill="none" stroke="#fff0fa" stroke-width="3"/><path d="M4 8H40L37 44Q22 49 7 44Z" fill="#fff0fa" stroke="#2b1650" stroke-width="2"/><ellipse cx="22" cy="9" rx="17" ry="4" fill="#9a6a45" stroke="#2b1650" stroke-width="2"/></svg></a>
+        <a class="obj handheld" href="/desk/#play" aria-label="Handheld: games in progress"><svg viewBox="0 0 74 40" aria-hidden="true"><rect x="2" y="2" width="70" height="36" rx="13" fill="#ffb3d9" stroke="#2b1650" stroke-width="2"/><rect x="23" y="7" width="28" height="23" rx="2" fill="#7fe7ff" stroke="#2b1650" stroke-width="2"/><path d="M9 20h9M13.500 15v10" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="60" cy="16" r="3" fill="#fff"/><circle cx="65" cy="24" r="3" fill="#fff"/></svg></a>
+      </div>
+    </div>
+    <a class="partc" href="/lab/" aria-label="Part C the cat: go to her lab">
+<svg viewBox="0 0 120 120" aria-hidden="true">
+      <defs>
+      <linearGradient id="fur" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#f2e8ff"/><stop offset="1" stop-color="#c9ecff"/></linearGradient>
+      <linearGradient id="chr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#ff9bdc"/><stop offset=".5" stop-color="#e9fbff"/><stop offset=".72" stop-color="#9f8cff"/><stop offset="1" stop-color="#dcff8a"/></linearGradient>
+      <linearGradient id="iris" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a1a8c"/><stop offset=".45" stop-color="#e13dc3"/><stop offset=".75" stop-color="#38e8ff"/><stop offset="1" stop-color="#d8ff3e"/></linearGradient>
+      </defs>
+      <g stroke="#2b1650" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M84 96c20 3 27-13 19-25-3-5-10-4-10 2 0 5 6 5 4 11-2 5-9 5-14 3z" fill="url(#fur)"/>
+      <circle cx="93" cy="69" r="6.5" fill="url(#chr)"/>
+      <path d="M36 112c-6-20 4-37 24-37s30 17 24 37c-1 3-4 4-7 4H43c-3 0-6-1-7-4z" fill="url(#fur)"/>
+      <path d="M44 116c-2-7-1-13 2-17 3 4 3 11 2 17zM76 116c2-7 1-13-2-17-3 4-3 11-2 17z" fill="#d9c8ff" stroke-width="1.6"/>
+      <path d="M23 34 19 8c-.4-3 2-4 4-2l22 16zM97 34l4-26c.4-3-2-4-4-2L75 22z" fill="url(#fur)"/>
+      <path d="M28 27 25 14l12 9zM92 27l3-13-12 9z" fill="#ffa3d7" stroke="none"/>
+      <path d="M60 19c28 0 43 15 43 34 0 7-3 12-6 15l5 5-10 1-3 5-7-3c-7 3-14 4-22 4s-15-1-22-4l-7 3-3-5-10-1 5-5c-3-3-6-8-6-15 0-19 15-34 43-34z" fill="url(#fur)"/>
+      </g>
+      <path d="M60 22c-24 0-38 12-40 28 7-14 21-21 40-21s33 7 40 21c-2-16-16-28-40-28z" fill="#fff" opacity=".9"/>
+      <g stroke="#2b1650" stroke-width="2">
+      <ellipse cx="41" cy="55" rx="12.5" ry="16" fill="url(#iris)"/>
+      <ellipse cx="79" cy="55" rx="12.5" ry="16" fill="url(#iris)"/>
+      </g>
+      <ellipse cx="41" cy="56" rx="5" ry="9" fill="#180a33"/><ellipse cx="79" cy="56" rx="5" ry="9" fill="#180a33"/>
+      <g fill="#fff"><ellipse cx="36" cy="47" rx="5" ry="6.5"/><ellipse cx="74" cy="47" rx="5" ry="6.5"/><circle cx="46" cy="63" r="2.6"/><circle cx="84" cy="63" r="2.6"/><path d="M42 42l1 3 3 1-3 1-1 3-1-3-3-1 3-1zM80 42l1 3 3 1-3 1-1 3-1-3-3-1 3-1z"/></g>
+      <path d="M28 44c4-5 9-7 14-6M92 44c-4-5-9-7-14-6" fill="none" stroke="#2b1650" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M60 66c-1.500-2-5-1-4 1.500.5 1.500 2.500 2.500 4 4 1.500-1.500 3.500-2.500 4-4 1-2.500-2.500-3.500-4-1.500z" fill="#ff6fbf" stroke="#2b1650" stroke-width="1.2"/>
+      <path d="M60 72c-1 3-5 3-6 0M60 72c1 3 5 3 6 0" fill="none" stroke="#2b1650" stroke-width="1.8" stroke-linecap="round"/>
+      <g stroke="#2b1650" stroke-width="1.3" stroke-linecap="round" opacity=".75"><path d="M18 60 4 57M18 66 5 69M102 60l14-3M102 66l13 3"/></g>
+      <ellipse cx="24" cy="68" rx="6" ry="3" fill="#ffa3d7" opacity=".6"/><ellipse cx="96" cy="68" rx="6" ry="3" fill="#ffa3d7" opacity=".6"/>
+      <path d="M39 84c13 7 29 7 42 0l1 6c-14 7-30 7-44 0z" fill="url(#chr)" stroke="#2b1650" stroke-width="1.8" stroke-linejoin="round"/>
+      <rect x="53" y="89" width="14" height="13" rx="3.500" fill="url(#chr)" stroke="#2b1650" stroke-width="1.8"/><rect x="56" y="91" width="8" height="7" rx="2" fill="#fff" opacity=".85"/>
+      <ellipse cx="60" cy="13" rx="29" ry="6.500" fill="none" stroke="url(#chr)" stroke-width="3.500"/>
+      <g fill="#fff"><path d="M109 22l1.500 5 5 1.500-5 1.500-1.500 5-1.500-5-5-1.500 5-1.500zM10 84l1 3.500 3.500 1-3.500 1-1 3.500-1-3.500-3.500-1 3.500-1z"/></g>
+      </svg></button>
+    </a>
+  </section>
+
+  <section id="board" class="module onDesk">
+    <KeycapBoard />
+    <p class="index">01 / keyboard</p>
+    <h2 class="chrome">Pull it apart</h2>
+    <p>This is the keyboard on the desk. Drag the caps off and swap them, or type. <button type="button" class="singlink" data-cym-open>Open the singing dish</button> and each key plays it a new note. Mind the paw.</p>
+  </section>
+
+  <section id="rooms" class="module reveal">
+    <p class="index">02 / elsewhere</p>
+    <h2 class="chrome">More rooms</h2>
+    <div class="rooms">
+      <a class="room lab" href="/lab/"><b>Resin Lab</b><span>Mix, pour, cure, reveal. Your cap comes back to the board up top.</span></a>
+      <a class="room mydesk" href="/desk/"><b>Koala's Desk</b><span>The illustrated desk, neon kaomoji, a candle lamp, cafe notes and the brew calculator.</span></a>
+      <a class="room desk" href="/lab/#desk"><b>Lab Desk</b><span>Pour-over, kettle, tarot cards, candle and the rainy window.</span></a>
+      <a class="room wall" href="/wall/"><b>Graffiti Wall</b><span>Spray something. The public wall opens soon.</span></a>
+      <a class="room shop" href="/shop/"><b>Shop</b><span>Closed for now. Peek in the window.</span></a>
+      <a class="room blog" href="/blog/"><b>Blog</b><span>Aluminum Ghosts</span></a>
+    </div>
+    <p class="more"><a href="/works/">All experiments &rarr;</a></p>
+  </section>
+  <details class="ig" id="igPanel">
+    <summary>insta ✦</summary>
+    <div class="igtiles">
+      <a href="https://www.instagram.com/koalawallaland/" target="_blank" rel="noopener"><img src="/doodles/round-eye.webp" alt="" /><b>main</b></a>
+      <a href="https://www.instagram.com/koalawallaland/reposts/" target="_blank" rel="noopener"><img src="/doodles/wing-b.webp" alt="" /><b>reposts</b></a>
+    </div>
+    <p>@koalawallaland</p>
+  </details>
+
+  <aside class="cympop" id="cymPop" hidden aria-label="Small cymatic field">
+    <header><span>✦ singing_dish.exe</span><a href="/works/cymatic-field/">full</a><button type="button" data-cym-close aria-label="Close the cymatic field">×</button></header>
+    <Cymatics />
+  </aside>
+</Base>
+
+<style>
+  :global(#wavefield) { height: 1px; margin: 0; border: 0; opacity: 0; }
+  :global(html) { background: #0a0614; }
+  .opening { padding-top: .2rem; }
+  .opening { position: relative; }
+  .partc { position: absolute; z-index: 4; right: -146px; bottom: -14px; width: 186px; filter: drop-shadow(0 8px 12px rgba(0,0,0,.55)); transition: transform .2s; animation: partcBob 3.6s ease-in-out infinite; }
+  .partc:hover, .partc:focus-visible { transform: translateY(-5px) rotate(-2deg); }
+  .partc :global(svg) { display: block; width: 100%; height: auto; overflow: visible; }
+  @keyframes partcBob { 50% { translate: 0 -4px; } }
+  .cymbtn { width: 7%; }
+  .singlink { padding: 0; color: var(--accent); background: none; border: 0; font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  @media (max-width: 1100px) {
+    .partc { right: -2px; bottom: -8px; width: clamp(90px, 25%, 170px); }
+    .band .ledge { justify-content: flex-start; gap: 1.2%; padding-right: 25%; }
+    .ledge .monitor { width: 27%; }
+    .ledge .candle { width: 4.5%; } .ledge .cassette { width: 6%; } .ledge .solder { width: 5.5%; } .ledge .cymbtn { width: 5.5%; } .ledge .mug { width: 5.5%; } .ledge .handheld { width: 9.5%; }
+  }
+  .ig { margin: 1.2rem 0 0; padding: .6rem .7rem; color: var(--ink); background: rgba(20,10,38,.72); border: 1px solid rgba(255,245,251,.28); border-radius: 14px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); font: .78rem var(--font-mono); }
+  .ig summary { min-height: 30px; line-height: 30px; cursor: pointer; }
+  .igtiles { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; margin-top: .3rem; }
+  .igtiles a { display: flex; flex-direction: column; align-items: center; gap: .3rem; padding: .55rem .3rem; color: #27341a; background: linear-gradient(150deg,#fffdf6,#f6e6ee); border-radius: 10px; text-decoration: none; }
+  .igtiles img { width: 38px; height: 38px; object-fit: contain; }
+  .ig p { margin: .4rem 0 0; color: var(--muted); font-size: .68rem; text-align: center; }
+  @media (min-width: 1101px) { .ig { position: fixed; z-index: 30; left: 12px; top: 116px; width: 188px; margin: 0; } }
+  .cympop { position: fixed; z-index: 45; left: 12px; bottom: 12px; width: min(236px, calc(100vw - 24px)); overflow: hidden; color: #1d1830; background: linear-gradient(145deg,#eef0fb,#b9bedb); border: 2px solid; border-color: #fff #5d5f85 #5d5f85 #fff; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,.6); }
+  .cympop[hidden] { display: none; }
+  .cympop header { display: flex; align-items: center; gap: .4rem; padding: .25rem .4rem; color: #16131b; background: linear-gradient(90deg,#ff7ac8,#b9a6ff 60%,#6ff3ff); font: 700 .68rem var(--font-mono); }
+  .cympop header span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cympop header a { color: inherit; }
+  .cympop header button { width: 28px; height: 28px; padding: 0; color: inherit; background: rgba(255,255,255,.55); border: 0; border-radius: 4px; font: 700 .9rem var(--font-mono); cursor: pointer; }
+  .cympop :global(.cym) { padding: .5rem .5rem .6rem !important; border-radius: 0 !important; }
+  .cympop :global(.bow), .cympop :global(.subtitle), .cympop :global(.corner), .cympop :global(.note-sub), .cympop :global(.tuner), .cympop :global(.mode-row), .cympop :global(.sliders), .cympop :global(.readout), .cympop :global(.foot), .cympop :global(.status) { display: none !important; }
+  .cympop :global(.dish) { width: 100% !important; margin: 0 auto .35rem !important; }
+  .cympop :global(.note) { margin: 0 0 .3rem !important; }
+  .cympop :global(.note-name) { font-size: 1.15rem !important; }
+  .cympop :global(.mic-row) { margin: 0 !important; }
+  .cympop :global(.pill) { min-height: 36px !important; padding: .1rem .8rem !important; font-size: .85rem !important; }
+  @media (max-width: 560px) { .cympop { width: 164px; } }
+  @media (prefers-reduced-motion: reduce) { .partc { animation: none; } }
+  .modak { margin: 0 0 .55rem; font: 400 clamp(2.05rem, 9.5vw, 3.3rem)/.95 "Modak", "Syne", sans-serif; letter-spacing: 0; background: linear-gradient(100deg,#fff 0%,#ffb6e4 18%,#d7f7ff 34%,#fff 46%,#b6a4ff 62%,#e8ffb0 78%,#fff 100%) 0 0 / 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: sheen 9s linear infinite; }
+  @keyframes sheen { to { background-position: 220% 0; } }
+  .prompt { margin: 0 0 .7rem; padding: .6rem .85rem; border: 1px solid rgba(255,245,251,.28); border-radius: 14px 14px 14px 4px; background: rgba(20,10,38,.7); backdrop-filter: blur(10px) saturate(1.5); -webkit-backdrop-filter: blur(10px) saturate(1.5); line-height: 1.35; }
+  .band { position: relative; display: grid; grid-template-columns: minmax(0,.82fr) repeat(3, minmax(0,1fr)); height: clamp(270px, 68vw, 400px); width: 100%; overflow: hidden; border-block: 6px solid #0f0a14; box-shadow: 0 0 44px rgba(0,0,0,.75); }
+  .pane { display: block; min-width: 0; border-inline: 4px solid #150e15; background:
+    repeating-linear-gradient(90deg, transparent 0 calc(25% - 2px), #17101a calc(25% - 2px) 25%),
+    repeating-linear-gradient(0deg, transparent 0 calc(20% - 2px), #17101a calc(20% - 2px) 20%),
+    radial-gradient(90% 75% at 50% 42%, rgba(255,197,226,.62), rgba(100,44,108,.36) 62%, rgba(31,14,45,.76)); }
+  .pane.third { filter: hue-rotate(58deg); }
+  .pane.brick { position: relative; overflow: hidden; background: linear-gradient(#332a3e 2px, transparent 2px) 0 0 / 100% 18px, #211a2b; }
+  .pane.brick svg { position: absolute; inset: 22% 4% auto; width: 92%; height: 52%; }
+  .neon { position: absolute; margin: 0; padding: .3em .36em; font-family: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif; font-weight: 900; line-height: 1; color: #fff; text-decoration: none; background: rgba(10,4,20,.5); border: 1px solid rgba(255,255,255,.14); border-radius: 8px; text-shadow: 0 0 3px #fff, 0 0 8px var(--n), 0 0 18px var(--n), 0 0 34px var(--n), 0 0 60px var(--n); box-shadow: 0 0 24px color-mix(in srgb, var(--n) 42%, transparent); pointer-events: none; }
+  .neon.vert { writing-mode: vertical-rl; text-orientation: upright; letter-spacing: .08em; font-size: clamp(30px, 8.6vw, 50px); }
+  .neon.vert.small { font-size: clamp(13px, 3.5vw, 21px); }
+  .enter { left: 56%; top: 38%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: clamp(21px, 6vw, 33px); white-space: nowrap; pointer-events: auto; animation: tube 5.2s linear infinite; }
+  .enter span { color: #fff; }
+  .enter small { font: 700 .4em/1 var(--font-body); letter-spacing: .2em; color: #ffd8d2; text-shadow: 0 0 7px var(--n); }
+  .enter:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  /* an old tube: long steady stretches with short dips, never a fast strobe */
+  @keyframes tube { 0%, 7%, 11%, 17%, 20%, 63%, 66%, 100% { opacity: 1; } 8%, 10%, 18%, 19%, 64%, 65% { opacity: .24; } }
+  .shopsign { position: absolute; left: 1.5%; top: 3%; padding: .2em .5em; color: #16131b; background: #f6ede2; border-radius: 5px; font: 700 clamp(10px, 2.6vw, 13px)/1.1 var(--font-mono); text-align: center; text-decoration: none; transform: rotate(-3deg); }
+  .shopsign small { display: block; font-size: .72em; color: #6e3a56; }
+  .ledge { position: absolute; left: 0; right: 0; bottom: 0; height: 24%; display: flex; align-items: flex-end; justify-content: space-between; gap: 2%; padding: 0 3.5% 2.5%; background: linear-gradient(160deg, #5d4769, #4c3a62 45%, #3e4066 75%, #3a3560); box-shadow: 0 -2px 0 #fff, 0 -6px 16px rgba(0,0,0,.45); }
+  .obj { display: block; padding: 0; min-height: 0; background: none; border: 0; cursor: pointer; transition: transform .2s; }
+  .obj:hover, .obj:focus-visible { transform: translateY(-4px); }
+  .obj:focus-visible, .monitor:focus-visible { outline: 2px solid #ff4a3d; outline-offset: 2px; }
+  .obj svg { display: block; width: 100%; height: auto; overflow: visible; }
+  /* the keyboard is the brightest surface: the room sits a step down from it */
+  .band::after { content: ""; position: absolute; inset: 0; background: rgba(8, 4, 16, .24); pointer-events: none; }
+  #board.onDesk :global(.kb) { border-radius: 14px; box-shadow: 0 0 70px rgba(255, 244, 224, .34), 0 18px 60px rgba(255, 214, 238, .16); }
+  .neon.enter, .lamp.lit { z-index: 1; }
+  .lamp { position: absolute; bottom: 20%; width: auto; pointer-events: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
+  .l-foo { left: 17.5%; height: 36%; bottom: 44%; filter: drop-shadow(0 0 16px rgba(255, 226, 180, .55)); }
+  .l-del { left: 85%; height: 36%; bottom: 24%; }
+  .l-ada { left: 72%; height: 31%; bottom: 24%; }
+  .l-lav { left: 58%; height: 18%; bottom: 24%; }
+  @media (max-width: 560px) {
+    .band { height: clamp(320px, 94vw, 400px); }
+    .l-foo { left: 13%; height: 33%; bottom: 24%; }
+    .l-del { left: 83%; height: 29%; }
+    .l-ada { left: 67%; height: 25%; }
+    .l-lav { display: none; }
+    .sampler { left: 60%; width: 19%; top: 6%; }
+  }
+  .pool { position: absolute; bottom: 0; width: 34%; height: 75%; transform: translateX(-30%); background: radial-gradient(50% 50% at 50% 55%, var(--c), transparent 72%); pointer-events: none; }
+  .sampler { position: absolute; left: 59%; top: 8%; width: 15%; padding: 3px; background: #c9367f; border: 2px solid #ff7ac8; border-radius: 2px; cursor: pointer; }
+  .sampler svg { display: block; width: 100%; height: auto; }
+  .sampler:hover, .sampler:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  #samplerDlg { width: min(720px, calc(100vw - 32px)); padding: 14px; border: 6px solid #ff7ac8; border-radius: 10px; background: #fbe3ef; }
+  #samplerDlg::backdrop { background: rgba(10, 6, 12, .72); }
+  #samplerDlg svg { display: block; width: 100%; height: auto; }
+  #samplerDlg form { display: flex; justify-content: flex-end; margin-top: 10px; }
+  #samplerDlg button { min-height: 40px; padding: 0 16px; color: #2a1f33; background: #fff; border: 1px solid #c9367f; border-radius: 99px; cursor: pointer; }
+  .cassette { width: 9%; }
+  .solder { width: 8%; }
+  .candle { width: 8%; margin-bottom: 1%; } .mug { width: 9.5%; } .handheld { width: 15%; }
+  .monitor { display: block; width: 37%; aspect-ratio: 16 / 10; margin-bottom: 1.5%; padding: 1.2%; background: linear-gradient(135deg,#fff,#ff9bdc,#e9fbff,#9f8cff,#dcff8a); border: 2px solid #2b1650; border-radius: 9px; }
+  .monitor video { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 5px; background: #000; }
+  .flame { transform-box: fill-box; transform-origin: center bottom; animation: flick .3s infinite alternate; }
+  @keyframes flick { to { transform: scaleY(.9) scaleX(1.08); } }
+  .candle[aria-pressed="false"] .flame { display: none; }
+  #board.onDesk { margin-top: 0; padding-top: .7rem; }
+  @media (prefers-reduced-motion: reduce) { .modak, .enter, .flame { animation: none; } }
+
+  .chrome { background: linear-gradient(175deg, #fff 8%, #aab1d6 38%, #fdfdff 50%, #8d86b8 62%, #ffc8e4 95%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .rooms { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: .8rem; margin-top: 1rem; }
+  .room { display: flex; flex-direction: column; gap: .3rem; min-height: 8.5rem; padding: 1rem; color: var(--ink); border: 1px solid #4b4466; border-radius: 12px; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease; }
+  .room b { font-family: var(--font-display); font-size: 1.25rem; }
+  .room span { color: var(--muted); font-size: .88rem; line-height: 1.4; }
+  .room:hover { transform: translateY(-3px); }
+  .lab { background: linear-gradient(150deg, #3a0f4f, #12061d 70%); box-shadow: inset 0 0 22px rgba(255,119,180,.28); }
+  .mydesk { background: linear-gradient(150deg, #264a5a, #14101f 75%); box-shadow: inset 0 0 22px rgba(255,122,184,.3); }
+  .desk { background: linear-gradient(150deg, #5a2a4a, #1c0f24 75%); box-shadow: inset 0 0 22px rgba(255,190,120,.3); }
+  .wall { background: repeating-linear-gradient(0deg, #231d30 0 26px, #1b1626 27px 28px); box-shadow: inset 0 0 22px rgba(216,255,62,.14); }
+  .shop { background: linear-gradient(150deg, #e9ecff22, #16131b 75%); box-shadow: inset 0 0 22px rgba(255,255,255,.14); }
+  .blog { background: #0d0b14; box-shadow: inset 0 0 22px rgba(88,216,245,.22); }
+  .blog span { color: #58d8f5; font-family: var(--font-mono); font-size: .8rem; }
+  .more { margin-top: 1rem; }
+
+  .module { padding: 3.2rem 0 1rem; scroll-margin-top: 1rem; }
+  .module h2 { margin: .2rem 0 .5rem; font-size: 2rem; }
+  .index { margin: 0; color: #58d8f5; font-family: var(--font-mono); font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; }
+
+  /* sections drift up as they scroll into view, and stay readable the whole time */
+  :global(html.js-reveal) .reveal { transform: translateY(26px); transition: transform .7s cubic-bezier(.2, .8, .2, 1); }
+  :global(html.js-reveal) .reveal.shown { transform: none; }
+  :global(html.js-reveal) .reveal.done { transform: none; transition: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html.js-reveal) .reveal { transform: none; transition: none; }
+  }
+</style>
+
+<script>
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.documentElement.classList.add('js-reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('shown');
+      io.unobserve(e.target);
+      // drop the transform afterward so the fixed-position dragged cap and pop-up stay true to the screen
+      setTimeout(() => e.target.classList.add('done'), 800);
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach((s) => io.observe(s));
+</script>
+
+<script>
+  const dlg = document.getElementById('samplerDlg') as HTMLDialogElement;
+  document.getElementById('samplerBtn')!.addEventListener('click', () => dlg.showModal());
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+</script>
+
+<script>
+  const pop = document.getElementById('cymPop')!;
+  // closing it also turns off the microphone if Live Voice was on
+  const closeCym = () => { pop.hidden = true; pop.querySelector<HTMLElement>('[data-el="micBtn"][aria-pressed="true"]')?.click(); };
+  document.querySelectorAll('[data-cym-open]').forEach((b) => b.addEventListener('click', () => { if (pop.hidden) pop.hidden = false; else closeCym(); }));
+  pop.querySelector('[data-cym-close]')!.addEventListener('click', closeCym);
+  const ig = document.getElementById('igPanel') as HTMLDetailsElement;
+  if (matchMedia('(min-width: 1101px)').matches) ig.open = true;
+</script>
+
+<script>
+  const candle = document.getElementById('candle');
+  candle?.addEventListener('click', () => candle.setAttribute('aria-pressed', String(candle.getAttribute('aria-pressed') !== 'true')));
+</script>

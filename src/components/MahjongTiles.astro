@@ -1,0 +1,96 @@
+---
+// A real set of 136 tiles. Tap a tile to discard it and draw the next one.
+---
+<div class="mj" data-mj data-no-type>
+  <div class="hand" data-hand role="group" aria-label="Your tiles. Tap one to discard it."></div>
+  <div class="pond" data-pond aria-label="Discards"></div>
+  <div class="foot"><span data-mj-say aria-live="polite"></span><button type="button" data-wash>Wash the tiles</button></div>
+</div>
+<style>
+  .hand { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .pond { display: flex; flex-wrap: wrap; gap: 2px; min-height: 30px; margin-top: .6rem; }
+  :global(.tile) { display: block; width: 100%; aspect-ratio: 3/4; padding: 0; border: 0; border-radius: 6px; background: linear-gradient(170deg, #fffdf7 62%, #ffd9ea 62% 100%); box-shadow: 0 2px 0 #d9659f, 0 3px 6px rgba(0,0,0,.45); cursor: pointer; transition: transform .1s; }
+  :global(.tile svg) { display: block; width: 100%; height: 100%; }
+  :global(button.tile:hover) { transform: translateY(-3px); }
+  :global(button.tile:focus-visible) { outline: 2px solid #fff; outline-offset: 2px; }
+  :global(.tile.new) { box-shadow: 0 2px 0 #d9659f, 0 0 0 2px #d8ff3e; }
+  :global(.pond .tile) { width: 21px; border-radius: 3px; box-shadow: 0 1px 0 #d9659f; cursor: default; }
+  .foot { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-top: .5rem; font-size: .8rem; color: var(--muted); }
+  .foot button { flex: none; font: inherit; color: var(--accent); background: none; border: 0; padding: .3rem 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+</style>
+<script>
+  type Tile = { s: 'm' | 'p' | 'b' | 'z'; n: number };
+  const NUM = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
+  const HONOR = ['東', '南', '西', '北', '中', '發', '白'];
+  const NAME: Record<string, string> = { m: 'characters', p: 'dots', b: 'bamboo' };
+  const nameOf = (t: Tile) => (t.s === 'z' ? ['East wind', 'South wind', 'West wind', 'North wind', 'Red dragon', 'Green dragon', 'White dragon'][t.n - 1] : `${t.n} ${NAME[t.s]}`);
+  const key = (t: Tile) => 'mpbz'.indexOf(t.s) * 10 + t.n;
+  const G = '#2f8f5b', R = '#e0267f', B = '#3b57c9';
+  const POS: Record<number, [number, number][]> = {
+    1: [[15, 20]], 2: [[15, 11], [15, 29]], 3: [[8, 9], [15, 20], [22, 31]], 4: [[9, 11], [21, 11], [9, 29], [21, 29]], 5: [[9, 10], [21, 10], [15, 20], [9, 30], [21, 30]],
+    6: [[9, 9], [21, 9], [9, 20], [21, 20], [9, 31], [21, 31]], 7: [[7, 7], [15, 9], [23, 11], [9, 22], [21, 22], [9, 33], [21, 33]], 8: [[9, 7], [21, 7], [9, 16], [21, 16], [9, 25], [21, 25], [9, 34], [21, 34]],
+    9: [[7, 8], [15, 8], [23, 8], [7, 20], [15, 20], [23, 20], [7, 32], [15, 32], [23, 32]],
+  };
+  function face(t: Tile) {
+    let b = '';
+    const txt = (x: string, y: number, sz: number, c: string) => `<text x="15" y="${y}" font-size="${sz}" fill="${c}" text-anchor="middle" dominant-baseline="central" font-family="'Zen Maru Gothic','Hiragino Maru Gothic ProN','Noto Sans CJK TC',sans-serif" font-weight="900">${x}</text>`;
+    if (t.s === 'm') b = txt(NUM[t.n - 1], 13, 15, '#2b1650') + txt('萬', 28, 15, R);
+    else if (t.s === 'z') b = t.n === 7 ? '<rect x="7" y="9" width="16" height="22" rx="2" fill="none" stroke="#3b57c9" stroke-width="1.800"/>' : txt(HONOR[t.n - 1], 20, 20, t.n === 5 ? R : t.n === 6 ? G : '#2b1650');
+    else for (const [i, [x, y]] of POS[t.n].entries()) {
+      const c = [G, R, B][i % 3];
+      b += t.s === 'p' ? `<circle cx="${x}" cy="${y}" r="${t.n === 1 ? 9 : t.n < 5 ? 5 : 3.4}" fill="${t.n === 1 ? R : c}"/><circle cx="${x}" cy="${y}" r="${t.n === 1 ? 4 : 1.5}" fill="#fffdf7"/>`
+        : `<rect x="${x - 1.8}" y="${y - (t.n === 1 ? 11 : t.n < 5 ? 7 : 4.2)}" width="3.6" height="${t.n === 1 ? 22 : t.n < 5 ? 14 : 8.4}" rx="1.500" fill="${t.n === 1 ? R : i % 3 === 1 ? R : G}"/>`;
+    }
+    return `<svg viewBox="0 0 30 40" aria-hidden="true">${b}</svg>`;
+  }
+  const countsOf = (h: Tile[]) => { const c = new Map<number, number>(); h.forEach((t) => c.set(key(t), (c.get(key(t)) || 0) + 1)); return c; };
+  function meld(c: Map<number, number>): boolean { // every remaining tile sits in a run or triplet
+    const k = [...c.keys()].filter((x) => c.get(x)! > 0).sort((a, b) => a - b)[0];
+    if (k === undefined) return true;
+    if (c.get(k)! >= 3) { c.set(k, c.get(k)! - 3); const ok = meld(c); c.set(k, c.get(k)! + 3); if (ok) return true; }
+    if (k < 30 && k % 10 <= 7 && c.get(k + 1)! > 0 && c.get(k + 2)! > 0) {
+      [k, k + 1, k + 2].forEach((x) => c.set(x, c.get(x)! - 1)); const ok = meld(c); [k, k + 1, k + 2].forEach((x) => c.set(x, c.get(x)! + 1)); if (ok) return true;
+    }
+    return false;
+  }
+  function wins(h: Tile[]) {
+    const c = countsOf(h);
+    for (const [k, n] of [...c]) if (n >= 2) { c.set(k, n - 2); const ok = meld(c); c.set(k, n); if (ok) return true; }
+    return false;
+  }
+  const root = document.querySelector('[data-mj]')!;
+  const handEl = root.querySelector('[data-hand]') as HTMLElement, pond = root.querySelector('[data-pond]') as HTMLElement, say = root.querySelector('[data-mj-say]') as HTMLElement;
+  let wall: Tile[] = [], hand: Tile[] = [], drawn: Tile | null = null, over = false;
+  const rnd = (n: number) => { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; };
+  function wash() {
+    wall = [];
+    for (const s of ['m', 'p', 'b'] as const) for (let n = 1; n <= 9; n++) for (let i = 0; i < 4; i++) wall.push({ s, n });
+    for (let n = 1; n <= 7; n++) for (let i = 0; i < 4; i++) wall.push({ s: 'z', n });
+    for (let i = wall.length - 1; i > 0; i--) { const j = rnd(i + 1); [wall[i], wall[j]] = [wall[j], wall[i]]; }
+    hand = wall.splice(0, 13); drawn = null; over = false; pond.replaceChildren(); draw();
+  }
+  function draw() {
+    drawn = wall.pop() || null;
+    if (!drawn) { over = true; say.textContent = 'The wall is empty.'; paint(); return; }
+    if (wins([...hand, drawn])) { over = true; say.textContent = 'Mahjong! You won off the wall.'; } else say.textContent = `${wall.length} tiles left in the wall.`;
+    paint();
+  }
+  function paint() {
+    hand.sort((a, b) => key(a) - key(b));
+    const list = drawn ? [...hand, drawn] : hand;
+    handEl.replaceChildren(...list.map((t, i) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'tile' + (t === drawn ? ' new' : ''); b.innerHTML = face(t); b.setAttribute('aria-label', 'Discard ' + nameOf(t)); b.disabled = over;
+      b.addEventListener('click', () => {
+        if (over) return;
+        const d = document.createElement('span'); d.className = 'tile'; d.innerHTML = face(t); d.title = nameOf(t); pond.append(d);
+        if (t !== drawn) { hand.splice(hand.indexOf(t), 1); hand.push(drawn!); }
+        draw();
+        (handEl.children[Math.min(i, handEl.children.length - 1)] as HTMLElement)?.focus({ preventScroll: true });
+      });
+      return b;
+    }));
+  }
+  root.querySelector('[data-wash]')!.addEventListener('click', wash);
+  wash();
+</script>

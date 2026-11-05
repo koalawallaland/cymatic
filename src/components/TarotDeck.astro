@@ -1,0 +1,80 @@
+---
+// A full 78-card deck, drawn with the browser's cryptographic random numbers.
+---
+<div class="td" data-td data-no-type>
+  <div class="spread">
+    <button type="button" class="deck" data-deck aria-label="Draw a tarot card"><span class="back"></span><span class="back"></span><span class="back"></span></button>
+    <div class="slot" data-slot></div><div class="slot" data-slot></div><div class="slot" data-slot></div>
+  </div>
+  <p class="reading" data-reading aria-live="polite">Tap the deck to draw up to three cards.</p>
+  <button type="button" class="again" data-again hidden>Shuffle back in</button>
+</div>
+<style>
+  .spread { display: grid; grid-template-columns: repeat(4, 1fr); gap: .45rem; }
+  .deck, .slot { position: relative; aspect-ratio: 5/8; border-radius: 8px; }
+  .deck { padding: 0; border: 0; background: none; cursor: pointer; }
+  .deck:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  .deck:disabled { cursor: default; opacity: .55; }
+  .back { position: absolute; inset: 0; border-radius: 8px; border: 2px solid #fff; background: radial-gradient(circle at 50% 50%, #ffd1e8 0 13%, transparent 14%), radial-gradient(circle at 50% 50%, transparent 0 25%, #fff5 26% 28%, transparent 29%), linear-gradient(150deg, #ff7ab8, #7d3fc8); }
+  .back:nth-child(2) { transform: translate(2px, -2px) rotate(2deg); }
+  .back:nth-child(3) { transform: translate(4px, -4px) rotate(4deg); }
+  .slot { border: 1.500px dashed rgba(255,245,251,.28); }
+  :global(.tcard) { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 7% 5%; color: #4b1a63; background: linear-gradient(165deg, #fffaf2, #ffe1f0); border-radius: 8px; box-shadow: 0 0 0 2px #fff, 0 0 14px rgba(255,122,184,.6); text-align: center; font: 900 .58rem/1.1 'Zen Maru Gothic', sans-serif; animation: tflip .6s cubic-bezier(.2,.9,.3,1.2); }
+  :global(.tcard b) { font-size: 1.9rem; line-height: 1; font-weight: 400; }
+  :global(.tcard.rev) { --r: 180deg; }
+  :global(.tcard.rev b) { transform: rotate(180deg); }
+  @keyframes tflip { from { transform: rotateY(90deg); } to { transform: none; } }
+  .reading { margin: .7rem 0 .3rem; font-size: .84rem; line-height: 1.4; color: var(--ink); min-height: 2.8em; }
+  .reading :global(em) { color: #ffb8dc; font-style: normal; font-weight: 700; }
+  .again { font: inherit; font-size: .8rem; color: var(--accent); background: none; border: 0; padding: .3rem 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  @media (prefers-reduced-motion: reduce) { :global(.tcard) { animation: none; } }
+</style>
+<script>
+  const MAJOR: [string, string, string][] = [
+    ['The Fool', '✦', 'a leap, a beginning'], ['The Magician', '∞', 'will, skill, making it real'], ['The High Priestess', '☾', 'intuition, what stays hidden'],
+    ['The Empress', '♀', 'abundance, making things grow'], ['The Emperor', '♜', 'structure, authority'], ['The Hierophant', '✢', 'tradition, teaching'],
+    ['The Lovers', '♡', 'union, a real choice'], ['The Chariot', '➤', 'drive, holding the reins'], ['Strength', '∞', 'patient courage'],
+    ['The Hermit', '✧', 'solitude, an inner light'], ['Wheel of Fortune', '❂', 'cycles, turning luck'], ['Justice', '⚖', 'truth, consequence'],
+    ['The Hanged One', '▽', 'surrender, a new angle'], ['Death', '✝', 'endings, transformation'], ['Temperance', '△', 'balance, blending'],
+    ['The Devil', '⛧', 'attachment, appetite'], ['The Tower', '⚡', 'sudden collapse, release'], ['The Star', '★', 'hope, renewal'],
+    ['The Moon', '☽', 'illusion, the unconscious'], ['The Sun', '☀', 'clarity, joy'], ['Judgement', '♫', 'a calling, reckoning'], ['The World', '◯', 'completion, wholeness'],
+  ];
+  const SUITS: [string, string, string][] = [['Wands', '⚚', 'in passion and action'], ['Cups', '♡', 'in feeling and love'], ['Swords', '⚔', 'in thought and conflict'], ['Pentacles', '✪', 'in money and the body']];
+  const RANKS: [string, string][] = [['Ace', 'a new seed'], ['Two', 'a choice between two'], ['Three', 'early growth'], ['Four', 'stability'], ['Five', 'friction'], ['Six', 'moving through it'], ['Seven', 'testing your position'], ['Eight', 'momentum or being stuck'], ['Nine', 'nearly there'], ['Ten', 'a full cycle, its weight'], ['Page', 'curious news'], ['Knight', 'charging ahead'], ['Queen', 'inward mastery'], ['King', 'outward mastery']];
+  const DECK = [
+    ...MAJOR.map(([n, g, m]) => ({ n, g, m })),
+    ...SUITS.flatMap(([s, g, m]) => RANKS.map(([r, k]) => ({ n: `${r} of ${s}`, g, m: `${k}, ${m}` }))),
+  ];
+  const rand = (n: number) => { // unbiased pure RNG
+    const a = new Uint32Array(1), lim = Math.floor(0x100000000 / n) * n;
+    do crypto.getRandomValues(a); while (a[0] >= lim);
+    return a[0] % n;
+  };
+  const root = document.querySelector('[data-td]')!;
+  const deck = root.querySelector('[data-deck]') as HTMLButtonElement;
+  const slots = [...root.querySelectorAll<HTMLElement>('[data-slot]')];
+  const reading = root.querySelector('[data-reading]') as HTMLElement;
+  const again = root.querySelector('[data-again]') as HTMLButtonElement;
+  let pile: number[] = [], drawn: { n: string; m: string; rev: boolean }[] = [];
+  const shuffle = () => { pile = DECK.map((_, i) => i); drawn = []; slots.forEach((s) => (s.innerHTML = '')); deck.disabled = false; again.hidden = true; reading.textContent = 'Tap the deck to draw up to three cards.'; };
+  deck.addEventListener('click', () => {
+    if (drawn.length >= 3) return;
+    const c = DECK[pile.splice(rand(pile.length), 1)[0]], rev = rand(2) === 1;
+    const el = document.createElement('div');
+    el.className = 'tcard' + (rev ? ' rev' : '');
+    const small = document.createElement('span'); small.textContent = c.n;
+    const big = document.createElement('b'); big.textContent = c.g + '︎'; big.setAttribute('aria-hidden', 'true');
+    const dir = document.createElement('span'); dir.textContent = rev ? 'reversed' : '';
+    el.append(small, big, dir);
+    slots[drawn.length].append(el);
+    drawn.push({ n: c.n, m: c.m, rev });
+    reading.replaceChildren(...drawn.flatMap((d, i) => {
+      const em = document.createElement('em'); em.textContent = d.n + (d.rev ? ' reversed' : '');
+      return [...(i ? [document.createElement('br')] : []), em, document.createTextNode(': ' + d.m)];
+    }));
+    again.hidden = false;
+    if (drawn.length >= 3) deck.disabled = true;
+  });
+  again.addEventListener('click', shuffle);
+  shuffle();
+</script>

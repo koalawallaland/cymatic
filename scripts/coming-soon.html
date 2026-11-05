@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>koalawallaland. CRYNET</title>
+<meta name="description" content="koalawallaland. CRYNET">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Modak&family=Zen+Maru+Gothic:wght@900&display=swap">
+<style>
+  :root { color-scheme: dark; --wood: #1a0f19; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; overflow: hidden; background: #150b1f; color: #fff; font-family: "Zen Maru Gothic", ui-rounded, system-ui, sans-serif; }
+  .doors { position: fixed; inset: 0; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .doors i { border-inline: clamp(5px, 1vw, 12px) solid var(--wood); background:
+      repeating-linear-gradient(90deg, rgba(26,15,25,.9) 0 3px, transparent 3px clamp(46px, 7vw, 92px)),
+      repeating-linear-gradient(0deg, rgba(26,15,25,.9) 0 3px, transparent 3px clamp(58px, 9vw, 112px)),
+      linear-gradient(180deg, #d9c8c8, #efdcc0 60%, #f7d8ab); }
+  .glow { position: fixed; inset: 0; pointer-events: none; mix-blend-mode: multiply;
+    background: radial-gradient(38% 46% at 50% 44%, #fff 0, #ffd9b4 55%, transparent 100%), radial-gradient(60% 70% at 8% 18%, #ff5fb0, transparent 75%), radial-gradient(60% 70% at 94% 82%, #4fd8ff, transparent 75%), #6b4a86; }
+  .seam { position: fixed; top: 0; bottom: 0; left: 50%; width: clamp(9px, 1.5vw, 18px); transform: translateX(-50%); background: linear-gradient(90deg, #120a12, #33202c 50%, #120a12); box-shadow: 0 0 16px rgba(0,0,0,.6); }
+  main { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(10px, 2vh, 20px); padding: 16px; text-align: center; }
+  .lock { padding: 0; border: 0; background: none; cursor: pointer; width: clamp(104px, 22vmin, 170px); transform-origin: 50% 12%; filter: drop-shadow(0 12px 14px rgba(70,8,52,.5)); }
+  .lock svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .lock:focus-visible { outline: 3px solid #fff; outline-offset: 6px; border-radius: 20px; }
+  .lock.jig { animation: jig .55s; }
+  .lock.jig .shackle { animation: tug .55s; }
+  @keyframes jig { 15% { transform: rotate(-8deg); } 35% { transform: rotate(7deg); } 55% { transform: rotate(-5deg); } 75% { transform: rotate(3deg); } }
+  @keyframes tug { 30%, 60% { transform: translateY(-5px); } }
+  h1 { margin: 0; display: flex; flex-direction: column; align-items: center; gap: .1em; font-weight: 400; }
+  .name { font: 400 clamp(38px, 10.5vw, 104px)/.95 "Modak", "Arial Rounded MT Bold", sans-serif; color: #fff; -webkit-text-stroke: 1px #6b1a5c; text-shadow: 0 0 2px #fff, 0 0 14px #ff4fa8, 0 0 34px #ff4fa8, 0 5px 0 #b22a84; }
+  .net { padding: .24em .5em .28em .74em; font: 900 clamp(20px, 5vw, 44px)/1 "Zen Maru Gothic", sans-serif; letter-spacing: .24em; color: #fff; background: rgba(10,4,20,.72); border-radius: 10px; text-shadow: 0 0 3px #fff, 0 0 10px #22e6ff, 0 0 24px #22e6ff; box-shadow: 0 0 24px rgba(34,230,255,.45); }
+  @media (prefers-reduced-motion: reduce) { .lock.jig, .lock.jig .shackle { animation: none; } }
+</style>
+</head>
+<body>
+<div class="doors" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<div class="glow" aria-hidden="true"></div>
+<div class="seam" aria-hidden="true"></div>
+<main>
+  <button type="button" class="lock" aria-label="Padlock. The shoji screens are locked.">
+    <svg viewBox="0 0 160 190" aria-hidden="true">
+      <defs>
+        <linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe4f2"/><stop offset=".5" stop-color="#ff9fcf"/><stop offset="1" stop-color="#f25fa8"/></linearGradient>
+        <linearGradient id="c" x1="0" x2="1"><stop offset="0" stop-color="#b9b6cf"/><stop offset=".45" stop-color="#fff"/><stop offset="1" stop-color="#9c98b8"/></linearGradient>
+      </defs>
+      <path class="shackle" d="M46 84V52a34 34 0 0 1 68 0v32" fill="none" stroke="url(#c)" stroke-width="15" stroke-linecap="round"/>
+      <path d="M80 186C26 150 8 122 12 98c3-22 30-30 46-16c8 7 16 9 22 9s14-2 22-9c16-14 43-6 46 16c4 24-14 52-68 88z" fill="url(#b)" stroke="#a81f73" stroke-width="4"/>
+      <path d="M30 96q6-14 24-10" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".85"/>
+      <circle cx="80" cy="118" r="11" fill="#5a1450"/><path d="M75 124h10l4 22H71z" fill="#5a1450"/>
+      <g fill="#5a1450"><circle cx="46" cy="124" r="3.500"/><circle cx="114" cy="124" r="3.500"/></g>
+      <path d="M53 133q4 4 8 0M99 133q4 4 8 0" fill="none" stroke="#c9367f" stroke-width="2.500" stroke-linecap="round"/>
+    </svg>
+  </button>
+  <h1><span class="name">koalawallaland.</span><span class="net">CRYNET</span></h1>
+</main>
+<script>
+  const l = document.querySelector('.lock');
+  l.addEventListener('click', () => { l.classList.remove('jig'); void l.offsetWidth; l.classList.add('jig'); });
+</script>
+</body>
+</html>
