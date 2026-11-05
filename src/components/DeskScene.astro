@@ -15,7 +15,7 @@ const { posts } = Astro.props;
     <span class="neon kao" aria-hidden="true">(っ˘ω˘ς)</span>
     <a class="neon enter" href="/lab/"><b>入口 ENTER</b><small>THE LAB</small></a>
 
-    <button type="button" class="pins" data-pins aria-label="Bulletin board with five blurry snapshots. Open it to look closer."><span class="cork"><img src="/desk/pins/p1.webp" width="409" height="480" alt="" /><img src="/desk/pins/p2.webp" width="360" height="480" alt="" /><img src="/desk/pins/p3.webp" width="480" height="385" alt="" /><img src="/desk/pins/p4.webp" width="480" height="360" alt="" /><img src="/desk/pins/p5.webp" width="294" height="480" alt="" /></span></button>
+    <button type="button" class="pins" data-pins aria-label="Bulletin board with five blurry snapshots. Open it to look closer."><span class="cork"><span class="ix mini"><img src="/desk/pins/s1.webp" alt="" style="object-position:40% 50%" /></span><span class="ix mini"><img src="/desk/pins/s2.webp" alt="" style="object-position:50% 40%" /></span><span class="ix mini"><img src="/desk/pins/s5.webp" alt="" style="object-position:50% 50%" /></span><span class="ix wide"><img src="/desk/pins/s3.webp" alt="" style="object-position:50% 18%" /></span><span class="ix wide"><img src="/desk/pins/s4.webp" alt="" style="object-position:50% 35%" /></span></span></button>
 
     <div class="deskback" aria-hidden="true"></div>
 
@@ -126,7 +126,7 @@ const { posts } = Astro.props;
     <a href="/lab/">Resin lab</a><a href="/desk/">Koala's desk</a><a href="/wall/">Graffiti wall</a><a href="/shop/">Shop</a><a href="/works/">Experiments</a>
   </nav>
   <dialog class="snaps" data-snaps aria-label="Blurry snapshots">
-    <div class="snapgrid"><figure><img src="/desk/pins/p1.webp" width="409" height="480" loading="lazy" alt="Blurry snapshot" /></figure><figure><img src="/desk/pins/p2.webp" width="360" height="480" loading="lazy" alt="Blurry snapshot" /></figure><figure><img src="/desk/pins/p3.webp" width="480" height="385" loading="lazy" alt="Blurry snapshot" /></figure><figure><img src="/desk/pins/p4.webp" width="480" height="360" loading="lazy" alt="Blurry snapshot" /></figure><figure><img src="/desk/pins/p5.webp" width="294" height="480" loading="lazy" alt="Blurry snapshot" /></figure></div>
+    <div class="snapgrid"><span class="ix mini"><img loading="lazy" src="/desk/pins/s1.webp" alt="Blurry Instax snapshot" style="object-position:40% 50%" /></span><span class="ix mini"><img loading="lazy" src="/desk/pins/s2.webp" alt="Blurry Instax snapshot" style="object-position:50% 40%" /></span><span class="ix mini"><img loading="lazy" src="/desk/pins/s5.webp" alt="Blurry Instax snapshot" style="object-position:50% 50%" /></span><span class="ix wide"><img loading="lazy" src="/desk/pins/s3.webp" alt="Blurry Instax snapshot" style="object-position:50% 18%" /></span><span class="ix wide"><img loading="lazy" src="/desk/pins/s4.webp" alt="Blurry Instax snapshot" style="object-position:50% 35%" /></span></div>
     <form method="dialog"><button>Close</button></form>
   </dialog>
   <dialog class="spread" data-spread aria-label="Blog notebook">
@@ -170,17 +170,25 @@ const { posts } = Astro.props;
   /* bulletin board: the images themselves are blurred, so no sharp copy is ever served */
   .pins { z-index: 2; left: 28.5%; top: 6.5%; width: 23.5%; height: 13.5%; padding: .7cqw; border: 0; border-radius: 1cqw; background: linear-gradient(150deg, #fff5fa, #f6cfe3); box-shadow: 0 1cqw 1.8cqw rgba(30,8,40,.5); cursor: pointer; }
   .pins:focus-visible { outline: .5cqw solid #fff; outline-offset: .5cqw; }
-  .cork { display: flex; align-items: center; justify-content: center; gap: .5cqw; height: 100%; overflow: hidden; border-radius: .5cqw; background: radial-gradient(circle at 20% 30%, #a97c52 0 .15cqw, transparent .2cqw) 0 0 / 1.1cqw 1.3cqw, #c79b6e; }
-  .cork img { position: relative; flex: 0 1 auto; width: auto; height: 78%; min-width: 0; max-width: 21%; object-fit: cover; padding: .25cqw; background: #fffaf2; box-shadow: 0 .3cqw .5cqw rgba(40,15,10,.5); }
-  .cork img:nth-child(odd) { transform: rotate(-4deg); }
-  .cork img:nth-child(even) { transform: rotate(3deg) translateY(.5cqw); }
+  .cork { display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: .55cqw .7cqw; height: 100%; overflow: hidden; border-radius: .5cqw; background: radial-gradient(circle at 20% 30%, #a97c52 0 .15cqw, transparent .2cqw) 0 0 / 1.1cqw 1.3cqw, #c79b6e; }
+  /* real Instax film sizes: Mini 54x86mm with a 46x62 picture, Wide 108x86 with 99x62 */
+  .ix { position: relative; display: block; flex: none; aspect-ratio: 54 / 86; border-radius: 3.5% / 2.2%; background: linear-gradient(170deg, #fffefb, #f4efe6); box-shadow: 0 .05em .1em rgba(255,255,255,.8) inset, 0 .35em .6em rgba(30,10,10,.45); }
+  .ix.wide { aspect-ratio: 108 / 86; border-radius: 1.8% / 2.2%; }
+  .ix img { position: absolute; left: 7.4%; top: 7.6%; width: 85.2%; height: 72.1%; max-width: none; object-fit: cover; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+  .ix.wide img { left: 4.2%; width: 91.6%; }
+  .ix::after { content: ''; position: absolute; left: 7.4%; right: 7.4%; top: 7.6%; height: 72.1%; background: linear-gradient(125deg, rgba(255,255,255,.3), transparent 38%, transparent 70%, rgba(255,255,255,.12)); box-shadow: inset 0 0 .5em rgba(20,10,30,.25); pointer-events: none; }
+  .ix.wide::after { left: 4.2%; right: 4.2%; }
+  .cork .ix { height: 7.1cqw; font-size: 1cqw; }
+  .cork .ix:nth-child(odd) { transform: rotate(-3deg); }
+  .cork .ix:nth-child(even) { transform: rotate(2.500deg); }
+  .cork .ix::before { content: ''; position: absolute; z-index: 1; left: 50%; top: -.2cqw; width: .75cqw; height: .75cqw; margin-left: -.375cqw; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #ff7ab8 45%, #b5206f); box-shadow: 0 .15cqw .2cqw rgba(0,0,0,.5); }
   .snaps { width: min(820px, calc(100vw - 32px)); max-height: calc(100vh - 40px); padding: 0; border: 0; color: #fff; background: transparent; }
   .snaps::backdrop { background: rgba(10,4,20,.76); backdrop-filter: blur(4px); }
   .snapgrid { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; padding: 8px; }
-  .snapgrid figure { margin: 0; padding: 8px 8px 22px; background: #fffaf2; box-shadow: 0 10px 24px rgba(0,0,0,.55); }
-  .snapgrid figure:nth-child(odd) { transform: rotate(-1.500deg); }
-  .snapgrid figure:nth-child(even) { transform: rotate(1.500deg); }
-  .snapgrid img { display: block; width: auto; height: min(240px, 34vh); max-width: 100%; }
+  .snapgrid .ix { height: min(300px, 40vh); font-size: 14px; }
+  .snapgrid .ix.wide { max-width: calc(100vw - 48px); }
+  .snapgrid .ix:nth-child(odd) { transform: rotate(-1.500deg); }
+  .snapgrid .ix:nth-child(even) { transform: rotate(1.500deg); }
   .snaps form { text-align: center; margin-top: .6rem; }
   .snaps form button { font: inherit; font-size: .9rem; color: #fff; background: none; border: 0; padding: .4rem; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 
