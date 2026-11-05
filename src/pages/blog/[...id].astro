@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Post from '../../layouts/Post.astro';
+import OuijaBoard from '../../components/OuijaBoard.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
@@ -20,4 +21,5 @@ const { Content } = await render(post);
   tags={post.data.tags}
 >
   <Content />
+  {post.data.board === 'ouija' && <OuijaBoard />}
 </Post>

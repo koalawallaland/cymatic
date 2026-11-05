@@ -3,6 +3,7 @@ title: "Hello, world"
 date: 2026-07-09
 description: "What this site is and how it's built."
 tags: ["meta"]
+draft: true
 ---
 
 This site is a home for writing and works in progress.

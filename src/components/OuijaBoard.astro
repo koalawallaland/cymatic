@@ -1,0 +1,269 @@
+---
+// A small pink talking board. Drag the heart, rest its window on a letter to
+// spell. Left alone, it moves by itself and spells lines from the poem.
+const W = 640, H = 430;
+const arc = (chars: string, cx: number, cy: number, rx: number, ry: number) =>
+  [...chars].map((c, i) => {
+    const a = Math.PI * (1.1 + (0.8 * i) / (chars.length - 1));
+    const x = cx + rx * Math.cos(a), y = cy + ry * Math.sin(a);
+    const rot = (Math.atan2(ry * Math.cos(a), -rx * Math.sin(a)) * 180) / Math.PI;
+    return { c, x, y, rot, r: 21, size: 31 };
+  });
+const glyphs = [
+  ...arc('ABCDEFGHIJKLM', 320, 262, 286, 164),
+  ...arc('NOPQRSTUVWXYZ', 320, 278, 226, 98),
+  ...[...'1234567890'].map((c, i) => ({ c, x: 140 + i * 40, y: 322, rot: 0, r: 18, size: 25 })),
+];
+const words = [
+  { c: 'YES', x: 66, y: 50 },
+  { c: 'NO', x: 574, y: 50 },
+  { c: 'GOODBYE', x: 320, y: 384 },
+];
+---
+<figure class="tb" data-tb>
+  <svg class="board" viewBox={`0 0 ${W} ${H}`} role="group" aria-label="A small pink talking board with a heart-shaped planchette">
+    <defs>
+      <linearGradient id="tb-pearl" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#ffe6f3" /><stop offset=".45" stop-color="#ffb3d9" /><stop offset="1" stop-color="#ff86c1" />
+      </linearGradient>
+      <linearGradient id="tb-acrylic" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#fff" stop-opacity=".92" /><stop offset="1" stop-color="#ffc4e2" stop-opacity=".72" />
+      </linearGradient>
+      <linearGradient id="tb-sheen" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#fff" stop-opacity="0" /><stop offset=".5" stop-color="#fff" stop-opacity=".5" /><stop offset="1" stop-color="#fff" stop-opacity="0" />
+      </linearGradient>
+      <clipPath id="tb-clip"><rect x="4" y="4" width={W - 8} height={H - 8} rx="34" /></clipPath>
+    </defs>
+    <rect x="4" y="4" width={W - 8} height={H - 8} rx="34" fill="url(#tb-pearl)" />
+    <g clip-path="url(#tb-clip)"><rect class="sheen" x="-200" y="-40" width="170" height={H + 80} fill="url(#tb-sheen)" transform="rotate(14)" /></g>
+    <rect x="15" y="15" width={W - 30} height={H - 30} rx="25" fill="none" stroke="#b5206f" stroke-width="2" />
+    <rect x="22" y="22" width={W - 44} height={H - 44} rx="19" fill="none" stroke="#fff" stroke-opacity=".8" />
+    <g class="crest" aria-hidden="true">
+      <image href="/doodles/wing-a.webp" x="222" y="20" width="72" height="62" preserveAspectRatio="xMidYMid meet" />
+      <image href="/doodles/wing-b.webp" x="346" y="20" width="72" height="62" preserveAspectRatio="xMidYMid meet" />
+      <image href="/doodles/halo.webp" x="292" y="22" width="56" height="28" preserveAspectRatio="xMidYMid meet" />
+      <path d="M320 80c-13-10-20-16-20-25c0-14 16-16 20-5c4-11 20-9 20 5c0 9-7 15-20 25z" fill="#d92c86" />
+    </g>
+    {glyphs.map((g) => (
+      <text class="t" data-c={g.c} data-x={g.x.toFixed(1)} data-y={g.y.toFixed(1)} data-r={g.r}
+        x={g.x.toFixed(1)} y={g.y.toFixed(1)} font-size={g.size} text-anchor="middle" dominant-baseline="central"
+        transform={`rotate(${g.rot.toFixed(1)} ${g.x.toFixed(1)} ${g.y.toFixed(1)})`}>{g.c}</text>
+    ))}
+    {words.map((w) => (
+      <text class="t word" data-c={w.c} data-x={w.x} data-y={w.y} data-r={w.c === 'GOODBYE' ? 60 : 32}
+        x={w.x} y={w.y} font-size="23" text-anchor="middle" dominant-baseline="central">{w.c}</text>
+    ))}
+    <g class="pl" tabindex="0" role="button" aria-label="Planchette. Drag it, or use the arrow keys. Rest it on a letter to spell.">
+      <path class="pl-body" d="M0-52C-14-32-50-10-50 22C-50 46-22 54 0 36C22 54 50 46 50 22C50-10 14-32 0-52ZM18 0A18 18 0 1 0-18 0A18 18 0 1 0 18 0Z" fill-rule="evenodd" fill="url(#tb-acrylic)" stroke="#b5206f" stroke-width="2.5" />
+      <circle r="18" fill="#fff" fill-opacity=".06" stroke="#b5206f" stroke-width="2.5" />
+      <circle r="21.5" fill="none" stroke="#fff" stroke-width="1.500" stroke-opacity=".9" />
+      <path d="M-11-7a14 14 0 0 1 9-6" fill="none" stroke="#fff" stroke-width="2.500" stroke-linecap="round" />
+    </g>
+  </svg>
+  <figcaption>
+    <output class="spelled" aria-live="polite"></output>
+    <span class="hint">drag the heart. or leave it alone.</span>
+  </figcaption>
+</figure>
+
+<style>
+  .tb { margin: 3rem 0 0; }
+  .board { display: block; width: 100%; height: auto; overflow: visible; user-select: none; -webkit-user-select: none; filter: drop-shadow(0 0 26px rgba(255, 122, 184, .34)); }
+  .t { fill: #7d1252; font-family: 'Zen Maru Gothic', ui-rounded, system-ui, sans-serif; font-weight: 900; transition: fill .18s; pointer-events: none; }
+  .t.on { fill: #fff; paint-order: stroke; stroke: #e0177f; stroke-width: 7px; stroke-linejoin: round; }
+  .word { letter-spacing: .08em; }
+  .crest image { pointer-events: none; }
+  .pl { cursor: grab; touch-action: none; outline: none; filter: drop-shadow(0 7px 7px rgba(90, 8, 58, .38)); }
+  .pl.grabbed { cursor: grabbing; }
+  .pl:focus-visible .pl-body { stroke: #fff; stroke-width: 4; }
+  .sheen { animation: tb-sheen 9s ease-in-out infinite; }
+  @keyframes tb-sheen { 0%, 55% { x: -200px; } 100% { x: 800px; } }
+  figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: .25rem 1rem; margin-top: .75rem; min-height: 1.7em; font-family: var(--font-mono); font-size: .85rem; }
+  .spelled { color: var(--accent); letter-spacing: .14em; overflow-wrap: anywhere; }
+  .hint { color: var(--muted); margin-left: auto; }
+  @media (prefers-reduced-motion: reduce) { .sheen { animation: none; } .t { transition: none; } }
+</style>
+
+<script>
+  const root = document.querySelector('[data-tb]') as HTMLElement;
+  const svg = root.querySelector('svg') as unknown as SVGSVGElement;
+  const pl = root.querySelector('.pl') as SVGGElement;
+  const out = root.querySelector('.spelled') as HTMLOutputElement;
+  const hint = root.querySelector('.hint') as HTMLElement;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  type T = { c: string; x: number; y: number; r: number; el: SVGTextElement };
+  const targets: T[] = [...root.querySelectorAll<SVGTextElement>('.t')].map((el) => ({
+    c: el.dataset.c!, x: +el.dataset.x!, y: +el.dataset.y!, r: +el.dataset.r!, el,
+  }));
+  const byChar = new Map(targets.map((t) => [t.c, t]));
+
+  // Her words only: when it moves on its own, it spells the poem back.
+  const LINES = ['ONLY ON', 'LOW ONE STAYS', 'HOLD ONE TONE', 'SHE FINDS ME STILL', 'HIGH ONE LEAVES', 'I CAN TASTE IT'];
+  const HOME = { x: 320, y: 236 };
+  const IDLE_MS = 7000, DWELL_MS = 420;
+
+  let x = HOME.x, y = HOME.y, tx = x, ty = y;
+  let grab: { id: number; dx: number; dy: number } | null = null;
+  let active: T | null = null, fired: T | null = null, activeSince = 0, lastLetter = 0;
+  let text = '', lastInput = 0, visible = false, running = false, last = 0;
+  let auto: { line: number; i: number; wait: number } | null = null;
+  let lineIndex = 0;
+
+  const toBoard = (e: PointerEvent) => {
+    const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(svg.getScreenCTM()!.inverse());
+    return { x: p.x, y: p.y };
+  };
+  const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
+  const setTarget = (nx: number, ny: number) => { tx = clamp(nx, 18, 622); ty = clamp(ny, 18, 400); };
+  const show = () => { out.textContent = text; };
+  const add = (s: string) => {
+    text = (text + s).slice(-34);
+    show();
+    lastLetter = performance.now();
+  };
+  const touched = () => {
+    lastInput = performance.now();
+    if (auto) { auto = null; text = ''; show(); fired = active; } // don't spell whatever it was resting on
+    hint.hidden = true;
+    start();
+  };
+
+  function spellByHand(t: T, now: number) {
+    if (t.c === 'GOODBYE') { text = ''; show(); return; }
+    const gap = text && now - lastLetter > 1800 ? ' ' : '';
+    const word = t.c === 'YES' || t.c === 'NO';
+    add(gap + t.c + (word ? ' ' : ''));
+  }
+
+  function nearest(): T | null {
+    let best: T | null = null, bd = Infinity;
+    for (const t of targets) {
+      const d = t.r > 30 ? Math.abs(t.x - x) / t.r + Math.abs(t.y - y) / 22 : Math.hypot(t.x - x, t.y - y) / t.r;
+      if (d < 1 && d < bd) { best = t; bd = d; }
+    }
+    return best;
+  }
+
+  function drift(dt: number, now: number) {
+    if (!auto) {
+      if (reduce || grab || !lastInput || now - lastInput < IDLE_MS) return;
+      auto = { line: lineIndex++ % LINES.length, i: 0, wait: 0 };
+      text = ''; show();
+    }
+    if (auto.wait > 0) { auto.wait -= dt; return; }
+    const line = LINES[auto.line];
+    if (auto.i >= line.length) { // finished: rest, then the next line
+      auto = null;
+      lastInput = now - IDLE_MS + 3000;
+      setTarget(HOME.x, HOME.y);
+      return;
+    }
+    const c = line[auto.i];
+    if (c === ' ') { add(' '); auto.i++; auto.wait = 500; return; }
+    const t = byChar.get(c)!;
+    // Slow, unsteady, as if someone else's fingers were on it.
+    const w = now / 1000;
+    setTarget(t.x + Math.sin(w * 1.7) * 3, t.y + Math.cos(w * 2.3) * 3);
+    if (Math.hypot(t.x - x, t.y - y) < 7) {
+      add(c);
+      auto.i++;
+      auto.wait = 620;
+      if (line[auto.i] === c) { setTarget(t.x + 14, t.y + 20); auto.wait = 420; } // lift between double letters
+    }
+  }
+
+  function frame(now: number) {
+    if (!running) return;
+    const dt = Math.min(now - last, 50);
+    last = now;
+    drift(dt, now);
+
+    if (grab) { x = tx; y = ty; }
+    else if (auto) { // constant creep rather than a snap
+      const d = Math.hypot(tx - x, ty - y), step = (118 * dt) / 1000;
+      if (d <= step) { x = tx; y = ty; } else { x += ((tx - x) / d) * step; y += ((ty - y) / d) * step; }
+    } else {
+      const k = reduce ? 1 : 1 - Math.exp(-dt / 90);
+      x += (tx - x) * k; y += (ty - y) * k;
+    }
+    pl.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+
+    const n = nearest();
+    if (n !== active) {
+      active?.el.classList.remove('on');
+      n?.el.classList.add('on');
+      active = n;
+      activeSince = now;
+      if (!n) fired = null;
+      else if (n !== fired) fired = null;
+    }
+    if (active && !auto && lastInput && active !== fired && now - activeSince > DWELL_MS) {
+      fired = active;
+      spellByHand(active, now);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function start() {
+    if (running || !visible || document.hidden) return;
+    running = true;
+    last = performance.now();
+    requestAnimationFrame(frame);
+  }
+  const stopOrStart = () => { if (!visible || document.hidden) running = false; else start(); };
+
+  pl.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    pl.setPointerCapture(e.pointerId);
+    const p = toBoard(e);
+    grab = { id: e.pointerId, dx: x - p.x, dy: y - p.y };
+    pl.classList.add('grabbed');
+    pl.focus({ preventScroll: true });
+    touched();
+  });
+  // iOS and some Android browsers ignore touch-action inside an SVG.
+  pl.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+  pl.addEventListener('pointermove', (e) => {
+    if (!grab || e.pointerId !== grab.id) return;
+    const p = toBoard(e);
+    setTarget(p.x + grab.dx, p.y + grab.dy);
+    lastInput = performance.now();
+  });
+  const drop = (e: PointerEvent) => {
+    if (!grab || e.pointerId !== grab.id) return;
+    grab = null;
+    pl.classList.remove('grabbed');
+    lastInput = performance.now();
+  };
+  pl.addEventListener('pointerup', drop);
+  pl.addEventListener('pointercancel', drop);
+
+  // A tap elsewhere calls it over. Swipes still scroll the page on phones.
+  svg.addEventListener('click', (e) => {
+    if ((e.target as Element).closest('.pl')) return;
+    const p = toBoard(e as PointerEvent);
+    setTarget(p.x, p.y);
+    touched();
+  });
+
+  pl.addEventListener('keydown', (e) => {
+    const step = e.shiftKey ? 30 : 12;
+    const m: Record<string, [number, number]> = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+    const d = m[e.key];
+    if (!d) return;
+    e.preventDefault();
+    setTarget(tx + d[0], ty + d[1]);
+    touched();
+  });
+
+  new IntersectionObserver(([en]) => {
+    visible = en.isIntersecting;
+    if (visible && !lastInput) lastInput = performance.now(); // the wait starts once it's seen
+    stopOrStart();
+  }, { threshold: 0.35 }).observe(svg);
+  document.addEventListener('visibilitychange', stopOrStart);
+
+  pl.setAttribute('transform', `translate(${x} ${y})`);
+</script>

@@ -7,12 +7,11 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
 ---
 <Base title="Blog — koalawallaland">
   <h1>Blog</h1>
-  <p class="meta">INCOMING TRANSMISSION... real posts coming soon.</p>
   <ul class="post-list">
     {posts.map((post) => (
       <li>
         <span class="meta">
-          {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+          {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })}
         </span>
         <a href={`/blog/${post.id}/`}>{post.data.title}</a>
       </li>

@@ -3,6 +3,7 @@ title: "How to write a post here"
 date: 2026-07-08
 description: "The 30-second workflow."
 tags: ["meta", "howto"]
+draft: true
 ---
 
 1. Create `src/content/blog/your-post-name.md`
