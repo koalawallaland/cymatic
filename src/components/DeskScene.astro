@@ -48,6 +48,8 @@ const { posts } = Astro.props;
       <svg viewBox="0 0 300 300">
         <defs>
           <linearGradient id="dsPink" x1="0" x2="1"><stop offset="0" stop-color="#ff9fcb"/><stop offset=".5" stop-color="#ffc4de"/><stop offset="1" stop-color="#ee7fb1"/></linearGradient>
+          <linearGradient id="dsMatte" x1="0" x2="1"><stop offset="0" stop-color="#f3bfd1"/><stop offset=".45" stop-color="#fde0e9"/><stop offset="1" stop-color="#eeb4c8"/></linearGradient>
+          <linearGradient id="dsWood" x1="0" x2="1"><stop offset="0" stop-color="#a97545"/><stop offset=".5" stop-color="#d8ae7d"/><stop offset="1" stop-color="#b98955"/></linearGradient>
           <linearGradient id="dsRose" x1="0" x2="1"><stop offset="0" stop-color="#d8a9a0"/><stop offset=".5" stop-color="#f1cfc6"/><stop offset="1" stop-color="#c8958c"/></linearGradient>
           <clipPath id="dsCone"><path d="M112 118h76l-26 52h-24z"/></clipPath>
           <clipPath id="dsCarafe"><path d="M118 188h64q10 40 12 76q0 22-16 22h-56q-16 0-16-22q2-36 12-76z"/></clipPath>
@@ -76,14 +78,23 @@ const { posts } = Astro.props;
           <path data-steam class="steam" d="M244 204q-7-10 0-20q7-10 0-20M260 204q-7-10 0-20q7-10 0-20" fill="none" stroke="#fff" stroke-width="2.500" stroke-linecap="round" opacity="0"/>
         </g>
         <!-- gooseneck kettle -->
+        <g aria-hidden="true">
+          <path d="M-4 284h88l6 8q0 4-4 4H-8q-4 0-4-4z" fill="url(#dsMatte)" stroke="#dca0b8" stroke-width="1.500"/>
+          <ellipse cx="4" cy="290" rx="6" ry="2" fill="#2b1a22"/>
+          <rect x="66" y="287" width="13" height="5" rx="2.500" fill="#fff0f5"/>
+        </g>
         <g class="kettle" data-kettle role="button" tabindex="0" aria-label="Kettle. Hold to pour water over the coffee.">
-          <rect x="-8" y="150" width="104" height="146" fill="transparent"/>
-          <g transform="matrix(-1 0 0 1 80 0)">
-            <path d="M12 212q0-26 18-26h20q18 0 18 26v54q0 22-18 22H30q-18 0-18-22z" fill="url(#dsPink)" stroke="#d9659f" stroke-width="2"/>
-            <path d="M16 206q-22 0-28-32q-2-14 10-20" fill="none" stroke="url(#dsPink)" stroke-width="7" stroke-linecap="round" transform="translate(4 0)"/>
-            <path d="M66 208q24 6 22 40q-2 18-22 20" fill="none" stroke="#b97c52" stroke-width="8" stroke-linecap="round"/>
-            <rect x="30" y="178" width="20" height="9" rx="4" fill="#b97c52"/>
-          </g>
+          <rect x="-14" y="170" width="124" height="116" fill="transparent"/>
+          <!-- gooseneck: leaves low on the body, climbs thin, tips out at the top -->
+          <path d="M70 276q12 2 16-14q4-20 7-56q1-16 4-22q2-5 9-7" fill="none" stroke="#f5c7d6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- angled wood handle -->
+          <path d="M28 204l-10-6q-5-2-7 3l-14 44q-3 8 5 9q7 1 9-6l9-27q2-6 8-7z" fill="url(#dsWood)"/>
+          <!-- matte conical body -->
+          <path d="M28 194h34l15 76q3 14-11 15H22q-14-1-11-15z" fill="url(#dsMatte)" stroke="#e0a8bf" stroke-width="1.500"/>
+          <path d="M11 271q33 7 66 0" fill="none" stroke="#e0a8bf" stroke-width="1"/>
+          <!-- lid and wood knob -->
+          <ellipse cx="45" cy="194" rx="17" ry="3.500" fill="#fff0f5" stroke="#e0a8bf" stroke-width="1"/>
+          <path d="M36 193q0-7 9-7t9 7q-9 3-18 0z" fill="url(#dsWood)"/>
         </g>
       </svg>
     </div>
@@ -190,9 +201,9 @@ const { posts } = Astro.props;
   .pour { z-index: 4; left: 72%; top: 55%; width: 27%; aspect-ratio: 1; }
   .pour svg { display: block; width: 100%; height: 100%; overflow: visible; }
   .pour :global(.hit), .pour :global(.kettle) { cursor: pointer; outline: none; }
-  .pour :global(.kettle) { touch-action: none; transform-box: view-box; transform-origin: 40px 240px; transition: transform .45s cubic-bezier(.3,.9,.3,1); }
+  .pour :global(.kettle) { touch-action: none; transform-box: view-box; transform-origin: 45px 240px; transition: transform .45s cubic-bezier(.3,.9,.3,1); }
   .pour :global(.kettle:focus-visible path), .pour :global(.hit:focus-visible path) { stroke: #fff; stroke-width: 4; }
-  .pour :global(.pouring) { transform: translate(17px, -87px) rotate(28deg); }
+  .pour :global(.pouring) { transform: translate(10px, -116px) rotate(28deg); }
   .steam { animation: steam 3s ease-in-out infinite; }
   @keyframes steam { 50% { transform: translateY(-5px); } }
 
