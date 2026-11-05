@@ -15,6 +15,8 @@ const { posts } = Astro.props;
     <span class="neon kao" aria-hidden="true">(っ˘ω˘ς)</span>
     <a class="neon enter" href="/lab/"><b>入口 ENTER</b><small>THE LAB</small></a>
 
+    <button type="button" class="pins" data-pins aria-label="Bulletin board with five blurry snapshots. Open it to look closer."><span class="cork"><img src="/desk/pins/p1.webp" width="409" height="480" alt="" /><img src="/desk/pins/p2.webp" width="360" height="480" alt="" /><img src="/desk/pins/p3.webp" width="480" height="385" alt="" /><img src="/desk/pins/p4.webp" width="480" height="360" alt="" /><img src="/desk/pins/p5.webp" width="294" height="480" alt="" /></span></button>
+
     <div class="deskback" aria-hidden="true"></div>
 
     <a class="mon m-up" href="/works/opening-nov-4/" aria-label="Monitor showing a cat: earlier version of this page"><span class="scr"><video autoplay loop muted playsinline poster="/cat-poster.webp" tabindex="-1"><source src="/cat.webm" type="video/webm" /><source src="/cat.mp4" type="video/mp4" /></video></span></a>
@@ -123,6 +125,10 @@ const { posts } = Astro.props;
   <nav class="rooms" aria-label="More rooms">
     <a href="/lab/">Resin lab</a><a href="/desk/">Koala's desk</a><a href="/wall/">Graffiti wall</a><a href="/shop/">Shop</a><a href="/works/">Experiments</a>
   </nav>
+  <dialog class="snaps" data-snaps aria-label="Blurry snapshots">
+    <div class="snapgrid"><figure><img src="/desk/pins/p1.webp" width="409" height="480" loading="lazy" alt="Blurry snapshot" /></figure><figure><img src="/desk/pins/p2.webp" width="360" height="480" loading="lazy" alt="Blurry snapshot" /></figure><figure><img src="/desk/pins/p3.webp" width="480" height="385" loading="lazy" alt="Blurry snapshot" /></figure><figure><img src="/desk/pins/p4.webp" width="480" height="360" loading="lazy" alt="Blurry snapshot" /></figure><figure><img src="/desk/pins/p5.webp" width="294" height="480" loading="lazy" alt="Blurry snapshot" /></figure></div>
+    <form method="dialog"><button>Close</button></form>
+  </dialog>
   <dialog class="spread" data-spread aria-label="Blog notebook">
     <div class="pages">
       <div class="page left">
@@ -160,6 +166,23 @@ const { posts } = Astro.props;
   .enter small { font-size: .42em; letter-spacing: .2em; }
   .enter:focus-visible, .mon:focus-visible, .lamp:focus-visible, .minikb:focus-visible, .book:focus-visible { outline: .5cqw solid #fff; outline-offset: .5cqw; }
   @keyframes tube { 0%, 92%, 100% { opacity: 1; } 93% { opacity: .45; } 94% { opacity: 1; } 96% { opacity: .65; } 97% { opacity: 1; } }
+
+  /* bulletin board: the images themselves are blurred, so no sharp copy is ever served */
+  .pins { z-index: 2; left: 28.5%; top: 6.5%; width: 23.5%; height: 13.5%; padding: .7cqw; border: 0; border-radius: 1cqw; background: linear-gradient(150deg, #fff5fa, #f6cfe3); box-shadow: 0 1cqw 1.8cqw rgba(30,8,40,.5); cursor: pointer; }
+  .pins:focus-visible { outline: .5cqw solid #fff; outline-offset: .5cqw; }
+  .cork { display: flex; align-items: center; justify-content: center; gap: .5cqw; height: 100%; overflow: hidden; border-radius: .5cqw; background: radial-gradient(circle at 20% 30%, #a97c52 0 .15cqw, transparent .2cqw) 0 0 / 1.1cqw 1.3cqw, #c79b6e; }
+  .cork img { position: relative; flex: 0 1 auto; width: auto; height: 78%; min-width: 0; max-width: 21%; object-fit: cover; padding: .25cqw; background: #fffaf2; box-shadow: 0 .3cqw .5cqw rgba(40,15,10,.5); }
+  .cork img:nth-child(odd) { transform: rotate(-4deg); }
+  .cork img:nth-child(even) { transform: rotate(3deg) translateY(.5cqw); }
+  .snaps { width: min(820px, calc(100vw - 32px)); max-height: calc(100vh - 40px); padding: 0; border: 0; color: #fff; background: transparent; }
+  .snaps::backdrop { background: rgba(10,4,20,.76); backdrop-filter: blur(4px); }
+  .snapgrid { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; padding: 8px; }
+  .snapgrid figure { margin: 0; padding: 8px 8px 22px; background: #fffaf2; box-shadow: 0 10px 24px rgba(0,0,0,.55); }
+  .snapgrid figure:nth-child(odd) { transform: rotate(-1.500deg); }
+  .snapgrid figure:nth-child(even) { transform: rotate(1.500deg); }
+  .snapgrid img { display: block; width: auto; height: min(240px, 34vh); max-width: 100%; }
+  .snaps form { text-align: center; margin-top: .6rem; }
+  .snaps form button { font: inherit; font-size: .9rem; color: #fff; background: none; border: 0; padding: .4rem; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 
   /* desk, seen from across the room */
   .deskback { left: 0; right: 0; top: 62%; height: 38%; background: linear-gradient(#1b0f24, #08040d); }
@@ -269,6 +292,11 @@ const { posts } = Astro.props;
   const spread = q<HTMLDialogElement>('[data-spread]');
   q('[data-book]').addEventListener('click', () => spread.showModal());
   spread.addEventListener('click', (e) => { if (e.target === spread) spread.close(); });
+
+  /* bulletin board */
+  const snaps = q<HTMLDialogElement>('[data-snaps]');
+  q('[data-pins]').addEventListener('click', () => { snaps.showModal(); snaps.scrollTop = 0; });
+  snaps.addEventListener('click', (e) => { if (e.target === snaps) snaps.close(); });
 
   /* far-away keyboard and trays mirror the real ones in the sidebar */
   const mini = q<HTMLElement>('[data-mini]'), miniTrays = q<HTMLElement>('[data-minitrays]');
