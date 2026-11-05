@@ -21,8 +21,17 @@
   .glow { position: fixed; inset: 0; pointer-events: none; mix-blend-mode: multiply;
     background: radial-gradient(38% 46% at 50% 44%, #fff 0, #ffd9b4 55%, transparent 100%), radial-gradient(60% 70% at 8% 18%, #ff5fb0, transparent 75%), radial-gradient(60% 70% at 94% 82%, #4fd8ff, transparent 75%), #6b4a86; }
   .seam { position: fixed; top: 0; bottom: 0; left: 50%; width: clamp(9px, 1.5vw, 18px); transform: translateX(-50%); background: linear-gradient(90deg, #120a12, #33202c 50%, #120a12); box-shadow: 0 0 16px rgba(0,0,0,.6); }
+  .floor { position: fixed; left: 0; right: 0; bottom: 0; height: 17vh; background: repeating-linear-gradient(90deg, rgba(0,0,0,.28) 0 2px, transparent 2px 12vw), linear-gradient(180deg, #4a2c3f, #24121f 70%, #150a14); box-shadow: 0 -6px 18px rgba(0,0,0,.5); }
+  .ghost { position: fixed; right: clamp(14px, 9vw, 150px); bottom: 2.5vh; width: clamp(112px, 21vmin, 220px); pointer-events: none; }
+  .ghost svg { display: block; width: 100%; height: auto; overflow: visible; opacity: .58; filter: drop-shadow(0 0 10px rgba(255,255,255,.9)) drop-shadow(0 0 24px rgba(191,224,247,.8)); animation: haunt 4.6s ease-in-out infinite; }
+  .ghost .shade { position: absolute; left: 12%; right: 12%; bottom: -3%; height: 13%; border-radius: 50%; background: radial-gradient(closest-side, rgba(191,224,247,.5), rgba(255,180,220,.18) 60%, transparent); animation: shade 4.6s ease-in-out infinite; }
+  .charm { transform-box: fill-box; transform-origin: 50% 0; animation: charm 4.6s ease-in-out infinite; }
+  @keyframes haunt { 0%, 100% { transform: translateY(-10%) rotate(-3deg); opacity: .52; } 50% { transform: translateY(-20%) rotate(3deg); opacity: .66; } }
+  @keyframes shade { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.72); opacity: .55; } }
+  @keyframes charm { 0%, 100% { transform: rotate(5deg); } 50% { transform: rotate(-6deg); } }
+  @media (prefers-reduced-motion: reduce) { .ghost svg, .ghost .shade, .charm { animation: none; } .ghost svg { transform: translateY(-14%); } }
   main { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(10px, 2vh, 20px); padding: 16px; text-align: center; }
-  .lock { padding: 0; border: 0; background: none; cursor: pointer; width: clamp(104px, 22vmin, 170px); transform-origin: 50% 12%; filter: drop-shadow(0 12px 14px rgba(70,8,52,.5)); }
+  .lock { padding: 0; border: 0; background: none; cursor: pointer; width: clamp(104px, 22vmin, 170px); transform-origin: 50% 12%; filter: drop-shadow(0 12px 14px rgba(70,8,52,.4)); }
   .lock svg { display: block; width: 100%; height: auto; overflow: visible; }
   .lock:focus-visible { outline: 3px solid #fff; outline-offset: 6px; border-radius: 20px; }
   .lock.jig { animation: jig .55s; }
@@ -39,19 +48,41 @@
 <div class="doors" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 <div class="glow" aria-hidden="true"></div>
 <div class="seam" aria-hidden="true"></div>
+<div class="floor" aria-hidden="true"></div>
+<div class="ghost" aria-hidden="true">
+  <i class="shade"></i>
+  <svg viewBox="0 0 300 250">
+    <defs>
+      <linearGradient id="gk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffafd"/><stop offset=".5" stop-color="#fbdceb"/><stop offset="1" stop-color="#f5cbe2"/></linearGradient>
+      <linearGradient id="gi" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#dcecf8"/></linearGradient>
+    </defs>
+    <g class="charm">
+      <path d="M62 124v50" stroke="#e9eef6" stroke-width="4" stroke-dasharray="1 6" stroke-linecap="round"/>
+      <path d="M62 172Q65.84 192.16 86 196Q65.84 199.84 62 220Q58.16 199.84 38 196Q58.16 192.16 62 172ZM44 213Q46.08 223.92 57 226Q46.08 228.08 44 239Q41.92 228.08 31 226Q41.92 223.92 44 213Z" fill="#cfe6f6" stroke="#a9d0ec" stroke-width="1.500"/>
+    </g>
+    <g transform="rotate(-24 110 120)">
+      <path d="M160 110h112v-8h14v18h-8v10h-12v-10h-10v8h-12v-8h-84z" fill="url(#gk)" stroke="#eab9d3" stroke-width="2"/>
+      <path d="M160 116c0-34-28-58-58-46C84 52 44 58 38 88c-6 32 22 66 76 96c28-18 46-40 46-68z" fill="url(#gk)" stroke="#eab9d3" stroke-width="2.500"/>
+      <path d="M146 116c0-25-21-41-43-30C86 72 56 76 51 96c-5 24 18 50 62 72c20-14 33-32 33-52z" fill="url(#gi)" stroke="#f0c8de" stroke-width="2"/>
+      <path d="M78 93Q79.76 102.24 89 104Q79.76 105.76 78 115Q76.24 105.76 67 104Q76.24 102.24 78 93ZM118 101Q119.44 108.56 127 110Q119.44 111.44 118 119Q116.56 111.44 109 110Q116.56 108.56 118 101ZM104 124Q106.24 135.76 118 138Q106.24 140.24 104 152Q101.76 140.24 90 138Q101.76 135.76 104 124Z" fill="#bfe0f7" stroke="#9dcbec" stroke-width="1.200"/>
+      <circle cx="42" cy="72" r="5" fill="none" stroke="#eab9d3" stroke-width="3"/>
+    </g>
+  </svg>
+</div>
 <main>
   <button type="button" class="lock" aria-label="Padlock. The shoji screens are locked.">
     <svg viewBox="0 0 160 190" aria-hidden="true">
       <defs>
-        <linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe4f2"/><stop offset=".5" stop-color="#ff9fcf"/><stop offset="1" stop-color="#f25fa8"/></linearGradient>
-        <linearGradient id="c" x1="0" x2="1"><stop offset="0" stop-color="#b9b6cf"/><stop offset=".45" stop-color="#fff"/><stop offset="1" stop-color="#9c98b8"/></linearGradient>
+        <linearGradient id="pearl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffafd"/><stop offset=".4" stop-color="#fde6f1"/><stop offset=".7" stop-color="#f7cfe3"/><stop offset="1" stop-color="#fdeef6"/></linearGradient>
+        <linearGradient id="inset" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#f4eef8"/><stop offset="1" stop-color="#dcecf8"/></linearGradient>
+        <linearGradient id="shk" x1="0" x2="1"><stop offset="0" stop-color="#eec6dc"/><stop offset=".45" stop-color="#fff8fc"/><stop offset="1" stop-color="#e3b5d0"/></linearGradient>
       </defs>
-      <path class="shackle" d="M46 84V52a34 34 0 0 1 68 0v32" fill="none" stroke="url(#c)" stroke-width="15" stroke-linecap="round"/>
-      <path d="M80 186C26 150 8 122 12 98c3-22 30-30 46-16c8 7 16 9 22 9s14-2 22-9c16-14 43-6 46 16c4 24-14 52-68 88z" fill="url(#b)" stroke="#a81f73" stroke-width="4"/>
-      <path d="M30 96q6-14 24-10" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".85"/>
-      <circle cx="80" cy="118" r="11" fill="#5a1450"/><path d="M75 124h10l4 22H71z" fill="#5a1450"/>
-      <g fill="#5a1450"><circle cx="46" cy="124" r="3.500"/><circle cx="114" cy="124" r="3.500"/></g>
-      <path d="M53 133q4 4 8 0M99 133q4 4 8 0" fill="none" stroke="#c9367f" stroke-width="2.500" stroke-linecap="round"/>
+      <path class="shackle" d="M46 84V52a34 34 0 0 1 68 0v32" fill="none" stroke="url(#shk)" stroke-width="15" stroke-linecap="round"/>
+      <path d="M80 186C26 150 8 122 12 98c3-22 30-30 46-16c8 7 16 9 22 9s14-2 22-9c16-14 43-6 46 16c4 24-14 52-68 88z" fill="url(#pearl)" stroke="#e9b4d1" stroke-width="2.500"/>
+      <path d="M80 170C38 142 24 120 27 101c3-15 21-20 32-10c9 8 15 11 21 11s12-3 21-11c11-10 29-5 32 10c3 19-11 41-53 69z" fill="url(#inset)" stroke="#f0c8de" stroke-width="2"/>
+      <path d="M47 101Q48.76 110.24 58 112Q48.76 113.76 47 123Q45.24 113.76 36 112Q45.24 110.24 47 101ZM115 101Q116.44 108.56 124 110Q116.44 111.44 115 119Q113.56 111.44 106 110Q113.56 108.56 115 101ZM106 126Q108.08 136.92 119 139Q108.08 141.08 106 152Q103.92 141.08 93 139Q103.92 136.92 106 126Z" fill="#bfe0f7" stroke="#9dcbec" stroke-width="1.200"/>
+      <circle cx="80" cy="116" r="9" fill="#d98fb9"/><path d="M76 121h8l3 18H73z" fill="#d98fb9"/>
+      <path d="M31 94q5-10 18-8" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
     </svg>
   </button>
   <h1><span class="name">koalawallaland.</span><span class="net">CRYNET</span></h1>
