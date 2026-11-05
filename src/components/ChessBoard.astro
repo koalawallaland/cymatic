@@ -8,7 +8,7 @@
   <div class="grid" data-grid role="grid" aria-label="Chess board"></div>
   <p class="st" data-st aria-live="polite"></p>
   <div class="acts">
-    <button type="button" class="call" data-call>Play Katie</button>
+    <button type="button" class="call" data-call>Play KT</button>
     <button type="button" data-new>New game with Part C</button>
   </div>
 </div>
@@ -55,7 +55,7 @@
     b.addEventListener('click', () => tap(`${f}${r}` as Square));
     squares.set(`${f}${r}`, b); grid.append(b);
   }
-  const opp = () => (online ? (me === 'b' ? 'Your opponent' : 'Katie') : 'Part C');
+  const opp = () => (online ? (me === 'b' ? 'Your opponent' : 'KT') : 'Part C');
   function status(extra = '') {
     const who = game.turn() === me ? 'Your move.' : `${opp()} is thinking.`;
     let s = who;
@@ -123,7 +123,7 @@
     try {
       const res = await fetch(`${NTFY}/kwl-chess-${online!.id}`, { method: 'POST', body: JSON.stringify({ p: game.history().length, san }) });
       if (!res.ok) throw 0;
-    } catch { status('That move didn’t reach Katie. Check your connection and reload.'); }
+    } catch { status('That move didn’t reach KT. Check your connection and reload.'); }
   }
   function listen() {
     es?.close();
@@ -142,7 +142,7 @@
     for (const m of moves) try { lastMove = game.move(m); } catch { break; }
     call.hidden = true;
     listen(); paint();
-    status(side === 'w' && !moves.length ? 'Katie has been notified. Make your first move. Your game stays saved in this browser for 12 hours.' : '');
+    status(side === 'w' && !moves.length ? 'KT has been notified. Make your first move. Your game stays saved in this browser for 12 hours.' : '');
   }
   function newLocal() {
     es?.close(); es = null; online = null; me = 'w'; game = new Chess(); lastMove = null; sel = null; call.hidden = false; call.disabled = false;
@@ -160,7 +160,7 @@
       startOnline(id, 'w');
     } catch {
       call.disabled = false;
-      status('Katie couldn’t be reached. Try again, or keep playing Part C.');
+      status('KT couldn’t be reached. Try again, or keep playing Part C.');
     }
   });
   root.querySelector('[data-new]')!.addEventListener('click', newLocal);
