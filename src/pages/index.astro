@@ -193,9 +193,9 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .singlink { padding: 0; color: var(--accent); background: none; border: 0; font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
   @media (max-width: 1100px) {
     .partc { right: -2px; bottom: -8px; width: clamp(90px, 25%, 170px); }
-    .ledge { justify-content: flex-start; gap: .8%; padding-right: 25%; }
-    .monitor { width: 24%; }
-    .candle { width: 5%; } .cassette { width: 6.5%; } .solder { width: 6%; } .cymbtn { width: 6%; } .mug { width: 6%; } .handheld { width: 10%; }
+    .band .ledge { justify-content: flex-start; gap: 1.2%; padding-right: 25%; }
+    .ledge .monitor { width: 27%; }
+    .ledge .candle { width: 4.5%; } .ledge .cassette { width: 6%; } .ledge .solder { width: 5.5%; } .ledge .cymbtn { width: 5.5%; } .ledge .mug { width: 5.5%; } .ledge .handheld { width: 9.5%; }
   }
   .ig { margin: 1.2rem 0 0; padding: .6rem .7rem; color: var(--ink); background: rgba(20,10,38,.72); border: 1px solid rgba(255,245,251,.28); border-radius: 14px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); font: .78rem var(--font-mono); }
   .ig summary { min-height: 30px; line-height: 30px; cursor: pointer; }
