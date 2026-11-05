@@ -1139,19 +1139,19 @@ $('toKb').onclick=()=>{const c=COLORS,pk=S.lastPicks||[0,1,2],nm=$('capName').va
   KB.mine.unshift({n:nm,a:c[pk[0]].c,m:c[pk[1]].c,x:c[pk[2]].c,l:legendOn(c[pk[0]].c),lm:legendOn(c[pk[1]].c),mine:true});KB.set.topre++;KB.set.mx++;KB.set[KB.type]=0;
   /* runs just after this frame's render, while the WebGL picture of the finished cap is still readable */
   const was=[S.pitch,S.pitchT,S.yaw,S.touched];S.pitch=S.pitchT=Math.PI/2;S.yaw=0;S.touched=performance.now(); /* one frame straight down at the cap's top, so the key shows the top of the cast */
-  let handed=false,made=false;const handOff=()=>{if(handed)return;handed=true;[S.pitch,S.pitchT,S.yaw,S.touched]=was;try{const t=document.createElement('canvas');t.width=t.height=192;const g=t.getContext('2d',{willReadFrequently:true}),L=layout(),sz=L.sz,x=L.cx-sz/2,y=H-(L.cy+sz/2);
+  let handed=false,made=false,saved=false;const handOff=inFrame=>{if(handed)return;handed=true;[S.pitch,S.pitchT,S.yaw,S.touched]=was;try{const t=document.createElement('canvas');t.width=t.height=192;const g=t.getContext('2d',{willReadFrequently:true}),L=layout(),sz=L.sz,x=L.cx-sz/2,y=H-(L.cy+sz/2);
       g.drawImage(canvas,x+sz*.3,y+sz*.22,sz*.4,sz*.4,0,0,192,192);
-      const px=g.getImageData(0,0,192,192).data;let lit=0;for(let i=0;i<px.length;i+=4)lit+=px[i]+px[i+1]+px[i+2];
-      if(lit<192*192*3){const sc=$('sawC');g.drawImage(sc,sc.width*.21,sc.height*.21,sc.width*.58,sc.height*.58,0,0,192,192)}
+      /* only a capture outside the render step can be empty; inside it, even a black cast is the real picture */
+      if(!inFrame){const sc=$('sawC');g.drawImage(sc,sc.width*.21,sc.height*.21,sc.width*.58,sc.height*.58,0,0,192,192)}
       const img=t.toDataURL('image/jpeg',.88);KB.arts.unshift([nm,img]);made=true;
-      try{const Q=JSON.parse(localStorage.getItem('kwl-caps')||'[]');Q.unshift({id:'cast-'+Date.now().toString(36),name:nm,img,at:Date.now()});localStorage.setItem('kwl-caps',JSON.stringify(Q.slice(0,12)))}catch(_){}/* hands the cap to the home page board */}catch(_){ }
+      try{const Q=JSON.parse(localStorage.getItem('kwl-caps')||'[]');Q.unshift({id:'cast-'+Date.now().toString(36),name:nm,img,at:Date.now()});localStorage.setItem('kwl-caps',JSON.stringify(Q.slice(0,12)));saved=true}catch(_){}/* hands the cap to the home page board */}catch(_){ }
     shojiGo(()=>{goRoom();renderSets();buildBoard();layoutRoom();
       /* the finished cap goes on a real key, and leaves the tray */
       const esc=[...document.querySelectorAll('#keys .cap')].find(c=>c.dataset.k==='Esc'),art=made&&KB.arts[0];
       if(esc&&art){esc.classList.add('art');esc.style.backgroundImage=`url(${art[1]})`;esc.textContent='';esc.setAttribute('aria-label',art[0]+' keycap');$('tray').querySelector('.cap.art')?.remove()}
-      say(esc&&art?`${nm} is on the Esc key here, and on your board back home.`:`${nm} is on the board as a color set, but its picture could not be saved.`)})};
+      say(esc&&art?(saved?`${nm} is on the Esc key here, and on your board back home.`:`${nm} is on the Esc key here, but this browser couldn\u2019t save it for your board back home.`):`${nm} is on the board as a color set, but its picture could not be saved.`)})};
   /* taken inside the render step, while the WebGL picture of the finished cap is readable */
-  capNext=handOff;setTimeout(handOff,500)};
+  capNext=()=>handOff(true);setTimeout(()=>handOff(false),500)};
 const legendOn=h=>rgb(h).reduce((a,v,k)=>a+v*[.3,.59,.11][k],0)<.5?'#fff5fb':'#1c1020';
 function neonTick(now){const e=$('enter');if(e.hidden)return;if(CALM){e.style.opacity=1;return}
   /* an old tube: long steady stretches, then one or two short dips, never a fast strobe */
