@@ -1,5 +1,6 @@
 ---
 import VisitCounter from './VisitCounter.astro';
+import PrinterArt from './PrinterArt.astro';
 // The room from across it: shoji, monitors, the lamp on the matcha board,
 // a working pour-over and the notebook that holds the blog.
 interface Props { posts: { id: string; title: string; date: string }[]; }
@@ -129,6 +130,10 @@ const { posts } = Astro.props;
       </svg>
     </div>
   </div>
+  <div class="underdesk" aria-label="Under the desk">
+    <span class="desk-leg leg-left" aria-hidden="true"></span><span class="desk-leg leg-right" aria-hidden="true"></span>
+    <a class="underdesk-printer" href="/lab/#printer" aria-label="Printer under the desk. Arriving January. Open its preview."><PrinterArt /><span>arriving January</span></a>
+  </div>
   <button type="button" class="desk-sound" data-desk-sound aria-pressed="true">Desk sound on</button>
   <p class="said" data-said aria-live="polite">Hold the kettle to pour. Tap the notebook for the blog.</p>
   <nav class="rooms" aria-label="More rooms">
@@ -151,9 +156,18 @@ const { posts } = Astro.props;
 </section>
 
 <style>
-  .scene { min-width: 0; }
+  .scene { min-width: 0; container-type: inline-size; }
   .stage { position: relative; container-type: inline-size; aspect-ratio: 4 / 5; width: 100%; margin-inline: auto; overflow: hidden; border-radius: 16px; background: #120a1c; box-shadow: 0 0 40px rgba(0,0,0,.55); isolation: isolate; }
   .stage > * { position: absolute; }
+
+  /* A floor nook below the existing desktop, keeping its objects in place. */
+  .underdesk { position: relative; container-type: inline-size; height: 39cqw; margin-top: -8.5cqw; border-radius: 0 0 16px 16px; background: radial-gradient(ellipse at 74% 95%, #40304788, transparent 50%), linear-gradient(#110919, #1b1024); isolation: isolate; }
+  .desk-leg { position: absolute; top: 0; bottom: 5%; width: 2.4%; background: linear-gradient(90deg, #251b30, #796881 40%, #3b2b46); box-shadow: .8cqw 0 1cqw #0008; }
+  .leg-left { left: 7%; }.leg-right { right: 7%; }
+  .underdesk-printer { position: absolute; top: 1cqw; right: 12%; width: 28%; height: 36cqw; display: flex; flex-direction: column; align-items: center; justify-content: end; color: #e2cadf; text-decoration: none; font: 1.8cqw/1.4 monospace; }
+  .underdesk-printer :global(svg) { display: block; width: 100%; min-height: 0; flex: 1; filter: drop-shadow(0 1cqw 1.2cqw #0009); transition: filter .2s; }
+  .underdesk-printer:hover :global(svg) { filter: drop-shadow(0 0 1.5cqw #b99ae566); }
+  .underdesk-printer:focus-visible { outline: .5cqw solid #d8ff3e; outline-offset: .5cqw; border-radius: 1cqw; }
 
   /* shoji */
   .wall { inset: 0 0 38% 0; display: grid; grid-template-columns: repeat(4, 1fr); background: #150b1f; }
