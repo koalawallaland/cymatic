@@ -3,7 +3,7 @@
    frame, so the music stops too. */
 (() => {
   'use strict';
-  const LIVE = new URL('live.html', document.currentScript.src).href;
+  const LIVE = new URL('live.html?v=playroom-1', document.currentScript.src).href;
 
   const css = document.createElement('style');
   css.textContent = `
@@ -11,13 +11,14 @@
     position: fixed; z-index: 50;
     right: max(12px, env(safe-area-inset-right, 0px));
     bottom: max(12px, env(safe-area-inset-bottom, 0px));
-    width: min(400px, calc(100vw - 24px));
-    height: min(640px, calc(100dvh - 90px));
+    width: min(460px, calc(100vw - 24px));
+    height: min(760px, calc(100dvh - 50px));
     display: flex; flex-direction: column; margin: 0; padding: 0;
     background: #0d0a18; border: 1px solid #3a2f5c; border-radius: 16px; overflow: hidden;
     box-shadow: 0 18px 50px rgba(0,0,0,.6), 0 0 24px rgba(255,122,200,.22);
     transform-origin: bottom right; animation: pocketIn .22s cubic-bezier(.2,1.4,.4,1);
   }
+  .pocket.expanded { width: min(780px, calc(100vw - 24px)); height: calc(100dvh - 32px); }
   .pocket[hidden] { display: none; }
   @keyframes pocketIn { from { transform: scale(.85) translateY(12px); opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { .pocket { animation: none; } }
@@ -28,7 +29,7 @@
   }
   .pocket-bar span { flex: 1; }
   .pocket-bar button {
-    width: 32px; height: 28px; border: 0; border-radius: 8px; cursor: pointer;
+    min-width: 44px; height: 44px; border: 0; border-radius: 8px; cursor: pointer;
     background: rgba(22,15,36,.18); color: #160f24; font: 700 15px/1 system-ui, sans-serif;
   }
   .pocket-bar button:focus-visible { outline: 2px solid #160f24; outline-offset: 1px; }
@@ -38,10 +39,10 @@
 
   const box = document.createElement('div');
   box.className = 'pocket'; box.hidden = true;
-  box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Live field');
-  box.innerHTML = '<div class="pocket-bar"><span>LIVE FIELD ʕ•ᴥ•ʔ♪</span><button type="button" aria-label="Close live field">×</button></div>';
+  box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Music station');
+  box.innerHTML = '<div class="pocket-bar"><span>MUSIC STATION ʕ•ᴥ•ʔ♪</span><button type="button" data-expand aria-label="Expand music station" aria-pressed="false">↗</button><button type="button" data-close aria-label="Close music station">×</button></div>';
   const frame = document.createElement('iframe');
-  frame.title = 'Live field: type a beat and the sand dances to it';
+  frame.title = 'Music station: play sounds and record a loop';
   box.appendChild(frame);
   document.body.appendChild(box);
 
@@ -51,16 +52,17 @@
     opener = document.activeElement;
     if (!frame.src) frame.src = LIVE;
     box.hidden = false;
-    box.querySelector('button').focus();
+    box.querySelector('[data-close]').focus();
   }
   function close() {
     box.hidden = true;
     frame.removeAttribute('src');          // unload it so the music stops
     if (opener && opener.focus) opener.focus();
   }
-  box.querySelector('button').addEventListener('click', close);
+  box.querySelector('[data-close]').addEventListener('click', close);
+  box.querySelector('[data-expand]').addEventListener('click', e => { const expanded=box.classList.toggle('expanded'); e.currentTarget.setAttribute('aria-pressed',String(expanded)); e.currentTarget.setAttribute('aria-label',expanded?'Shrink music station':'Expand music station'); });
   addEventListener('keydown', e => { if (e.key === 'Escape' && !box.hidden) close(); });
-  addEventListener('message', e => { if (e.data === 'pocket:close') close(); });
+  addEventListener('message', e => { if (e.source === frame.contentWindow && e.origin === location.origin && e.data === 'pocket:close') close(); });
   document.addEventListener('click', e => { const t = e.target.closest('[data-pocket]'); if (t) open(e); });
   document.addEventListener('keydown', e => {
     const t = e.target.closest && e.target.closest('[data-pocket][role="button"]');
