@@ -233,7 +233,7 @@ label.name{display:flex;flex-direction:column;gap:5px;font-size:13px}
 <aside id="saw" hidden><canvas id="sawC" width="160" height="160"></canvas><span>What you saw while pouring</span></aside>
 
 <div id="ui">
-  <header class="top"><nav class="lab-nav" aria-label="Lab navigation"><a href="../home.html">← My desk</a><button type="button" data-action="room" disabled>Lab room</button><button type="button" data-action="cast" disabled>Make a keycap →</button><button type="button" data-help-open>Help</button><button type="button" data-printer-open>3D printer · January</button></nav>
+  <header class="top"><nav class="lab-nav" aria-label="Lab navigation"><a href="../home.html">← My desk</a><button type="button" data-action="room" disabled>Lab room</button><button type="button" data-action="cast" disabled>Make a keycap →</button><button type="button" data-help-open>Help</button><button type="button" data-printer-open>Printer · January</button></nav>
     <div class="brand">
       <h1>Mini Resin Lab</h1>
       <ol class="steps" id="steps"><li>Mix</li><li>Pour</li><li>Cure</li><li>Reveal</li></ol>
@@ -1371,7 +1371,7 @@ requestAnimationFrame(frame);
 
 <a href="../home.html" id="kwlHome" aria-label="Back to Koala Walla Land" style="position:fixed;z-index:9999;left:0;top:50%;transform:translateY(-50%);padding:14px 7px;border-radius:0 10px 10px 0;color:#fff;background:rgba(18,6,29,.72);border:1px solid rgba(255,255,255,.35);border-left:0;font:700 14px/1 system-ui,sans-serif;text-decoration:none">&larr;</a><script>if(location.hash==='#desk')addEventListener('load',function(){setTimeout(function(){var e=document.getElementById('enter');if(e)e.click()},400)});</script><style>@media(max-width:700px){#kwlHome,#back{top:auto!important;bottom:10px!important;left:0!important;transform:none!important;padding:6px 3px!important;opacity:.85}}</style>
 <dialog id="labHelp" class="lab-dialog" aria-labelledby="labHelpTitle"><button type="button" class="dialog-close" data-close aria-label="Close help">×</button><h2 id="labHelpTitle">What do I do next?</h2><p id="labHelpText"></p><p>Mix → choose colors → pour → cure → demold.</p><button type="button" data-close class="next">Got it</button><a class="route" href="../home.html">← Back to my desk</a></dialog>
-<dialog id="printerPreview" class="lab-dialog" aria-labelledby="printerTitle"><button type="button" class="dialog-close" data-close aria-label="Close printer preview">×</button><h2 id="printerTitle">The new printer</h2><span class="printer-tag">Violet Formlabs · arriving January</span><svg class="printer-art" role="img" aria-label="Illustrated Formlabs printer with a translucent orange hood and violet base" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 340">
+<dialog id="printerPreview" class="lab-dialog" aria-labelledby="printerTitle"><button type="button" class="dialog-close" data-close aria-label="Close printer preview">×</button><h2 id="printerTitle">The new printer</h2><span class="printer-tag">Arriving January</span><svg class="printer-art" role="img" aria-label="Illustrated printer with a translucent orange hood and violet base" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 340">
 <defs><linearGradient id="hood" x1="0" x2="1"><stop stop-color="#ff9b12" stop-opacity=".85"/><stop offset=".3" stop-color="#f04a05" stop-opacity=".74"/><stop offset=".8" stop-color="#d6310b" stop-opacity=".82"/><stop offset="1" stop-color="#ff9700" stop-opacity=".93"/></linearGradient><linearGradient id="violet" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ac96e6"/><stop offset=".4" stop-color="#675096"/><stop offset="1" stop-color="#30204c"/></linearGradient><linearGradient id="shine"><stop stop-color="#fff" stop-opacity=".6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
 <ellipse cx="140" cy="326" rx="112" ry="9" fill="#080414" opacity=".4"/>
 <rect x="28" y="18" width="224" height="300" rx="25" fill="#302339" stroke="#170e27" stroke-width="4"/>
@@ -1391,7 +1391,7 @@ requestAnimationFrame(frame);
 <g fill="#bbd8b9"><rect x="184" y="261" width="41" height="3" rx="1"/><rect x="184" y="270" width="31" height="2" rx="1"/><rect x="184" y="277" width="37" height="2" rx="1"/><rect x="184" y="288" width="25" height="3" rx="1"/></g>
 <path d="M49 313h37m108 0h30" stroke="#d4c7f5" stroke-width="3" opacity=".6"/>
 </svg>
-<p class="printer-caption">A preview of the equipment on its way.</p><ol class="preview-steps" aria-label="Preview workflow"><li>Print</li><li>Mold</li><li>Cast</li></ol><h3 id="printerStepTitle"></h3><p id="printerStepText" aria-live="polite"></p><button type="button" class="next" data-printer-next>Next</button><button type="button" class="next secondary" data-printer-cast disabled>Try making a resin keycap →</button></dialog>
+<p class="printer-caption">For keyboard and keycap accessories.</p><ol class="preview-steps" aria-label="Preview workflow"><li>Keyboards</li><li>Keycaps</li><li>Masters</li></ol><h3 id="printerStepTitle"></h3><p id="printerStepText" aria-live="polite"></p><button type="button" class="next" data-printer-next>Next</button><button type="button" class="next secondary" data-printer-cast disabled>Explore resin casting →</button></dialog>
 <dialog id="labLeave" class="lab-dialog" aria-labelledby="labLeaveTitle"><h2 id="labLeaveTitle">Leave this pour?</h2><p>This pour will not be saved. Finished caps you have already saved will stay in your collection.</p><button type="button" data-close class="next">Keep working on it</button><button type="button" data-leave-pour class="next secondary">Leave this pour</button></dialog>
 <script>// Plain-language navigation shared by both lab versions. It stays usable without WebGL.
 (() => {
@@ -1439,9 +1439,9 @@ requestAnimationFrame(frame);
   [help, printer, leave].forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
   document.querySelector('[data-leave-pour]').addEventListener('click', () => { leave.close(); route(pendingAction); });
   const steps = [
-    ['1 · Print a master', 'A printed master gives the sculpt its shape. This is a preview of the future workflow; the new printer arrives in January.', 'Next: make the mold'],
-    ['2 · Make a silicone mold', 'The master makes an impression in silicone. Once the mold is ready, resin can take its shape.', 'Next: cast the keycap'],
-    ['3 · Cast a resin cap', 'Mix the resin, pour your colors, cure, then demold. Try the resin casting game next.', 'Back to the printer'],
+    ['1 · Keyboard accessories', 'The new printer is for keyboard and keycap accessories. It arrives in January.', 'Next: keycap accessories'],
+    ['2 · Keycap accessories', 'Accessories to go with the keycaps.', 'Next: possible master work'],
+    ['3 · Possible master work', 'It may also be used for some masters in the resin-making process.', 'Back to the printer'],
   ];
   let step = 0;
   function showStep(n) {
