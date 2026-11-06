@@ -1455,6 +1455,7 @@ requestAnimationFrame(frame);
   document.querySelector('[data-printer-cast]').addEventListener('click', () => { printer.close(); requestRoute('cast'); });
   document.addEventListener('kwl-lab-state', update);
   update();
+  if (location.hash === '#printer') { showStep(0); printer.showModal(); }
 })();
 </script>
 </body></html>
