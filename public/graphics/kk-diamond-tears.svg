@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 144">
+  <defs>
+    <filter id="kk-ink" x="-8%" y="-8%" width="116%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".22" numOctaves="2" seed="12" result="grain"/><feColorMatrix in="grain" type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .12 .12 .12 0 .72" result="paper"/><feComposite in="SourceGraphic" in2="paper" operator="in"/></filter>
+  </defs>
+  <g fill="#4b0e34" filter="url(#kk-ink)">
+    <!-- Keep the modified KK mark's square core and four swept diamond points. -->
+    <path fill-rule="evenodd" d="M60 7c5 21 15 36 28 41l22 7c-24 6-40 21-49 42-7-20-24-35-51-41 23-6 42-26 50-49z M47 41l27 1-1 27-27-1z M59 26l-9 10 22 1z M31 55l11 8 1-17z M79 47l-1 17 12-9z M49 75l12 11 11-10z"/>
+    <!-- Short rounded beads and falling teardrops, with no dangling threads. -->
+    <path d="M37 73c0 5-2 8-4 11-3 4-3 9 1 11 4 2 8 0 8-4 0-5-3-8-1-14z"/>
+    <path d="M85 77c0 4-2 7-4 11-2 4-1 8 3 9 5 1 8-3 6-7-2-4-3-7-2-11z"/>
+    <path d="M36 102c-2 5-8 11-8 17-1 6 3 10 8 10 6 0 10-4 9-10-1-5-6-12-9-17z"/>
+    <path d="M87 106c-1 5-6 10-6 14-1 5 2 8 6 8 5 0 8-3 7-8 0-4-4-10-7-14z"/>
+    <path d="M61 108c-2 5-7 10-7 15-1 6 2 10 7 10 6 0 9-4 8-10-1-5-5-10-8-15z"/>
+  </g>
+  <g fill="none" stroke="#d58fd0" stroke-linecap="round" opacity=".95"><path d="M32 117q-2 5 2 7" stroke-width="2.4"/><path d="M85 118q-1 4 2 5" stroke-width="2"/><path d="M58 121q-1 5 2 7" stroke-width="2.3"/></g>
+</svg>

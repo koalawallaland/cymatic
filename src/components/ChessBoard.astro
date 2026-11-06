@@ -7,8 +7,10 @@
 <div class="cb" data-cb data-no-type>
   <div class="grid" data-grid role="grid" aria-label="Chess board"></div>
   <p class="st" data-st aria-live="polite"></p>
+  <p class="connection" data-connection aria-live="polite"></p>
   <div class="acts">
     <button type="button" class="call" data-call>Play KT</button>
+    <button type="button" data-sync hidden>Sync game</button>
     <button type="button" data-new>New game with Part C</button>
   </div>
 </div>
@@ -23,6 +25,9 @@
   :global(.sq.last) { background-image: linear-gradient(rgba(255,214,70,.42), rgba(255,214,70,.42)); }
   :global(.sq.can::after) { content: ''; position: absolute; width: 26%; aspect-ratio: 1; border-radius: 50%; background: rgba(255,79,168,.68); }
   :global(.sq:focus-visible) { outline: 2px solid #2b1650; outline-offset: -3px; }
+  .connection { color: var(--muted); font-size: .75rem; margin: .2rem 0 .6rem; min-height: 1.3em; }
+  :global(.sq) { touch-action: none; }
+  :global(.chess-drag) { position: fixed; z-index: 10020; pointer-events: none; transform: translate(-50%, -50%); font: 42px/1 "Segoe UI Symbol", "Apple Symbols", sans-serif; filter: drop-shadow(0 3px 3px #31142888); }
   .st { margin: .7rem 0 .4rem; min-height: 2.7em; font-size: .85rem; line-height: 1.4; }
   .acts { display: flex; flex-wrap: wrap; gap: .4rem .9rem; align-items: center; }
   .acts button { font: inherit; font-size: .82rem; color: var(--accent); background: none; border: 0; padding: .35rem 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
@@ -47,17 +52,23 @@
   let online: { id: string; moves: string[] } | null = null;
   let es: EventSource | null = null;
   let sel: Square | null = null, lastMove: Move | null = null;
+  let pollTimer: ReturnType<typeof setInterval> | null = null, pollBusy = false;
+  let pending: { p: number; san: string; moves: string[] } | null = null;
+  const connection = root.querySelector('[data-connection]') as HTMLElement;
+  let ignoreClickUntil = 0;
   const squares = new Map<string, HTMLButtonElement>();
 
   for (let r = 8; r >= 1; r--) for (const f of 'abcdefgh') {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'sq' + ((f.charCodeAt(0) + r) % 2 === 0 ? ' dk' : '');
-    b.addEventListener('click', () => tap(`${f}${r}` as Square));
+    b.dataset.square = `${f}${r}`;
+    b.addEventListener('click', () => { if (Date.now() > ignoreClickUntil) tap(`${f}${r}` as Square); });
     squares.set(`${f}${r}`, b); grid.append(b);
   }
   const opp = () => (online ? (me === 'b' ? 'Your opponent' : 'KT') : 'Part C');
   function status(extra = '') {
-    const who = game.turn() === me ? 'Your move.' : `${opp()} is thinking.`;
+    const side = me === 'w' ? 'White' : 'Black';
+    const who = game.turn() === me ? `You’re ${side}. Your move: tap a piece, then a highlighted square, or drag it.` : (online && !game.history().length ? `You’re ${side}. White moves first.` : `You’re ${side}. Waiting for ${opp() === 'Your opponent' ? 'your opponent' : opp()} to move.`);
     let s = who;
     if (game.isCheckmate()) s = game.turn() === me ? `Checkmate. ${opp()} wins.` : 'Checkmate. You win!';
     else if (game.isDraw()) s = 'Draw.';
@@ -66,7 +77,8 @@
   }
   function paint() {
     const ranks = me === 'w' ? [8,7,6,5,4,3,2,1] : [1,2,3,4,5,6,7,8], files = me === 'w' ? 'abcdefgh' : 'hgfedcba';
-    grid.replaceChildren(...ranks.flatMap((r) => [...files].map((f) => squares.get(`${f}${r}`)!)));
+    const ordered = ranks.flatMap((r) => [...files].map((f) => squares.get(`${f}${r}`)!));
+    if (grid.firstElementChild !== ordered[0]) grid.replaceChildren(...ordered);
     const can = new Set(sel ? game.moves({ square: sel, verbose: true }).map((m) => m.to) : []);
     for (const [sq, b] of squares) {
       const p = game.get(sq as Square);
@@ -92,6 +104,35 @@
     sel = p && p.color === me && sel !== sq ? sq : null;
     paint();
   }
+  let drag: { from: Square; x: number; y: number; moved: boolean; node: HTMLButtonElement; ghost: HTMLElement | null } | null = null;
+  grid.addEventListener('pointerdown', e => {
+    if (e.button !== 0 || game.turn() !== me || game.isGameOver()) return;
+    const node = (e.target as Element).closest<HTMLButtonElement>('[data-square]');
+    const from = node?.dataset.square as Square;
+    if (!node || game.get(from)?.color !== me) return;
+    drag = { from, x: e.clientX, y: e.clientY, moved: false, node, ghost: null };
+    node.setPointerCapture(e.pointerId);
+  });
+  grid.addEventListener('pointermove', e => {
+    if (!drag) return;
+    if (!drag.moved && Math.hypot(e.clientX-drag.x, e.clientY-drag.y) > 7) {
+      drag.moved = true; sel = drag.from; paint();
+      drag.ghost = document.createElement('div'); drag.ghost.className = 'chess-drag';
+      drag.ghost.textContent = drag.node.textContent; drag.ghost.style.color = me === 'w' ? '#fffdf9' : '#5a1d78';
+      document.body.append(drag.ghost);
+    }
+    if (drag.moved) { e.preventDefault(); drag.ghost!.style.left = `${e.clientX}px`; drag.ghost!.style.top = `${e.clientY}px`; }
+  });
+  const endDrag = (e: PointerEvent) => {
+    if (!drag) return;
+    const current = drag; drag = null; current.ghost?.remove();
+    if (current.moved) {
+      ignoreClickUntil = Date.now()+300; e.preventDefault(); sel = current.from;
+      const target = document.elementFromPoint(e.clientX,e.clientY)?.closest<HTMLElement>('[data-square]')?.dataset.square as Square | undefined;
+      if (e.type !== 'pointercancel' && target) tap(target); else paint();
+    }
+  };
+  grid.addEventListener('pointerup', endDrag); grid.addEventListener('pointercancel', endDrag);
   // Part C looks one reply ahead, and sometimes just does something cat-like.
   function score(g: Chess, side: 'w' | 'b') {
     let s = 0;
@@ -117,37 +158,80 @@
     }
     lastMove = game.move(best); paint(); status();
   }
-  const persist = () => { if (online) try { localStorage.setItem(SAVE, JSON.stringify({ id: online.id, me, moves: game.history() })); } catch {} };
+  const persist = () => { if (online) try { localStorage.setItem(SAVE, JSON.stringify({ id: online.id, me, moves: game.history(), pending })); } catch {} };
   async function send(san: string) {
-    persist();
+    if (!online) return;
+    pending = { p: game.history().length, san, moves: game.history() };
+    persist(); await flushPending();
+  }
+  async function flushPending() {
+    if (!online || !pending) return;
+    const id = online.id, message = pending;
     try {
-      const res = await fetch(`${NTFY}/kwl-chess-${online!.id}`, { method: 'POST', body: JSON.stringify({ p: game.history().length, san }) });
-      if (!res.ok) throw 0;
-    } catch { status('That move didn’t reach KT. Check your connection and reload.'); }
+      const res = await fetch(`${NTFY}/kwl-chess-${id}`, { method: 'POST', body: JSON.stringify(message), signal: AbortSignal.timeout(8000) });
+      if (!res.ok) throw new Error('Move not delivered');
+      if (online?.id !== id) return;
+      if (pending === message) pending = null;
+      connection.textContent = 'Connected · moves sync automatically.'; persist();
+    } catch {
+      if (online?.id === id) connection.textContent = 'Reconnecting. Your move is saved and will be retried.';
+    }
+  }
+  function receive(d: any) {
+    if (!online) return false;
+    const history = game.history();
+    try {
+      if (Array.isArray(d.moves) && d.moves.length > history.length && d.moves.length <= 600 && d.moves.every((m: any) => typeof m === 'string' && m.length < 20) && history.every((m, i) => m === d.moves[i])) {
+        const rebuilt = new Chess(); let last: Move | null = null;
+        for (const san of d.moves) last = rebuilt.move(san);
+        game = rebuilt; lastMove = last;
+      } else if (d.p === history.length + 1 && typeof d.san === 'string') lastMove = game.move(d.san);
+      else return false;
+    } catch { return false; }
+    if (pending && game.history().length > pending.p) pending = null;
+    sel = null; persist(); paint(); status(); return true;
+  }
+  async function catchUp(id: string) {
+    if (pollBusy || online?.id !== id) return;
+    pollBusy = true;
+    try {
+      const res = await fetch(`${NTFY}/kwl-chess-${id}/json?poll=1&since=all`, { cache: 'no-store', signal: AbortSignal.timeout(8000) });
+      if (!res.ok) throw new Error('Relay unavailable');
+      const text = await res.text(); if (online?.id !== id) return;
+      const messages: any[] = [];
+      for (const line of text.split('\n')) { try { const entry = JSON.parse(line); if (entry.event === 'message') messages.push(JSON.parse(entry.message)); } catch {} }
+      messages.sort((a,b) => (Number(a.p) || 0) - (Number(b.p) || 0));
+      for (const message of messages) receive(message);
+      connection.textContent = pending ? 'Sending your saved move…' : 'Connected · moves sync automatically.';
+      if (pending) await flushPending();
+    } catch {
+      if (online?.id === id) connection.textContent = 'Trying to reconnect. Your game is saved here.';
+    } finally { pollBusy = false; }
   }
   function listen() {
-    es?.close();
-    es = new EventSource(`${NTFY}/kwl-chess-${online!.id}/sse?since=all`);
+    es?.close(); if (pollTimer) clearInterval(pollTimer);
+    const id = online!.id;
+    connection.textContent = 'Connecting and loading the game…';
+    es = new EventSource(`${NTFY}/kwl-chess-${id}/sse?since=all`);
     es.onmessage = (e) => {
-      let d: { p: number; san: string };
-      try { d = JSON.parse(JSON.parse(e.data).message); } catch { return; }
-      if (!online || d.p !== game.history().length + 1) return; // already applied, or out of order
-      try { lastMove = game.move(d.san); } catch { return; }
-      sel = null; persist(); paint(); status();
+      if (online?.id !== id) return;
+      try { receive(JSON.parse(JSON.parse(e.data).message)); } catch {}
     };
+    // A short polling fallback catches missed moves on suspended mobile streams.
+    void catchUp(id); pollTimer = setInterval(() => void catchUp(id), 15000);
   }
   function startOnline(id: string, side: 'w' | 'b', moves: string[] = []) {
     online = { id, moves };
     me = side; game = new Chess(); lastMove = null; sel = null;
     for (const m of moves) try { lastMove = game.move(m); } catch { break; }
-    call.hidden = true;
-    listen(); paint();
-    status(side === 'w' && !moves.length ? 'KT has been notified. Make your first move. Your game stays saved in this browser for 12 hours.' : '');
+    call.hidden = true; (root.querySelector('[data-sync]') as HTMLElement).hidden = false;
+    persist(); listen(); paint();
+    status(side === 'w' && !moves.length ? 'Invite sent. Make your first move. This game is saved in this browser.' : '');
   }
   function newLocal() {
-    es?.close(); es = null; online = null; me = 'w'; game = new Chess(); lastMove = null; sel = null; call.hidden = false; call.disabled = false;
+    es?.close(); es = null; if (pollTimer) clearInterval(pollTimer); pollTimer = null; pending = null; connection.textContent = ''; online = null; me = 'w'; game = new Chess(); lastMove = null; sel = null; call.hidden = false; call.disabled = false;
     try { localStorage.removeItem(SAVE); } catch {}
-    paint(); status('You’re playing Part C, who has paws.');
+    (root.querySelector('[data-sync]') as HTMLElement).hidden = true; paint(); status('You’re playing Part C, who has paws.');
   }
   call.addEventListener('click', async () => {
     call.disabled = true;
@@ -155,7 +239,7 @@
     const id = [...a].map((x) => x.toString(36).padStart(2, '0')).join('');
     const url = new URL(location.href); url.search = `?chess=${id}`; url.hash = 'chess';
     try {
-      const res = await fetch(`${NTFY}/`, { method: 'POST', body: JSON.stringify({ topic: NOTIFY_TOPIC, title: 'Someone wants to play chess', message: 'Tap to open the board. You’re playing black.', click: url.href, tags: ['crown'] }) });
+      const res = await fetch(`${NTFY}/`, { signal: AbortSignal.timeout(8000), method: 'POST', body: JSON.stringify({ topic: NOTIFY_TOPIC, title: 'Someone wants to play chess', message: 'Tap to open the board. You’re playing black.', click: url.href, tags: ['crown'] }) });
       if (!res.ok) throw 0;
       startOnline(id, 'w');
     } catch {
@@ -164,14 +248,17 @@
     }
   });
   root.querySelector('[data-new]')!.addEventListener('click', newLocal);
+  root.querySelector('[data-sync]')!.addEventListener('click', () => { if (online) void catchUp(online.id); });
 
   const param = new URLSearchParams(location.search).get('chess');
   let saved: any = null;
   try { saved = JSON.parse(localStorage.getItem(SAVE) || 'null'); } catch {}
   if (param && /^[a-z0-9]{6,24}$/.test(param)) {
-    startOnline(param, saved?.id === param ? saved.me : 'b', saved?.id === param ? saved.moves : []);
-    status('You’re black in this game. Moves appear here as they’re played.');
+    startOnline(param, saved?.id === param && saved.me === 'w' ? 'w' : 'b', saved?.id === param && Array.isArray(saved.moves) ? saved.moves : []);
+    status('Invitation opened.');
     root.scrollIntoView({ block: 'center' });
-  } else if (saved?.id) startOnline(saved.id, saved.me, saved.moves);
+  } else if (saved?.id && /^[a-z0-9]{6,24}$/.test(saved.id)) startOnline(saved.id, saved.me === 'b' ? 'b' : 'w', Array.isArray(saved.moves) ? saved.moves : []);
   else newLocal();
+  if (online && saved?.id === online.id && saved.pending?.p === game.history().length && typeof saved.pending?.san === 'string') { pending = { p: saved.pending.p, san: saved.pending.san, moves: game.history() }; persist(); }
+  addEventListener('pagehide', () => { es?.close(); if (pollTimer) clearInterval(pollTimer); });
 </script>
