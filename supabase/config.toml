@@ -1,0 +1,3 @@
+[functions.graffiti-wall]
+# GET is public. Every write verifies the visitor's JWT with Supabase Auth.
+verify_jwt = false
