@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {GLTFLoader} from './vendor/GLTFLoader.js';
+import {waxBounds} from './bounds.mjs';
 
 const $ = id => document.getElementById(id);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -59,7 +60,7 @@ function select(item){
 function dip(){
   if(!model)return;releaseShell();shell=new THREE.Group();pivot.add(shell);
   pivot.scale.set(1,1,1);squeezeTime=-10000;
-  const box=new THREE.Box3().setFromObject(model),size=box.getSize(new THREE.Vector3());
+  const box=waxBounds(pivot,model),size=box.getSize(new THREE.Vector3());
   // WaxServer uses a rounded coat around multipart toys; preserve that behavior.
   const shellCenter=box.getCenter(new THREE.Vector3());
   const rx=Math.max(size.x/2,.55)*1.15,ry=Math.max(size.y/2,.55)*1.15,rz=Math.max(size.z/2,.55)*1.15;
