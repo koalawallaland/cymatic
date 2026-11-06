@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="The Sunny Place squish station. Pick a squishy, dip it in pastel wax and crack the shell.">
+<title>Squish station · koalawallaland</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="station.css">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+</head>
+<body>
+<main>
+<header><a href="../home.html">← back to the desk</a><span>THE SUNNY PLACE</span><button id="sound" aria-pressed="true">♪ sound on</button></header>
+<div class="intro"><p class="eyebrow">a little soft spot</p><h1>Squish station<span>♡</span></h1><p>Pick a friend. Give it a squeeze. Dip, crack, repeat.</p></div>
+<div class="station">
+<section class="play" aria-label="Squishy play space">
+<div id="stage"><canvas id="view" aria-label="Selected squishy. Use the Squeeze button or press Space to play." tabindex="0"></canvas><span class="stage-label">squeeze a little happiness</span><p id="loading" role="status">Unpacking the squishies…</p></div>
+<div class="under"><h2 id="name">Your squishy</h2><span id="counter">soft &amp; ready</span></div>
+<p id="status" role="status" aria-live="polite">Loading the original collection…</p>
+<div class="actions"><button id="squeeze" class="primary" disabled>Squeeze ♡</button><button id="dip" disabled>Dip in wax</button><button id="reset" disabled>Remove wax</button></div>
+<fieldset id="colors"><legend>Wax color</legend></fieldset>
+<p class="hint">Tap the squishy or press Space to squeeze. The first squeeze cracks the wax; keep going to pop off every piece.</p>
+</section>
+<aside><div class="shelf-head"><h2>Pick your squishy</h2><span id="total"></span></div><label class="search">Find a friend<input id="search" type="search" placeholder="Butter, bao, paw…" autocomplete="off"></label><div id="collection" role="group" aria-label="Squishy collection"></div><p id="empty" hidden>No squishies match. Try another name.</p><details><summary>Visit the original wax bar</summary><canvas id="bar" aria-label="Original pastel wax bar from The Sunny Place"></canvas></details></aside>
+</div>
+<footer>From Katie’s <i>The Sunny Place</i> · a pocket of softness in koalawallaland</footer>
+</main><script type="module" src="station.js"></script>
+</body></html>
