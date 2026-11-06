@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 160">
+  <defs><mask id="halo-shine"><rect width="120" height="160" fill="white"/><circle cx="51" cy="68" r="10" fill="black"/><path d="m75 78 3 6 7 3-7 3-3 7-3-7-7-3 7-3z" fill="black"/><path d="M48 101c5 3 9 3 13 0-2 6-9 8-13 5z" fill="black"/></mask></defs>
+  <ellipse cx="60" cy="15" rx="29" ry="8.5" transform="rotate(-12 60 15)" fill="none" stroke="#d29b2c" stroke-width="5"/>
+  <path d="M23 39c20-15 53-15 73-1" fill="none" stroke="#142f57" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M24 58c-2 34 8 54 35 56 27 1 39-21 37-54" fill="none" stroke="#142f57" stroke-width="3.8" stroke-linecap="round"/>
+  <path d="M21 60c6-17 22-24 39-23 17 0 30 7 39 22 1 3-2 6-5 4-11-12-21-17-35-17-15 0-25 5-33 17-3 3-7 0-5-3z" fill="#142f57"/>
+  <path d="M61 45c16 0 25 14 24 32-1 23-10 35-23 35-16 0-25-13-25-32 0-20 9-35 24-35z" fill="#142f57" mask="url(#halo-shine)"/>
+  <g fill="#142f57"><circle cx="42" cy="121" r="2.1"/><circle cx="78" cy="121" r="2.1"/><path d="M60 126c-2 5-7 9-7 14a7 7 0 0 0 14 0c0-5-5-9-7-14z"/></g>
+</svg>
