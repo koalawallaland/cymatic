@@ -1,0 +1,38 @@
+<div class="visit-counter" data-visit-counter title="Public visit count, not unique people. Powered by Count API.">
+  <span class="counter-label">desk visits</span>
+  <output data-count aria-label="Visit count unavailable">— — — — — —</output>
+  <span class="counter-state" data-counter-state>connecting</span>
+</div>
+<style>
+  .visit-counter { position: absolute; z-index: 4; left: 69%; top: 84%; width: 23%; padding: 1.1cqw 1cqw .8cqw; border-radius: .8cqw; border: .2cqw solid #a79bab; background: linear-gradient(145deg, #554b5d, #221d29 55%, #393040); box-shadow: 0 .8cqw 1cqw #12091dbb, inset 0 .12cqw #e4d9ed88; text-align: center; pointer-events: auto; }
+  .counter-label { display: block; font: 600 .95cqw/1.4 monospace; letter-spacing: .14em; color: #e5dce6; text-transform: uppercase; }
+  output { display: block; padding: .5cqw .2cqw; border-radius: .3cqw; background: #111a12; color: #cfed86; box-shadow: inset 0 .25cqw .5cqw #000; font: 500 2.4cqw/1.1 monospace; font-variant-numeric: tabular-nums; letter-spacing: .1em; text-shadow: 0 0 .7cqw #a9d55d88; }
+  .counter-state { display: block; margin-top: .35cqw; color: #d2c7d9; font: .85cqw/1.2 monospace; }
+</style>
+<script>
+  const root = document.querySelector<HTMLElement>('[data-visit-counter]')!;
+  const display = root.querySelector<HTMLOutputElement>('[data-count]')!;
+  const state = root.querySelector<HTMLElement>('[data-counter-state]')!;
+  // This service uses a public name, not a secret or an account credential.
+  const key = 'koalawallaland_cymatic_desk_visits_20261106_f4e92b';
+  const flag = 'kwl-desk-counted-v1';
+  async function showCount() {
+    if (location.hostname !== 'koalawallaland.github.io') { state.textContent = 'preview · not counted'; return; }
+    let counted = false;
+    try { counted = sessionStorage.getItem(flag) === 'yes'; } catch {}
+    try {
+      const response = await fetch(`https://countapi.mileshilliard.com/api/v1/${counted ? 'get' : 'hit'}/${key}`, {
+        credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store', signal: AbortSignal.timeout(6000),
+      });
+      if (!response.ok) throw new Error('Counter unavailable');
+      const data = await response.json();
+      const count = String(data.value);
+      if (!/^\d{1,20}$/.test(count)) throw new Error('Invalid count');
+      display.textContent = count.padStart(6, '0');
+      display.setAttribute('aria-label', `${count} desk visits`);
+      state.textContent = 'since Nov 2026';
+      try { sessionStorage.setItem(flag, 'yes'); } catch {}
+    } catch { state.textContent = 'temporarily offline'; }
+  }
+  void showCount();
+</script>

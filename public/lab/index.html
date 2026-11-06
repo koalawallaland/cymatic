@@ -1,4 +1,21 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><style>.lab-nav{display:flex;flex-wrap:wrap;gap:6px;pointer-events:auto}
+.lab-nav a,.lab-nav button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 11px;border:1px solid #e6d8ef66;border-radius:12px;font:700 14px/1.15 var(--body,system-ui);text-decoration:none;color:#fff5fb;background:#231333;touch-action:manipulation}
+.lab-nav button[data-action="cast"]{background:#d8ff3e;color:#21122f;border-color:#d8ff3e}
+.lab-nav a:focus-visible,.lab-nav button:focus-visible{outline:3px solid #d8ff3e;outline-offset:2px}
+.lab-nav button:disabled{opacity:.45}
+#ui .top{position:relative;z-index:25}
+.lab-dialog{position:fixed;inset:0;width:min(520px,calc(100vw - 24px));max-height:calc(100dvh - 24px);margin:auto;overflow:auto;padding:22px;border:1px solid #b8a2d4;border-radius:20px;background:#21132f;color:#fff5fb;box-shadow:0 20px 80px #000b;z-index:10001;font:16px/1.5 var(--body,system-ui);touch-action:pan-y}
+.lab-dialog::backdrop{background:#0b0617c9;backdrop-filter:blur(5px)}
+.lab-dialog h2{margin:0 0 8px;font-size:24px;line-height:1.2}.lab-dialog p{margin:10px 0}.lab-dialog button,.lab-dialog a{min-height:44px;touch-action:manipulation}
+.lab-dialog .dialog-close{float:right;margin:-8px -8px 8px 12px;background:transparent;color:#fff;border:1px solid #fff6;min-width:44px;border-radius:50%;padding:8px}
+.lab-dialog .route{display:block;margin-top:12px;color:#d8ff3e}.lab-dialog .preview-steps{display:flex;gap:5px;padding:0;list-style:none;font-size:13px}.preview-steps li{flex:1;padding:6px;border-bottom:2px solid #ffffff3d}.preview-steps li[aria-current="step"]{color:#d8ff3e;border-color:#d8ff3e}
+.printer-art{display:block;width:min(220px,55vw);height:245px;object-fit:contain;margin:0 auto;filter:drop-shadow(0 10px 15px #0007)}
+.printer-tag{display:block;color:#d8ff3e;font-weight:700}.printer-caption{color:#c7b9d6;font-size:13px}.lab-dialog .next{display:block;width:100%;margin:14px 0 0;background:#d8ff3e;color:#21122f}.lab-dialog .secondary{background:transparent;color:#fff;border:1px solid #fff6}
+.lab-room-start{width:100%;margin-bottom:4px}
+#nogl{z-index:0;padding-top:240px;padding-bottom:40px;line-height:1.5}
+@media(max-width:420px){.lab-nav a,.lab-nav button{font-size:12px;padding:7px 9px}.lab-dialog{padding:16px}.printer-art{height:190px}#prompt{font-size:15px}}
+</style>
+</head><body>
 <title>Mini Resin Lab</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -216,7 +233,7 @@ label.name{display:flex;flex-direction:column;gap:5px;font-size:13px}
 <aside id="saw" hidden><canvas id="sawC" width="160" height="160"></canvas><span>What you saw while pouring</span></aside>
 
 <div id="ui">
-  <header class="top">
+  <header class="top"><nav class="lab-nav" aria-label="Lab navigation"><a href="/">← My desk</a><button type="button" data-action="room" disabled>Lab room</button><button type="button" data-action="cast" disabled>Make a keycap →</button><button type="button" data-help-open>Help</button><button type="button" data-printer-open>3D printer · January</button></nav>
     <div class="brand">
       <h1>Mini Resin Lab</h1>
       <ol class="steps" id="steps"><li>Mix</li><li>Pour</li><li>Cure</li><li>Reveal</li></ol>
@@ -224,7 +241,7 @@ label.name{display:flex;flex-direction:column;gap:5px;font-size:13px}
     <p id="prompt" aria-live="polite"></p>
   </header>
   <footer class="tools">
-    <div id="tRoom" hidden>
+    <div id="tRoom" hidden><button type="button" id="roomStart" class="go lab-room-start">Make a resin keycap →</button>
       <div id="typed" aria-live="off"></div>
       <div class="kbtabs"><button id="kTopre">Topre</button><button id="kMx">Full-size MX</button><button id="kSound" class="mini">Sound on</button><button id="kReset" class="mini">Reset</button></div>
       <div id="sets"></div>
@@ -266,7 +283,7 @@ label.name{display:flex;flex-direction:column;gap:5px;font-size:13px}
 const $=id=>document.getElementById(id);
 const canvas=$('gl');
 const gl=canvas.getContext('webgl2',{antialias:true,alpha:false,powerPreference:'high-performance'});
-if(!gl){const d=document.createElement('div');d.id='nogl';d.textContent='This game needs WebGL 2, which this browser has turned off. Try the latest Safari, Chrome or Firefox.';document.body.appendChild(d);return}
+if(!gl){document.querySelector('.tools').hidden=true;const d=document.createElement('div');d.id='nogl';d.textContent='This game needs WebGL 2, which this browser has turned off. Try the latest Safari, Chrome or Firefox.';document.body.appendChild(d);return}
 const CALM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- shaders ---------- */
@@ -743,7 +760,7 @@ const SPELLS=['One part wake','One part sleep','Scrape the sides','Scrape the bo
 const NAME_A=['Static','Velvet','Liquid','Feral','Sugar','Neon','Slow','Lunar','Soft','Melted'];
 const NAME_B=['Bloom','Saint','Mirage','Hour','Tide','Ghost','Halo','Fever','Orchard','Lullaby'];
 function setStep(n){[...$('steps').children].forEach((li,i)=>li.classList.toggle('on',i===n))}
-const say=t=>{const e=$('prompt');if(e.textContent===t)return;e.textContent=t;e.classList.remove('in');void e.offsetWidth;e.classList.add('in')};
+const say=t=>{document.dispatchEvent(new Event('kwl-lab-state'));const e=$('prompt');if(e.textContent===t)return;e.textContent=t;e.classList.remove('in');void e.offsetWidth;e.classList.add('in')};
 function wipe(fn){if(S.wipeOn)return;S.wipeOn=true;S.wipeW=0;S.wipeFn=fn}
 function show(id){['tRoom','tLab','tFill','tFeed','tPour','tPeel','tReveal'].forEach(k=>{$(k).hidden=k!==id})}
 function rollEvents(){
@@ -1141,7 +1158,7 @@ function goRoom(){S.stage='room';$('room').hidden=false;$('enter').hidden=false;
   $('catBtn').hidden=false;catSay('');EV.cat='sit';requestAnimationFrame(layoutRoom);layoutRoom()}
 function shojiGo(fn){const s=$('shoji');s.hidden=false;void s.offsetWidth;s.classList.add('close');thockWood();setTimeout(()=>{fn();setTimeout(()=>{s.classList.remove('close');thockWood();setTimeout(()=>{s.hidden=true},560)},230)},CALM?120:520)}
 function thockWood(){const was=KB.type;KB.type='topre';thock(.45);KB.type=was}
-$('enter').onclick=()=>shojiGo(goLab);$('toRoom').onclick=()=>shojiGo(goRoom);
+$('roomStart').onclick=()=>shojiGo(()=>{goLab();goFill()});$('enter').onclick=()=>shojiGo(goLab);$('toRoom').onclick=()=>shojiGo(goRoom);
 $('toKb').onclick=()=>{const c=COLORS,pk=S.lastPicks||[0,1,2],nm=$('capName').value.trim()||'My pour';
   KB.mine.unshift({n:nm,a:c[pk[0]].c,m:c[pk[1]].c,x:c[pk[2]].c,l:legendOn(c[pk[0]].c),lm:legendOn(c[pk[1]].c),mine:true});KB.set.topre++;KB.set.mx++;KB.set[KB.type]=0;
   /* runs just after this frame's render, while the WebGL picture of the finished cap is still readable */
@@ -1346,10 +1363,98 @@ function frame(now){
     if(S.wipeW>=1)S.wipeOn=false;
   }
 if(capNext){const f=capNext;capNext=null;f()}}
-window.__lab={S,EV,KB,UFO,goPour,goRoom,goLab,get total(){return total},fill(pts,per){for(const[q,c]of pts){for(let i=0;i<per;i++){inject(q[0],q[1],.17,c);simStep(0,0)}}upload()},CAP,get simMs(){return simMs},stats:()=>{let c=0,m=0;for(let i=0;i<CELLS;i++){if(mask[i]){m++;if(cov[i]>.5)c++}}return{cov:c/m}}};
+window.__lab={S,EV,KB,UFO,goPour,goRoom,goLab,goFill,get total(){return total},fill(pts,per){for(const[q,c]of pts){for(let i=0;i<per;i++){inject(q[0],q[1],.17,c);simStep(0,0)}}upload()},CAP,get simMs(){return simMs},stats:()=>{let c=0,m=0;for(let i=0;i<CELLS;i++){if(mask[i]){m++;if(cov[i]>.5)c++}}return{cov:c/m}}};
 syncPalette();drawWinStatic();goRoom();
 requestAnimationFrame(frame);
 })();
 </script>
 
-<a href="/" id="kwlHome" aria-label="Back to Koala Walla Land" style="position:fixed;z-index:9999;left:0;top:50%;transform:translateY(-50%);padding:14px 7px;border-radius:0 10px 10px 0;color:#fff;background:rgba(18,6,29,.72);border:1px solid rgba(255,255,255,.35);border-left:0;font:700 14px/1 system-ui,sans-serif;text-decoration:none">&larr;</a><script>if(location.hash==='#desk')addEventListener('load',function(){setTimeout(function(){var e=document.getElementById('enter');if(e)e.click()},400)});</script><style>@media(max-width:700px){#kwlHome,#back{top:auto!important;bottom:10px!important;left:0!important;transform:none!important;padding:6px 3px!important;opacity:.85}}</style></body></html>
+<a href="/" id="kwlHome" aria-label="Back to Koala Walla Land" style="position:fixed;z-index:9999;left:0;top:50%;transform:translateY(-50%);padding:14px 7px;border-radius:0 10px 10px 0;color:#fff;background:rgba(18,6,29,.72);border:1px solid rgba(255,255,255,.35);border-left:0;font:700 14px/1 system-ui,sans-serif;text-decoration:none">&larr;</a><script>if(location.hash==='#desk')addEventListener('load',function(){setTimeout(function(){var e=document.getElementById('enter');if(e)e.click()},400)});</script><style>@media(max-width:700px){#kwlHome,#back{top:auto!important;bottom:10px!important;left:0!important;transform:none!important;padding:6px 3px!important;opacity:.85}}</style>
+<dialog id="labHelp" class="lab-dialog" aria-labelledby="labHelpTitle"><button type="button" class="dialog-close" data-close aria-label="Close help">×</button><h2 id="labHelpTitle">What do I do next?</h2><p id="labHelpText"></p><p>Mix → choose colors → pour → cure → demold.</p><button type="button" data-close class="next">Got it</button><a class="route" href="/">← Back to my desk</a></dialog>
+<dialog id="printerPreview" class="lab-dialog" aria-labelledby="printerTitle"><button type="button" class="dialog-close" data-close aria-label="Close printer preview">×</button><h2 id="printerTitle">The new printer</h2><span class="printer-tag">Violet Formlabs · arriving January</span><svg class="printer-art" role="img" aria-label="Illustrated Formlabs printer with a translucent orange hood and violet base" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 340" role="img" aria-label="Illustrated printer with an orange transparent hood and violet base">
+<defs><linearGradient id="hood" x1="0" x2="1"><stop stop-color="#ff9b12" stop-opacity=".85"/><stop offset=".3" stop-color="#f04a05" stop-opacity=".74"/><stop offset=".8" stop-color="#d6310b" stop-opacity=".82"/><stop offset="1" stop-color="#ff9700" stop-opacity=".93"/></linearGradient><linearGradient id="violet" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ac96e6"/><stop offset=".4" stop-color="#675096"/><stop offset="1" stop-color="#30204c"/></linearGradient><linearGradient id="shine"><stop stop-color="#fff" stop-opacity=".6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+<ellipse cx="140" cy="326" rx="112" ry="9" fill="#080414" opacity=".4"/>
+<rect x="28" y="18" width="224" height="300" rx="25" fill="#302339" stroke="#170e27" stroke-width="4"/>
+<g stroke="#68606e" stroke-width="7"><path d="M91 40v193M191 40v193"/></g><path d="M56 75h169v22H56z" fill="#13131c"/>
+<path d="M76 99h124v9H76z" fill="#d6b7ae"/><g fill="none" stroke="#d6b7ae" stroke-width="1.4"><path d="M100 108v63m-12-63 12 17 12-17m-24 17 12 17 12-17m-24 17 12 17 12-17m38-34v78m-12-78 12 17 12-17m-24 17 12 17 12-17m-24 17 12 17 12-17m-24 17 12 17 12-17"/></g>
+<path d="m91 168 10-5 13 6-3 16-14 3-9-8zm49 17 11-5 12 7-3 15-16 1-7-8z" fill="#b6a3af"/>
+<rect x="47" y="219" width="186" height="18" rx="3" fill="#15121c"/>
+<path d="M28 239V43q0-25 25-25h174q25 0 25 25v196z" fill="url(#hood)" stroke="#ed5811" stroke-width="3"/>
+<path d="M37 228V45q0-17 18-18h167" fill="none" stroke="#ffce66" stroke-width="4" opacity=".7"/>
+<path d="M45 37h26l-9 185H45z" fill="url(#shine)" opacity=".42"/>
+<path d="M28 239h224v55q0 24-25 24H53q-25 0-25-24z" fill="url(#violet)" stroke="#392754" stroke-width="3"/>
+<path d="M31 244h218M112 245v69" stroke="#c1b1e9" stroke-width="2" opacity=".65"/>
+<rect x="38" y="251" width="65" height="51" rx="4" fill="#5c4b87" stroke="#b39ee2"/>
+<g stroke="#8e7abb" stroke-width="3"><path d="M43 260h54m-54 8h54m-54 8h54m-54 8h54m-54 8h54"/></g>
+<rect x="126" y="251" width="110" height="52" rx="5" fill="#12191d" stroke="#8b7ab5" stroke-width="2"/>
+<path d="M139 263h28v27h-28zm0 0 9-6h28l-9 6m0 0 9-6v27l-9 6" fill="none" stroke="#a2ce87" stroke-width="1.4"/>
+<g fill="#bbd8b9"><rect x="184" y="261" width="41" height="3" rx="1"/><rect x="184" y="270" width="31" height="2" rx="1"/><rect x="184" y="277" width="37" height="2" rx="1"/><rect x="184" y="288" width="25" height="3" rx="1"/></g>
+<path d="M49 313h37m108 0h30" stroke="#d4c7f5" stroke-width="3" opacity=".6"/>
+</svg>
+<p class="printer-caption">A preview of the equipment on its way. Exact model unconfirmed.</p><ol class="preview-steps" aria-label="Preview workflow"><li>Print</li><li>Mold</li><li>Cast</li></ol><h3 id="printerStepTitle"></h3><p id="printerStepText" aria-live="polite"></p><button type="button" class="next" data-printer-next>Next</button><button type="button" class="next secondary" data-printer-cast disabled>Try making a resin keycap →</button></dialog>
+<dialog id="labLeave" class="lab-dialog" aria-labelledby="labLeaveTitle"><h2 id="labLeaveTitle">Leave this pour?</h2><p>This pour will not be saved. Finished caps you have already saved will stay in your collection.</p><button type="button" data-close class="next">Keep working on it</button><button type="button" data-leave-pour class="next secondary">Leave this pour</button></dialog>
+<script>// Plain-language navigation shared by both lab versions. It stays usable without WebGL.
+(() => {
+  const nav = document.querySelector('.lab-nav');
+  if (!nav) return;
+  const help = document.getElementById('labHelp'), printer = document.getElementById('printerPreview'), leave = document.getElementById('labLeave');
+  const helpText = document.getElementById('labHelpText');
+  const instructions = {
+    room: 'You are at the keyboard. Choose Make a keycap to start casting, or Lab room to explore the workbench.',
+    lab: 'You are at the workbench. Choose Make a keycap to begin. The printer button opens a preview of the equipment arriving in January.',
+    mix: 'Hold Part A, then Part B, until both reach the white line. Stir by drawing circles in the cup. Then choose three colors.',
+    pour: 'Hold on the mold to pour your selected color. Use the color buttons to switch. Choose Tilt to swirl it, then Cure when you are ready.',
+    pump: 'Hold the center of the screen to raise the pressure. Let go while the needle is in the highlighted zone.',
+    cure: 'Your cap is curing. Wait for the next step to appear.',
+    peel: 'Drag the demold wand upward to peel the silicone away from your cap.',
+    reveal: 'Drag to turn your cap. Name it and choose Put it on the keyboard, or Pour again for a fresh cast.',
+  };
+  const api = () => window.__lab;
+  const active = () => api() && !['room', 'lab'].includes(api().S.stage);
+  let pendingAction;
+  function route(action) {
+    const lab = api(); if (!lab) return;
+    lab.S.press = false; lab.S.hold = null; lab.S.wipeOn = false; lab.S.wipeFn = null;
+    ['cup', 'stream'].forEach(id => { document.getElementById(id).hidden = true; });
+    if (action === 'cast') { lab.goLab(); lab.goFill(); } else lab.goLab();
+    update();
+  }
+  function requestRoute(action) {
+    if (active()) { pendingAction = action; leave.showModal(); return; }
+    route(action);
+  }
+  function update() {
+    const lab = api();
+    nav.querySelectorAll('[data-action]').forEach(b => { b.disabled = !lab; });
+    helpText.textContent = lab ? instructions[lab.S.stage] || 'Follow the instruction at the top of the screen. Help is always here if you get stuck.' : 'Casting needs WebGL 2, which is unavailable in this browser. You can still explore the printer preview, or use My desk to go back.';
+    document.querySelector('[data-printer-cast]').disabled = !lab;
+  }
+  nav.addEventListener('click', e => {
+    const action = e.target.closest('[data-action]')?.dataset.action;
+    if (action) requestRoute(action);
+  });
+  document.querySelector('[data-help-open]').addEventListener('click', () => { update(); help.showModal(); });
+  document.querySelector('[data-printer-open]').addEventListener('click', () => { showStep(0); printer.showModal(); });
+  document.querySelectorAll('.lab-dialog [data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+  [help, printer, leave].forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
+  document.querySelector('[data-leave-pour]').addEventListener('click', () => { leave.close(); route(pendingAction); });
+  const steps = [
+    ['1 · Print a master', 'A printed master gives the sculpt its shape. This is a preview of the future workflow; the new printer arrives in January.', 'Next: make the mold'],
+    ['2 · Make a silicone mold', 'The master makes an impression in silicone. Once the mold is ready, resin can take its shape.', 'Next: cast the keycap'],
+    ['3 · Cast a resin cap', 'Mix the resin, pour your colors, cure, then demold. Try the resin casting game next.', 'Back to the printer'],
+  ];
+  let step = 0;
+  function showStep(n) {
+    step = n;
+    document.getElementById('printerStepTitle').textContent = steps[n][0];
+    document.getElementById('printerStepText').textContent = steps[n][1];
+    document.querySelector('[data-printer-next]').textContent = steps[n][2];
+    printer.querySelectorAll('.preview-steps li').forEach((li,i) => { if (i === n) li.setAttribute('aria-current','step'); else li.removeAttribute('aria-current'); });
+  }
+  document.querySelector('[data-printer-next]').addEventListener('click', () => showStep((step + 1) % 3));
+  document.querySelector('[data-printer-cast]').addEventListener('click', () => { printer.close(); requestRoute('cast'); });
+  document.addEventListener('kwl-lab-state', update);
+  update();
+})();
+</script>
+</body></html>

@@ -1,4 +1,5 @@
 ---
+import VisitCounter from './VisitCounter.astro';
 // The room from across it: shoji, monitors, the lamp on the matcha board,
 // a working pour-over and the notebook that holds the blog.
 interface Props { posts: { id: string; title: string; date: string }[]; }
@@ -19,8 +20,14 @@ const { posts } = Astro.props;
 
     <div class="deskback" aria-hidden="true"></div>
 
+    <svg class="monitor-mounts" viewBox="0 0 100 125" preserveAspectRatio="none" aria-hidden="true">
+      <defs><linearGradient id="dsMount"><stop stop-color="#756c82"/><stop offset=".45" stop-color="#e4dfea"/><stop offset="1" stop-color="#857c93"/></linearGradient></defs>
+      <g fill="none" stroke="#130b1d" stroke-width="1.8" stroke-linejoin="round"><path d="M35.5 39.5H48V79M66 41.25V79"/></g>
+      <g fill="none" stroke="url(#dsMount)" stroke-width=".8" stroke-linejoin="round"><path d="M35.5 39.5H48V79M66 41.25V79"/></g>
+      <g fill="#b4aabe" stroke="#675c76" stroke-width=".25"><ellipse cx="48" cy="79" rx="2.5" ry=".55"/><ellipse cx="66" cy="79" rx="2.5" ry=".55"/></g>
+    </svg>
     <a class="mon m-up" href="/works/opening-nov-4/" aria-label="Monitor showing a cat: earlier version of this page"><span class="scr"><video autoplay loop muted playsinline poster="/cat-poster.webp" tabindex="-1"><source src="/cat.webm" type="video/webm" /><source src="/cat.mp4" type="video/mp4" /></video></span></a>
-    <a class="mon m-cym" href="/works/cymatic-field/" aria-label="Monitor showing a cymatic pattern: open the cymatic field"><span class="scr"><canvas data-cym width="96" height="64"></canvas></span></a>
+    <a class="mon m-cym" href="/works/cymatic-field/" aria-label="Monitor showing a cymatic pattern: open the cymatic field"><span class="scr"><canvas data-cym width="240" height="160"></canvas></span></a>
     <a class="mon m-lab" href="/lab/" aria-label="Monitor showing swirling resin: open the resin lab"><span class="scr swirl"></span></a>
     <a class="mon m-wall" href="/wall/" aria-label="Monitor showing graffiti: open the graffiti wall"><span class="scr tag"><svg viewBox="0 0 60 100" aria-hidden="true"><path d="M6 34q8-26 16-8q6 14 13-11q5-12 18 3" fill="none" stroke="#ff7ab8" stroke-width="5" stroke-linecap="round"/><path d="M7 54q14-8 44-3" fill="none" stroke="#58d8f5" stroke-width="4" stroke-linecap="round"/><path d="M11 76c5-9 13 2 7 7c-6-5 2-15 7-7M33 69l6 13l6-13" fill="none" stroke="#d8ff3e" stroke-width="3.500" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>
     <button type="button" class="mon m-live" data-pocket aria-label="Monitor showing an equalizer: open the live beat pocket"><span class="scr eq"><i></i><i></i><i></i><i></i><i></i><i></i></span></button>
@@ -37,7 +44,7 @@ const { posts } = Astro.props;
         </defs>
         <rect x="10" y="3" width="40" height="52" rx="2" fill="url(#dsShade)"/>
         <path d="M14 3v52M18 3v52M22 3v52M26 3v52M30 3v52M34 3v52M38 3v52M42 3v52M46 3v52" stroke="#d99c55" stroke-width=".8" opacity=".55"/>
-        <path d="M26 55h8q1 16 5 30q6 18 3 32H18q-3-14 3-32q4-14 5-30z" fill="url(#dsGloss)"/>
+        <path d="M26 55h8q1 16 5 30q6 18 3 32H18q-3-14 3-32q4-14 5-30z" fill="url(#dsGloss)"/><ellipse cx="30" cy="117" rx="17" ry="2" fill="#d9cdbf"/>
       </svg>
     </button>
 
@@ -46,6 +53,7 @@ const { posts } = Astro.props;
 
     <button type="button" class="book" data-book aria-label="Midori notebook. Open it to read the blog."><span class="cover"></span></button>
 
+    <VisitCounter />
     <div class="pour" data-pour>
       <svg viewBox="-16 20 336 290">
         <defs>
@@ -62,7 +70,7 @@ const { posts } = Astro.props;
           <clipPath id="dsBody"><path d="M31 170C28 205 14 245 6 268Q3 284 20 284H78Q95 284 92 268C84 245 70 205 67 170Z"/></clipPath>
         </defs>
         <g aria-hidden="true" fill="#0d0612" opacity=".55" filter="url(#dsSoft)">
-          <ellipse cx="46" cy="300" rx="66" ry="7"/><ellipse cx="176" cy="292" rx="52" ry="6"/><ellipse cx="278" cy="295" rx="30" ry="5"/>
+          <ellipse cx="46" cy="300" rx="66" ry="7"/><ellipse cx="176" cy="292" rx="52" ry="6"/><ellipse data-cup-shadow cx="242" cy="341" rx="25" ry="5"/>
         </g>
         <g transform="translate(26 0)">
           <!-- carafe -->
@@ -85,7 +93,7 @@ const { posts } = Astro.props;
           <!-- stream from the kettle spout -->
           <path data-stream d="M134 98C142 99 150 106 150 124" fill="none" stroke="#c9eeff" stroke-width="3.500" stroke-linecap="round" opacity="0"/>
           <!-- tumbler -->
-          <g class="hit" data-cup role="button" tabindex="0" aria-label="Almond rose tumbler. Take a sip.">
+          <g class="hit tumbler" data-cup role="button" tabindex="0" transform="translate(-36 48)" aria-pressed="false" aria-label="Almond rose tumbler. Lift it, then tap again to sip and set it down.">
             <rect x="216" y="190" width="72" height="106" fill="transparent"/>
             <g clip-path="url(#dsCup)"><rect data-cupfill x="222" y="292" width="60" height="0" fill="#6a3417"/></g>
             <path d="M226 216h52l-4 68q-1 8-10 8h-24q-9 0-10-8z" fill="url(#dsRose)" fill-opacity=".5" stroke="#f6dcd5" stroke-width="2.500"/>
@@ -121,6 +129,7 @@ const { posts } = Astro.props;
       </svg>
     </div>
   </div>
+  <button type="button" class="desk-sound" data-desk-sound aria-pressed="true">Desk sound on</button>
   <p class="said" data-said aria-live="polite">Hold the kettle to pour. Tap the notebook for the blog.</p>
   <nav class="rooms" aria-label="More rooms">
     <a href="/lab/">Resin lab</a><a href="/desk/">Koala's desk</a><a href="/wall/">Graffiti wall</a><a href="/shop/">Shop</a><a href="/works/">Experiments</a>
@@ -200,16 +209,18 @@ const { posts } = Astro.props;
 
   /* monitors */
   .mon { z-index: 2; display: block; padding: .55cqw; border: 0; background: linear-gradient(160deg, #e9e4f3, #a79fb9); border-radius: 1cqw; box-shadow: 0 1.2cqw 2cqw rgba(0,0,0,.55); cursor: pointer; }
-  .mon::after { content: ''; position: absolute; left: 44%; right: 44%; top: 100%; height: 2.4cqw; background: linear-gradient(90deg, #8f879f, #d6d0e1, #8f879f); }
+  .monitor-mounts { z-index: 1; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .mon::before { content: ""; position: absolute; left: 30%; right: 30%; top: calc(100% + 8cqw); height: 1.1cqw; border-radius: 50%; background: linear-gradient(#d6d0e1, #786d8c); box-shadow: 0 .5cqw .6cqw #12091dcc; }
+  .mon::after { content: ''; position: absolute; left: 44%; right: 44%; top: 100%; height: 8.5cqw; background: linear-gradient(90deg, #8f879f, #d6d0e1, #8f879f); }
   .scr { position: relative; display: block; width: 100%; height: 100%; overflow: hidden; background: #08040f; border-radius: .5cqw; }
   .scr > video, .scr > canvas, .scr > svg { display: block; width: 100%; height: 100%; object-fit: cover; }
   .m-up { left: 25%; top: 21%; width: 21%; height: 11%; }
-  .m-up::after { display: none; }
+  .m-up::after, .m-up::before { display: none; }
   .m-cym { left: 18%; top: 33%; width: 33%; height: 22%; }
   .m-lab { left: 53%; top: 36%; width: 25%; height: 19%; }
   .m-wall { left: 80%; top: 28%; width: 13%; height: 27%; }
   .m-live { left: 57%; top: 22%; width: 18%; height: 11%; }
-  .m-live::after { display: none; }
+  .m-live::after, .m-live::before { display: none; }
   .swirl { background: conic-gradient(from 0deg, #ff7ab8, #ffd6a8, #7fe7ff, #b6a8ff, #d8ff3e, #ff7ab8); }
   .swirl::after { content: ''; position: absolute; inset: 22%; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #ffc4e0 30%, #ff5fb0 70%, #8f1e70); box-shadow: 0 0 3cqw #fff8; }
   .tag { background: linear-gradient(#332a3e 1px, transparent 1px) 0 0 / 100% 12%, #211a2b; }
@@ -219,7 +230,8 @@ const { posts } = Astro.props;
   @keyframes eq { from { transform: scaleY(.3); } to { transform: scaleY(1); } }
 
   /* lamp */
-  .lamp { z-index: 3; left: 2.5%; top: 31%; width: 13%; height: 33%; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(0 0 3.4cqw rgba(255,200,120,.95)); transition: filter .35s; }
+  .lamp { z-index: 3; left: 7%; bottom: 31%; width: 12%; aspect-ratio: 1 / 2; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(0 0 3.4cqw rgba(255,200,120,.95)); transition: filter .35s; }
+  .lamp::after { content: ""; position: absolute; left: 15%; right: 15%; bottom: -1%; height: 3%; border-radius: 50%; background: #1d1024; filter: blur(.3cqw); z-index: -1; }
   .lamp svg { display: block; width: 100%; height: 100%; }
   .stage.dark .lamp { filter: brightness(.42); }
   .stage.dark .pool { opacity: 0; }
@@ -255,6 +267,9 @@ const { posts } = Astro.props;
   .pour :global(.kettle) { touch-action: none; transform-box: view-box; transform-origin: 49px 240px; transition: transform .45s cubic-bezier(.3,.9,.3,1); }
   .pour :global(.kettle:focus-visible path), .pour :global(.hit:focus-visible path) { stroke: #fff; stroke-width: 4; }
   .pour :global(.pouring) { transform: translate(7px, -102px) rotate(30deg); }
+  .tumbler { touch-action: none; cursor: grab !important; }
+  .tumbler.lifted { cursor: grabbing !important; filter: drop-shadow(0 8px 5px #150a2866); }
+  .desk-sound { margin-top: .65rem; padding: .3rem .65rem; border: 1px solid #b8a3c3; border-radius: 1rem; font: inherit; font-size: .75rem; color: var(--ink); background: #24162e; cursor: pointer; }
   .steam { animation: steam 3s ease-in-out infinite; }
   @keyframes steam { 50% { transform: translateY(-5px); } }
 
@@ -281,6 +296,7 @@ const { posts } = Astro.props;
 </style>
 
 <script>
+  import { deskAudio } from '../scripts/desk-audio';
   const scene = document.querySelector('[data-scene]') as HTMLElement;
   const stage = scene.querySelector('[data-stage]') as HTMLElement;
   const said = scene.querySelector('[data-said]') as HTMLElement;
@@ -289,16 +305,27 @@ const { posts } = Astro.props;
   let onScreen = true;
   new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; if (onScreen) wake(); }).observe(stage);
 
+  let soundEnabled = true;
+  const audio = deskAudio(() => soundEnabled && (window as any).KWLKeys?.on !== false);
+  const soundButton = q<HTMLButtonElement>('[data-desk-sound]');
+  soundButton.addEventListener('click', () => {
+    soundEnabled = !soundEnabled;
+    soundButton.setAttribute('aria-pressed', String(soundEnabled));
+    soundButton.textContent = soundEnabled ? 'Desk sound on' : 'Desk sound off';
+    if (!soundEnabled) audio.stopPour(); else audio.tap('switch');
+  });
+  addEventListener('pagehide', () => audio.close());
   /* lamp */
   const lamp = q<HTMLElement>('[data-lamp]');
   lamp.addEventListener('click', () => {
+    audio.tap('switch');
     const dark = stage.classList.toggle('dark');
     lamp.setAttribute('aria-pressed', String(!dark));
   });
 
   /* notebook */
   const spread = q<HTMLDialogElement>('[data-spread]');
-  q('[data-book]').addEventListener('click', () => spread.showModal());
+  q('[data-book]').addEventListener('click', () => { audio.tap('paper'); spread.showModal(); });
   spread.addEventListener('click', (e) => { if (e.target === spread) spread.close(); });
 
   /* bulletin board */
@@ -358,9 +385,9 @@ const { posts } = Astro.props;
   const startPour = () => {
     if (pouring) return;
     if (coffee >= .98) { tell('The carafe is full. Tap it to pour a cup.'); return; }
-    pouring = true; pourStart = performance.now(); kettle.classList.add('pouring'); wake();
+    audio.tap('lift'); audio.startPour(); pouring = true; pourStart = performance.now(); kettle.classList.add('pouring'); wake();
   };
-  const stopPour = () => { if (!pouring) return; pouring = false; kettle.classList.remove('pouring'); streamEl.setAttribute('opacity', '0'); wake(); };
+  const stopPour = () => { if (!pouring) return; pouring = false; audio.stopPour(); audio.tap('glass'); kettle.classList.remove('pouring'); streamEl.setAttribute('opacity', '0'); wake(); };
   kettle.addEventListener('pointerdown', (e) => { e.preventDefault(); kettle.setPointerCapture(e.pointerId); startPour(); });
   kettle.addEventListener('pointerup', stopPour);
   kettle.addEventListener('pointercancel', stopPour);
@@ -374,16 +401,55 @@ const { posts } = Astro.props;
     if (coffee < .15) { tell('The carafe is empty. Hold the kettle to brew.'); return; }
     if (cup > .95) { tell('The cup is full. Tap it to take a sip.'); return; }
     const move = Math.min(coffee, Math.max(0, 1 - cup) * .5);
+    audio.tap('glass');
     coffee -= move; cup = Math.min(1, cup + move * 2);
     tell('Poured. Tap the cup to take a sip.'); wake();
   });
-  activate(q('[data-cup]'), () => {
+  const sip = () => {
+    audio.tap('sip');
     if (cup <= 0) { tell(coffee > .15 ? 'Tap the carafe to pour a cup.' : 'Nothing in the cup yet.'); return; }
     cup = Math.max(0, cup - .25);
     if (cup === 0) { tell(coffee > .15 ? 'All gone. There’s more in the carafe.' : 'All gone. Hold the kettle to make more.'); if (coffee <= .15) { coffee = 0; bloomed = false; } }
     else tell('Mmm.');
     wake();
+  };
+  // Pointer coordinates are converted through the SVG matrix, so lifting works at every scene size.
+  const tumbler = q<SVGGElement>('[data-cup]');
+  let cupX = -36, cupY = 48, lifted = false;
+  let grab: { id: number; x: number; y: number; startX: number; startY: number; moved: boolean } | null = null;
+  function positionCup() { q('[data-cup-shadow]').setAttribute('cx', String(278 + cupX)); q('[data-cup-shadow]').setAttribute('cy', String(293 + cupY)); tumbler.setAttribute('transform', `translate(${cupX} ${cupY - (lifted ? 40 : 0)})`); tumbler.classList.toggle('lifted', lifted); tumbler.setAttribute('aria-pressed', String(lifted)); }
+  function liftCup() { lifted = true; audio.tap('lift'); positionCup(); tell('Cup lifted. Drag it across the desk, or tap again to sip and set it down.'); }
+  function setCup() { if (cup > 0) sip(); lifted = false; positionCup(); audio.tap('glass'); }
+  const point = (e: PointerEvent) => {
+    const svg = tumbler.ownerSVGElement!, pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+    return pt.matrixTransform(svg.getScreenCTM()!.inverse());
+  };
+  tumbler.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault(); const p = point(e); tumbler.setPointerCapture(e.pointerId);
+    grab = { id: e.pointerId, x: p.x, y: p.y, startX: cupX, startY: cupY, moved: false };
   });
+  tumbler.addEventListener('pointermove', (e) => {
+    if (!grab || grab.id !== e.pointerId) return;
+    const p = point(e), dx = p.x - grab.x, dy = p.y - grab.y;
+    if (Math.hypot(dx, dy) > 5 && !grab.moved) { grab.moved = true; if (!lifted) liftCup(); }
+    if (grab.moved) { cupX = Math.max(-110, Math.min(-24, grab.startX + dx)); cupY = Math.max(36, Math.min(108, grab.startY + dy)); positionCup(); }
+  });
+  tumbler.addEventListener('pointerup', (e) => {
+    if (!grab || grab.id !== e.pointerId) return;
+    const moved = grab.moved; grab = null;
+    if (moved) { lifted = false; positionCup(); audio.tap('glass'); } else if (lifted) setCup(); else liftCup();
+  });
+  const cancelCup = () => { grab = null; lifted = false; positionCup(); };
+  tumbler.addEventListener('pointercancel', cancelCup);
+  tumbler.addEventListener('lostpointercapture', () => { if (grab) cancelCup(); });
+  tumbler.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { e.preventDefault(); cancelCup(); }
+    if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); if (lifted) setCup(); else liftCup(); }
+  });
+  tumbler.addEventListener('blur', cancelCup);
+  addEventListener('blur', () => { stopPour(); cancelCup(); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { stopPour(); cancelCup(); } });
   function drawPour(now: number) {
     if (pouring && now - pourStart > 380) { streamEl.setAttribute('opacity', '1'); water = Math.min(1, water + .0075); }
     if (water >= 1 && pouring) { stopPour(); tell('Let it drain, then pour again.'); }
@@ -411,7 +477,11 @@ const { posts } = Astro.props;
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
       const u = (x / w) * Math.PI, v = (y / h) * Math.PI;
       const a = Math.abs(Math.cos(n * u) * Math.cos(m * v) - Math.cos(m * u) * Math.cos(n * v));
-      const l = Math.max(0, 1 - a * 3.4), i = (y * w + x) * 4;
+      const dx = (x / w - .5) * 2, dy = (y / h - .5) * 2;
+      const radius = Math.hypot(dx, dy), theta = Math.atan2(dy, dx);
+      const petals = Math.abs(Math.sin(radius * 19 - .7 * Math.cos(theta * 8)) * Math.cos(theta * 6));
+      const lace = Math.exp(-petals * 18) * Math.max(0, 1 - radius * .62);
+      const l = Math.min(1, Math.max(Math.exp(-a * 19) * .55, lace)), i = (y * w + x) * 4;
       img.data[i] = 18 + 237 * l; img.data[i + 1] = 8 + 150 * l * l; img.data[i + 2] = 40 + 195 * l; img.data[i + 3] = 255;
     }
     cg.putImageData(img, 0, 0);
