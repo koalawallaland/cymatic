@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>live field</title>
+<title>Music station</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
@@ -76,13 +76,17 @@ h2 { margin: 0 0 8px; font: 400 12px/1 var(--display); letter-spacing: .1em; col
 .ref { color: var(--muted); font-size: 12px; line-height: 1.7; }
 .ref code { color: var(--cyan); }
 @media (prefers-reduced-motion: reduce) { h1 { text-shadow: none; } }
+
+/* Play first; notation stays available in the studio drawer. */
+.wrap{max-width:720px}.stage{aspect-ratio:21/8}button,select{min-height:44px}.playroom{display:grid;gap:12px}.toy-panel{padding:12px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(140deg,#21142d,#111126)}.toy-panel h2{font:600 15px/1.3 var(--mono);letter-spacing:0;color:var(--ink);margin:0 0 9px}.toy-panel p{margin:5px 0;color:var(--muted);font-size:12px}.scene-picks,.toy-tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.scene-picks button[aria-pressed="true"],#backing[aria-pressed="true"]{border-color:var(--lime);color:var(--lime)}.pads{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pad{border-radius:14px;min-height:66px;padding:8px;background:linear-gradient(160deg,#f6c8e8,#b9a6ff);color:#20102b;border:1px solid #fff7;font-size:17px;touch-action:manipulation}.pad small{display:block;font-size:10px;margin-top:6px;color:#412b58}.pad:nth-child(2n){background:linear-gradient(140deg,#b8f6e7,#72c8dd)}.pad:nth-child(3n){background:linear-gradient(140deg,#edffb3,#b7cf71)}.pad.hit,.toy-key.hit{transform:translateY(2px);box-shadow:inset 0 3px 10px #24133255}.melody{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:10px}.toy-key{min-width:0;border-radius:8px 8px 12px 12px;height:76px;min-height:44px;padding:5px 0;background:#f9e8f6;color:#40254e;border-bottom:5px solid #c49cc7;font:700 14px/1 var(--mono);touch-action:manipulation}.toy-key:nth-child(3n){background:#cfe5a7;border-color:#93ad70}.toy-key:nth-child(2n){background:#c9ddf4;border-color:#8d9fbf}.toy-tools label{display:flex;align-items:center;gap:7px;font-size:12px}#volume{width:86px;accent-color:var(--pink)}#record[aria-pressed="true"]{color:#160b20;background:var(--pink)}#record{border-color:var(--pink);color:var(--pink)}#recordProgress{width:100%;height:6px;accent-color:var(--pink)}.builder{display:grid;gap:6px}.buildrow{display:grid;grid-template-columns:44px repeat(8,minmax(0,1fr));gap:4px;align-items:center}.buildrow span{font-size:11px;color:var(--muted)}.beat-cell{height:36px;min-height:36px;min-width:0;padding:0;border-radius:7px;background:#0b0916}.beat-cell[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:#160b20}.beat-cell.head{outline:2px solid #fff;outline-offset:-3px}.studio{border-top:1px solid var(--line);padding-top:12px}.studio>summary{cursor:pointer;color:var(--lilac);padding:8px 0}.studio .editor{margin-top:12px}.record-status{min-height:2.8em}#toyStatus{color:var(--ink)}.controls #update,.controls #preset{display:none}.controls .bpm input{width:90px}.toy-tools .quiet{border:0;padding-inline:3px;text-decoration:underline}.hud{font-size:10px}.tag{letter-spacing:0;text-transform:none}.toy-tools select{max-width:150px}button[disabled]{opacity:.45;cursor:default}@media(prefers-reduced-motion:reduce){.pad.hit,.toy-key.hit{transform:none}}@media(min-width:650px){.playroom{grid-template-columns:1fr 1fr}.toy-wide{grid-column:1/-1}.pads{gap:10px}.pad{min-height:72px}}
+
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>live field ʕ•ᴥ•ʔ♪</h1>
-    <span class="tag">type a beat · the sand dances to it</span>
+    <h1>music station ʕ•ᴥ•ʔ♪</h1>
+    <span class="tag">tap · play · make a little loop</span>
   </header>
 
   <div class="grid">
@@ -95,7 +99,7 @@ h2 { margin: 0 0 8px; font: 400 12px/1 var(--display); letter-spacing: .1em; col
 
     <div class="panel" style="display:grid;gap:10px">
       <div class="controls">
-        <button id="play" aria-pressed="false">▶ play</button>
+        <button id="play" aria-pressed="false">▶ Play loop</button>
         <button id="update" title="Ctrl or Cmd + Enter">update</button>
         <select id="preset" aria-label="Load a sample pattern">
           <option value="toast">milk toast</option>
@@ -104,6 +108,14 @@ h2 { margin: 0 0 8px; font: 400 12px/1 var(--display); letter-spacing: .1em; col
         </select>
         <label class="bpm" for="bpm">bpm <input id="bpm" type="range" min="70" max="170" value="124"><output id="bpmOut">124</output></label>
       </div>
+      <div class="scene-picks" aria-label="Backing scenes"><button type="button" data-scene="toast" aria-pressed="true">Warm</button><button type="button" data-scene="drip" aria-pressed="false">Gooey</button><button type="button" data-scene="rain" aria-pressed="false">Sparkle</button><button type="button" id="surprise">Surprise me ✧</button></div>
+      <div class="playroom">
+        <section class="toy-panel"><h2>Tap a sound</h2><div class="pads" id="pads"></div></section>
+        <section class="toy-panel"><h2>Little keys</h2><div class="toy-tools"><label>Sound <select id="instrument"><option value="bells">Bells</option><option value="bubbles">Bubbles</option><option value="arcade">Arcade</option></select></label><label>Volume <input id="volume" type="range" min="0" max="80" value="55" aria-label="Music volume"></label></div><div class="melody" id="melody"></div><p>Try A S D F G H J K on a keyboard, too.</p></section>
+        <section class="toy-panel toy-wide"><h2>Your two-bar loop</h2><div class="toy-tools"><button type="button" id="record" aria-pressed="false">● Record my sounds</button><button type="button" id="undoJam">Undo last note</button><button type="button" id="clearJam">Clear my sounds</button><button type="button" id="backing" aria-pressed="true">Backing music on</button></div><progress id="recordProgress" max="16" value="0" aria-label="Recording progress"></progress><p id="toyStatus" class="record-status" aria-live="polite">Tap the pads or keys. Record a loop when you’re ready.</p></section>
+        <section class="toy-panel toy-wide"><h2>Build a beat</h2><p>Tap squares to add your own repeating drums.</p><div class="builder" id="builder"></div></section>
+      </div>
+      <details class="studio"><summary>Pattern code &amp; advanced studio</summary>
       <div class="editor">
         <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Pattern code"></textarea>
         <p class="hint">Edit any line, then tap update (or Ctrl/Cmd + Enter). Delete a line to mute it.</p>
@@ -114,12 +126,14 @@ h2 { margin: 0 0 8px; font: 400 12px/1 var(--display); letter-spacing: .1em; col
         <div class="steps" id="steps"></div>
         <div class="notes" id="noteRows"></div>
       </div>
+      <button type="button" id="applyCode">Update pattern code</button>
       <details class="ref">
         <summary>how to write patterns</summary>
         <p><code>s("bd*4")</code> four kicks a bar. Drums: <code>bd</code> <code>sd</code> <code>cp</code> <code>hh</code> <code>oh</code> <code>rim</code>.<br>
         <code>~</code> is a rest. <code>[a b]</code> squeezes into one step. <code>&lt;a b&gt;</code> takes turns each bar. <code>x*2</code> repeats, <code>x!2</code> copies.<br>
         <code>note("g2 eb2")</code> plays notes; <code>chord("&lt;Cm Ab&gt;")</code> plays chords.<br>
         Add <code>.s("saw")</code> (saw, square, tri, sine, supersaw), <code>.lpf(1200)</code>, <code>.gain(.5)</code>, <code>.room(.4)</code>.</p>
+      </details>
       </details>
     </div>
   </div>
@@ -258,7 +272,7 @@ let ac = null, out, verb, noiseBuf;
 function initAudio() {
   ac = new (window.AudioContext || window.webkitAudioContext)();
   const comp = ac.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4;
-  out = ac.createGain(); out.gain.value = .8; out.connect(comp); comp.connect(ac.destination);
+  out = ac.createGain(); out.gain.value = .55; out.connect(comp); comp.connect(ac.destination);
   noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
   const ir = ac.createBuffer(2, ac.sampleRate * 2.2, ac.sampleRate);
   for (let c = 0; c < 2; c++) { const x = ir.getChannelData(c); for (let i = 0; i < x.length; i++) x[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / x.length, 3); }
@@ -266,7 +280,8 @@ function initAudio() {
 }
 function voiceOut(tr) {
   const g = ac.createGain(); g.gain.value = tr.gain; g.connect(out);
-  if (tr.room > 0) { const s = ac.createGain(); s.gain.value = tr.room; g.connect(s); s.connect(verb); }
+  setTimeout(() => g.disconnect(), 7000);
+  if (tr.room > 0) { const s = ac.createGain(); s.gain.value = tr.room; g.connect(s); s.connect(verb); setTimeout(() => s.disconnect(), 7000); }
   return g;
 }
 function noise(t, dur, type, freq, q, peak, dest) {
@@ -310,6 +325,85 @@ function tone(midis, t, dur, tr, dest) {
   }));
 }
 
+
+/* ---------- hands-on playroom ---------- */
+const TOY_SAVE = 'kwl-music-playroom-v1';
+const PAD_DEFS = [['bd','Boom','kick · 1'],['sd','Snare','snare · 2'],['cp','Clap','clap · 3'],['hh','Tick','hi-hat · 4'],['oh','Sizzle','open hat · 5'],['rim','Pop','rim · 6']];
+const BANKS = { bells:{wave:'tri',lpf:6500,gain:.6,room:.45}, bubbles:{wave:'sine',lpf:1800,gain:.85,room:.2}, arcade:{wave:'square',lpf:2400,gain:.35,room:.12} };
+let toySaved = null; try { toySaved = JSON.parse(localStorage.getItem(TOY_SAVE)||'null'); } catch {}
+let toyScene = Object.hasOwn(PRESETS,toySaved?.scene) ? toySaved.scene : 'toast';
+let bank = Object.hasOwn(BANKS,toySaved?.bank) ? toySaved.bank : 'bells';
+let backing = toySaved?.backing !== false, recording = false, recordOrigin = 0, jamOrigin = 0, lastRecordBar = -1;
+let toyTape = Array.isArray(toySaved?.tape) ? toySaved.tape.filter(e => Number.isInteger(e.beat)&&e.beat>=0&&e.beat<16&&((e.kind==='drum'&&DRUMS.includes(e.value))||(e.kind==='note'&&Number.isInteger(e.value)&&e.value>=36&&e.value<=100&&Object.hasOwn(BANKS,e.bank)))).slice(0,128) : [];
+const beatRows = ['bd','cp','hh','rim'];
+let beatGrid = beatRows.map((_,i)=>Array.from({length:8},(_,j)=>toySaved?.grid?.[i]?.[j]===true));
+let volume = Number.isFinite(toySaved?.volume) ? Math.max(0,Math.min(.8,toySaved.volume)) : .55;
+const toyVisuals = []; let beatButtons = [], previousHead=-1;
+function saveToy() {
+  let saved = true;
+  try { localStorage.setItem(TOY_SAVE,JSON.stringify({scene:toyScene,bank,backing,tape:toyTape,grid:beatGrid,volume,bpm})); }
+  catch { saved=false; $('toyStatus').textContent='You can keep playing, but this browser could not save the loop.'; }
+  $('undoJam').disabled=!toyTape.length; return saved;
+}
+function toySay(text){ $('toyStatus').textContent=text; }
+async function wakeToy(){ if(!ac)initAudio();await ac.resume();out.gain.setTargetAtTime(volume,ac.currentTime,.01); }
+function toyVisual(e){
+  glow=Math.min(1,glow+.35);
+  if(e.kind==='drum'){ tint=COLS[e.value]||tint;if(e.value==='bd')shake=Math.min(1,shake+(calm ? .15 : .6)); }
+  else {setPitch(e.value);$('noteOut').textContent=midiName(e.value);}
+}
+function toySound(e,t){
+  const profile=e.kind==='drum'?{gain:.55,room:.12}:BANKS[e.bank]||BANKS.bells;
+  const dest=voiceOut(profile);
+  if(e.kind==='drum')drum(e.value,t,dest);else tone([e.value],t,e.bank === 'bubbles' ? .16 : .35,profile,dest);
+}
+async function toyHit(e,button){
+  try{await wakeToy();}catch{toySay('Tap Play to turn the sound on.');return;}
+  toySound(e,ac.currentTime+.008);toyVisual(e);
+  if(button){button.classList.add('hit');setTimeout(()=>button.classList.remove('hit'),160);}
+  if(recording){const pos=Math.max(0,(ac.currentTime-t0)*cps()-recordOrigin);if(pos<2&&toyTape.length<128)toyTape.push({...e,beat:Math.min(15,Math.round(pos*8))});}
+}
+function bindToy(button,e){button.addEventListener('pointerdown',event=>{if(event.button!==0)return;event.preventDefault();void toyHit(typeof e==='function'?e():e,button);});button.addEventListener('click',event=>{if(event.detail===0)void toyHit(typeof e==='function'?e():e,button);});}
+function renderToyKeys(){
+  $('melody').replaceChildren();const root=toyScene==='rain'?64:60;
+  [0,3,5,7,10,12,15,17].forEach((offset,i)=>{const value=root+offset,b=document.createElement('button');b.type='button';b.className='toy-key';b.textContent=['♪','♬','✧','♪','✦','♬','✧','♪'][i];b.setAttribute('aria-label',`Play ${midiName(value)}`);bindToy(b,()=>({kind:'note',value,bank}));$('melody').append(b);});
+}
+function renderBuilder(){
+  $('builder').replaceChildren();beatButtons=[];
+  beatRows.forEach((value,i)=>{const row=document.createElement('div');row.className='buildrow';row.style.setProperty('--c',['var(--pink)','var(--cyan)','var(--lime)','var(--lilac)'][i]);const name=document.createElement('span');name.textContent=['Boom','Clap','Tick','Pop'][i];row.append(name);const buttons=[];
+    for(let j=0;j<8;j++){const b=document.createElement('button');b.type='button';b.className='beat-cell';b.setAttribute('aria-label',`${name.textContent} step ${j+1}`);b.setAttribute('aria-pressed',String(beatGrid[i][j]));b.addEventListener('click',async()=>{beatGrid[i][j]=!beatGrid[i][j];b.setAttribute('aria-pressed',String(beatGrid[i][j]));saveToy();await wakeToy();if(!playing)start();if(beatGrid[i][j]){toySound({kind:'drum',value},ac.currentTime+.008);toyVisual({kind:'drum',value});}});row.append(b);buttons.push(b);}beatButtons.push(buttons);$('builder').append(row);
+  }); previousHead=-1;
+}
+function finishRecord(){
+  if(!recording)return;recording=false;$('record').setAttribute('aria-pressed','false');$('record').textContent='● Record my sounds';$('recordProgress').value=16;const saved=saveToy();toySay(toyTape.length?(saved?`Loop playing · ${toyTape.length} sounds · saved on this device.`:'Your loop is playing, but this browser could not save it.'):'No sounds recorded yet. Try again and tap a pad or key.');
+}
+function toySchedule(from,to){
+  for(let cy=Math.floor(from);cy<=Math.floor(to);cy++)for(let row=0;row<4;row++)for(let j=0;j<8;j++)if(beatGrid[row][j]){const pos=cy+j/8;if(pos>=from&&pos<to){const e={kind:'drum',value:beatRows[row]},t=t0+pos/cps();toySound(e,t);toyVisuals.push({t,e});}}
+  if(toyTape.length)for(let loop=Math.floor((from-jamOrigin)/2);loop<=Math.floor((to-jamOrigin)/2);loop++)for(const e of toyTape){const pos=jamOrigin+loop*2+e.beat/8;if(pos>=from&&pos<to&&(!recording||pos>=recordOrigin+2)){const t=t0+pos/cps();toySound(e,t);toyVisuals.push({t,e});}}
+  toyVisuals.sort((a,b)=>a.t-b.t);
+}
+function toyFrame(){
+  if(!playing||!ac)return;const pos=Math.max(0,(ac.currentTime-t0)*cps());
+  while(toyVisuals.length&&toyVisuals[0].t<=ac.currentTime)toyVisual(toyVisuals.shift().e);
+  const head=Math.floor(pos*8)%8;if(head!==previousHead){beatButtons.forEach(row=>row.forEach((b,i)=>b.classList.toggle('head',i===head)));previousHead=head;}
+  if(recording){const progress=Math.max(0,pos-recordOrigin);$('recordProgress').value=Math.min(16,progress*8);const bar=Math.floor(progress);if(bar!==lastRecordBar&&bar<2){lastRecordBar=bar;toySay(`Recording bar ${bar+1} of 2. Tap pads and keys!`);}if(progress>=2)finishRecord();}
+}
+function syncToyUI(){
+  $('backing').setAttribute('aria-pressed',String(backing));$('backing').textContent=backing?'Backing music on':'Just my sounds';$('instrument').value=bank;$('volume').value=Math.round(volume*100);$('preset').value=toyScene;
+  document.querySelectorAll('[data-scene]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.scene===toyScene)));
+}
+function chooseScene(name,play=true){if(!Object.hasOwn(PRESETS,name))return;toyScene=name;code.value=PRESETS[name];apply();backing=true;renderToyKeys();syncToyUI();saveToy();if(play)void wakeToy().then(()=>{if(!playing)start();});}
+PAD_DEFS.forEach(([value,name,hint])=>{const b=document.createElement('button');b.type='button';b.className='pad';b.append(document.createTextNode(name));const small=document.createElement('small');small.textContent=hint;b.append(small);b.setAttribute('aria-label',`Play ${name}`);bindToy(b,{kind:'drum',value});$('pads').append(b);});
+$('instrument').addEventListener('change',e=>{bank=e.target.value;saveToy();});
+$('volume').addEventListener('input',e=>{volume=Number(e.target.value)/100;if(ac)out.gain.setTargetAtTime(volume,ac.currentTime,.02);saveToy();});
+$('record').addEventListener('click',async()=>{if(recording){finishRecord();return;}await wakeToy();if(!playing)start();toyTape=[];recording=true;recordOrigin=Math.max(0,(ac.currentTime-t0)*cps());jamOrigin=recordOrigin;lastRecordBar=-1;$('record').setAttribute('aria-pressed','true');$('record').textContent='■ Finish recording';$('recordProgress').value=0;toySay('Recording two bars. Tap pads and keys!');});
+$('undoJam').addEventListener('click',()=>{toyTape.pop();saveToy();toySay('Last recorded sound removed.');});
+$('clearJam').addEventListener('click',()=>{recording=false;toyTape=[];toyVisuals.length=0;beatGrid=beatRows.map(()=>Array(8).fill(false));$('record').setAttribute('aria-pressed','false');$('record').textContent='● Record my sounds';$('recordProgress').value=0;renderBuilder();saveToy();toySay('Your sounds are cleared. Start a new beat.');});
+$('backing').addEventListener('click',()=>{backing=!backing;syncToyUI();saveToy();});
+document.querySelectorAll('[data-scene]').forEach(b=>b.addEventListener('click',()=>chooseScene(b.dataset.scene)));
+$('surprise').addEventListener('click',()=>{const names=Object.keys(PRESETS).filter(n=>n!==toyScene);chooseScene(names[Math.floor(Math.random()*names.length)]);bank=Object.keys(BANKS)[Math.floor(Math.random()*3)];beatGrid=beatRows.map((_,i)=>Array.from({length:8},(_,j)=>i===0?j%4===0:Math.random()<.22));renderBuilder();syncToyUI();saveToy();toySay('A new mix! Change any square or play along.');});
+addEventListener('keydown',e=>{if(e.repeat||e.ctrlKey||e.metaKey||e.altKey||/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))return;const pi='123456'.indexOf(e.key),ki='asdfghjk'.indexOf(e.key.toLowerCase());if(pi>=0){e.preventDefault();$('pads').children[pi].dispatchEvent(new MouseEvent('click',{bubbles:true,detail:0}));}else if(ki>=0){e.preventDefault();$('melody').children[ki].dispatchEvent(new MouseEvent('click',{bubbles:true,detail:0}));}});
+
 /* ---------- scheduler ---------- */
 let tracks = [], bpm = 124, playing = false, t0 = 0, scheduledUntil = 0, timer = null;
 const cps = () => bpm / 60 / 4;          // one cycle = one 4-beat bar
@@ -318,7 +412,7 @@ function cycleEvents(tr, cy) { const ev = []; evalNode(tr.ast, cy, 0, 1, ev); re
 function schedule() {
   const ahead = ac.currentTime + .12;
   const fromC = (scheduledUntil - t0) * cps(), toC = (ahead - t0) * cps();
-  for (const tr of tracks) {
+  for (const tr of (backing ? tracks : [])) {
     for (let cy = Math.floor(fromC); cy <= Math.floor(toC); cy++) {
       for (const e of cycleEvents(tr, cy)) {
         const pos = cy + e.start; if (pos < fromC || pos >= toC) continue;
@@ -329,18 +423,21 @@ function schedule() {
       }
     }
   }
+  toySchedule(fromC,toC); visualQ.sort((a,b)=>a.t-b.t);
   scheduledUntil = ahead;
 }
 function start() {
+  if (playing) return;
   if (!ac) initAudio();
-  ac.resume();
+  ac.resume(); out.gain.setTargetAtTime(volume,ac.currentTime,.01); if(!recording)jamOrigin=0;
   t0 = ac.currentTime + .06; scheduledUntil = t0; playing = true;
   timer = setInterval(schedule, 25); schedule();
-  $('play').setAttribute('aria-pressed', 'true'); $('play').textContent = '■ stop';
+  $('play').setAttribute('aria-pressed', 'true'); $('play').textContent = '■ Stop';
 }
 function stop() {
-  playing = false; clearInterval(timer); visualQ.length = 0;
-  $('play').setAttribute('aria-pressed', 'false'); $('play').textContent = '▶ play';
+  finishRecord(); playing = false; clearInterval(timer); visualQ.length = 0; toyVisuals.length=0;
+  if(ac)out.gain.setTargetAtTime(0,ac.currentTime,.015);
+  $('play').setAttribute('aria-pressed', 'false'); $('play').textContent = '▶ Play loop';
 }
 $('play').addEventListener('click', () => playing ? stop() : start());
 
@@ -356,12 +453,13 @@ code.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); apply(); }
   if (e.key === 'Tab') { e.preventDefault(); const s = code.selectionStart; code.setRangeText('  ', s, code.selectionEnd, 'end'); }
 });
-$('preset').addEventListener('change', e => { code.value = PRESETS[e.target.value]; apply(); });
+$('preset').addEventListener('change', e => chooseScene(e.target.value,false));
+$('applyCode').addEventListener('click',apply);
 $('bpm').addEventListener('input', e => {
   const nb = +e.target.value;
   if (playing) { const now = ac.currentTime, pos = (now - t0) * cps(); bpm = nb; t0 = now - pos / cps(); scheduledUntil = now; }
   else bpm = nb;
-  $('bpmOut').textContent = nb;
+  $('bpmOut').textContent = nb; saveToy();
 });
 
 /* ---------- step grid ---------- */
@@ -426,6 +524,7 @@ function draw() {
 
 /* ---------- frame loop: fire visuals in time with the audio ---------- */
 function frame() {
+  toyFrame();
   if (playing && ac) {
     const now = ac.currentTime;
     while (visualQ.length && visualQ[0].t <= now) {
@@ -441,7 +540,12 @@ function frame() {
   requestAnimationFrame(frame);
 }
 
-code.value = PRESETS.toast; apply();
+code.value = PRESETS[toyScene]; apply(); renderToyKeys();renderBuilder();syncToyUI();
+if(Number.isFinite(toySaved?.bpm)){bpm=Math.max(70,Math.min(170,toySaved.bpm));$('bpm').value=bpm;$('bpmOut').textContent=bpm;}
+$('undoJam').disabled=!toyTape.length;
+if(toyTape.length||beatGrid.some(row=>row.some(Boolean)))toySay('Your saved loop is ready. Tap Play.');
+addEventListener('pagehide',stop);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
 addEventListener('keydown', e => { if (e.key === 'Escape' && parent !== window) parent.postMessage('pocket:close', '*'); });
 requestAnimationFrame(frame);
 })();
