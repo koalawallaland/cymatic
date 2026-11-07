@@ -49,6 +49,9 @@
   .open.sliding .doors i:nth-child(-n+2) { transform: translateX(-200%); }
   .open.sliding .doors i:nth-child(n+3) { transform: translateX(200%); }
   .open.sliding .glow, .open.sliding .seam, .open.sliding .floor, .open.sliding .ghost, .open.sliding main { opacity: 0; }
+  .wallpeek { display: block; width: min(300px, 72vw); border-radius: 12px; overflow: hidden; text-decoration: none; color: #fff; font: 700 13px/1.6 "Zen Maru Gothic", sans-serif; background: rgba(10,4,20,.72); box-shadow: 0 0 20px rgba(34,230,255,.35); }
+  .wallpeek canvas { display: block; width: 100%; height: auto; }
+  .wallpeek[hidden] { display: none; }
 </style>
 </head>
 <body>
@@ -93,6 +96,7 @@
     </svg>
   </button>
   <h1><span class="name">koalawallaland.</span><span class="net">CRYNET</span></h1>
+  <a class="wallpeek" href="wall/" hidden aria-label="Open the graffiti wall"><canvas width="1200" height="800" aria-hidden="true"></canvas><span>graffiti wall ♡</span></a>
 </main>
 <script>
   const l = document.querySelector('.lock');
@@ -109,6 +113,23 @@
   });
   // coming back to this page shows the lock closed again
   addEventListener('pageshow', () => { opening = false; b.classList.remove('open', 'sliding'); });
+</script>
+<script type="module">
+  import { wallConfig } from './wall/config.js';
+  import { bricks, renderDrawing } from './wall/render.js';
+  const peek = document.querySelector('.wallpeek');
+  if (wallConfig.supabaseUrl) {
+    fetch(`${wallConfig.supabaseUrl}/functions/v1/graffiti-wall`, { signal: AbortSignal.timeout(10000) })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data?.posts?.length) return;
+        const ctx = peek.querySelector('canvas').getContext('2d');
+        bricks(ctx);
+        for (const p of [...data.posts].reverse()) renderDrawing(ctx, p.drawing);
+        peek.hidden = false;
+      })
+      .catch(() => {});
+  }
 </script>
 </body>
 </html>
