@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {GLTFLoader} from './vendor/GLTFLoader.js';
 import {waxBounds} from './bounds.mjs';
+import {refineReferenceItems,referenceNames} from './reference-details.mjs';
 
 const $ = id => document.getElementById(id);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -51,6 +52,7 @@ function select(item){
   const box=new THREE.Box3().setFromObject(clone),center=box.getCenter(new THREE.Vector3()),size=box.getSize(new THREE.Vector3());
   clone.position.sub(center);const scale=2.65/Math.max(size.x,size.y,size.z);model.scale.setScalar(scale);model.position.y=-1.39+size.y*scale/2;model.updateMatrixWorld(true);
   pivot.add(model);pivot.scale.set(1,1,1);pivot.rotation.set(0,Math.PI,0);squeezeTime=-10000;
+  camera.position.set(...(referenceNames.has(item.name)?[1.1,1.25,8.2]:[3.7,2.5,6.8]));camera.lookAt(0,.1,0);
   $('name').textContent=item.name;$('counter').textContent='soft & ready';
   say('Soft and ready. Tap to squish, or choose a wax color and dip.');
   $('squeeze').disabled=false;$('dip').disabled=false;
@@ -126,6 +128,7 @@ async function start(){
     // Loader sanitizes names; restore the exact display names from the export.
     const original=await (await fetch('assets/catalog.json')).json();
     for(let i=0;i<items.length;i++)items[i].name=original[i];
+    refineReferenceItems(items);
     $('total').textContent=`${items.length} friends`;
     for(const item of items){const b=document.createElement('button');b.type='button';b.textContent=item.name;b.dataset.item=item.name;b.setAttribute('aria-pressed','false');b.onclick=()=>select(item);$('collection').append(b);}
     let saved;try{saved=localStorage.getItem('kwl-squish-choice');}catch{}
