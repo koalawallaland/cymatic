@@ -1,5 +1,5 @@
 export function createKitchenAudio(enabled){
- let context,unlocked=false,pouring=false,closed=false;
+ let context,unlocked=true,pouring=false,closed=false;
  const pour=new Audio(new URL('../desk/audio/pour-over.mp3',import.meta.url).href),simmer=new Audio(new URL('../desk/audio/kettle-simmer.mp3',import.meta.url).href),fades=new Map();
  pour.preload='auto';pour.loop=true;pour.volume=0;simmer.preload='auto';simmer.loop=true;simmer.volume=0;
  function ramp(audio,target,seconds=.2,pause=false){clearInterval(fades.get(audio));const initial=audio.volume,start=performance.now();const timer=setInterval(()=>{const t=Math.min(1,(performance.now()-start)/(seconds*1000));audio.volume=Math.max(0,Math.min(1,initial+(target-initial)*t));if(t===1){clearInterval(timer);fades.delete(audio);if(pause&&target===0)audio.pause();}},20);fades.set(audio,timer);}
@@ -11,8 +11,8 @@ export function createKitchenAudio(enabled){
  function syncSimmer(){if(!closed&&unlocked&&enabled()&&!simmer.paused)ramp(simmer,.09,.4);}
  const observe=()=>{document.querySelector('[data-scene]')?.setAttribute('data-kitchen-pouring',String(!pour.paused));document.querySelector('[data-scene]')?.setAttribute('data-kitchen-simmer',String(!simmer.paused));};
  for(const audio of[pour,simmer]){audio.addEventListener('playing',observe);audio.addEventListener('pause',observe);}
- document.addEventListener('pointerup',unlock,{once:true});document.addEventListener('keydown',unlock,{once:true});document.addEventListener('visibilitychange',sync);
- const interval=setInterval(sync,500);
- return{tap,startPour,stopPour,close(){closed=true;clearInterval(interval);for(const t of fades.values())clearInterval(t);fades.clear();pour.pause();simmer.pause();context?.close().catch(()=>{});document.removeEventListener('visibilitychange',sync);document.removeEventListener('pointerup',unlock);document.removeEventListener('keydown',unlock);}};
+ document.addEventListener('pointerdown',unlock,{capture:true});document.addEventListener('pointerup',unlock);document.addEventListener('keydown',unlock,{once:true});document.addEventListener('visibilitychange',sync);
+ sync();const interval=setInterval(sync,500);
+ return{tap,startPour,stopPour,close(){closed=true;clearInterval(interval);for(const t of fades.values())clearInterval(t);fades.clear();pour.pause();simmer.pause();context?.close().catch(()=>{});document.removeEventListener('visibilitychange',sync);document.removeEventListener('pointerdown',unlock,{capture:true});document.removeEventListener('pointerup',unlock);document.removeEventListener('keydown',unlock);}};
 }
 
