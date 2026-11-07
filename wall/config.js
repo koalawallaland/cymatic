@@ -1,5 +1,1 @@
-// Only public connection details belong here. Never add service-role or secret keys.
-export const wallConfig = {
-  supabaseUrl: '',
-  publishableKey: '',
-};
+export const wallConfig = { supabaseUrl: 'https://ipbryagciotajvcedfzd.supabase.co', publishableKey: 'sb_publishable_hPhKSJzTZuVq0QXIK4780w_xXIwH0Dg' };
