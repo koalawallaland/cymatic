@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Room 019 · CRYNET</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#141619;color:#e1e1ce;font:16px/1.6 system-ui}main{max-width:860px;margin:auto;padding:28px 20px}a{color:#c8df89}small,.eyebrow{color:#a5a99e}.eyebrow{letter-spacing:.25em}h1{font:clamp(42px,9vw,84px)/1 Georgia;margin:22px 0}button,select{font:inherit;background:#272b2c;color:#e1e1ce;border:1px solid #89906e;border-radius:5px;padding:10px 16px;cursor:pointer}button:disabled{opacity:.4;cursor:default}.panel{padding:22px;border:1px solid #414740;background:#1c2020;margin:20px 0}label{display:block;margin:14px 0}input{width:100%;accent-color:#c8df89}.room{height:250px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 15%,#77776433,transparent 55%),linear-gradient(135deg,#292c2d,#15191a);border:1px solid #414740;perspective:400px}.door{position:absolute;right:20%;bottom:18%;height:65%;width:19%;border:8px solid #373c3b;background:#101414}.floor{position:absolute;bottom:0;height:18%;width:100%;background:#302a25}.figure{position:absolute;left:15%;bottom:18%;width:48px;height:135px;border-radius:45% 45% 10% 10%;background:#090b0c;filter:blur(8px);opacity:0;transition:opacity 2s}.room.show .figure{opacity:.7}#status{min-height:3em;color:#d0e39a}table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:8px;border-bottom:1px solid #414740}details{margin:24px 0}summary{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #e3b2d0;outline-offset:4px}@media(prefers-reduced-motion:reduce){.figure{transition:none}}
+</style>
+<main><a href="../home.html">← back to the desk</a><p class="eyebrow">CRYNET / RESTRICTED ARCHIVE / 019</p><h1>The empty room.</h1>
+<p>A frequency. A story. A question about perception.</p>
+<div class="room" id="room" role="img" aria-label="Illustrated empty laboratory"><div class="door"></div><div class="floor"></div><div class="figure"></div></div>
+<p><button id="shadow" aria-pressed="false">Show fictional shadow</button> <small>Illustration only; disabled during trials.</small></p>
+<div class="panel"><h2>Listening comparison</h2><p>Six randomized 10-second trials: three with a real 19 Hz sine wave and three digital-silence controls. Rate each before the condition is revealed. The room image stays identical throughout.</p>
+<p>This is an uncalibrated personal observation exercise, not a reproduction of Tandy’s room or a test for ghosts. The tone may be inaudible on your equipment; audible distortion can also reveal the condition.</p>
+<label><input id="consent" type="checkbox" style="width:auto"> I choose to try this at a low, comfortable device volume. I will not boost an inaudible tone.</label>
+<p><small>No autoplay, headphones required, or external subwoofer setup. Stop if uncomfortable. Browser gain cannot establish a safe or experimental sound-pressure level.</small></p>
+<button id="start">Begin trial 1</button> <button id="stop">Stop / reset</button>
+<p id="status" role="status" aria-live="polite">Ready. Audio starts only when you choose.</p>
+<div id="rating" hidden><label>Unease: <output id="value">0</output> / 10<input id="unease" type="range" min="0" max="10" value="0"></label>
+<label>Any unusual visual impression?<select id="visual"><option value="no">No</option><option value="uncertain">Uncertain</option><option value="yes">Yes</option></select></label><button id="save">Record observation</button></div>
+<div id="results" hidden><h3>Condition reveal</h3><table><thead><tr><th>Trial</th><th>Signal</th><th>Unease</th><th>Visual</th></tr></thead><tbody id="rows"></tbody></table><p>Differences in six trials cannot establish causation. Expectation, order, equipment and chance remain possible explanations. No observations leave this page.</p></div></div>
+<details><summary>The case file: what the research actually says</summary><p>Tandy and Lawrence’s 1998 paper proposed that a roughly 19 Hz standing wave might explain Tandy’s peripheral apparition. The frequency was estimated from room dimensions; the authors explicitly lacked a sound-pressure measurement. The eye-resonance mechanism was a hypothesis, not a demonstrated causal result.</p><p>A later controlled “Haunt” study of 79 participants found reported anomalous experiences unrelated to the experimental infrasound/EMF condition. That does not rule out every possible acoustic effect, but it does not support a reliable ghost-producing frequency.</p><p>Moving an eye can change an image; it does not establish a new ability to detect otherwise invisible beings.</p><a href="https://www.richardwiseman.com/resources/ghost-in-machine.pdf">Tandy & Lawrence (1998)</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/18635163/">French et al., Haunt project</a></details>
+</main><script>
+'use strict';
+const $=id=>document.getElementById(id);
+let ctx=null,timer=null,order=[],records=[],running=false,awaiting=false,epoch=0;
+function shuffled(){let a=[true,true,true,false,false,false];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function silence(){clearTimeout(timer);if(ctx){ctx.close().catch(()=>{});ctx=null}}
+function reset(){epoch++;silence();order=[];records=[];running=false;awaiting=false;$('rating').hidden=true;$('results').hidden=true;$('start').disabled=false;$('start').textContent='Begin trial 1';$('shadow').disabled=false;$('status').textContent='Stopped. Ready for a new comparison.'}
+$('shadow').onclick=()=>{const on=$('room').classList.toggle('show');$('shadow').setAttribute('aria-pressed',String(on));$('room').setAttribute('aria-label',on?'Laboratory with a fictional illustrated shadow':'Illustrated empty laboratory')};
+$('unease').oninput=()=>$('value').textContent=$('unease').value;
+$('stop').onclick=reset;
+$('start').onclick=async()=>{
+if(running||awaiting)return;if(!$('consent').checked){$('status').textContent='Please read and select the listening choice first.';return}
+if(!order.length)order=shuffled();
+const token=++epoch;running=true;$('start').disabled=true;$('shadow').disabled=true;$('room').classList.remove('show');$('shadow').setAttribute('aria-pressed','false');$('room').setAttribute('aria-label','Illustrated empty laboratory');
+try{
+const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)throw Error('unsupported');ctx=new Audio();await ctx.resume();if(token!==epoch)return;
+const oscillator=ctx.createOscillator(),gain=ctx.createGain();oscillator.type='sine';oscillator.frequency.value=19;
+const t=ctx.currentTime,level=order[records.length]?0.015:0;
+gain.gain.setValueAtTime(0,t);gain.gain.linearRampToValueAtTime(level,t+1);gain.gain.setValueAtTime(level,t+9);gain.gain.linearRampToValueAtTime(0,t+10);
+oscillator.connect(gain);gain.connect(ctx.destination);oscillator.start(t);oscillator.stop(t+10);
+$('status').textContent='Trial '+(records.length+1)+' / 6 · 10 seconds. Keep your device volume unchanged.';
+timer=setTimeout(()=>{if(token!==epoch)return;silence();running=false;awaiting=true;$('unease').value=0;$('value').textContent='0';$('visual').value='no';$('rating').hidden=false;$('status').textContent='Record your impression before continuing.'},10200);
+}catch(e){reset();$('status').textContent='Audio could not start on this browser. No trial recorded.'}
+};
+$('save').onclick=()=>{if(!awaiting)return;records.push({unease:Number($('unease').value),visual:$('visual').value});awaiting=false;$('rating').hidden=true;if(records.length<6){$('start').disabled=false;$('start').textContent='Begin trial '+(records.length+1);$('status').textContent='Observation recorded. Continue when ready.'}else{$('rows').replaceChildren();records.forEach((r,i)=>{const tr=document.createElement('tr');[i+1,order[i]?'19 Hz':'Silence',r.unease,r.visual].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td)});$('rows').append(tr)});$('results').hidden=false;$('shadow').disabled=false;$('status').textContent='Comparison complete. Conditions revealed below.'}};
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&(running||awaiting))reset()});addEventListener('pagehide',silence);addEventListener('keydown',e=>{if(e.key==='Escape')reset()});
+</script></html>
