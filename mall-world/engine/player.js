@@ -2,7 +2,7 @@
 import * as THREE from "three";
 import { CELL, EYE } from "./world.js";
 
-const WALK_SPEED = 4; // m/s
+const WALK_SPEED = 3; // m/s
 const RUN_SPEED = 8; // m/s
 const PLAYER_RADIUS = 0.4; // m
 const MOUSE_SENS = 0.0022;
@@ -87,14 +87,16 @@ export class Player {
     // --- input direction (relative to yaw); ignored while unlocked ---
     const k = this.keys;
     const active = this.locked;
-    const f = active
+    const keyF = active
       ? (k.has("KeyW") || k.has("ArrowUp") ? 1 : 0) -
           (k.has("KeyS") || k.has("ArrowDown") ? 1 : 0)
       : 0;
-    const s = active
+    const keyS = active
       ? (k.has("KeyD") || k.has("ArrowRight") ? 1 : 0) -
           (k.has("KeyA") || k.has("ArrowLeft") ? 1 : 0)
       : 0;
+    const f=active&&this.touchInput?this.touchInput.forward:keyF;
+    const s=active&&this.touchInput?this.touchInput.side:keyS;
     const speed = active && this.isRunning ? RUN_SPEED : WALK_SPEED;
 
     const fx = -Math.sin(this.yaw);
@@ -104,7 +106,7 @@ export class Player {
     let dx = fx * f + rx * s;
     let dz = fz * f + rz * s;
     const len = Math.hypot(dx, dz);
-    if (len > 0) {
+    if (len > 1) {
       dx /= len;
       dz /= len;
     }
@@ -122,7 +124,7 @@ export class Player {
     const hSpeed = Math.hypot(this.vel.x, this.vel.z);
     if (hSpeed > 0.5) this.bobPhase += dt * hSpeed * 1.8;
     const bobTarget =
-      Math.sin(this.bobPhase) * 0.05 * Math.min(1, hSpeed / WALK_SPEED);
+      Math.sin(this.bobPhase) * 0.018 * Math.min(1, hSpeed / WALK_SPEED);
     this.bobOffset += (bobTarget - this.bobOffset) * (1 - Math.exp(-10 * dt));
 
     const targetFov = active && this.isRunning && hSpeed > 1 ? 74 : 70;
