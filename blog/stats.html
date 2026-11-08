@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Journal count readout — Koalawallaland</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#16131b;color:#f3e9f5}body{margin:0;padding:clamp(18px,5vw,50px)}main{max-width:700px;margin:0 auto}h1{font-size:1.5rem}h2{font-size:1rem;margin:0 0 12px}section{background:#251b2e;border:1px solid #5b3d66;border-radius:15px;padding:20px;margin:15px 0}.number{font-size:2.3rem;font-weight:750;letter-spacing:.04em;font-variant-numeric:tabular-nums}.muted{color:#c7b9ce;font-size:.9rem;line-height:1.6}button{color:#201026;background:#f4a6cf;border:none;border-radius:9px;padding:11px 17px;cursor:pointer;font-weight:700}a{color:#ffafd5}
+</style></head>
+<body><main><h1>Journal · read-only counters</h1>
+<p class="muted">This page checks counts without adding views. It does not expose visitors' identities, cities, or IP addresses. Anyone with this link can read these public counts; it is not password-protected.</p>
+<section><h2>Journal index opens</h2><div class="number" id="index-count" aria-live="polite">—</div><p class="muted" id="index-status">Waiting to check</p></section>
+<section><h2>Aluminum Ghosts page sessions</h2><div class="number" id="aluminum-count" aria-live="polite">—</div><p class="muted" id="aluminum-status">Waiting to check</p></section>
+<button type="button" id="refresh">Refresh counts</button>
+<p class="muted">Journal index tracking began with this update. The Aluminum Ghosts counter reuses its existing key from November 8, 2026. Sessions are approximate and include some repeat human visitors; blocked scripts, offline visits, crawlers, or service errors can cause under/overcounting. These are NOT verified reads or unique people. This counter service offers no historical breakdown and is not a substitute for owned server-side analytics.</p>
+<p><a href="index.html">Back to journal</a></p></main>
+<script>
+(() => {
+ const keys={index:"koalawallaland_cymatic_journal_index_20261108_v1",aluminum:"koalawallaland_cymatic_aluminum_ghosts_visits_20261108_a71c"};
+ const btn=document.getElementById("refresh");
+ async function read(name){
+  const count=document.getElementById(name+"-count"),status=document.getElementById(name+"-status");
+  status.textContent="Checking"; const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),8000);
+  try{
+   const response=await fetch("https://countapi.mileshilliard.com/api/v1/get/"+keys[name],{credentials:"omit",referrerPolicy:"no-referrer",cache:"no-store",signal:controller.signal});
+   if(response.status===404){count.textContent="0*";status.textContent="Counter not yet initialized";return;}
+   if(!response.ok)throw Error("HTTP "+response.status);
+   const body=await response.json();
+   if(!Number.isSafeInteger(body.value)||body.value<0)throw Error("Invalid data");
+   count.textContent=body.value.toLocaleString();status.textContent="Read-only check · "+new Date().toLocaleTimeString();
+  }catch(e){count.textContent="—";status.textContent="Service unavailable; no reliable total right now";}
+  finally{clearTimeout(timer);}
+ }
+ btn.addEventListener("click",()=>Promise.all(Object.keys(keys).map(read)));
+ Promise.all(Object.keys(keys).map(read));
+})();
+</script></body></html>
