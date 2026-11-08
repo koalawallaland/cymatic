@@ -28,64 +28,17 @@ function rng32(seed) {
 }
 
 function makeWallpaper() {
-  const S = 256;
-  const c = document.createElement("canvas");
-  c.width = c.height = S;
-  const g = c.getContext("2d");
-  const rnd = rng32(101);
-
-  // base golden-yellow
-  g.fillStyle = "#bfa93f";
-  g.fillRect(0, 0, S, S);
-
-  // small repeating motif on a 16px grid (alternates per cell)
-  for (let y = 0; y < S / 16; y++) {
-    for (let x = 0; x < S / 16; x++) {
-      const px = x * 16 + 8;
-      const py = y * 16 + 8;
-      const even = (x + y) % 2 === 0;
-      if (even) {
-        // small diamond, darker olive
-        g.fillStyle = "#9a8b2f";
-        g.beginPath();
-        g.moveTo(px, py - 5);
-        g.lineTo(px + 4, py);
-        g.lineTo(px, py + 5);
-        g.lineTo(px - 4, py);
-        g.closePath();
-        g.fill();
-        // center dot, lighter
-        g.fillStyle = "#c8b954";
-        g.fillRect(px - 1, py - 1, 2, 2);
-      } else {
-        // two small dots
-        g.fillStyle = "#c2b24b";
-        g.fillRect(px - 4, py - 1, 2, 2);
-        g.fillRect(px + 2, py - 1, 2, 2);
-        g.fillStyle = "#8f812c";
-        g.fillRect(px - 1, py + 3, 2, 2);
-      }
-    }
-  }
-
-  // faint grain over everything
-  for (let i = 0; i < 2600; i++) {
-    const v = rnd();
-    g.fillStyle = v > 0.5 ? "rgba(255,244,180,0.05)" : "rgba(40,34,8,0.06)";
-    g.fillRect(rnd() * S, rnd() * S, 1, 1);
-  }
-
-  // dark baseboard strip along the bottom (~15% of tile height)
-  const bb = Math.round(S * 0.15);
-  g.fillStyle = "#392c1a";
-  g.fillRect(0, S - bb, S, bb);
-  g.fillStyle = "#57452a";
-  g.fillRect(0, S - bb, S, 2); // top edge highlight
-  g.fillStyle = "rgba(0,0,0,0.25)";
-  g.fillRect(0, S - 3, S, 3); // floor contact shadow
-  return c;
+ const c=document.createElement("canvas");c.width=c.height=256;const g=c.getContext("2d");
+ g.fillStyle="#55515c";g.fillRect(0,0,256,256);
+ for(let row=-1;row<4;row++)for(let col=-1;col<4;col++){
+ const x=col*96+(row%2)*48,y=row*80+48;
+ for(let r=40;r>=16;r-=8){g.beginPath();g.arc(x,y,r,Math.PI,0);g.strokeStyle=r%16===8?"#a99aaf":"#898773";g.lineWidth=3;g.stroke()}
+ g.strokeStyle="#b29bb6";g.lineWidth=3;g.beginPath();g.moveTo(x-8,y+30);g.lineTo(x-8,y);g.arc(x,y,8,Math.PI,0);g.lineTo(x+8,y+30);g.stroke();
+ }
+ const rnd=rng32(101);for(let i=0;i<2000;i++){g.fillStyle=rnd()>.5?"#ffffff09":"#0000000c";g.fillRect(rnd()*256,rnd()*256,1,1)}
+ g.fillStyle="#46362f";g.fillRect(0,222,256,34);g.fillStyle="#806b5d";g.fillRect(0,222,256,2);
+ return c;
 }
-
 function makeCarpet() {
   const S = 256;
   const c = document.createElement("canvas");
@@ -93,7 +46,7 @@ function makeCarpet() {
   const g = c.getContext("2d");
   const rnd = rng32(202);
 
-  g.fillStyle = "#cfc094";
+  g.fillStyle = "#51474c";
   g.fillRect(0, 0, S, S);
 
   // soft large-scale blotches
@@ -109,7 +62,12 @@ function makeCarpet() {
     g.fillRect(x - r, y - r, r * 2, r * 2);
   }
 
-  // fine carpet noise
+  // Low-contrast nested hexagonal carpet motif.
+ for(let y=-56;y<320;y+=96)for(let x=-48;x<320;x+=84){
+ for(const [radius,color] of [[42,"#6a5550"],[29,"#756579"],[16,"#697058"]]){
+ g.beginPath();for(let i=0;i<6;i++){const a=Math.PI/3*i+Math.PI/6;const px=x+Math.cos(a)*radius,py=y+Math.sin(a)*radius;if(i===0)g.moveTo(px,py);else g.lineTo(px,py)}g.closePath();g.strokeStyle=color;g.lineWidth=5;g.stroke();
+ }}
+ // fine carpet noise
   for (let i = 0; i < 9000; i++) {
     const v = rnd();
     g.fillStyle =
