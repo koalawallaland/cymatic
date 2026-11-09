@@ -73,6 +73,20 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
 .card b{color:#f8e9f6}
 .rotate-tip{display:none;text-align:center;color:var(--tiff);font-size:12px;margin:10px 0 0}
 @media (max-width:560px) and (orientation:portrait){.rotate-tip{display:block}}
+.ctlbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:center;margin:16px auto 0;max-width:940px;font-size:12px;color:var(--muted)}
+.seg{display:inline-flex;border:1px solid #5f7a80;border-radius:999px;overflow:hidden}
+.seg button{border:0;background:#1f2b33;color:#e9fffc;padding:7px 12px;font:12px "Space Mono",monospace;cursor:pointer}
+.seg button+button{border-left:1px solid #5f7a80}
+.seg button[aria-pressed="true"]{background:var(--tiff);color:#10262a;font-weight:700}
+.seg button:disabled{opacity:.45;cursor:default}
+.ctlbar label{display:flex;align-items:center;gap:6px}
+.ctlbar input[type=text]{background:#1f2b33;color:#e9fffc;border:1px solid #5f7a80;border-radius:10px;padding:6px 9px;font:12px "Space Mono",monospace;width:min(56vw,230px)}
+.ctlbar a{color:#ffb3dc}
+.kvstat{color:#ab9db3}
+.kvstat b{color:#ffd6f3}
+.koe.koalamode #singer{display:none}
+#koala{display:none}
+.koe.koalamode #koala{display:inline}
 </style>
 </head>
 <body>
@@ -114,6 +128,8 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
             <linearGradient id="top" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c7b3f3"/><stop offset="1" stop-color="#8f7ad6"/></linearGradient>
             <radialGradient id="skin" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#ffe7dc"/><stop offset="1" stop-color="#f3c9b8"/></radialGradient>
             <clipPath id="frame"><rect width="300" height="220"/></clipPath>
+            <linearGradient id="tuft" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a1a1c"/><stop offset=".35" stop-color="#a95a33"/><stop offset=".6" stop-color="#ecc27e"/><stop offset="1" stop-color="#ff7fbd"/></linearGradient>
+            <radialGradient id="fur" cx=".45" cy=".35" r=".75"><stop offset="0" stop-color="#cfcadb"/><stop offset="1" stop-color="#9f99b2"/></radialGradient>
           </defs>
           <g clip-path="url(#frame)">
             <rect width="300" height="220" fill="url(#sky)"/>
@@ -160,6 +176,26 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
               <!-- tiny koala charm on the strap -->
               <g transform="translate(232 196)"><circle cx="-5" cy="-4" r="4" fill="#b8b2c8"/><circle cx="5" cy="-4" r="4" fill="#b8b2c8"/><circle r="6" fill="#cdc8da"/><ellipse cy="1" rx="2" ry="2.6" fill="#4b4560"/></g>
             </g>
+            <!-- koala singer (shown when the koala voice is on) -->
+            <g id="koala">
+              <g class="hairsway">
+                <path fill="url(#fur)" d="M146 226C146 186 166 160 206 158C246 160 266 186 266 226Z"/>
+                <ellipse cx="206" cy="204" rx="34" ry="26" fill="#efeaf4"/>
+                <path d="M178 186q-4 14 8 18q10-4 6-18z" fill="#a49eb7"/><path d="M234 186q4 14-8 18q-10-4-6-18z" fill="#a49eb7"/>
+                <path d="M196 196q12-30 34-40" stroke="#5f9c7d" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+                <g fill="#86c9a2" stroke="#5f9c7d" stroke-width="1"><ellipse cx="214" cy="178" rx="7" ry="3.6" transform="rotate(-40 214 178)"/><ellipse cx="224" cy="166" rx="7" ry="3.6" transform="rotate(-50 224 166)"/><ellipse cx="206" cy="186" rx="6" ry="3.2" transform="rotate(20 206 186)"/></g>
+              </g>
+              <circle cx="156" cy="70" r="28" fill="url(#fur)"/><circle cx="256" cy="70" r="28" fill="url(#fur)"/>
+              <circle cx="158" cy="72" r="17" fill="#f6f1f8"/><circle cx="254" cy="72" r="17" fill="#f6f1f8"/>
+              <g fill="#fff" opacity=".9"><circle cx="146" cy="60" r="5"/><circle cx="150" cy="84" r="4"/><circle cx="266" cy="60" r="5"/><circle cx="262" cy="84" r="4"/></g>
+              <ellipse cx="206" cy="100" rx="52" ry="46" fill="url(#fur)"/>
+              <path fill="url(#tuft)" d="M182 62C186 44 206 40 214 52C220 40 238 44 236 60C228 54 220 58 214 66C206 56 192 56 182 62Z"/>
+              <g fill="none" stroke="#3a2c3e" stroke-width="2.6" stroke-linecap="round"><path d="M180 96Q188 89 196 96"/><path d="M216 96Q224 89 232 96"/></g>
+              <ellipse cx="176" cy="114" rx="8" ry="4.6" fill="#ff9fc3" opacity=".6"/><ellipse cx="236" cy="114" rx="8" ry="4.6" fill="#ff9fc3" opacity=".6"/>
+              <ellipse cx="206" cy="108" rx="13" ry="11" fill="#3a3350"/><ellipse cx="202" cy="104" rx="4" ry="2.6" fill="#8b84a6"/>
+              <path id="kmouth" transform="translate(0 11)" d="M199 117Q206 122 213 117Q206 120 199 117Z" fill="#c23c6d" stroke="#8d2a4f" stroke-width="1.6" stroke-linejoin="round"/>
+              <g transform="translate(248 46) rotate(18)"><path d="M0 0l-10-6v12zM0 0l10-6v12z" fill="#ff8fc8" stroke="#fff" stroke-width="1"/><circle r="3" fill="#ff6fb0"/></g>
+            </g>
           </g>
         </svg>
       </div>
@@ -174,15 +210,25 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
       <svg class="stylus" id="stylus" viewBox="0 0 50 180" aria-hidden="true"><defs><linearGradient id="sty" x1="0" x2="1"><stop offset="0" stop-color="#e7e2ef"/><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#cfc8dc"/></linearGradient></defs><path d="M25 0L23.4 24H26.6Z" fill="#c9c9d2"/><rect x="22.6" y="22" width="4.8" height="34" rx="1.5" fill="#d8d8e0"/><path d="M18 54Q25 50 32 54L35 170Q25 178 15 170Z" fill="url(#sty)" stroke="#bdb4cc"/><circle cx="25" cy="150" r="3" fill="#ff8fc8"/></svg>
     </div>
     <p class="rotate-tip">Tip: turn your phone sideways for a longer key strip.</p>
+    <div class="ctlbar">
+      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="builtin" aria-pressed="true">built-in voice</button><button type="button" data-voice="koala" aria-pressed="false">🐨 koala voice</button></div>
+      <div class="seg" role="group" aria-label="Mode"><button type="button" data-mode="vowel" aria-pressed="false">VOWEL</button><button type="button" data-mode="doremi" aria-pressed="false">DO·RE·MI</button><button type="button" data-mode="lyric" aria-pressed="true">LYRIC</button></div>
+      <label>lyric <input type="text" id="lyricIn" value="ko a ra wa ra ra n do" aria-label="Lyric, in romaji or kana"></label>
+      <label>tone <input type="range" id="toneIn" min="0.8" max="1.25" step="0.01" value="1" aria-label="Koala voice tone, deeper to cuter"></label>
+      <span class="kvstat" id="kvStat" aria-live="polite"></span>
+      <a href="booth.html">🎙 record the koala's voice</a>
+    </div>
   </div>
 
   <div class="under">
     <div class="card"><h2>Sing</h2>Press on the black strip and drag. On a computer keyboard, <kbd>A</kbd>–<kbd>;</kbd> is the bottom octave and <kbd>W E T Y U O P</kbd> are the sharps. <kbd>Z</kbd>/<kbd>X</kbd> move the octave.</div>
     <div class="card"><h2>Vowels</h2>Tap <b>あ い う え お</b> (or <kbd>1</kbd>–<kbd>5</kbd>), or press them while she's singing, to change the vowel. Watch her mouth change shape.</div>
-    <div class="card"><h2>Modes</h2>Hold <b>SHIFT</b> (<kbd>Shift</kbd>) and tap a vowel. <b>い</b> = VOWEL (sings the vowel you picked), <b>う</b> = DO·RE·MI (sings the note name), <b>え</b> = LYRIC (sings <i>ko-a-ra-wa-ra-ra-n-do</i>, one syllable per note).</div>
+    <div class="card"><h2>Modes</h2>Hold <b>SHIFT</b> (<kbd>Shift</kbd>) and tap a vowel. <b>い</b> = VOWEL (sings the vowel you picked), <b>う</b> = DO·RE·MI (sings the note name), <b>え</b> = LYRIC (sings the lyric below the device, one syllable per note). The mode buttons under the device do the same thing.</div>
+    <div class="card"><h2>🐨 Koala voice</h2>Switch to <b>koala voice</b> and she sings with recorded syllables instead of the synthesized voice: any note, any lyric, with the koala on the faceplate. <b>tone</b> moves her voice from deeper to cuter. The voice is made in the <a href="booth.html">recording booth</a>.</div>
     <div class="card"><h2>Expression</h2>Hold <b>VIBRATO</b> (<kbd>Space</kbd>) for a deep vibrato. Long notes also pick up a soft natural vibrato on their own. <b>▲ ▼</b> set the volume. With SHIFT held, they change the octave.</div>
   </div>
 </main>
+<script src="voicebank.js"></script>
 <script>
 (() => {
 'use strict';
@@ -203,10 +249,11 @@ const gr = document.getElementById('grille');
 for (let ring = 0; ring < 5; ring++) { const count = ring === 0 ? 1 : ring * 7; for (let i = 0; i < count; i++) { const a = i / count * Math.PI * 2 + ring * 0.3; const rad = ring * 10; const c = document.createElementNS(NS, 'circle'); c.setAttribute('cx', 50 + Math.cos(a) * rad); c.setAttribute('cy', 50 + Math.sin(a) * rad); c.setAttribute('r', 3.1); c.setAttribute('fill', '#3e3752'); gr.appendChild(c); } }
 
 // ---------- state ----------
-const S = { power: false, vowel: 'a', mode: 'lyric', oct: 0, vol: 0.75, vib: false, shift: false, lyricIdx: 0, note: null, held: false };
-const LYRIC = [['k', 'o'], ['', 'a'], ['r', 'a'], ['w', 'a'], ['r', 'a'], ['r', 'a'], ['N', ''], ['d', 'o']];
+const VB = window.KoalaVB;
+const S = { power: false, vowel: 'a', mode: 'lyric', oct: 0, vol: 0.75, vib: false, shift: false, lyricIdx: 0, note: null, held: false, voice: 'builtin', tone: 1, lyric: VB.parseLyric('ko a ra wa ra ra n do') };
 const KANA = { a: 'あ', i: 'い', u: 'う', e: 'え', o: 'お', ko: 'こ', ra: 'ら', wa: 'わ', N: 'ん', do: 'ど', re: 'れ', mi: 'み', fa: 'ふぁ', so: 'そ', si: 'し' };
-const SOLF = [['d', 'o'], ['d', 'o'], ['r', 'e'], ['r', 'e'], ['m', 'i'], ['f', 'a'], ['f', 'a'], ['s', 'o'], ['s', 'o'], ['r', 'a'], ['r', 'a'], ['s', 'i']];
+const SOLF = ['do', 'do', 're', 're', 'mi', 'fa', 'fa', 'so', 'so', 'ra', 'ra', 'shi'];
+const CMAP = { k: 'k', g: 'k', s: 's', sh: 's', z: 's', j: 's', t: 't', ch: 't', ts: 't', d: 'd', b: 'd', p: 'p', h: 'f', f: 'f', m: 'm', n: 'n', N: 'N', y: 'w', r: 'r', w: 'w', '': '' };
 const SOLF_K = ['ド', 'ド', 'レ', 'レ', 'ミ', 'ファ', 'ファ', 'ソ', 'ソ', 'ラ', 'ラ', 'シ'];
 const SOLF_R = ['do', 'do', 're', 're', 'mi', 'fa', 'fa', 'so', 'so', 'ra', 'ra', 'shi'];
 // Japanese female-ish formants [F1,F2,F3,F4] and relative gains
@@ -214,6 +261,7 @@ const FORM = { a: [850, 1350, 2900, 3900], i: [320, 2650, 3250, 4100], u: [360, 
 const BW = [150, 170, 220, 280], FG = [1, 0.7, 0.3, 0.14];
 
 // ---------- audio ----------
+let kv = null, kvReady = false, kvSource = null, kvLoading = null, kvBusy = false, bus = null;
 let ctx, osc, vibLfo, vibGain, srcGain, noise, noiseG, fric, fricG, forms = [], fgain = [], env, master, sum, tilt, started = null;
 function glottalWave(c) {
   const n = 64, re = new Float32Array(n), im = new Float32Array(n);
@@ -246,10 +294,11 @@ function start() {
     master = ctx.createGain(); master.gain.value = S.vol * S.vol;
     const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 3;
     const verb = ctx.createConvolver(); verb.buffer = ir(ctx); const wet = ctx.createGain(); wet.gain.value = 0.18;
-    env.connect(master); env.connect(verb).connect(wet).connect(master);
+    bus = ctx.createGain(); env.connect(bus); bus.connect(master); bus.connect(verb).connect(wet).connect(master);
     master.connect(comp).connect(ctx.destination);
     osc.start(); vibLfo.start(); noise.start();
     if (ctx.state !== 'running') await ctx.resume();
+    try { await VB.loadWorklet(ctx); kv = new VB.Engine(ctx); kv.connect(bus); kv.tone(S.tone); loadBank(); } catch (e) { console.warn('koala voice unavailable', e); }
     S.power = true; document.querySelector('[data-start]').hidden = true; render();
   })();
   return started;
@@ -325,10 +374,12 @@ function singSyllable(c, v, note, legato) {
 }
 function changeVowelLive(v) {
   if (!ctx || S.note === null) return;
+  if (koalaOn()) { const k = kv.pick(v); if (k) kv.on(k, hz(S.note + S.oct * 12), true, false); mouthFor(v); return; }
   setFormants(v, T(), 0.03); mouthFor(v);
 }
 function stopSinging() {
   if (!ctx) return;
+  if (kv) { kv.off(); kv.vib(0); }
   const t = T();
   env.gain.cancelScheduledValues(t); env.gain.setValueAtTime(env.gain.value, t); env.gain.setTargetAtTime(0, t, 0.06);
   srcGain.gain.setTargetAtTime(0, t + 0.12, 0.04); noiseG.gain.setTargetAtTime(0, t, 0.05);
@@ -338,16 +389,27 @@ function stopSinging() {
 
 // ---------- what to sing ----------
 function syllableFor(note) {
-  if (S.mode === 'doremi') { const pc = ((note % 12) + 12) % 12; const [c, v] = SOLF[pc]; setBubble(SOLF_K[pc], SOLF_R[pc]); return [c, v]; }
-  if (S.mode === 'lyric') { const [c, v] = LYRIC[S.lyricIdx % LYRIC.length]; S.lyricIdx++; const key = c === 'N' ? 'N' : (c + v); setBubble(KANA[key] || KANA[v] || 'ん', c === 'N' ? 'n' : c + v); return [c, v]; }
-  setBubble(KANA[S.vowel], S.vowel); return ['', S.vowel];
+  if (S.mode === 'doremi') { const pc = ((note % 12) + 12) % 12; setBubble(SOLF_K[pc], SOLF_R[pc]); return SOLF[pc]; }
+  if (S.mode === 'lyric' && S.lyric.length) { const key = S.lyric[S.lyricIdx % S.lyric.length]; S.lyricIdx++; setBubble(VB.KANA[key] || key, key); showNext(); return key; }
+  setBubble(KANA[S.vowel], S.vowel); return S.vowel;
 }
-let lastSyl = null;
+const koalaOn = () => S.voice === 'koala' && kvReady && kv;
+let lastKey = null, kvVibT = null;
 function noteOn(note, legato) {
   if (!S.power) { start().then(() => noteOn(note, false)); return; }
   const n = note + S.oct * 12;
-  const [c, v] = syllableFor(n); lastSyl = [c, v];
-  singSyllable(c, v, n, legato);
+  const key = syllableFor(n);
+  if (koalaOn()) {
+    const k = kv.pick(key) || kv.pick('a') || [...kv.keys][0];
+    const same = legato && k === lastKey && S.mode === 'vowel';
+    kv.on(k, hz(n), legato, same); lastKey = k;
+    kv.vib(S.vib ? 70 : 0, 5.6); clearTimeout(kvVibT);
+    if (!S.vib) kvVibT = setTimeout(() => { if (S.note !== null && !S.vib && kv) kv.vib(22, 5.6); }, 380);
+    mouthFor(key === 'n' ? 'N' : VB.split(key)[1] || 'a'); sparkNote();
+  } else {
+    const [c0, v] = VB.split(key);
+    singSyllable(CMAP[c0] ?? '', v, n, legato);
+  }
   S.note = note; document.getElementById('koe').classList.add('singing');
   keyHot(note);
 }
@@ -365,7 +427,7 @@ const MOUTH = {
   N: 'M201 118Q206 117 211 118Q210 120 206 120.5Q202 120 201 118Z'
 };
 const IDLE = 'M199 117Q206 122 213 117Q206 120 199 117Z';
-function mouthFor(v) { document.getElementById('mouth').setAttribute('d', v ? (MOUTH[v] || MOUTH.a) : IDLE); }
+function mouthFor(v) { const d = v ? (MOUTH[v] || MOUTH.a) : IDLE; document.getElementById('mouth').setAttribute('d', d); document.getElementById('kmouth').setAttribute('d', d); }
 let lastSpark = 0;
 function sparkNote() {
   const now = performance.now(); if (now - lastSpark < 240) return; lastSpark = now;
@@ -381,7 +443,45 @@ function render() {
   document.querySelectorAll('.vowel').forEach((b) => b.classList.toggle('on', S.mode === 'vowel' && b.dataset.b === S.vowel));
   koe.querySelector('[data-b="vibrato"]').classList.toggle('on', S.vib);
   koe.querySelector('[data-b="shift"]').classList.toggle('on', S.shift);
+  document.querySelectorAll('[data-voice]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.voice === S.voice)));
+  document.querySelectorAll('[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === S.mode)));
+  koe.classList.toggle('koalamode', S.voice === 'koala');
+  kvStatus();
 }
+function showNext() { kvStatus(); }
+function kvStatus() {
+  const el = document.getElementById('kvStat'); if (!el) return;
+  const next = S.mode === 'lyric' && S.lyric.length ? ` · next: <b>${VB.KANA[S.lyric[S.lyricIdx % S.lyric.length]] || ''}</b>` : '';
+  let v = '';
+  if (S.voice === 'koala') {
+    if (kvBusy) v = 'loading the koala voice…';
+    else if (kvReady) v = `koala voice: ${kv.keys.size} syllables` + (kvSource === 'local' ? ' (your takes in this browser)' : '');
+    else if (S.power) v = 'the koala hasn\'t recorded her voice yet, so this is the built-in voice';
+    else v = 'power on to load the koala voice';
+  }
+  el.innerHTML = v + next;
+}
+async function loadBank() {
+  if (!kv || kvLoading) return kvLoading;
+  kvLoading = (async () => {
+    kvBusy = true; render();
+    let takes = null;
+    try { takes = await VB.loadWav('voicebank/koala-voice.wav', ctx); kvSource = 'published'; } catch (e) { takes = null; }
+    if (!takes || !Object.keys(takes).length) { try { const all = await VB.db.all(); if (Object.keys(all).length) { takes = all; kvSource = 'local'; } } catch (e) {} }
+    if (takes && kv) { const n = await VB.fill(kv, takes); kvReady = n > 0; }
+    kvBusy = false; render();
+  })();
+  return kvLoading;
+}
+document.querySelectorAll('[data-voice]').forEach((b) => b.addEventListener('click', async () => {
+  S.voice = b.dataset.voice; noteOff(); render();
+  if (S.voice === 'koala') { if (!S.power) await start(); await loadBank(); }
+  setBubble(S.voice === 'koala' ? 'こあら' : 'こえ', S.voice === 'koala' ? 'koala' : 'koe'); render();
+}));
+document.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { S.mode = b.dataset.mode; S.lyricIdx = 0; render(); }));
+document.getElementById('lyricIn').addEventListener('input', (e) => { const l = VB.parseLyric(e.target.value); S.lyric = l.length ? l : VB.parseLyric('ko a ra wa ra ra n do'); S.lyricIdx = 0; if (S.mode !== 'lyric') S.mode = 'lyric'; render(); });
+document.getElementById('lyricIn').addEventListener('keydown', (e) => e.stopPropagation());
+document.getElementById('toneIn').addEventListener('input', (e) => { S.tone = +e.target.value; kv && kv.tone(S.tone); });
 function flashBubble(k, r) { setBubble(k, r); }
 function pressBtn(id) {
   if (id !== 'power' && !S.power) { start(); }
@@ -397,7 +497,7 @@ function pressBtn(id) {
       if (S.note === null) { mouthFor(id); setTimeout(() => { if (S.note === null) mouthFor(null); }, 400); }
     }
   }
-  if (id === 'vibrato') { S.vib = true; if (ctx) vibGain.gain.setTargetAtTime(70, T(), 0.08); }
+  if (id === 'vibrato') { S.vib = true; if (ctx) vibGain.gain.setTargetAtTime(70, T(), 0.08); if (kv) { clearTimeout(kvVibT); kv.vib(70, 5.6); } }
   if (id === 'shift') S.shift = true;
   if (id === 'up' || id === 'down') {
     const d = id === 'up' ? 1 : -1;
@@ -406,13 +506,13 @@ function pressBtn(id) {
   }
   if (id === 'power') {
     if (!S.power) start();
-    else { noteOff(); ctx && ctx.suspend(); S.power = false; started = null; setBubble('…', 'off'); if (ctx) { const c = ctx; ctx = null; c.close(); forms = []; fgain = []; } document.querySelector('[data-start]').hidden = false; }
+    else { noteOff(); ctx && ctx.suspend(); S.power = false; started = null; setBubble('…', 'off'); if (ctx) { const c = ctx; ctx = null; c.close(); forms = []; fgain = []; kv = null; kvReady = false; kvLoading = null; } document.querySelector('[data-start]').hidden = false; }
   }
   render();
 }
 function releaseBtn(id) {
   const b = koe.querySelector(`[data-b="${id}"]`); b && b.classList.remove('down');
-  if (id === 'vibrato') { S.vib = false; if (ctx) vibGain.gain.setTargetAtTime(S.note !== null ? 18 : 0, T(), 0.15); }
+  if (id === 'vibrato') { S.vib = false; if (ctx) vibGain.gain.setTargetAtTime(S.note !== null ? 18 : 0, T(), 0.15); if (kv) kv.vib(S.note !== null ? 18 : 0, 5.6); }
   if (id === 'shift') S.shift = false;
   render();
 }
@@ -485,7 +585,7 @@ window.addEventListener('blur', () => { downKeys.length = 0; noteOff(); if (S.sh
 
 document.querySelector('[data-start]').addEventListener('click', () => start().catch((e) => console.error(e)));
 render();
-window.__koe = { S, start, noteOn, noteOff, pressBtn, releaseBtn, get ctx() { return ctx; }, get master() { return master; } };
+window.__koe = { S, start, noteOn, noteOff, pressBtn, releaseBtn, get ctx() { return ctx; }, get master() { return master; }, get kv() { return kv; }, get kvReady() { return kvReady; }, loadBank };
 })();
 </script>
 </body>

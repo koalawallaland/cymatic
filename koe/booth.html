@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>koala voice booth · koalawallaland</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=Space+Mono:wght@400;700&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--ink:#f8e9f6;--muted:#c4b7cb;--tiff:#81d8d0;--pink:#ff8fc8;--good:#9ff0a8;--warn:#ffd36e;--bad:#ff7d9a;--card:#1d1728}
+*{box-sizing:border-box}
+html,body{margin:0;background:#130e1d;color:var(--ink);font-family:"Space Mono",monospace}
+body{background:radial-gradient(ellipse at 50% 0%,#3d2c5e 0%,#1b1328 55%,#110c19 100%);min-height:100vh}
+main{max-width:1000px;margin:auto;padding:18px 16px 70px}
+a{color:#d3edac}
+h1{font-family:Syne,sans-serif;font-size:clamp(26px,5vw,44px);margin:16px 0 4px}
+h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);letter-spacing:.08em;margin-left:.5em;vertical-align:middle}
+p{color:var(--muted);line-height:1.55;font-size:14px;margin:0 0 12px;max-width:74ch}
+.panel{border:1px solid #8fb9c040;border-radius:20px;background:#1a1526d9;padding:16px;margin-top:14px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+label{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center}
+select,input[type=text]{background:#271f35;color:var(--ink);border:1px solid #6c5a80;border-radius:10px;padding:7px 9px;font:13px "Space Mono",monospace}
+input[type=text]{min-width:min(100%,320px);flex:1}
+button{border:1px solid #9a87b3;background:#30253f;color:#fff1fa;padding:9px 14px;border-radius:12px;cursor:pointer;font:13px "Space Mono",monospace}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--tiff);outline-offset:2px}
+.stage{display:grid;grid-template-columns:minmax(200px,280px) 1fr;gap:16px;align-items:stretch}
+@media(max-width:700px){.stage{grid-template-columns:1fr}}
+.syl{border-radius:18px;background:linear-gradient(160deg,#ffe3f2,#e9dcff 55%,#bdf1ec);color:#3a2850;display:grid;place-items:center;text-align:center;padding:14px;min-height:220px;position:relative}
+.syl .kana{font:900 clamp(64px,12vw,104px)/1 "Zen Maru Gothic",sans-serif;color:#d94a92}
+.syl .rom{font:700 18px "Space Mono",monospace;margin-top:6px}
+.syl .idx{position:absolute;top:10px;left:14px;font-size:12px;color:#7a68a3}
+.syl .navs{position:absolute;bottom:10px;left:10px;right:10px;display:flex;justify-content:space-between}
+.syl .navs button{background:#ffffffb0;color:#3a2850;border-color:#c7b5ef;padding:5px 10px}
+.side{display:flex;flex-direction:column;gap:10px}
+.hint{font-size:13px;color:var(--ink);line-height:1.5;min-height:2.6em}
+.rec{width:92px;height:92px;border-radius:50%;border:4px solid #ffd0e6;background:radial-gradient(circle at 45% 40%,#ff8fb8,#e0457d 60%,#a8265a);color:#fff;font:700 13px "Space Mono",monospace;box-shadow:0 0 0 6px #ff8fc822,0 10px 24px #0008;position:relative}
+.rec.live{animation:pulse .7s ease-in-out infinite alternate}
+.rec.count{background:radial-gradient(circle at 45% 40%,#ffd88f,#e0a345 60%,#a87426)}
+@keyframes pulse{to{box-shadow:0 0 0 14px #ff8fc855,0 10px 24px #0008}}
+.meter{height:10px;border-radius:6px;background:#2c2340;overflow:hidden;flex:1;min-width:120px}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#81d8d0,#ffd36e 75%,#ff7d9a);transition:width .05s}
+canvas.wave{width:100%;height:120px;border-radius:12px;background:#0d0a14;display:block}
+.verdict{font-size:13px;line-height:1.5;min-height:1.5em}
+.verdict.good{color:var(--good)}.verdict.warn{color:var(--warn)}.verdict.bad{color:var(--bad)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px;margin-top:8px}
+.chip{display:grid;place-items:center;padding:6px 0 4px;border-radius:10px;border:1px solid #4a3d5e;background:#211a2e;cursor:pointer;color:var(--ink)}
+.chip b{font:900 19px/1.1 "Zen Maru Gothic",sans-serif}
+.chip small{font-size:9.5px;color:var(--muted)}
+.chip.good{border-color:#5fbf86;background:#1d3328}
+.chip.warn{border-color:#c9a24a;background:#352c18}
+.chip.cur{outline:2px solid var(--pink);outline-offset:1px}
+.progress{height:8px;border-radius:5px;background:#2c2340;overflow:hidden;margin:6px 0 2px}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,#81d8d0,#ff8fc8);width:0}
+.keys{display:flex;gap:4px;flex-wrap:wrap;margin-top:10px}
+.keys button{padding:12px 0;width:44px;text-align:center;border-radius:10px}
+.keys button.blk{background:#120e19;border-color:#6c5a80}
+h2{font:700 15px/1.2 Syne,sans-serif;color:#bff3ee;margin:0 0 8px;letter-spacing:.03em}
+.note{font-size:12px;color:#ab9db3}
+.big{font-size:15px;padding:12px 18px;border-color:var(--pink);background:#3d2441}
+</style>
+</head>
+<body>
+<main>
+  <a href="index.html">← Back to koe pocket</a>
+  <h1>koala voice booth <small>MAKE A VOICEBANK</small></h1>
+  <p>Sing each syllable once on the guide note and hold the vowel for about a second. When every syllable is done, the koala can sing any melody and any lyric in your voice. Wear headphones if you can so the guide beeps don't end up in your takes. Your takes stay in this browser until you export them.</p>
+
+  <section class="panel">
+    <div class="row">
+      <label>Guide note <select id="pitch"></select></label>
+      <label><input type="checkbox" id="guide" checked> count-in beeps</label>
+      <label><input type="checkbox" id="auto" checked> next syllable after a good take</label>
+      <span class="note" id="mic">mic: not on yet</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="stage">
+      <div class="syl" id="sylcard"><span class="idx" id="idx">1 / 70</span><div><div class="kana" id="kana">あ</div><div class="rom" id="rom">a</div></div>
+        <div class="navs"><button type="button" id="prev" aria-label="Previous syllable">←</button><button type="button" id="next" aria-label="Next syllable">→</button></div></div>
+      <div class="side">
+        <div class="hint" id="hint"></div>
+        <div class="row"><button type="button" class="rec" id="rec" aria-label="Record this syllable (Space)">REC</button>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:180px">
+            <div class="row"><span class="note">level</span><div class="meter"><i id="lvl"></i></div></div>
+            <div class="row"><button type="button" id="play" disabled>▶ play take</button><button type="button" id="del" disabled>✕ delete take</button></div>
+          </div></div>
+        <canvas class="wave" id="wave" width="1200" height="240" aria-label="Waveform of the current take"></canvas>
+        <div class="verdict" id="verdict" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="progress"><i id="prog"></i></div><span class="note" id="progtxt">0 / 70 recorded</span>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Try your koala</h2>
+    <p>Type a lyric (in romaji or kana) and press the keys. Each key sings the next syllable. Syllables you haven't recorded yet fall back to their vowel.</p>
+    <div class="row"><input type="text" id="lyric" value="ko a ra wa ra ra n do" aria-label="Lyric"><label>tone <input type="range" id="tone" min="0.8" max="1.25" step="0.01" value="1"></label><span class="note" id="tonev">natural</span></div>
+    <div class="keys" id="keys"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Export</h2>
+    <p>This saves one file, <b>koala-voice.wav</b>, with every take in it. Send that file to Claude and it'll go on the site, so every visitor hears the koala sing in your voice.</p>
+    <div class="row"><button type="button" class="big" id="export">⬇ export voicebank</button><span class="note" id="exptxt"></span><button type="button" id="clear">clear all takes</button></div>
+  </section>
+</main>
+<script src="voicebank.js"></script>
+<script>
+(() => {
+'use strict';
+const VB = window.KoalaVB, SYLS = VB.SYLS, N = SYLS.length;
+const $ = (id) => document.getElementById(id);
+const NOTE = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const nname = (m) => NOTE[m % 12] + (Math.floor(m / 12) - 1);
+const hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
+let saved = {}; try { saved = JSON.parse(localStorage.getItem('kwl-booth') || '{}'); } catch (e) {}
+for (let m = 50; m <= 72; m++) { const o = document.createElement('option'); o.value = m; o.textContent = nname(m) + ' · ' + Math.round(hz(m)) + 'Hz'; $('pitch').appendChild(o); }
+$('pitch').value = saved.pitch || 60;
+const persist = () => { try { localStorage.setItem('kwl-booth', JSON.stringify({ pitch: +$('pitch').value, cur })); } catch (e) {} };
+$('pitch').onchange = persist;
+
+let cur = Math.min(N - 1, saved.cur || 0);
+const takes = {}; // key -> {pcm, sr, meta}
+const status = {}; // key -> 'good' | 'warn'
+
+// hints
+function hintFor(k) {
+  if (k.length === 1 && k !== 'n') return `Sing <b>"${k}"</b> and hold it, smooth and steady, for about a second.`;
+  if (k === 'n') return 'Hum <b>"nnn"</b> with your mouth closed, like the end of "san".';
+  const c = k.slice(0, -1);
+  const tips = { k: 'a crisp k', s: 'a soft hiss', sh: 'a soft "sh"', t: 'a light t', ch: 'a light "ch"', ts: 'a quick "ts"', n: 'a short n', h: 'a breathy h', f: 'a gentle f (lips barely touching)', m: 'a short m', y: 'a quick y glide', r: 'a flicked Japanese r (between r, l and d)', w: 'a quick w', g: 'a soft g', z: 'a buzzy z', j: 'a soft "j"', d: 'a light d', b: 'a soft b', p: 'a crisp p' };
+  return `Start with ${tips[c] || 'the consonant'}, then hold <b>"${k.slice(-1)}"</b> for about a second.`;
+}
+// grid
+SYLS.forEach(([k, kana], i) => {
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.i = i; b.setAttribute('aria-label', k);
+  b.innerHTML = `<b>${kana}</b><small>${k}</small>`; b.onclick = () => select(i); $('grid').appendChild(b);
+});
+function renderGrid() {
+  document.querySelectorAll('.chip').forEach((b) => { const k = SYLS[+b.dataset.i][0]; b.classList.toggle('good', status[k] === 'good'); b.classList.toggle('warn', status[k] === 'warn'); b.classList.toggle('cur', +b.dataset.i === cur); });
+  const n = Object.keys(takes).length; $('prog').style.width = (n / N * 100) + '%'; $('progtxt').textContent = `${n} / ${N} recorded`;
+  $('exptxt').textContent = n ? `${n} of ${N} syllables will be exported` : 'record a few syllables first';
+  $('export').disabled = !n;
+}
+function select(i) {
+  cur = (i + N) % N; persist();
+  const [k, kana] = SYLS[cur];
+  $('kana').textContent = kana; $('rom').textContent = k; $('idx').textContent = `${cur + 1} / ${N}`; $('hint').innerHTML = hintFor(k);
+  $('play').disabled = $('del').disabled = !takes[k];
+  drawTake(takes[k]); verdictFor(k); renderGrid();
+}
+$('prev').onclick = () => select(cur - 1); $('next').onclick = () => select(cur + 1);
+
+// audio
+let ctx = null, stream = null, recNode = null, an = null, engine = null, master = null;
+async function ensureCtx() {
+  if (!ctx) {
+    ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
+    await VB.loadWorklet(ctx);
+    master = ctx.createGain(); master.gain.value = 0.9; master.connect(ctx.destination);
+    engine = new VB.Engine(ctx); engine.connect(master);
+    for (const k in takes) { const a = VB.analyze(takes[k].pcm, takes[k].sr); if (!a.error) engine.load(k, a); }
+  }
+  if (ctx.state !== 'running') await ctx.resume();
+}
+async function ensureMic() {
+  await ensureCtx();
+  if (stream) return;
+  stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1 } });
+  const src = ctx.createMediaStreamSource(stream);
+  an = ctx.createAnalyser(); an.fftSize = 1024; src.connect(an);
+  recNode = new AudioWorkletNode(ctx, 'kwl-rec', { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1] });
+  const mute = ctx.createGain(); mute.gain.value = 0; src.connect(recNode).connect(mute).connect(ctx.destination);
+  $('mic').textContent = 'mic: on'; meterLoop();
+}
+function meterLoop() {
+  const b = new Float32Array(1024);
+  const tick = () => { if (!an) return; an.getFloatTimeDomainData(b); let p = 0; for (const v of b) p = Math.max(p, Math.abs(v)); $('lvl').style.width = Math.min(100, Math.sqrt(p) * 100) + '%'; requestAnimationFrame(tick); };
+  tick();
+}
+function beep(t, f, dur) { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.25, t + 0.01); g.gain.setTargetAtTime(0, t + dur, 0.03); o.connect(g).connect(ctx.destination); o.start(t); o.stop(t + dur + 0.2); }
+let busy = false;
+async function record() {
+  if (busy) return; busy = true;
+  const btn = $('rec');
+  try { await ensureMic(); }
+  catch (e) { busy = false; setVerdict('bad', "The mic didn't start. Allow microphone access for this page and try again."); return; }
+  const k = SYLS[cur][0]; const f = hz(+$('pitch').value);
+  const guide = $('guide').checked; const t0 = ctx.currentTime + 0.1;
+  btn.classList.add('count');
+  if (guide) { for (let i = 0; i < 3; i++) beep(t0 + i * 0.5, f, i === 2 ? 0.35 : 0.18); }
+  const startAt = guide ? t0 + 1.5 : t0 + 0.2;
+  const counts = guide ? ['3', '2', '1'] : [];
+  counts.forEach((c, i) => setTimeout(() => { btn.textContent = c; }, (t0 + i * 0.5 - ctx.currentTime) * 1000));
+  await new Promise((r) => setTimeout(r, (startAt - ctx.currentTime) * 1000));
+  btn.classList.remove('count'); btn.classList.add('live'); btn.textContent = 'sing!';
+  const chunks = []; recNode.port.onmessage = (e) => chunks.push(e.data);
+  recNode.port.postMessage({ on: true });
+  await new Promise((r) => setTimeout(r, VB.SLOT_SEC * 1000));
+  recNode.port.postMessage({ on: false });
+  await new Promise((r) => setTimeout(r, 60));
+  btn.classList.remove('live'); btn.textContent = 'REC';
+  let len = 0; for (const c of chunks) len += c.length;
+  const max = Math.round(VB.SLOT_SEC * ctx.sampleRate); const pcm = new Float32Array(Math.min(len, max)); let o = 0;
+  for (const c of chunks) { if (o >= pcm.length) break; pcm.set(c.subarray(0, pcm.length - o), o); o += c.length; }
+  busy = false;
+  await accept(k, pcm, ctx.sampleRate, true);
+}
+async function accept(k, pcm, sr, fromMic) {
+  const a = VB.analyze(pcm.slice(), sr);
+  const res = judge(a);
+  if (res.level === 'bad') { setVerdict('bad', res.text); drawTake({ pcm, sr }, a); return false; }
+  takes[k] = { pcm, sr, meta: { f0: a.f0, level: res.level } }; status[k] = res.level;
+  try { await VB.db.put(k, pcm, sr, takes[k].meta); } catch (e) { res.text += ' (Note: this browser would not save it for next time.)'; }
+  if (engine) engine.load(k, a);
+  select(cur); setVerdict(res.level, res.text);
+  if (fromMic && res.level === 'good' && $('auto').checked) setTimeout(() => { if (!busy) { const nxt = SYLS.findIndex(([kk], i) => i > cur && !takes[kk]); select(nxt >= 0 ? nxt : cur + 1); } }, 900);
+  return true;
+}
+function judge(a) {
+  if (a.error === 'quiet') return { level: 'bad', text: 'Too quiet. Move closer to the mic or sing a little louder.' };
+  if (a.error) return { level: 'bad', text: "I couldn't find a held vowel. Sing on the guide note and hold the vowel for about a second." };
+  const ref = hz(+$('pitch').value); const cents = Math.round(1200 * Math.log2(a.f0 / ref));
+  const notes = [];
+  let level = 'good';
+  if (a.peak > 0.985) { level = 'warn'; notes.push('a little clipped, so back off the mic slightly'); }
+  if (Math.abs(cents) > 250) { level = 'warn'; notes.push(`you sang ${Math.round(a.f0)}Hz, ${Math.abs(cents) > 1150 ? 'about an octave' : Math.round(Math.abs(cents) / 100) + ' semitones'} ${cents > 0 ? 'above' : 'below'} the guide. That works, but staying close keeps the voice even`); }
+  if (a.voicedSec < 0.35) { level = 'warn'; notes.push('hold the vowel a bit longer'); }
+  return { level, text: level === 'good' ? `Got it ✓ ${Math.round(a.f0)}Hz, ${a.voicedSec.toFixed(1)}s of vowel.` : 'Saved, but ' + notes.join('; ') + '.' };
+}
+function setVerdict(cls, text) { const v = $('verdict'); v.className = 'verdict ' + cls; v.textContent = text; }
+function verdictFor(k) { if (!takes[k]) setVerdict('', 'No take yet. Press REC (or Space).'); else setVerdict(status[k] || 'good', status[k] === 'warn' ? 'Saved, with a note. Press REC to redo it if you like.' : 'Recorded ✓. Press REC to redo it if you like.'); }
+function drawTake(t, a) {
+  const cv = $('wave'), g = cv.getContext('2d'); const W = cv.width, H = cv.height;
+  g.clearRect(0, 0, W, H); g.fillStyle = '#0d0a14'; g.fillRect(0, 0, W, H);
+  if (!t) { g.fillStyle = '#5c4c6c'; g.font = '28px Space Mono'; g.textAlign = 'center'; g.fillText('no take yet', W / 2, H / 2 + 10); return; }
+  const d = t.pcm; const step = d.length / W;
+  g.strokeStyle = '#81d8d0'; g.beginPath();
+  for (let x = 0; x < W; x++) { let mn = 1, mx = -1; const s = Math.floor(x * step), e = Math.min(d.length, Math.floor((x + 1) * step)); for (let i = s; i < e; i++) { if (d[i] < mn) mn = d[i]; if (d[i] > mx) mx = d[i]; } g.moveTo(x, H / 2 - mx * H * 0.45); g.lineTo(x, H / 2 - mn * H * 0.45); }
+  g.stroke();
+  a = a || VB.analyze(d.slice(), t.sr);
+  if (!a.error) {
+    // locate trimmed region roughly: find where analysis data starts by energy onset
+    g.fillStyle = '#ff8fc833'; g.font = '22px Space Mono'; g.fillStyle = '#ffd6f3'; g.textAlign = 'left';
+    g.fillText(`${Math.round(a.f0)}Hz · consonant ${(a.consSec * 1000).toFixed(0)}ms · vowel ${a.voicedSec.toFixed(2)}s`, 16, 30);
+  }
+}
+$('rec').onclick = () => record();
+window.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  if (e.code === 'Space' && !e.repeat) { e.preventDefault(); record(); }
+  if (e.key === 'ArrowRight') select(cur + 1); if (e.key === 'ArrowLeft') select(cur - 1);
+});
+$('play').onclick = async () => { const t = takes[SYLS[cur][0]]; if (!t) return; await ensureCtx(); const b = ctx.createBuffer(1, t.pcm.length, t.sr); b.copyToChannel(t.pcm, 0); const s = ctx.createBufferSource(); s.buffer = b; s.connect(ctx.destination); s.start(); };
+$('del').onclick = async () => { const k = SYLS[cur][0]; delete takes[k]; delete status[k]; try { await VB.db.del(k); } catch (e) {} select(cur); };
+$('clear').onclick = async () => { if (!confirm('Delete every take in this browser? This cannot be undone.')) return; for (const k of Object.keys(takes)) { delete takes[k]; delete status[k]; try { await VB.db.del(k); } catch (e) {} } select(0); };
+$('export').onclick = async () => {
+  $('export').disabled = true; $('exptxt').textContent = 'building the file…';
+  try {
+    const blob = await VB.exportWav(takes);
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'koala-voice.wav'; document.body.appendChild(a); a.click(); a.remove();
+    $('exptxt').textContent = `exported ${Object.keys(takes).length} syllables (${(blob.size / 1048576).toFixed(1)} MB). Send koala-voice.wav to Claude.`;
+  } catch (e) { $('exptxt').textContent = "Export didn't work in this browser. Try Chrome or Safari on a computer."; }
+  $('export').disabled = false;
+};
+// try-it keyboard
+const KEYN = [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72];
+let lyr = [], li = 0;
+const refreshLyric = () => { lyr = VB.parseLyric($('lyric').value); li = 0; };
+$('lyric').oninput = refreshLyric; refreshLyric();
+$('tone').oninput = () => { const q = +$('tone').value; $('tonev').textContent = q < 0.96 ? 'deeper' : q > 1.04 ? 'cuter' : 'natural'; engine && engine.tone(q); };
+KEYN.forEach((m) => {
+  const b = document.createElement('button'); b.type = 'button'; b.textContent = NOTE[m % 12]; if (NOTE[m % 12].includes('#')) b.className = 'blk';
+  const down = async (e) => {
+    e.preventDefault(); await ensureCtx();
+    if (!Object.keys(takes).length) { setVerdict('warn', 'Record a few syllables first, then the keys will sing them.'); return; }
+    const want = lyr.length ? lyr[li++ % lyr.length] : 'a';
+    const k = engine.pick(want) || engine.pick('a') || [...engine.keys][0];
+    const shift = +$('pitch').value - 60; engine.on(k, hz(m + shift), false); engine.vib(0);
+    setTimeout(() => engine.vib(18, 5.6), 380);
+  };
+  b.addEventListener('pointerdown', down); b.addEventListener('pointerup', () => engine && engine.off()); b.addEventListener('pointerleave', (e) => { if (e.buttons) engine && engine.off(); });
+  $('keys').appendChild(b);
+});
+// restore takes
+(async () => {
+  try { const all = await VB.db.all(); for (const k in all) { takes[k] = all[k]; status[k] = (all[k].meta && all[k].meta.level) || 'good'; } } catch (e) {}
+  select(cur);
+})();
+window.__booth = { takes, accept, ensureCtx, get engine() { return engine; }, get ctx() { return ctx; }, select, record };
+})();
+</script>
+</body>
+</html>
