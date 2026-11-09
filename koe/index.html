@@ -49,8 +49,8 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
 .art svg{display:block;width:100%;height:100%}
 .speaker{position:absolute;left:80.5%;top:12%;width:17.6%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#fff1df 0 58%,#dfc4ad 62%,#f5e3cf 66%);box-shadow:0 .3cqw .5cqw #8a706055,inset 0 0 0 .25cqw #f1ebe7}
 .speaker svg{position:absolute;inset:14%;width:72%;height:72%}
-.brand{position:absolute;right:7%;top:96.6%;font:700 1.25cqw/1 Syne,sans-serif;color:#957e6f;letter-spacing:.12em;transform:translateY(-50%)}
-.brand b{color:var(--pink)}
+.brand{position:absolute;right:7%;top:96.6%;font:700 1.25cqw/1 Syne,sans-serif;color:#6e5a52;letter-spacing:.12em;transform:translateY(-50%)}
+.brand b{color:#985B64}
 .well{position:absolute;left:6%;top:55%;width:88%;height:38%;border-radius:2.6cqw;background:linear-gradient(180deg,#bfa08c,#ead4bc);box-shadow:inset 0 .4cqw .6cqw #a18c7f66}
 .strip{position:absolute;left:4%;top:12%;width:92%;height:76%;border-radius:1cqw;background:linear-gradient(180deg,#070504,#120e0b 40%,#070504);box-shadow:inset 0 .3cqw .6cqw #000,0 .15cqw 0 #fff7ed;overflow:hidden;touch-action:none;cursor:none}
 .strip svg{position:absolute;inset:0;width:100%;height:100%}
@@ -149,6 +149,8 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
             <!-- singer -->
             <g id="singer">
               <g class="breathe"><image id="singerArt" href="art/singer.png" x="0" y="0" width="300" height="220" preserveAspectRatio="xMidYMid meet"/></g>
+              <filter id="lipSoft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="0.55"/></filter>
+              <ellipse id="lipMask" cx="199.5" cy="114" rx="8.4" ry="2.7" fill="#f0d7cf" filter="url(#lipSoft)" opacity="0"/>
               <path id="mouthArt" transform="translate(199.3 113.6) scale(0.55) translate(-206 -119)" d="" fill="#7d2c3c" stroke="#e29aa0" stroke-width="1.6" stroke-linejoin="round" opacity="0"/>
               <g id="singerDrawn" style="display:none">
               <g class="hairsway">
@@ -433,9 +435,9 @@ const MOUTH = {
   N: 'M201 118Q206 117 211 118Q210 120 206 120.5Q202 120 201 118Z'
 };
 const IDLE = 'M199 117Q206 122 213 117Q206 120 199 117Z';
-function mouthFor(v) { const d = v ? (MOUTH[v] || MOUTH.a) : IDLE; document.getElementById('mouth').setAttribute('d', d); document.getElementById('kmouth').setAttribute('d', d); const ma = document.getElementById('mouthArt'); ma.setAttribute('d', v ? d : ''); ma.setAttribute('opacity', v ? '1' : '0'); }
+function mouthFor(v) { const d = v ? (MOUTH[v] || MOUTH.a) : IDLE; document.getElementById('mouth').setAttribute('d', d); document.getElementById('kmouth').setAttribute('d', d); const ma = document.getElementById('mouthArt'); ma.setAttribute('d', v ? d : ''); ma.setAttribute('opacity', v ? '1' : '0'); document.getElementById('lipMask').setAttribute('opacity', v ? '1' : '0'); }
 // the faceplate art: fall back to the drawn singer if it can't load
-{ const probe = new Image(); probe.onerror = () => { document.getElementById('singerArt').style.display = 'none'; document.getElementById('mouthArt').style.display = 'none'; document.getElementById('singerDrawn').style.display = ''; }; probe.src = 'art/singer.png'; }
+{ const probe = new Image(); probe.onerror = () => { document.getElementById('singerArt').style.display = 'none'; document.getElementById('mouthArt').style.display = 'none'; document.getElementById('lipMask').style.display = 'none'; document.getElementById('singerDrawn').style.display = ''; }; probe.src = 'art/singer.png'; }
 let lastSpark = 0;
 function sparkNote() {
   const now = performance.now(); if (now - lastSpark < 240) return; lastSpark = now;
