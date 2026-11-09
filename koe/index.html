@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>koe pocket · under the desk · koalawallaland</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=Space+Mono:wght@400;700&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--ink:#f8e9f6;--muted:#c4b7cb;--btn:#6e6688;--btn2:#544d6c;--tiff:#81d8d0;--pink:#ff8fc8}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#130e1d;color:var(--ink);font-family:"Space Mono",monospace}
+body{background:radial-gradient(ellipse at 50% 0%,#3d2c5e 0%,#1b1328 55%,#110c19 100%);min-height:100vh}
+main{max-width:1060px;margin:auto;padding:18px 16px 60px}
+a{color:#d3edac}
+.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font-family:Syne,sans-serif;font-size:clamp(26px,5vw,46px);margin:18px 0 4px}
+h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);letter-spacing:.08em;margin-left:.6em;vertical-align:middle}
+.lede{color:var(--muted);line-height:1.55;margin:0 0 18px;max-width:72ch;font-size:14px}
+.stagewrap{position:relative;padding:clamp(10px,3vw,34px) clamp(4px,2vw,24px);border-radius:26px;background:linear-gradient(160deg,#272037,#16121f);border:1px solid #8fb9c04d;box-shadow:0 30px 70px #05030a99}
+.startcover{position:absolute;inset:0;z-index:50;display:grid;place-items:center;border-radius:26px;background:#140d1dcc;backdrop-filter:blur(3px);cursor:pointer;border:0;color:inherit;font:inherit;width:100%}
+.startcover span{display:inline-block;padding:14px 22px;border-radius:40px;border:1px solid var(--tiff);background:#233543;font-size:15px;letter-spacing:.04em;box-shadow:0 0 30px #81d8d055}
+.startcover[hidden]{display:none}
+
+.koe{position:relative;width:min(100%,940px);margin:auto;aspect-ratio:900/600;container-type:inline-size;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.body{position:absolute;inset:0;border-radius:4.4cqw;background:linear-gradient(165deg,#ffffff 0%,#f3eff7 30%,#e6e0ee 75%,#d6cfe2 100%);box-shadow:inset 0 .3cqw .2cqw #fff,inset 0 -.7cqw 1cqw #b3a8c799,0 2.2cqw 3cqw #06030b99,0 .6cqw 0 #b9b0ca}
+.deck{position:absolute;left:2.4%;top:3.2%;width:95.2%;height:47%;border-radius:3cqw;background:linear-gradient(180deg,#f7f4fa,#ebe6f1);box-shadow:inset 0 0 0 .12cqw #d9d2e3,0 .25cqw .3cqw #9d93b255}
+.lbl{position:absolute;font:700 1.25cqw/1 "Space Mono",monospace;letter-spacing:.1em;color:#3c8f8a;transform:translate(-50%,-50%) rotate(var(--r,0deg));white-space:nowrap;pointer-events:none}
+.vb{position:absolute;border:0;padding:0;cursor:pointer;touch-action:none;background:linear-gradient(160deg,#8a83a3,var(--btn) 45%,var(--btn2));box-shadow:0 .45cqw 0 #3f3a52,0 .7cqw .8cqw #1d18294d,inset 0 .15cqw .15cqw #ffffff55;transition:transform .05s,box-shadow .05s,filter .1s}
+.vb.down{transform:translateY(.35cqw);box-shadow:0 .1cqw 0 #3f3a52,inset 0 .2cqw .3cqw #0005}
+.vb.on{filter:brightness(1.18) saturate(1.2);box-shadow:0 .45cqw 0 #3f3a52,0 0 1.2cqw #81d8d0aa,inset 0 .15cqw .15cqw #ffffff55}
+.vb:focus-visible{outline:.3cqw solid var(--pink);outline-offset:.3cqw}
+.vowel{border-radius:50%;width:5.3cqw;height:4.8cqw}
+.vowel span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:900 1.7cqw/1 "Zen Maru Gothic",sans-serif;color:#efeaf8;opacity:.9;pointer-events:none}
+.tri{width:6cqw;height:5.4cqw;background:none;box-shadow:none}
+.tri svg{width:100%;height:100%;display:block;filter:drop-shadow(0 .4cqw 0 #3f3a52)}
+.tri.down svg{filter:drop-shadow(0 .1cqw 0 #3f3a52)}
+.power{border-radius:50%;width:3.4cqw;height:3.4cqw;background:radial-gradient(circle at 45% 40%,#fff 0 22%,#ffd3e6 30%,#f6f1f8 60%);box-shadow:0 .25cqw .3cqw #6d608a66,inset 0 0 0 .2cqw #e3d5ea}
+.power i{position:absolute;inset:28%;border-radius:50%;border:.28cqw solid #ff5a8e;border-top-color:transparent;transition:box-shadow .2s}
+.power.on i{box-shadow:0 0 .8cqw #ff5a8e,inset 0 0 .4cqw #ff5a8e}
+.leds{position:absolute;left:4.5%;top:45.4%;display:flex;gap:1.6cqw;font:700 .95cqw/1 "Space Mono",monospace;color:#6b6380;letter-spacing:.06em}
+.leds span{display:flex;align-items:center;gap:.5cqw}
+.leds i{width:.9cqw;height:.9cqw;border-radius:50%;background:#cfc6da;box-shadow:inset 0 .1cqw .15cqw #0003}
+.leds .on i{background:var(--pink);box-shadow:0 0 .6cqw var(--pink),0 0 1.2cqw #ff8fc888}
+.leds .on{color:#c0407f}
+.art{position:absolute;left:44.5%;top:4.6%;width:44%;height:44%;border-radius:3.2cqw 3.2cqw 3.2cqw 9cqw;overflow:hidden;box-shadow:inset 0 0 0 .15cqw #ffffffaa}
+.art svg{display:block;width:100%;height:100%}
+.speaker{position:absolute;left:80.5%;top:12%;width:17.6%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#fbf9fd 0 58%,#e8e2ef 62%,#f6f3f9 66%);box-shadow:0 .3cqw .5cqw #6d608a55,inset 0 0 0 .25cqw #ece6f2}
+.speaker svg{position:absolute;inset:14%;width:72%;height:72%}
+.brand{position:absolute;right:7%;top:96.6%;font:700 1.25cqw/1 Syne,sans-serif;color:#7b6f95;letter-spacing:.12em;transform:translateY(-50%)}
+.brand b{color:var(--pink)}
+.well{position:absolute;left:6%;top:55%;width:88%;height:38%;border-radius:2.6cqw;background:linear-gradient(180deg,#d8d1e2,#f4f1f8);box-shadow:inset 0 .4cqw .6cqw #8b7fa166}
+.strip{position:absolute;left:4%;top:12%;width:92%;height:76%;border-radius:1cqw;background:linear-gradient(180deg,#050407,#0d0b12 40%,#050407);box-shadow:inset 0 .3cqw .6cqw #000,0 .15cqw 0 #fff;overflow:hidden;touch-action:none;cursor:none}
+.strip svg{position:absolute;inset:0;width:100%;height:100%}
+.strip .kw{fill:transparent;stroke:#6f6a7c;stroke-width:.6}
+.strip .kb{fill:#050407;stroke:#6f6a7c;stroke-width:.6}
+.strip .hot{fill:#ff8fc833;stroke:#ff8fc8;stroke-width:1.2;filter:drop-shadow(0 0 3px #ff8fc8)}
+.stylus{position:absolute;left:0;top:0;width:5cqw;height:18cqw;pointer-events:none;transform-origin:50% 0;z-index:9;opacity:0;transition:opacity .15s}
+.stylus.show{opacity:1}
+.bubble{font-family:"Zen Maru Gothic",sans-serif}
+@keyframes sway{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
+.hairsway{transform-origin:205px 60px;animation:sway 5s ease-in-out infinite}
+.singing .hairsway{animation-duration:2.4s}
+@keyframes note{0%{opacity:0;transform:translate(0,8px)}20%{opacity:1}100%{opacity:0;transform:translate(-14px,-34px)}}
+.fnote{animation:note 1.6s ease-out forwards}
+@media (prefers-reduced-motion:reduce){.hairsway{animation:none}.fnote{animation-duration:.01s}}
+.under{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:20px}
+.card{border:1px solid #8fb9c040;border-radius:16px;padding:12px 14px;background:#1a1726c4;font-size:12.5px;line-height:1.55;color:var(--muted)}
+.card h2{font:700 13px/1.2 Syne,sans-serif;color:#bff3ee;margin:0 0 6px;letter-spacing:.03em}
+.card kbd{font:11px "Space Mono",monospace;padding:1px 5px;border-radius:5px;border:1px solid #5f7a80;background:#1f2b33;color:#e9fffc}
+.card b{color:#f8e9f6}
+.rotate-tip{display:none;text-align:center;color:var(--tiff);font-size:12px;margin:10px 0 0}
+@media (max-width:560px) and (orientation:portrait){.rotate-tip{display:block}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><a href="../home.html">← Back to desk</a><span style="font-size:12px;color:#ab9db3">under the desk · synth no. 2</span></div>
+  <h1>koe pocket <small>STYLUS · SINGING VOICE</small></h1>
+  <p class="lede">A pocket synth that sings. Touch the stylus to the key strip and she sings a syllable. Slide it along the strip and she glides between notes. The five vowel buttons change what she sings, VIBRATO makes her voice waver, and SHIFT switches the lyric mode. (<i>koe</i> is Japanese for "voice".)</p>
+
+  <div class="stagewrap">
+    <button class="startcover" type="button" data-start><span>▶ power on</span></button>
+    <div class="koe" id="koe">
+      <div class="body"></div>
+      <div class="deck"></div>
+      <!-- controls -->
+      <button class="vb" data-b="vibrato" aria-label="Vibrato (hold)" style="left:5%;top:15%;width:8.4cqw;height:12cqw;border-radius:1.6cqw 4cqw 1.6cqw 1.6cqw"></button>
+      <span class="lbl" style="left:9.4%;top:38%">VIBRATO</span>
+      <button class="vb" data-b="shift" aria-label="Shift (hold)" style="left:16.5%;top:7.5%;width:4.6cqw;height:21cqw;border-radius:3cqw 3cqw 2.4cqw 2.4cqw;transform-origin:50% 100%;rotate:-14deg"></button>
+      <span class="lbl" style="left:19.6%;top:41.6%">SHIFT</span>
+      <button class="vb vowel" data-b="a" aria-label="Vowel A" style="left:25%;top:5%"><span>あ</span></button>
+      <button class="vb vowel" data-b="i" aria-label="Vowel I" style="left:27.7%;top:13.8%"><span>い</span></button>
+      <button class="vb vowel" data-b="u" aria-label="Vowel U" style="left:28.7%;top:22.6%"><span>う</span></button>
+      <button class="vb vowel" data-b="e" aria-label="Vowel E" style="left:27.7%;top:31.4%"><span>え</span></button>
+      <button class="vb vowel" data-b="o" aria-label="Vowel O" style="left:25%;top:40.2%"><span>お</span></button>
+      <button class="vb tri" data-b="up" aria-label="Volume up (with SHIFT: octave up)" style="left:36.4%;top:11.5%"><svg viewBox="0 0 60 54"><path d="M30 6Q34 6 36 10L54 42Q57 48 50 48H10Q3 48 6 42L24 10Q26 6 30 6Z" fill="#6e6688"/></svg></button>
+      <button class="vb tri" data-b="down" aria-label="Volume down (with SHIFT: octave down)" style="left:36.4%;top:24.5%"><svg viewBox="0 0 60 54"><path d="M30 48Q34 48 36 44L54 12Q57 6 50 6H10Q3 6 6 12L24 44Q26 48 30 48Z" fill="#6e6688"/></svg></button>
+      <span class="lbl" style="left:39.8%;top:40%">VOLUME</span>
+      <button class="vb power" data-b="power" aria-label="Power" style="left:40.6%;top:3.8%"><i></i></button>
+      <div class="leds" aria-live="polite">
+        <span data-led="vowel"><i></i>VOWEL</span><span data-led="doremi"><i></i>DO·RE·MI</span><span data-led="lyric"><i></i>LYRIC</span>
+      </div>
+      <!-- faceplate art -->
+      <div class="art" id="art">
+        <svg viewBox="0 0 300 220" aria-label="An original singer with long wavy hair, dark roots fading to copper, blonde and pink">
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe3f2"/><stop offset=".45" stop-color="#e9dcff"/><stop offset="1" stop-color="#bdf1ec"/></linearGradient>
+            <pattern id="dots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.1" fill="#b9a8ea" opacity=".45"/></pattern>
+            <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 18) scale(1 214)"><stop offset="0" stop-color="#2a1a1c"/><stop offset=".14" stop-color="#4a2a22"/><stop offset=".3" stop-color="#a95a33"/><stop offset=".48" stop-color="#d9934d"/><stop offset=".63" stop-color="#ecc27e"/><stop offset=".8" stop-color="#f6a4c2"/><stop offset="1" stop-color="#ff7fbd"/></linearGradient>
+            <linearGradient id="hairShine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+            <linearGradient id="top" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c7b3f3"/><stop offset="1" stop-color="#8f7ad6"/></linearGradient>
+            <radialGradient id="skin" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#ffe7dc"/><stop offset="1" stop-color="#f3c9b8"/></radialGradient>
+            <clipPath id="frame"><rect width="300" height="220"/></clipPath>
+          </defs>
+          <g clip-path="url(#frame)">
+            <rect width="300" height="220" fill="url(#sky)"/>
+            <rect width="300" height="220" fill="url(#dots)"/>
+            <g opacity=".5" fill="none" stroke="#fff" stroke-width="1.2"><path d="M14 168q40-30 80 0t80 0" /><path d="M0 188q40-30 80 0t80 0t80 0"/></g>
+            <g fill="#ffffff" opacity=".9"><path d="M40 40l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/><path d="M118 22l1.4 4 4 1.4-4 1.4-1.4 4-1.4-4-4-1.4 4-1.4z"/><path d="M262 30l1.6 4.6 4.6 1.6-4.6 1.6-1.6 4.6-1.6-4.6-4.6-1.6 4.6-1.6z"/></g>
+            <!-- speech bubble -->
+            <g class="bubble" transform="translate(18 64)">
+              <path d="M0 18Q0 0 20 0H92Q112 0 112 18V46Q112 64 92 64H58L44 80L42 64H20Q0 64 0 46Z" fill="#fff" stroke="#c9b5ef" stroke-width="2"/>
+              <text x="56" y="38" text-anchor="middle" font-size="30" font-weight="900" fill="#e0559b" id="kana">こえ</text>
+              <text x="56" y="56" text-anchor="middle" font-size="11" font-family="Space Mono,monospace" fill="#6f62a0" id="romaji">koe</text>
+            </g>
+            <g id="notes"></g>
+            <!-- singer -->
+            <g transform="translate(0 0)" id="singer">
+              <g class="hairsway">
+                <!-- back hair -->
+                <path fill="url(#hair)" d="M150 120C140 80 158 34 205 30C252 26 274 66 268 110C266 132 280 150 276 176C272 200 286 214 292 226L120 226C130 210 128 196 134 178C140 160 152 146 150 120Z"/>
+                <path fill="url(#hair)" opacity=".85" d="M158 150C150 176 140 196 132 226H164C162 200 170 176 168 152Z"/>
+              </g>
+              <!-- shoulders & top -->
+              <path fill="url(#skin)" d="M192 132H220L222 156H190Z"/>
+              <path fill="url(#top)" d="M150 226C152 186 168 168 192 160L206 168L220 160C246 168 262 188 262 226Z"/>
+              <path fill="#ffffff" opacity=".55" d="M186 166Q206 182 226 166L222 162Q206 174 190 162Z"/>
+              <path fill="url(#skin)" d="M180 162Q206 150 232 162L220 172Q206 178 192 172Z"/>
+              <path d="M206 176v10" stroke="#81d8d0" stroke-width="3" stroke-linecap="round"/><circle cx="206" cy="190" r="4.2" fill="#81d8d0" stroke="#fff" stroke-width="1.2"/>
+              <!-- face -->
+              <path fill="url(#skin)" d="M174 86C174 58 190 46 206 46C222 46 238 58 238 86C238 112 224 136 206 138C188 136 174 112 174 86Z"/>
+              <ellipse cx="186" cy="108" rx="8" ry="4.6" fill="#ff9fc3" opacity=".55"/><ellipse cx="226" cy="108" rx="8" ry="4.6" fill="#ff9fc3" opacity=".55"/>
+              <!-- closed happy eyes -->
+              <g fill="none" stroke="#4a2a3a" stroke-width="2.6" stroke-linecap="round"><path d="M181 96Q189 89 197 96"/><path d="M215 96Q223 89 231 96"/></g>
+              <g stroke="#4a2a3a" stroke-width="1.6" stroke-linecap="round"><path d="M181 96l-3 -2"/><path d="M231 96l3 -2"/></g>
+              <!-- mouth (animated by vowel) -->
+              <path id="mouth" d="M199 117Q206 122 213 117" fill="#c23c6d" stroke="#8d2a4f" stroke-width="1.6" stroke-linejoin="round"/>
+              <!-- front hair / bangs -->
+              <g class="hairsway">
+                <path fill="url(#hair)" d="M168 98C164 62 180 34 208 34C236 34 252 60 246 98C240 84 236 74 232 66C228 78 220 84 210 86C214 78 214 70 212 64C204 76 192 84 180 86C184 78 186 72 186 66C180 74 174 86 168 98Z"/>
+                <path fill="url(#hair)" d="M170 92C160 118 166 140 160 170C156 190 162 206 154 220C172 212 176 196 176 176C178 150 172 126 180 100Z"/>
+                <path fill="url(#hair)" d="M242 92C252 118 248 142 254 168C258 190 252 206 260 222C242 212 238 196 238 176C236 150 242 126 234 100Z"/>
+                <path fill="url(#hairShine)" opacity=".7" d="M182 48Q206 38 232 50Q206 46 182 56Z"/>
+                <!-- star clip -->
+                <path d="M234 58l3.4 7 7.6 1-5.6 5.2 1.4 7.6-6.8-3.6-6.8 3.6 1.4-7.6-5.6-5.2 7.6-1z" fill="#81d8d0" stroke="#fff" stroke-width="1.4"/>
+              </g>
+              <!-- tiny koala charm on the strap -->
+              <g transform="translate(232 196)"><circle cx="-5" cy="-4" r="4" fill="#b8b2c8"/><circle cx="5" cy="-4" r="4" fill="#b8b2c8"/><circle r="6" fill="#cdc8da"/><ellipse cy="1" rx="2" ry="2.6" fill="#4b4560"/></g>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <div class="speaker"><svg viewBox="0 0 100 100" aria-hidden="true" id="grille"></svg></div>
+      <div class="brand">koe pocket · <b>KWL</b></div>
+      <!-- keyboard -->
+      <div class="well">
+        <div class="strip" id="strip" role="group" aria-label="Stylus keyboard, two octaves">
+          <svg id="keys" viewBox="0 0 750 100" preserveAspectRatio="none"></svg>
+        </div>
+      </div>
+      <svg class="stylus" id="stylus" viewBox="0 0 50 180" aria-hidden="true"><defs><linearGradient id="sty" x1="0" x2="1"><stop offset="0" stop-color="#e7e2ef"/><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#cfc8dc"/></linearGradient></defs><path d="M25 0L23.4 24H26.6Z" fill="#c9c9d2"/><rect x="22.6" y="22" width="4.8" height="34" rx="1.5" fill="#d8d8e0"/><path d="M18 54Q25 50 32 54L35 170Q25 178 15 170Z" fill="url(#sty)" stroke="#bdb4cc"/><circle cx="25" cy="150" r="3" fill="#ff8fc8"/></svg>
+    </div>
+    <p class="rotate-tip">Tip: turn your phone sideways for a longer key strip.</p>
+  </div>
+
+  <div class="under">
+    <div class="card"><h2>Sing</h2>Press on the black strip and drag. On a computer keyboard, <kbd>A</kbd>–<kbd>;</kbd> is the bottom octave and <kbd>W E T Y U O P</kbd> are the sharps. <kbd>Z</kbd>/<kbd>X</kbd> move the octave.</div>
+    <div class="card"><h2>Vowels</h2>Tap <b>あ い う え お</b> (or <kbd>1</kbd>–<kbd>5</kbd>), or press them while she's singing, to change the vowel. Watch her mouth change shape.</div>
+    <div class="card"><h2>Modes</h2>Hold <b>SHIFT</b> (<kbd>Shift</kbd>) and tap a vowel. <b>い</b> = VOWEL (sings the vowel you picked), <b>う</b> = DO·RE·MI (sings the note name), <b>え</b> = LYRIC (sings <i>ko-a-ra-wa-ra-ra-n-do</i>, one syllable per note).</div>
+    <div class="card"><h2>Expression</h2>Hold <b>VIBRATO</b> (<kbd>Space</kbd>) for a deep vibrato. Long notes also pick up a soft natural vibrato on their own. <b>▲ ▼</b> set the volume. With SHIFT held, they change the octave.</div>
+  </div>
+</main>
+<script>
+(() => {
+'use strict';
+// ---------- keyboard drawing ----------
+const LOW = 60; // C4
+const NKEYS = 25; // C4..C6
+const isBlack = (n) => [1, 3, 6, 8, 10].includes(n % 12);
+const whites = []; for (let n = LOW; n < LOW + NKEYS; n++) if (!isBlack(n)) whites.push(n);
+const svgK = document.getElementById('keys'); const NS = 'http://www.w3.org/2000/svg';
+const ww = 750 / whites.length; const keyRects = new Map();
+whites.forEach((n, i) => { const r = document.createElementNS(NS, 'rect'); r.setAttribute('x', i * ww + 1.5); r.setAttribute('y', 6); r.setAttribute('width', ww - 3); r.setAttribute('height', 88); r.setAttribute('rx', 2); r.setAttribute('class', 'kw'); svgK.appendChild(r); keyRects.set(n, r); });
+for (let n = LOW; n < LOW + NKEYS; n++) if (isBlack(n)) {
+  const wi = whites.indexOf(n - 1); const r = document.createElementNS(NS, 'rect');
+  r.setAttribute('x', (wi + 1) * ww - ww * 0.32); r.setAttribute('y', 6); r.setAttribute('width', ww * 0.64); r.setAttribute('height', 52); r.setAttribute('rx', 2); r.setAttribute('class', 'kb'); svgK.appendChild(r); keyRects.set(n, r);
+}
+// speaker grille
+const gr = document.getElementById('grille');
+for (let ring = 0; ring < 5; ring++) { const count = ring === 0 ? 1 : ring * 7; for (let i = 0; i < count; i++) { const a = i / count * Math.PI * 2 + ring * 0.3; const rad = ring * 10; const c = document.createElementNS(NS, 'circle'); c.setAttribute('cx', 50 + Math.cos(a) * rad); c.setAttribute('cy', 50 + Math.sin(a) * rad); c.setAttribute('r', 3.1); c.setAttribute('fill', '#3e3752'); gr.appendChild(c); } }
+
+// ---------- state ----------
+const S = { power: false, vowel: 'a', mode: 'lyric', oct: 0, vol: 0.75, vib: false, shift: false, lyricIdx: 0, note: null, held: false };
+const LYRIC = [['k', 'o'], ['', 'a'], ['r', 'a'], ['w', 'a'], ['r', 'a'], ['r', 'a'], ['N', ''], ['d', 'o']];
+const KANA = { a: 'あ', i: 'い', u: 'う', e: 'え', o: 'お', ko: 'こ', ra: 'ら', wa: 'わ', N: 'ん', do: 'ど', re: 'れ', mi: 'み', fa: 'ふぁ', so: 'そ', si: 'し' };
+const SOLF = [['d', 'o'], ['d', 'o'], ['r', 'e'], ['r', 'e'], ['m', 'i'], ['f', 'a'], ['f', 'a'], ['s', 'o'], ['s', 'o'], ['r', 'a'], ['r', 'a'], ['s', 'i']];
+const SOLF_K = ['ド', 'ド', 'レ', 'レ', 'ミ', 'ファ', 'ファ', 'ソ', 'ソ', 'ラ', 'ラ', 'シ'];
+const SOLF_R = ['do', 'do', 're', 're', 'mi', 'fa', 'fa', 'so', 'so', 'ra', 'ra', 'shi'];
+// Japanese female-ish formants [F1,F2,F3,F4] and relative gains
+const FORM = { a: [850, 1350, 2900, 3900], i: [320, 2650, 3250, 4100], u: [360, 1450, 2650, 3800], e: [520, 2150, 2950, 4000], o: [520, 880, 2850, 3800], N: [260, 1300, 2600, 3600] };
+const BW = [150, 170, 220, 280], FG = [1, 0.7, 0.3, 0.14];
+
+// ---------- audio ----------
+let ctx, osc, vibLfo, vibGain, srcGain, noise, noiseG, fric, fricG, forms = [], fgain = [], env, master, sum, tilt, started = null;
+function glottalWave(c) {
+  const n = 64, re = new Float32Array(n), im = new Float32Array(n);
+  for (let k = 1; k < n; k++) { const amp = 1 / Math.pow(k, 1.15) * (k === 1 ? 0.9 : 1); im[k] = amp * (k % 2 ? 1 : 0.85); }
+  return c.createPeriodicWave(re, im);
+}
+function start() {
+  if (started) return started;
+  started = (async () => {
+    ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
+    osc = ctx.createOscillator(); osc.setPeriodicWave(glottalWave(ctx)); osc.frequency.value = 262;
+    vibLfo = ctx.createOscillator(); vibLfo.frequency.value = 5.6; vibGain = ctx.createGain(); vibGain.gain.value = 0; vibLfo.connect(vibGain).connect(osc.detune);
+    const jitter = ctx.createOscillator(); jitter.frequency.value = 0.9; const jg = ctx.createGain(); jg.gain.value = 6; jitter.connect(jg).connect(osc.detune); jitter.start();
+    srcGain = ctx.createGain(); srcGain.gain.value = 0;
+    tilt = ctx.createBiquadFilter(); tilt.type = 'lowpass'; tilt.frequency.value = 5200; tilt.Q.value = 0.5;
+    const len = ctx.sampleRate * 2, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    noise = ctx.createBufferSource(); noise.buffer = buf; noise.loop = true;
+    noiseG = ctx.createGain(); noiseG.gain.value = 0;
+    fric = ctx.createBiquadFilter(); fric.type = 'bandpass'; fric.frequency.value = 5200; fric.Q.value = 1.4; fricG = ctx.createGain(); fricG.gain.value = 0;
+    sum = ctx.createGain(); sum.gain.value = 1.6;
+    osc.connect(tilt).connect(srcGain); noise.connect(noiseG); noise.connect(fric).connect(fricG);
+    for (let i = 0; i < 4; i++) {
+      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = FORM.a[i]; f.Q.value = FORM.a[i] / BW[i];
+      const gn = ctx.createGain(); gn.gain.value = FG[i];
+      srcGain.connect(f); noiseG.connect(f); f.connect(gn).connect(sum); forms.push(f); fgain.push(gn);
+    }
+    const body = ctx.createBiquadFilter(); body.type = 'peaking'; body.frequency.value = 3000; body.gain.value = 3; body.Q.value = 1;
+    env = ctx.createGain(); env.gain.value = 0;
+    fricG.connect(env); sum.connect(body).connect(env);
+    master = ctx.createGain(); master.gain.value = S.vol * S.vol;
+    const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 3;
+    const verb = ctx.createConvolver(); verb.buffer = ir(ctx); const wet = ctx.createGain(); wet.gain.value = 0.18;
+    env.connect(master); env.connect(verb).connect(wet).connect(master);
+    master.connect(comp).connect(ctx.destination);
+    osc.start(); vibLfo.start(); noise.start();
+    if (ctx.state !== 'running') await ctx.resume();
+    S.power = true; document.querySelector('[data-start]').hidden = true; render();
+  })();
+  return started;
+}
+function ir(c) { const len = Math.floor(c.sampleRate * 1.4), b = c.createBuffer(2, len, c.sampleRate); for (let ch = 0; ch < 2; ch++) { const d = b.getChannelData(ch); let lp = 0; for (let i = 0; i < len; i++) { lp += ((Math.random() * 2 - 1) - lp) * 0.4; d[i] = lp * Math.pow(1 - i / len, 2.6); } } return b; }
+
+const T = () => ctx.currentTime;
+function setFormants(v, t, tc = 0.025) {
+  const F = FORM[v] || FORM.a;
+  forms.forEach((f, i) => { f.frequency.setTargetAtTime(F[i], t, tc); f.Q.setTargetAtTime(F[i] / BW[i], t, tc); });
+}
+const hz = (n) => 440 * Math.pow(2, (n - 69) / 12);
+let vibTimer = null;
+function singSyllable(c, v, note, legato) {
+  if (!ctx) return;
+  const t = T() + 0.005, f = hz(note);
+  const vv = v || 'u';
+  const formV = c === 'N' ? 'N' : vv;
+  // pitch
+  if (legato) osc.frequency.setTargetAtTime(f, t, 0.03); else { osc.frequency.cancelScheduledValues(t); osc.frequency.setValueAtTime(f * 0.985, t); osc.frequency.setTargetAtTime(f, t, 0.02); }
+  const sg = srcGain.gain, ng = noiseG.gain, fg = fricG.gain, eg = env.gain;
+  [sg, ng, fg].forEach((p) => p.cancelScheduledValues(t));
+  if (!legato) { eg.cancelScheduledValues(t); eg.setValueAtTime(eg.value, t); eg.setTargetAtTime(1, t, 0.012); }
+  let vstart = t;
+  switch (c) {
+    case 'k': case 't': case 'd': case 'p': {
+      const voiced = c === 'd';
+      sg.setTargetAtTime(voiced ? 0.15 : 0, t, 0.004);
+      fric.frequency.setValueAtTime(c === 'k' ? 2400 : c === 'p' ? 900 : 3800, t); fric.Q.setValueAtTime(1.2, t);
+      fg.setValueAtTime(0, t); fg.linearRampToValueAtTime(voiced ? 0.25 : 0.55, t + 0.008); fg.exponentialRampToValueAtTime(0.001, t + 0.045);
+      if (c === 'd') setFormants('u', t, 0.002);
+      vstart = t + (voiced ? 0.03 : 0.05); break;
+    }
+    case 's': case 'f': {
+      sg.setTargetAtTime(0, t, 0.006);
+      fric.frequency.setValueAtTime(c === 's' ? 6200 : 1800, t); fric.Q.setValueAtTime(c === 's' ? 2 : 0.8, t);
+      fg.setValueAtTime(0, t); fg.linearRampToValueAtTime(c === 's' ? 0.28 : 0.2, t + 0.03); fg.setTargetAtTime(0, t + 0.08, 0.015);
+      vstart = t + 0.09; break;
+    }
+    case 'm': case 'n': case 'N': {
+      setFormants('N', t, 0.004);
+      sg.setTargetAtTime(c === 'N' ? 0.55 : 0.4, t, 0.008);
+      if (c === 'N') { vstart = null; break; }
+      vstart = t + 0.06; break;
+    }
+    case 'r': {
+      forms[0].frequency.setTargetAtTime(330, t, 0.004); forms[1].frequency.setTargetAtTime(1500, t, 0.004);
+      sg.setTargetAtTime(0.45, t, 0.004);
+      vstart = t + 0.03; break;
+    }
+    case 'w': {
+      setFormants('u', t, 0.004); forms[1].frequency.setTargetAtTime(700, t, 0.004);
+      sg.setTargetAtTime(0.55, t, 0.006);
+      vstart = t + 0.06; break;
+    }
+    default: {
+      if (!legato) sg.setValueAtTime(0, t);
+      ng.setValueAtTime(0.06, t); ng.setTargetAtTime(0.012, t + 0.04, 0.03);
+      vstart = t;
+    }
+  }
+  if (vstart !== null) {
+    setTimeout(() => { if (!ctx) return; setFormants(formV, T(), 0.03); }, Math.max(0, (vstart - T()) * 1000));
+    sg.setTargetAtTime(1, vstart, c ? 0.02 : 0.03);
+    ng.setTargetAtTime(0.018, vstart, 0.05);
+  } else setFormants('N', t, 0.02);
+  // natural vibrato swell
+  vibGain.gain.cancelScheduledValues(t); vibGain.gain.setTargetAtTime(S.vib ? 70 : 0, t, 0.05);
+  clearTimeout(vibTimer);
+  if (!S.vib) vibTimer = setTimeout(() => { if (S.note !== null && !S.vib) vibGain.gain.setTargetAtTime(22, T(), 0.35); }, 380);
+  mouthFor(c === 'N' ? 'N' : vv);
+  sparkNote();
+}
+function changeVowelLive(v) {
+  if (!ctx || S.note === null) return;
+  setFormants(v, T(), 0.03); mouthFor(v);
+}
+function stopSinging() {
+  if (!ctx) return;
+  const t = T();
+  env.gain.cancelScheduledValues(t); env.gain.setValueAtTime(env.gain.value, t); env.gain.setTargetAtTime(0, t, 0.06);
+  srcGain.gain.setTargetAtTime(0, t + 0.12, 0.04); noiseG.gain.setTargetAtTime(0, t, 0.05);
+  vibGain.gain.setTargetAtTime(0, t, 0.1); clearTimeout(vibTimer);
+  mouthFor(null);
+}
+
+// ---------- what to sing ----------
+function syllableFor(note) {
+  if (S.mode === 'doremi') { const pc = ((note % 12) + 12) % 12; const [c, v] = SOLF[pc]; setBubble(SOLF_K[pc], SOLF_R[pc]); return [c, v]; }
+  if (S.mode === 'lyric') { const [c, v] = LYRIC[S.lyricIdx % LYRIC.length]; S.lyricIdx++; const key = c === 'N' ? 'N' : (c + v); setBubble(KANA[key] || KANA[v] || 'ん', c === 'N' ? 'n' : c + v); return [c, v]; }
+  setBubble(KANA[S.vowel], S.vowel); return ['', S.vowel];
+}
+let lastSyl = null;
+function noteOn(note, legato) {
+  if (!S.power) { start().then(() => noteOn(note, false)); return; }
+  const n = note + S.oct * 12;
+  const [c, v] = syllableFor(n); lastSyl = [c, v];
+  singSyllable(c, v, n, legato);
+  S.note = note; document.getElementById('koe').classList.add('singing');
+  keyHot(note);
+}
+function noteOff() { S.note = null; stopSinging(); document.getElementById('koe').classList.remove('singing'); keyHot(null); }
+
+// ---------- UI ----------
+const koe = document.getElementById('koe');
+function setBubble(k, r) { document.getElementById('kana').textContent = k; document.getElementById('romaji').textContent = r; }
+const MOUTH = {
+  a: 'M198 115Q206 112 214 115Q215 126 206 129Q197 126 198 115Z',
+  i: 'M196 117Q206 115 216 117Q214 122 206 122Q198 122 196 117Z',
+  u: 'M202 116Q206 114 210 116Q211 121 206 122Q201 121 202 116Z',
+  e: 'M197 116Q206 113 215 116Q214 124 206 125Q198 124 197 116Z',
+  o: 'M200 115Q206 112 212 115Q214 124 206 127Q198 124 200 115Z',
+  N: 'M201 118Q206 117 211 118Q210 120 206 120.5Q202 120 201 118Z'
+};
+const IDLE = 'M199 117Q206 122 213 117Q206 120 199 117Z';
+function mouthFor(v) { document.getElementById('mouth').setAttribute('d', v ? (MOUTH[v] || MOUTH.a) : IDLE); }
+let lastSpark = 0;
+function sparkNote() {
+  const now = performance.now(); if (now - lastSpark < 240) return; lastSpark = now;
+  const g = document.getElementById('notes'); const t = document.createElementNS(NS, 'text');
+  t.textContent = ['♪', '♫', '♡', '✦'][Math.floor(Math.random() * 4)]; t.setAttribute('x', 150 + Math.random() * 20); t.setAttribute('y', 60 + Math.random() * 30);
+  t.setAttribute('font-size', 16 + Math.random() * 8); t.setAttribute('fill', ['#e0559b', '#5fb9b2', '#9d83e6'][Math.floor(Math.random() * 3)]); t.setAttribute('class', 'fnote');
+  g.appendChild(t); setTimeout(() => t.remove(), 1700);
+}
+function keyHot(n) { keyRects.forEach((r, k) => { r.setAttribute('class', (k === n ? 'hot ' : '') + (isBlack(k) ? 'kb' : 'kw')); }); }
+function render() {
+  koe.querySelector('[data-b="power"]').classList.toggle('on', S.power);
+  document.querySelectorAll('[data-led]').forEach((el) => el.classList.toggle('on', S.power && el.dataset.led === S.mode));
+  document.querySelectorAll('.vowel').forEach((b) => b.classList.toggle('on', S.mode === 'vowel' && b.dataset.b === S.vowel));
+  koe.querySelector('[data-b="vibrato"]').classList.toggle('on', S.vib);
+  koe.querySelector('[data-b="shift"]').classList.toggle('on', S.shift);
+}
+function flashBubble(k, r) { setBubble(k, r); }
+function pressBtn(id) {
+  if (id !== 'power' && !S.power) { start(); }
+  const b = koe.querySelector(`[data-b="${id}"]`); b && b.classList.add('down');
+  if (['a', 'i', 'u', 'e', 'o'].includes(id)) {
+    if (S.shift) {
+      if (id === 'i') S.mode = 'vowel'; else if (id === 'u') S.mode = 'doremi'; else if (id === 'e') { S.mode = 'lyric'; S.lyricIdx = 0; }
+      flashBubble(S.mode === 'doremi' ? 'ドレミ' : S.mode === 'lyric' ? 'うた' : KANA[S.vowel], S.mode === 'doremi' ? 'do re mi' : S.mode === 'lyric' ? 'lyric' : S.vowel);
+    } else {
+      S.vowel = id;
+      if (S.mode !== 'vowel') S.mode = 'vowel';
+      flashBubble(KANA[id], id); changeVowelLive(id);
+      if (S.note === null) { mouthFor(id); setTimeout(() => { if (S.note === null) mouthFor(null); }, 400); }
+    }
+  }
+  if (id === 'vibrato') { S.vib = true; if (ctx) vibGain.gain.setTargetAtTime(70, T(), 0.08); }
+  if (id === 'shift') S.shift = true;
+  if (id === 'up' || id === 'down') {
+    const d = id === 'up' ? 1 : -1;
+    if (S.shift) { S.oct = Math.max(-2, Math.min(2, S.oct + d)); flashBubble('オク' + (S.oct > 0 ? '+' : '') + S.oct, 'octave ' + (S.oct > 0 ? '+' : '') + S.oct); }
+    else { S.vol = Math.max(0, Math.min(1, S.vol + d * 0.1)); if (master) master.gain.setTargetAtTime(S.vol * S.vol, T(), 0.03); flashBubble('♪' + Math.round(S.vol * 10), 'volume ' + Math.round(S.vol * 10)); }
+  }
+  if (id === 'power') {
+    if (!S.power) start();
+    else { noteOff(); ctx && ctx.suspend(); S.power = false; started = null; setBubble('…', 'off'); if (ctx) { const c = ctx; ctx = null; c.close(); forms = []; fgain = []; } document.querySelector('[data-start]').hidden = false; }
+  }
+  render();
+}
+function releaseBtn(id) {
+  const b = koe.querySelector(`[data-b="${id}"]`); b && b.classList.remove('down');
+  if (id === 'vibrato') { S.vib = false; if (ctx) vibGain.gain.setTargetAtTime(S.note !== null ? 18 : 0, T(), 0.15); }
+  if (id === 'shift') S.shift = false;
+  render();
+}
+koe.addEventListener('pointerdown', (e) => {
+  const b = e.target.closest('[data-b]'); if (!b) return;
+  e.preventDefault(); b.setPointerCapture(e.pointerId); const id = b.dataset.b; pressBtn(id);
+  const up = () => { releaseBtn(id); b.removeEventListener('pointerup', up); b.removeEventListener('pointercancel', up); };
+  b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up);
+});
+koe.addEventListener('keydown', (e) => { const b = e.target.closest('[data-b]'); if (!b || (e.key !== 'Enter' && e.key !== ' ') || e.repeat) return; e.preventDefault(); e.stopPropagation(); pressBtn(b.dataset.b); const up = () => { releaseBtn(b.dataset.b); b.removeEventListener('keyup', up); }; b.addEventListener('keyup', up); });
+
+// stylus strip
+const strip = document.getElementById('strip'), sty = document.getElementById('stylus');
+function noteAt(clientX, clientY) {
+  const r = strip.getBoundingClientRect(); const x = (clientX - r.left) / r.width * 750, y = (clientY - r.top) / r.height * 100;
+  if (x < 0 || x > 750) return null;
+  if (y < 58) { for (const [n, rect] of keyRects) if (isBlack(n)) { const rx = +rect.getAttribute('x'), rw = +rect.getAttribute('width'); if (x >= rx && x <= rx + rw) return n; } }
+  return whites[Math.max(0, Math.min(whites.length - 1, Math.floor(x / ww)))];
+}
+function moveStylus(e, down) {
+  const kr = koe.getBoundingClientRect();
+  const x = (e.clientX - kr.left) / kr.width * 100, y = (e.clientY - kr.top) / kr.height * 100;
+  sty.style.left = `calc(${x}% - 2.5cqw)`; sty.style.top = `${y - (down ? 0 : 1.2)}%`;
+  sty.style.transform = `rotate(${-18 + (x - 50) * 0.12}deg)`;
+}
+let activePtr = null;
+strip.addEventListener('pointerenter', (e) => { sty.classList.add('show'); moveStylus(e, false); });
+strip.addEventListener('pointerleave', () => { if (activePtr === null) sty.classList.remove('show'); });
+strip.addEventListener('pointerdown', (e) => {
+  e.preventDefault(); strip.setPointerCapture(e.pointerId); activePtr = e.pointerId;
+  sty.classList.add('show'); moveStylus(e, true);
+  const n = noteAt(e.clientX, e.clientY); if (n !== null) noteOn(n, false);
+});
+strip.addEventListener('pointermove', (e) => {
+  moveStylus(e, activePtr !== null);
+  if (activePtr !== e.pointerId) return;
+  const n = noteAt(e.clientX, e.clientY);
+  if (n !== null && n !== S.note) noteOn(n, true);
+});
+const endPtr = (e) => { if (activePtr !== e.pointerId) return; activePtr = null; noteOff(); if (e.pointerType !== 'mouse') sty.classList.remove('show'); };
+strip.addEventListener('pointerup', endPtr); strip.addEventListener('pointercancel', endPtr);
+strip.addEventListener('contextmenu', (e) => e.preventDefault());
+
+// computer keys
+const KM = { a: 0, w: 1, s: 2, e: 3, d: 4, f: 5, t: 6, g: 7, y: 8, h: 9, u: 10, j: 11, k: 12, o: 13, l: 14, p: 15, ';': 16, "'": 17 };
+const downKeys = [];
+window.addEventListener('keydown', (e) => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === 'Shift') { if (!S.shift) pressBtn('shift'); return; }
+  if (e.repeat) { if (e.key === ' ') e.preventDefault(); return; }
+  const k = e.key.toLowerCase();
+  if (e.target.closest && e.target.closest('[data-b]') && (k === ' ' || k === 'enter')) return;
+  if (k === ' ') { e.preventDefault(); pressBtn('vibrato'); return; }
+  if ('12345'.includes(k) && k.length === 1) { const v = 'aiueo'[+k - 1]; pressBtn(v); releaseBtn(v); return; }
+  if (k === 'z' || k === 'x') { S.oct = Math.max(-2, Math.min(2, S.oct + (k === 'x' ? 1 : -1))); setBubble('オク' + (S.oct > 0 ? '+' : '') + S.oct, 'octave ' + S.oct); return; }
+  if (k === 'arrowup' || k === 'arrowdown') { e.preventDefault(); pressBtn(k === 'arrowup' ? 'up' : 'down'); releaseBtn(k === 'arrowup' ? 'up' : 'down'); return; }
+  const kk = e.key === ';' || e.key === "'" ? e.key : k;
+  if (!(kk in KM)) return;
+  e.preventDefault();
+  const n = LOW + KM[kk]; const legato = S.note !== null; downKeys.push(n); noteOn(n, legato);
+});
+window.addEventListener('keyup', (e) => {
+  if (e.key === 'Shift') { releaseBtn('shift'); return; }
+  if (e.key === ' ') { releaseBtn('vibrato'); return; }
+  const k = e.key === ';' || e.key === "'" ? e.key : e.key.toLowerCase(); if (!(k in KM)) return;
+  const n = LOW + KM[k]; const i = downKeys.lastIndexOf(n); if (i >= 0) downKeys.splice(i, 1);
+  if (downKeys.length) { const m = downKeys[downKeys.length - 1]; if (m !== S.note) noteOn(m, true); } else noteOff();
+});
+window.addEventListener('blur', () => { downKeys.length = 0; noteOff(); if (S.shift) releaseBtn('shift'); if (S.vib) releaseBtn('vibrato'); });
+
+document.querySelector('[data-start]').addEventListener('click', () => start().catch((e) => console.error(e)));
+render();
+window.__koe = { S, start, noteOn, noteOff, pressBtn, releaseBtn, get ctx() { return ctx; }, get master() { return master; } };
+})();
+</script>
+</body>
+</html>
