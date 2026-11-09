@@ -17,6 +17,8 @@
   const endpoint = "https://countapi.mileshilliard.com/api/v1/";
   let seen = false;
   try { seen = sessionStorage.getItem(sessionKey) === "recorded"; } catch (_) {}
+  // Katie's own devices: set from blog/stats.html ("don't count this device").
+  try { if (localStorage.getItem("kwl-journal-owner") === "1") seen = true; } catch (_) {}
   async function request(method) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 7000);
