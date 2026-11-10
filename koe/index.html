@@ -274,7 +274,7 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
     </div>
     <p class="key-help" id="key-help">Tab to the keys, use ← / → to choose a note, and hold Space or Enter to play. Home / End go to the first / last key. Z / X shift the octave.</p>
     <div class="ctlbar">
-      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="koala" aria-pressed="true">KT’s voice</button></div><button type="button" id="autoQueen" class="queen-feature" aria-pressed="false" title="Auto-play the Queen of the Night aria in KT’s voice">👑 AUTO QUEEN</button><span class="nympho-control" style="display:inline-flex;flex-wrap:wrap;gap:6px;align-items:center"><label for="nymphoFile" style="cursor:pointer;border:1px solid #a75383;border-radius:20px;padding:8px;color:#ffe0ee">🦇 NYMPHOALA · load backing</label><input id="nymphoFile" type="file" accept="audio/*,.mp3,.m4a,.wav" style="max-width:170px;font-size:11px" aria-label="Choose local instrumental backing track"><label for="nymphoScore" title="Load a vocal score as MIDI or saved cue JSON">🎼 vocal score</label><input id="nymphoScore" type="file" accept=".mid,.midi,.json" disabled style="max-width:150px;font-size:11px" aria-label="Choose vocal MIDI or Nymphoala cue JSON"><span id="nymphoMap" hidden style="display:inline-flex;gap:5px;align-items:center;flex-wrap:wrap"><label>your vocals <select id="nymphoFemaleTrack" aria-label="Female vocal MIDI track"></select></label><label>koala growls <select id="nymphoMaleTrack" aria-label="Harsh vocal MIDI track"></select></label><button type="button" id="nymphoImport">Import vocal tracks</button></span><button type="button" id="nymphoPlay" class="queen-feature duet-feature" disabled>▶ NYMPHOALA</button><button type="button" id="nymphoGrowl" title="Trigger koala growl" disabled>🐨 GROWL</button><button type="button" id="nymphoAh" title="Trigger KT soprano vowel" disabled>🎤 AH</button><button type="button" id="nymphoRec" aria-pressed="false" title="Play the backing and record your own cues: hold GROWL or AH, or play the keys" disabled>● REC CUES</button><button type="button" id="nymphoClear" title="Forget your recorded cues for this file" disabled>✕ clear cues</button><label>sync <input id="nymphoOffset" type="range" min="-30" max="30" step=".05" value="0" aria-label="Vocal cue offset seconds"> <output id="nymphoOffsetOut" style="font:11px monospace">0.00s</output></label><label>score speed <input id="nymphoRate" type="range" min=".85" max="1.15" step=".001" value="1" aria-label="Vocal score playback speed"> <output id="nymphoRateOut" style="font:11px monospace">1.000×</output></label><button type="button" id="nymphoExport" disabled title="Download the vocal cue arrangement">↓ export cues</button><output id="nymphoTime" style="font:11px monospace" role="status">No file</output></span><button type="button" id="autoDuet" class="queen-feature duet-feature" aria-pressed="false" title="Auto-play an original gothic duet: FM riffs, KT’s soprano and koala growls">🦇 DROP BEAR NOCTURNE</button><div class="seg" role="group" aria-label="Other voices"><button type="button" data-voice="noise" aria-pressed="false">🐨 Koala noise</button><button type="button" data-voice="builtin" aria-pressed="false">Vocaloid voice</button></div>
+      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="koala" aria-pressed="true">KT’s voice</button></div><button type="button" id="autoQueen" class="queen-feature" aria-pressed="false" title="Auto-play the Queen of the Night aria in KT’s voice">👑 AUTO QUEEN</button><span class="nympho-control" style="display:inline-flex;flex-wrap:wrap;gap:6px;align-items:center"><label for="nymphoFile" style="cursor:pointer;border:1px solid #a75383;border-radius:20px;padding:8px;color:#ffe0ee">🦇 NYMPHOALA · choose backing once</label><input id="nymphoFile" type="file" accept="audio/*,.mp3,.m4a,.wav" style="max-width:170px;font-size:11px" aria-label="Choose local instrumental backing track"><label for="nymphoScore" title="Load a vocal score as MIDI or saved cue JSON">🎼 vocal score</label><input id="nymphoScore" type="file" accept=".mid,.midi,.json" disabled style="max-width:150px;font-size:11px" aria-label="Choose vocal MIDI or Nymphoala cue JSON"><span id="nymphoMap" hidden style="display:inline-flex;gap:5px;align-items:center;flex-wrap:wrap"><label>your vocals <select id="nymphoFemaleTrack" aria-label="Female vocal MIDI track"></select></label><label>koala growls <select id="nymphoMaleTrack" aria-label="Harsh vocal MIDI track"></select></label><button type="button" id="nymphoImport">Import vocal tracks</button></span><button type="button" id="nymphoPlay" class="queen-feature duet-feature" disabled>▶ NYMPHOALA</button><button type="button" id="nymphoGrowl" title="Trigger koala growl" disabled>🐨 GROWL</button><button type="button" id="nymphoAh" title="Trigger KT soprano vowel" disabled>🎤 AH</button><button type="button" id="nymphoRec" aria-pressed="false" title="Play the backing and record your own cues: hold GROWL or AH, or play the keys" disabled>● REC CUES</button><button type="button" id="nymphoClear" title="Forget your recorded cues for this file" disabled>✕ clear cues</button><label>sync <input id="nymphoOffset" type="range" min="-30" max="30" step=".05" value="0" aria-label="Vocal cue offset seconds"> <output id="nymphoOffsetOut" style="font:11px monospace">0.00s</output></label><label>score speed <input id="nymphoRate" type="range" min=".85" max="1.15" step=".001" value="1" aria-label="Vocal score playback speed"> <output id="nymphoRateOut" style="font:11px monospace">1.000×</output></label><button type="button" id="nymphoExport" disabled title="Download the vocal cue arrangement">↓ export cues</button><output id="nymphoTime" style="font:11px monospace" role="status">Select your backing MP3 once · saved privately on this device</output></span><button type="button" id="autoDuet" class="queen-feature duet-feature" aria-pressed="false" title="Auto-play an original gothic duet: FM riffs, KT’s soprano and koala growls">🦇 DROP BEAR NOCTURNE · ORIGINAL DEMO</button><div class="seg" role="group" aria-label="Other voices"><button type="button" data-voice="noise" aria-pressed="false">🐨 Koala noise</button><button type="button" data-voice="builtin" aria-pressed="false">Vocaloid voice</button></div>
       <div class="seg" role="group" aria-label="Mode"><button type="button" data-mode="vowel" aria-pressed="false">VOWEL</button><button type="button" data-mode="doremi" aria-pressed="true">DO·RE·MI</button><button type="button" data-mode="lyric" aria-pressed="false">LYRIC</button></div>
       <label>lyric <input type="text" id="lyricIn" value="do you remember?" aria-label="Lyric, in romaji or kana"></label>
       <label>tone <input type="range" id="toneIn" min="0.8" max="1.25" step="0.01" value="1" aria-label="Koala voice tone, deeper to cuter"></label>
@@ -875,7 +875,10 @@ duetButton.addEventListener('click',async()=>{
  if(duetRunning){duetStop();return;}
  if(queenRunning)queenStop();
  try{await start();}catch{queenStatus.textContent='Power on the instrument first.';return;}
- if(!kvReady||!kv){queenStatus.textContent='KT voice samples are still loading. Try again shortly.';return;}
+ if(!kvReady||!kv){await loadBank();}
+ if(!kvReady||!kv){queenStatus.textContent='KT voice recordings unavailable; Nocturne will not silently substitute a Vocaloid.';return;}
+ // Performance showcases use KT's published voice bank even if another tab was selected.
+ S.voice='koala';render();
  noteOff();duetRunning=true;duetButton.textContent='■ STOP NOCTURNE';duetButton.setAttribute('aria-pressed','true');
  queenStatus.textContent='Drop Bear Nocturne — an original gothic duet: FM riffs, KT’s soprano, koala growls';
  const BEAT=60/138,BAR=BEAT*4,S16=BEAT/4,t0=T()+0.25;
@@ -918,7 +921,21 @@ duetButton.addEventListener('click',async()=>{
   {c:Am,tr:2,r:1,d:1,b:1,s:[[0,18,81]],hold:1},{c:Am,tr:2,r:1,d:1,vib:70},
   {c:Am,tr:2,b:'box',pad:false,vib:95},{c:Am,tr:2,pad:false,g:[[1,.5,55]],huh:1,vib:120},{c:Am,tr:2,b:'box',pad:false,g:[[3,.7,45]]}
  ];
- const aKey=kv.pick('a')||[...kv.keys][0];
+ // Keep the lead female part recognizable as KT's sampled voice, not the built-in
+ // oscillator. Moving C6-range passages down one octave reduces chipmunk artifacts
+ // while keeping every melodic interval and harmony's pitch class.
+ const vowels=['a','o','e','i','u'].filter(v=>kv.keys.has(v));
+ if(!vowels.length){queenStatus.textContent='KT vowel recordings are missing';duetStop();return;}
+ const voiceFor=(midi,index)=>{
+   const key=vowels[[0,1,2,0,3,1,4,0][index%8]%vowels.length];
+   const f=kv.info?.[key]?.f0;
+   const opts=midi>=75?[midi,midi-12]:[midi];
+   let note=opts[0];
+   if(f>0)note=opts.reduce((a,b)=>Math.abs(Math.log2(hz(b)/f))<Math.abs(Math.log2(hz(a)/f))?b:a);
+   else if(midi>=80)note=midi-12;
+   return {key,note};
+ };
+ let lastLeadKey=null;
  const knLevel=(v)=>{if(knGain&&ctx)knGain.gain.setTargetAtTime(v,T(),0.03);};
  BARS.forEach((bar,i)=>{
   const at=t0+i*BAR,tr=bar.tr||0,root=bar.c[0]+tr,third=bar.c[1],when=(b)=>(at+b*BEAT-T())*1000;
@@ -940,7 +957,14 @@ duetButton.addEventListener('click',async()=>{
   });
   (bar.s||[]).forEach(([b,len,midi],k)=>{
    const slur=k>0;
-   duetWait(()=>{if(!duetRunning||!kv)return;kv.on(aKey,hz(midi+tr),slur,slur);kv.vib(len>=1.5?38:6,5.6);koe.classList.add('singing');mouthFor('a');setBubble(bar.hold?'あ〜〜':'あ',bar.hold?'aaaaah':'a');},when(b));
+   duetWait(()=>{if(!duetRunning||!kv)return;
+     const v=voiceFor(midi+tr,k+i*3);
+     kv.on(v.key,hz(v.note),slur,slur&&v.key===lastLeadKey);
+     lastLeadKey=v.key;
+     kv.vib(len>=1.5?28:8,5.6);
+     koe.classList.add('singing');mouthFor(v.key);
+     setBubble(bar.hold?'あ〜〜':'あ',bar.hold?'KT sings':'KT voice');
+   },when(b));
    if(k===bar.s.length-1)duetWait(()=>{if(!duetRunning||!kv)return;kv.off();kv.vib(0,5.6);koe.classList.remove('singing');mouthFor(null);},when(b+len)-40);
   });
   if(bar.vib)duetWait(()=>{if(duetRunning&&kv)kv.vib(bar.vib,6.2);},when(0));
@@ -952,6 +976,7 @@ duetButton.addEventListener('click',async()=>{
 let nRec=false;
 const nymphoEngine=window.createNymphoalaDuet({
   start, loadFemale:loadBank, context:()=>ctx,
+  activateFemale:()=>{S.voice='koala';render();},
   getFemale:()=>kv, getMale:()=>kn, getMaleGain:()=>knGain,
   femaleReady:()=>kvReady, koe, hz, mouth:mouthFor, bubble:setBubble,
   stopOther:()=>{if(queenRunning)queenStop();if(duetRunning)duetStop();},
