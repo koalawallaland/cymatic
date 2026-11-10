@@ -146,11 +146,10 @@ function install(o) {
       if(!o.femaleReady())await o.loadFemale();
       const ctx=o.context();
       if(ctx && ctx.state==='suspended')await ctx.resume();
-      if(ctx && !mixSource){
-        mixSource=ctx.createMediaElementSource(audio);
-        mixGain=ctx.createGain();mixGain.gain.value=.8;
-        mixSource.connect(mixGain).connect(ctx.destination);
-      }
+      // The backing plays as a plain audio element, not through the Web Audio graph: wiring it into
+      // the graph tied it to one audio context for good (silent after the instrument was powered off
+      // and on again) and made it obey the iPhone silent switch.
+      audio.volume=.8;
       await audio.play();
     } catch (err) {
       console.warn('Nymphoala start',err);

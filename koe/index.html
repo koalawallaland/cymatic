@@ -295,7 +295,7 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
 </main>
 <script src="voicebank.js"></script>
 <script src="koala-noise.js?v=1"></script>
-<script src="nymphoala-duet.js?v=2"></script>
+<script src="nymphoala-duet.js?v=3"></script>
 <script>
 (() => {
 'use strict';
@@ -372,6 +372,8 @@ function start() {
     const body = ctx.createBiquadFilter(); body.type = 'peaking'; body.frequency.value = 3000; body.gain.value = 3; body.Q.value = 1;
     env = ctx.createGain(); env.gain.value = 0;
     fricG.connect(env); sum.connect(body).connect(env);
+    // iPhone: play as media, so the instrument still sounds when the ring/silent switch is on silent
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
     master = ctx.createGain(); master.gain.value = S.vol * S.vol;
     const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 3;
     const verb = ctx.createConvolver(); verb.buffer = ir(ctx); const wet = ctx.createGain(); wet.gain.value = 0.18;
