@@ -270,6 +270,7 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
       <label>lyric <input type="text" id="lyricIn" value="do you remember?" aria-label="Lyric, in romaji or kana"></label>
       <label>tone <input type="range" id="toneIn" min="0.8" max="1.25" step="0.01" value="1" aria-label="Koala voice tone, deeper to cuter"></label>
       <span class="kvstat" id="kvStat" aria-live="polite"></span>
+      <div class="seg" role="group" aria-label="Record performance"><button type="button" id="recStart">● Record</button><button type="button" id="recStop" disabled>■ Stop</button><button type="button" id="recSave" disabled>↓ Save audio</button></div><span class="kvstat" id="recStatus" role="status" aria-live="polite"></span>
       <a href="booth.html">🎙 record the koala's voice</a>
     </div>
   </div>
@@ -755,6 +756,39 @@ window.addEventListener('blur', () => { downKeys.length = 0; noteOff(); if (S.sh
 
 document.querySelector('[data-start]').addEventListener('click', () => start().catch((e) => console.error(e)));
 render();
+
+// Record the actual output bus (KT voice, Koala noise, or built-in synth), including vibrato.
+// Capture is local to the visitor; no audio is uploaded.
+let recDest=null,recorder=null,recChunks=[],recUrl=null,recMime='';
+const recStart=document.getElementById('recStart'),recStop=document.getElementById('recStop'),recSave=document.getElementById('recSave'),recStatus=document.getElementById('recStatus');
+recStart.addEventListener('click',async()=>{
+ try {
+  if(!window.MediaRecorder)throw Error('Audio recording is not supported in this browser.');
+  await start();
+  if(!ctx||!master)throw Error('Audio engine is not ready.');
+  if(!recDest){recDest=ctx.createMediaStreamDestination();master.connect(recDest);}
+  const types=['audio/webm;codecs=opus','audio/mp4','audio/webm'];
+  recMime=types.find(t=>MediaRecorder.isTypeSupported(t))||'';
+  recChunks=[];if(recUrl){URL.revokeObjectURL(recUrl);recUrl=null;}
+  recorder=new MediaRecorder(recDest.stream,recMime?{mimeType:recMime}:undefined);
+  recorder.ondataavailable=e=>{if(e.data.size)recChunks.push(e.data);};
+  recorder.onstop=()=>{
+   const blob=new Blob(recChunks,{type:recorder.mimeType||recMime||'audio/webm'});
+   recUrl=URL.createObjectURL(blob);recSave.disabled=!blob.size;recStatus.textContent=blob.size?'Recording ready to save.':'No audio captured.';
+   recStart.disabled=false;recStop.disabled=true;
+  };
+  recorder.onerror=()=>{recStatus.textContent='Recording failed; try again.';recStart.disabled=false;recStop.disabled=true;};
+  recorder.start(250);recStart.disabled=true;recStop.disabled=false;recSave.disabled=true;recStatus.textContent='Recording locally…';
+ }catch(e){recStatus.textContent=e.message||'Could not start recording.';}
+});
+recStop.addEventListener('click',()=>{if(recorder?.state==='recording')recorder.stop();});
+recSave.addEventListener('click',()=>{
+ if(!recUrl)return;
+ const ext=(recorder?.mimeType||recMime).includes('mp4')?'m4a':'webm';
+ const a=document.createElement('a');a.href=recUrl;a.download='koe-performance-'+new Date().toISOString().replace(/[:.]/g,'-')+'.'+ext;
+ document.body.appendChild(a);a.click();a.remove();
+});
+
 window.__koe = { S, start, noteOn, noteOff, pressBtn, releaseBtn, get ctx() { return ctx; }, get master() { return master; }, get kv() { return kv; }, get kn() { return kn; }, get knSeg() { return knSeg; }, get kvReady() { return kvReady; }, loadBank };
 })();
 </script>
