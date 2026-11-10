@@ -64,7 +64,12 @@ function install(o) {
     const midi = Math.max(24,Math.min(108,Number(note)|| (which==='male'?50:76)));
     if(which==='male'){
       const k=o.getMale();if(!k)return;
-      k.growl(true); k.on(midi,false);
+      // Pitch-fold the harsh vocal line into the koala engine's low bellow range.
+      // Preserve the contour without turning Dani's growls into the high joey whistle.
+      let bellow=midi;
+      while(bellow>58)bellow-=12;
+      while(bellow<38)bellow+=12;
+      k.growl(true); k.on(bellow,false);
       o.koe.classList.add('nympho-male');
       o.bubble('ガオ','koala growl');
     } else {
