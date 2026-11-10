@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+<meta name="description" content="Play a six-operator FM synth with 32 algorithms, editable envelopes, effects, an arpeggiator, a sequencer, and saved presets.">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>FM-1 · under the desk · koalawallaland</title>
@@ -1350,7 +1351,7 @@ const svgElement = (tag, attrs, text) => {
   if (text !== undefined) el.textContent = text;
   return el;
 };
-let lastPreset = -1, lastPatch = null, lastPageKey = '', lastGraphKey = '';
+let lastPreset = -1, lastPatch = null, lastPageKey = '', lastGraphKey = '', lastEditorState = '';
 function editorEnvelope() {
   const choice = envelopeList.value;
   return choice === 'pit' ? S.patch.pit : S.patch.ops[+choice.slice(2) - 1];
@@ -1388,6 +1389,9 @@ document.getElementById('editor-prev').addEventListener('click', () => turn('sel
 document.getElementById('editor-next').addEventListener('click', () => turn('select', 1));
 document.querySelectorAll('[data-editor-mode]').forEach(b => b.addEventListener('click', () => setMode(b.dataset.editorMode)));
 function updateEditor() {
+  const state = JSON.stringify([S.mode, S.page, S.editSec, S.fxSlot, S.fxGrab, S.presetIdx, S.master, S.trans, S.dirty, S.patch, S.glob, S.arp, S.seq, S.resetArm, [...S.pressedBtns]]);
+  if (state === lastEditorState && lastPatch === S.patch) return;
+  lastEditorState = state;
   const pages = curPages(), pg = pages[Math.min(S.page, pages.length - 1)];
   const scope = (S.mode === 'edit' ? S.editSec.toUpperCase() + ' · ' : '') + (pg ? pg.title : S.mode);
   // Native title tooltips and assistive values always describe the active page.

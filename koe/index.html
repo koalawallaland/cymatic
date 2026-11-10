@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+<meta name="description" content="Play KOE, a pocket singing synth with vowels, editable lyrics, koala voices, and a stylus keyboard.">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>koe pocket · under the desk · koalawallaland</title>
@@ -497,7 +498,7 @@ function renderKeyboard() {
   document.getElementById('octave-status').textContent = noteName(LOW + S.oct * 12) + '–' + noteName(LOW + NKEYS - 1 + S.oct * 12) + ' · octave ' + (S.oct > 0 ? '+' : '') + S.oct;
   document.getElementById('octave-down').disabled = S.oct <= -2; document.getElementById('octave-up').disabled = S.oct >= 2;
 }
-function changeOctave(delta) { noteOff(); S.oct = Math.max(-2,Math.min(2,S.oct + delta)); renderKeyboard(); }
+function changeOctave(delta) { keyTicket++; focusedHold = null; downKeys.length = 0; noteOff(); S.oct = Math.max(-2,Math.min(2,S.oct + delta)); renderKeyboard(); }
 document.getElementById('octave-down').addEventListener('click', () => changeOctave(-1));
 document.getElementById('octave-up').addEventListener('click', () => changeOctave(1));
 
