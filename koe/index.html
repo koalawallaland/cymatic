@@ -92,6 +92,8 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
 .koe.koalamode #singer{display:none}
 #koala{display:none}
 .koe.koalamode #koala{display:inline}
+.koe.ktmode.hasOpenArt #singer{display:inline}
+.koe.ktmode.hasOpenArt #koala{display:none}
 #koalaArt{display:none}
 .koe.noisemode.hasKoalaArt #koala{display:none}
 .koe.noisemode.hasKoalaArt #koalaArt{display:inline}
@@ -488,6 +490,7 @@ const IDLE = 'M199 117Q206 122 213 117Q206 120 199 117Z';
 function mouthFor(v) { const d = v ? (MOUTH[v] || MOUTH.a) : IDLE; document.getElementById('mouth').setAttribute('d', d); document.getElementById('kmouth').setAttribute('d', d); const ma = document.getElementById('mouthArt'); ma.setAttribute('d', v ? d : ''); ma.setAttribute('opacity', v ? '1' : '0'); document.getElementById('lipMask').setAttribute('opacity', v ? '1' : '0'); const ka = document.getElementById('kArtMouth'); ka.setAttribute('d', v ? d : ''); ka.setAttribute('opacity', v ? '1' : '0'); document.getElementById('kArtMask').setAttribute('opacity', v ? '1' : '0'); }
 // the faceplate art: fall back to the drawn singer if it can't load
 { const probe = new Image(); probe.onerror = () => { document.getElementById('singerArt').style.display = 'none'; document.getElementById('mouthArt').style.display = 'none'; document.getElementById('lipMask').style.display = 'none'; document.getElementById('singerDrawn').style.display = ''; }; probe.src = 'art/singer.png'; }
+{ const probe = new Image(); probe.onload = () => { koe.classList.add('hasOpenArt'); render(); }; probe.src = 'art/singer-open.png'; }
 { const probe = new Image(); probe.onload = () => koe.classList.add('hasKoalaArt'); probe.src = 'art/koala-noise.png'; }
 let lastSpark = 0;
 function sparkNote() {
@@ -523,6 +526,8 @@ function render() {
   document.querySelectorAll('[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === S.mode)));
   koe.classList.toggle('koalamode', S.voice !== 'builtin');
   koe.classList.toggle('noisemode', S.voice === 'noise');
+  koe.classList.toggle('ktmode', S.voice === 'koala');
+  { const art = document.getElementById('singerArt'), want = S.voice === 'koala' && koe.classList.contains('hasOpenArt') ? 'art/singer-open.png' : 'art/singer.png'; if (art.getAttribute('href') !== want) art.setAttribute('href', want); }
   kvStatus();
 }
 function showNext() { kvStatus(); }
