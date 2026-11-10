@@ -265,7 +265,7 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
     </div>
     <p class="key-help" id="key-help">Tab to the keys, use ← / → to choose a note, and hold Space or Enter to play. Home / End go to the first / last key. Z / X shift the octave.</p>
     <div class="ctlbar">
-      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="builtin" aria-pressed="true">built-in voice</button><button type="button" data-voice="koala" aria-pressed="false">KT's voice</button><button type="button" data-voice="noise" aria-pressed="false">🐨 Koala noise</button></div>
+      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="koala" aria-pressed="true">KT’s voice</button><button type="button" data-voice="noise" aria-pressed="false">🐨 Koala noise</button><button type="button" data-voice="builtin" aria-pressed="false">Vocaloid voice</button></div>
       <div class="seg" role="group" aria-label="Mode"><button type="button" data-mode="vowel" aria-pressed="false">VOWEL</button><button type="button" data-mode="doremi" aria-pressed="true">DO·RE·MI</button><button type="button" data-mode="lyric" aria-pressed="false">LYRIC</button></div>
       <label>lyric <input type="text" id="lyricIn" value="do you remember?" aria-label="Lyric, in romaji or kana"></label>
       <label>tone <input type="range" id="toneIn" min="0.8" max="1.25" step="0.01" value="1" aria-label="Koala voice tone, deeper to cuter"></label>
@@ -319,7 +319,7 @@ const VB = window.KoalaVB;
 const PHRASES = { doyouremember: 'do yu ri me n ba' };
 const DEFAULT_LYRIC = 'do you remember?';
 const lyricFrom = (text) => VB.parseLyric(PHRASES[String(text || '').toLowerCase().replace(/[^a-z]/g, '')] || text);
-const S = { power: false, vowel: 'a', mode: 'doremi', oct: 0, vol: 0.75, vib: false, shift: false, lyricIdx: 0, note: null, held: false, voice: 'builtin', tone: 1, lyric: lyricFrom(DEFAULT_LYRIC) };
+const S = { power: false, vowel: 'a', mode: 'doremi', oct: 0, vol: 0.75, vib: false, shift: false, lyricIdx: 0, note: null, held: false, voice: 'koala', tone: 1, lyric: lyricFrom(DEFAULT_LYRIC) };
 const KANA = { a: 'あ', i: 'い', u: 'う', e: 'え', o: 'お', ko: 'こ', ra: 'ら', wa: 'わ', N: 'ん', do: 'ど', re: 'れ', mi: 'み', fa: 'ふぁ', so: 'そ', si: 'し' };
 const SOLF = ['do', 'do', 're', 're', 'mi', 'fa', 'fa', 'so', 'so', 'ra', 'ra', 'shi'];
 const CMAP = { k: 'k', g: 'k', s: 's', sh: 's', z: 's', j: 's', t: 't', ch: 't', ts: 't', d: 'd', b: 'd', p: 'p', h: 'f', f: 'f', m: 'm', n: 'n', N: 'N', y: 'w', r: 'r', w: 'w', '': '' };
