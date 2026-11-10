@@ -247,6 +247,10 @@ function install(o) {
   audio.addEventListener('seeked',()=>{resetVoices();refresh();});
   audio.addEventListener('ended',stop);
   play.addEventListener('click',()=>audio.paused?start():stop());
+  // Switching to another showcase must stop the duet's backing as well.
+  for (const id of ['autoQueen','autoDuet']) {
+    const b=$(id);if(b)b.addEventListener('click',()=>{if(!audio.paused)stop();},true);
+  }
   record.addEventListener('click',async()=>{
     if(recording){finishRecording();return;}
     if(audio.paused && !(await start()))return;
