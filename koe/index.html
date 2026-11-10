@@ -82,6 +82,7 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
 .seg button+button{border-left:1px solid #80705f}
 .seg button[aria-pressed="true"]{background:var(--tiff);color:#271d13;font-weight:700}
 .seg button:disabled{opacity:.45;cursor:default}
+.seg button{min-height:36px}.ctlbar input[type=text]{min-height:36px}.ctlbar a{display:inline-block;padding:9px 0}.ctlbar input[type=range]{min-height:32px}
 .ctlbar label{display:flex;align-items:center;gap:6px}
 .ctlbar input[type=text]{background:#33271f;color:#f8f4f0;border:1px solid #80705f;border-radius:10px;padding:6px 9px;font:12px "Space Mono",monospace;width:min(56vw,230px)}
 .ctlbar a{color:#ebc7cc}
@@ -219,7 +220,7 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
     </div>
     <p class="rotate-tip">Tip: turn your phone sideways for a longer key strip.</p>
     <div class="ctlbar">
-      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="builtin" aria-pressed="true">built-in voice</button><button type="button" data-voice="koala" aria-pressed="false">🐨 koala voice</button></div>
+      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="builtin" aria-pressed="true">built-in voice</button><button type="button" data-voice="koala" aria-pressed="false">🐨 koala voice</button><button type="button" data-voice="noise" aria-pressed="false">🌿 koala noises</button></div>
       <div class="seg" role="group" aria-label="Mode"><button type="button" data-mode="vowel" aria-pressed="false">VOWEL</button><button type="button" data-mode="doremi" aria-pressed="false">DO·RE·MI</button><button type="button" data-mode="lyric" aria-pressed="true">LYRIC</button></div>
       <label>lyric <input type="text" id="lyricIn" value="ko a ra wa ra ra n do" aria-label="Lyric, in romaji or kana"></label>
       <label>tone <input type="range" id="toneIn" min="0.8" max="1.25" step="0.01" value="1" aria-label="Koala voice tone, deeper to cuter"></label>
@@ -233,10 +234,12 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
     <div class="card"><h2>Vowels</h2>Tap <b>あ い う え お</b> (or <kbd>1</kbd>–<kbd>5</kbd>), or press them while she's singing, to change the vowel. Watch her mouth change shape.</div>
     <div class="card"><h2>Modes</h2>Hold <b>SHIFT</b> (<kbd>Shift</kbd>) and tap a vowel. <b>い</b> = VOWEL (sings the vowel you picked), <b>う</b> = DO·RE·MI (sings the note name), <b>え</b> = LYRIC (sings the lyric below the device, one syllable per note). The mode buttons under the device do the same thing.</div>
     <div class="card"><h2>🐨 Koala voice</h2>Switch to <b>koala voice</b> and she sings with recorded syllables instead of the synthesized voice: any note, any lyric, with the koala on the faceplate. <b>tone</b> moves her voice from deeper to cuter. The voice is made in the <a href="booth.html">recording booth</a>.</div>
+    <div class="card"><h2>🌿 Koala noises</h2><p>Switch to <b>koala noises</b> and the keys stop singing. The low half of the strip is a bellow: a snoring breath in, then a belching breath out, for as long as you hold the key. The high half is the whine a female or a joey makes, which sounds like a sad kazoo sliding downhill. Slide between the two halves to morph one into the other, and hold <b>VIBRATO</b> to make it growl.</p></div>
     <div class="card"><h2>Expression</h2>Hold <b>VIBRATO</b> (<kbd>Space</kbd>) for a deep vibrato. Long notes also pick up a soft natural vibrato on their own. <b>▲ ▼</b> set the volume. With SHIFT held, they change the octave.</div>
   </div>
 </main>
 <script src="voicebank.js"></script>
+<script src="koala-noise.js?v=1"></script>
 <script>
 (() => {
 'use strict';
@@ -269,6 +272,7 @@ const FORM = { a: [850, 1350, 2900, 3900], i: [320, 2650, 3250, 4100], u: [360, 
 const BW = [150, 170, 220, 280], FG = [1, 0.7, 0.3, 0.14];
 
 // ---------- audio ----------
+let kn = null, knSeg = -1;
 let kv = null, kvReady = false, kvSource = null, kvLoading = null, kvBusy = false, bus = null;
 let ctx, osc, vibLfo, vibGain, srcGain, noise, noiseG, fric, fricG, forms = [], fgain = [], env, master, sum, tilt, started = null;
 function glottalWave(c) {
@@ -307,6 +311,7 @@ function start() {
     osc.start(); vibLfo.start(); noise.start();
     if (ctx.state !== 'running') await ctx.resume();
     try { await VB.loadWorklet(ctx); kv = new VB.Engine(ctx); kv.connect(bus); kv.tone(S.tone); loadBank(); } catch (e) { console.warn('koala voice unavailable', e); }
+    try { await KoalaNoise.load(ctx); kn = new KoalaNoise.Engine(ctx); const kng = ctx.createGain(); kng.gain.value = 0.9; kn.connect(kng); kng.connect(bus); kn.onseg = noiseSeg; } catch (e) { console.warn('koala noises unavailable', e); }
     S.power = true; document.querySelector('[data-start]').hidden = true; render();
   })();
   return started;
@@ -388,6 +393,7 @@ function changeVowelLive(v) {
 function stopSinging() {
   if (!ctx) return;
   if (kv) { kv.off(); kv.vib(0); }
+  if (kn) kn.off();
   const t = T();
   env.gain.cancelScheduledValues(t); env.gain.setValueAtTime(env.gain.value, t); env.gain.setTargetAtTime(0, t, 0.06);
   srcGain.gain.setTargetAtTime(0, t + 0.12, 0.04); noiseG.gain.setTargetAtTime(0, t, 0.05);
@@ -401,11 +407,22 @@ function syllableFor(note) {
   if (S.mode === 'lyric' && S.lyric.length) { const key = S.lyric[S.lyricIdx % S.lyric.length]; S.lyricIdx++; setBubble(VB.KANA[key] || key, key); showNext(); return key; }
   setBubble(KANA[S.vowel], S.vowel); return S.vowel;
 }
+const noiseOn = () => S.voice === 'noise' && kn;
+// which breath the koala is on: 0 in, 2 out, 4 whine, anything else is a pause
+function noiseSeg(seg) {
+  knSeg = seg; if (!noiseOn() || S.note === null) return;
+  const whine = S.note + S.oct * 12 > 70;
+  if (seg === 0) { mouthFor('u'); setBubble('すぅ', 'snore in'); }
+  else if (seg === 2) { mouthFor('a'); setBubble('ぐぉぉ', 'bellow out'); sparkNote(); }
+  else if (seg === 4) { mouthFor('e'); setBubble('ぴぇぇ', 'sad kazoo'); sparkNote(); }
+  else mouthFor(whine ? 'N' : null);
+}
 const koalaOn = () => S.voice === 'koala' && kvReady && kv;
 let lastKey = null, kvVibT = null;
 function noteOn(note, legato) {
   if (!S.power) { start().then(() => noteOn(note, false)); return; }
   const n = note + S.oct * 12;
+  if (noiseOn()) { kn.on(n, legato); kn.growl(S.vib); S.note = note; koe.classList.add('singing'); keyHot(note); noiseSeg(n > 70 ? 4 : 0); return; }
   const key = syllableFor(n);
   if (koalaOn()) {
     const k = kv.pick(key) || kv.pick('a') || [...kv.keys][0];
@@ -442,7 +459,7 @@ let lastSpark = 0;
 function sparkNote() {
   const now = performance.now(); if (now - lastSpark < 240) return; lastSpark = now;
   const g = document.getElementById('notes'); const t = document.createElementNS(NS, 'text');
-  t.textContent = ['♪', '♫', '♡', '✦'][Math.floor(Math.random() * 4)]; t.setAttribute('x', (S.voice === 'koala' ? 150 : 108) + Math.random() * 20); t.setAttribute('y', (S.voice === 'koala' ? 60 : 30) + Math.random() * 30);
+  t.textContent = ['♪', '♫', '♡', '✦'][Math.floor(Math.random() * 4)]; t.setAttribute('x', (S.voice !== 'builtin' ? 150 : 108) + Math.random() * 20); t.setAttribute('y', (S.voice !== 'builtin' ? 60 : 30) + Math.random() * 30);
   t.setAttribute('font-size', 16 + Math.random() * 8); t.setAttribute('fill', ['#cb6a79', '#b48d64', '#c9b0a0'][Math.floor(Math.random() * 3)]); t.setAttribute('class', 'fnote');
   g.appendChild(t); setTimeout(() => t.remove(), 1700);
 }
@@ -455,7 +472,7 @@ function render() {
   koe.querySelector('[data-b="shift"]').classList.toggle('on', S.shift);
   document.querySelectorAll('[data-voice]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.voice === S.voice)));
   document.querySelectorAll('[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === S.mode)));
-  koe.classList.toggle('koalamode', S.voice === 'koala');
+  koe.classList.toggle('koalamode', S.voice !== 'builtin');
   kvStatus();
 }
 function showNext() { kvStatus(); }
@@ -469,6 +486,7 @@ function kvStatus() {
     else if (S.power) v = 'the koala hasn\'t recorded her voice yet, so this is the built-in voice';
     else v = 'power on to load the koala voice';
   }
+  if (S.voice === 'noise') { el.innerHTML = S.power && !kn ? 'koala noises need a newer browser' : 'low keys bellow, high keys whine like a sad kazoo · hold VIBRATO to growl'; return; }
   el.innerHTML = v + next;
 }
 async function loadBank() {
@@ -486,7 +504,8 @@ async function loadBank() {
 document.querySelectorAll('[data-voice]').forEach((b) => b.addEventListener('click', async () => {
   S.voice = b.dataset.voice; noteOff(); render();
   if (S.voice === 'koala') { if (!S.power) await start(); await loadBank(); }
-  setBubble(S.voice === 'koala' ? 'こあら' : 'こえ', S.voice === 'koala' ? 'koala' : 'koe'); render();
+  if (S.voice === 'noise' && !S.power) await start();
+  setBubble(S.voice === 'noise' ? 'ぐぉ' : S.voice === 'koala' ? 'こあら' : 'こえ', S.voice === 'noise' ? 'koala noises' : S.voice === 'koala' ? 'koala' : 'koe'); render();
 }));
 document.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { S.mode = b.dataset.mode; S.lyricIdx = 0; render(); }));
 document.getElementById('lyricIn').addEventListener('input', (e) => { const l = VB.parseLyric(e.target.value); S.lyric = l.length ? l : VB.parseLyric('ko a ra wa ra ra n do'); S.lyricIdx = 0; if (S.mode !== 'lyric') S.mode = 'lyric'; render(); });
@@ -507,7 +526,7 @@ function pressBtn(id) {
       if (S.note === null) { mouthFor(id); setTimeout(() => { if (S.note === null) mouthFor(null); }, 400); }
     }
   }
-  if (id === 'vibrato') { S.vib = true; if (ctx) vibGain.gain.setTargetAtTime(70, T(), 0.08); if (kv) { clearTimeout(kvVibT); kv.vib(70, 5.6); } }
+  if (id === 'vibrato') { S.vib = true; if (ctx) vibGain.gain.setTargetAtTime(70, T(), 0.08); if (kv) { clearTimeout(kvVibT); kv.vib(70, 5.6); } if (kn) kn.growl(true); }
   if (id === 'shift') S.shift = true;
   if (id === 'up' || id === 'down') {
     const d = id === 'up' ? 1 : -1;
@@ -516,13 +535,13 @@ function pressBtn(id) {
   }
   if (id === 'power') {
     if (!S.power) start();
-    else { noteOff(); ctx && ctx.suspend(); S.power = false; started = null; setBubble('…', 'off'); if (ctx) { const c = ctx; ctx = null; c.close(); forms = []; fgain = []; kv = null; kvReady = false; kvLoading = null; } document.querySelector('[data-start]').hidden = false; }
+    else { noteOff(); ctx && ctx.suspend(); S.power = false; started = null; setBubble('…', 'off'); if (ctx) { const c = ctx; ctx = null; c.close(); forms = []; fgain = []; kv = null; kn = null; kvReady = false; kvLoading = null; } document.querySelector('[data-start]').hidden = false; }
   }
   render();
 }
 function releaseBtn(id) {
   const b = koe.querySelector(`[data-b="${id}"]`); b && b.classList.remove('down');
-  if (id === 'vibrato') { S.vib = false; if (ctx) vibGain.gain.setTargetAtTime(S.note !== null ? 18 : 0, T(), 0.15); if (kv) kv.vib(S.note !== null ? 18 : 0, 5.6); }
+  if (id === 'vibrato') { S.vib = false; if (ctx) vibGain.gain.setTargetAtTime(S.note !== null ? 18 : 0, T(), 0.15); if (kv) kv.vib(S.note !== null ? 18 : 0, 5.6); if (kn) kn.growl(false); }
   if (id === 'shift') S.shift = false;
   render();
 }
@@ -595,7 +614,7 @@ window.addEventListener('blur', () => { downKeys.length = 0; noteOff(); if (S.sh
 
 document.querySelector('[data-start]').addEventListener('click', () => start().catch((e) => console.error(e)));
 render();
-window.__koe = { S, start, noteOn, noteOff, pressBtn, releaseBtn, get ctx() { return ctx; }, get master() { return master; }, get kv() { return kv; }, get kvReady() { return kvReady; }, loadBank };
+window.__koe = { S, start, noteOn, noteOff, pressBtn, releaseBtn, get ctx() { return ctx; }, get master() { return master; }, get kv() { return kv; }, get kn() { return kn; }, get knSeg() { return knSeg; }, get kvReady() { return kvReady; }, loadBank };
 })();
 </script>
 </body>
