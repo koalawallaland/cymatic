@@ -175,7 +175,7 @@ function install(o) {
     const tracks=[],tempo=[{tick:0,micro:500000}];
     for(let ix=0;ix<count;ix++){
       if(tag()!=='MTrk')throw Error('Missing MIDI track');
-      const end=pos+u32();let tick=0,running=0,name='Track '+(ix+1);
+      const trackLen=u32(),end=pos+trackLen;let tick=0,running=0,name='Track '+(ix+1);
       const notes=[],active=new Map();
       while(pos<end){
         tick+=variable();
