@@ -92,6 +92,9 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
 .koe.koalamode #singer{display:none}
 #koala{display:none}
 .koe.koalamode #koala{display:inline}
+#koalaArt{display:none}
+.koe.noisemode.hasKoalaArt #koala{display:none}
+.koe.noisemode.hasKoalaArt #koalaArt{display:inline}
 
 .strip .key-name{position:absolute;top:78%;transform:translateX(-50%);color:#f6dfc8;font:1.15cqw 'Space Mono',monospace;pointer-events:none}.strip .key-name.sharp{top:40%;font-size:.85cqw}
 .strip .hot{fill:#e8b7a3;stroke:#fff1df;stroke-width:2;filter:drop-shadow(0 0 4px #dd9e9e)}
@@ -193,6 +196,12 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
               <!-- tiny koala charm on the strap -->
               <g transform="translate(232 196)"><circle cx="-5" cy="-4" r="4" fill="#c8bbb2"/><circle cx="5" cy="-4" r="4" fill="#c8bbb2"/><circle r="6" fill="#dacfc8"/><ellipse cy="1" rx="2" ry="2.6" fill="#605045"/></g>
             </g></g>
+            <!-- koala noise art (shown on the Koala noise tab) -->
+            <g id="koalaArt">
+              <g class="breathe"><image href="art/koala-noise.png" x="0" y="0" width="300" height="220" preserveAspectRatio="xMidYMid meet"/></g>
+              <ellipse id="kArtMask" cx="196.6" cy="130.4" rx="10.5" ry="4.4" fill="#fce6d6" filter="url(#lipSoft)" opacity="0"/>
+              <path id="kArtMouth" transform="translate(-9.4 12.4)" d="" fill="#7d2c3c" stroke="#8a5a4a" stroke-width="1.4" stroke-linejoin="round" opacity="0"/>
+            </g>
             <!-- koala singer (shown when the koala voice is on) -->
             <g id="koala">
               <g class="hairsway">
@@ -476,9 +485,10 @@ const MOUTH = {
   N: 'M201 118Q206 117 211 118Q210 120 206 120.5Q202 120 201 118Z'
 };
 const IDLE = 'M199 117Q206 122 213 117Q206 120 199 117Z';
-function mouthFor(v) { const d = v ? (MOUTH[v] || MOUTH.a) : IDLE; document.getElementById('mouth').setAttribute('d', d); document.getElementById('kmouth').setAttribute('d', d); const ma = document.getElementById('mouthArt'); ma.setAttribute('d', v ? d : ''); ma.setAttribute('opacity', v ? '1' : '0'); document.getElementById('lipMask').setAttribute('opacity', v ? '1' : '0'); }
+function mouthFor(v) { const d = v ? (MOUTH[v] || MOUTH.a) : IDLE; document.getElementById('mouth').setAttribute('d', d); document.getElementById('kmouth').setAttribute('d', d); const ma = document.getElementById('mouthArt'); ma.setAttribute('d', v ? d : ''); ma.setAttribute('opacity', v ? '1' : '0'); document.getElementById('lipMask').setAttribute('opacity', v ? '1' : '0'); const ka = document.getElementById('kArtMouth'); ka.setAttribute('d', v ? d : ''); ka.setAttribute('opacity', v ? '1' : '0'); document.getElementById('kArtMask').setAttribute('opacity', v ? '1' : '0'); }
 // the faceplate art: fall back to the drawn singer if it can't load
 { const probe = new Image(); probe.onerror = () => { document.getElementById('singerArt').style.display = 'none'; document.getElementById('mouthArt').style.display = 'none'; document.getElementById('lipMask').style.display = 'none'; document.getElementById('singerDrawn').style.display = ''; }; probe.src = 'art/singer.png'; }
+{ const probe = new Image(); probe.onload = () => koe.classList.add('hasKoalaArt'); probe.src = 'art/koala-noise.png'; }
 let lastSpark = 0;
 function sparkNote() {
   const now = performance.now(); if (now - lastSpark < 240) return; lastSpark = now;
@@ -512,6 +522,7 @@ function render() {
   document.querySelectorAll('[data-voice]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.voice === S.voice)));
   document.querySelectorAll('[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === S.mode)));
   koe.classList.toggle('koalamode', S.voice !== 'builtin');
+  koe.classList.toggle('noisemode', S.voice === 'noise');
   kvStatus();
 }
 function showNext() { kvStatus(); }
