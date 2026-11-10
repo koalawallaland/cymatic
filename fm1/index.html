@@ -75,6 +75,19 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:#e9c0c6;letter
 .rotate-tip{display:none;text-align:center;color:#e9c0c6;font-size:12px;margin:10px 0 0}
 @media (max-width:560px) and (orientation:portrait){.rotate-tip{display:block}}
 @media (prefers-reduced-motion:reduce){.btn.blink,.btn.blinkfast,.k.ledblink:after{animation:none}}
+
+/* Readable editor, coordinated with the faceplate. */
+.expanded-editor{margin-top:24px;padding:20px;border:1px solid #a88570;border-radius:20px;background:#30221c;color:var(--ink)}
+.expanded-editor h2{font:700 22px Syne,sans-serif;margin:0 0 10px}.expanded-editor h3{font:700 17px Syne,sans-serif;margin:18px 0 10px}
+.expanded-editor p{font-size:12px;line-height:1.6;color:var(--muted)}
+.editor-row,.editor-modes{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:12px 0}
+.expanded-editor label{display:grid;gap:6px;font-size:12px;min-width:0}.expanded-editor select,.expanded-editor input[type=text]{width:100%;max-width:100%;padding:10px;border:1px solid #a88570;border-radius:8px;background:#1c1310;color:#fff0df;font:inherit}
+.expanded-editor button{border:1px solid #a88570;border-radius:8px;background:#533b30;color:#fff0df;padding:10px 14px;font:12px 'Space Mono',monospace;cursor:pointer}
+.expanded-editor button[aria-pressed=true]{background:#efaaa8;color:#291a14}.expanded-editor button:disabled{opacity:.45;cursor:default}
+.expanded-editor :focus-visible{outline:3px solid #f2d3ac;outline-offset:3px}.editor-preset{flex:1 1 260px}.editor-name{flex:1 1 180px}
+.editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}.editor-graph{display:block;width:100%;background:#1c1310;border-radius:12px;margin:12px 0}
+.editor-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.editor-fields label{grid-template-columns:1fr auto}.editor-fields input{grid-column:1/-1;width:100%;accent-color:#efaaa8;min-height:30px}.editor-fields output{grid-row:1;grid-column:2;color:#f2d3ac}
+#editor-status{min-height:1.6em}#current-preset{margin-bottom:0}@media(max-width:680px){.editor-grid{grid-template-columns:1fr}.expanded-editor{padding:14px}.editor-fields{gap:10px}}
 </style>
 </head>
 <body>
@@ -119,6 +132,38 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:#e9c0c6;letter
       <span data-midistatus></span>
     </div>
   </div>
+
+
+  <section class="expanded-editor" id="expanded-editor" aria-labelledby="editor-heading">
+    <h2 id="editor-heading">Sound editor</h2>
+    <div class="editor-row">
+      <label class="editor-preset" for="preset-list">Preset library<select id="preset-list"></select></label>
+      <button type="button" id="preset-load">Load selected preset</button>
+      <label class="editor-name" for="preset-name">Name for current sound<input id="preset-name" type="text" maxlength="24"></label>
+      <button type="button" id="preset-save">Save current preset</button>
+    </div>
+    <p id="current-preset"></p><p>Load replaces the current edits. Save keeps the current sound in its current slot in this browser.</p>
+    <p id="editor-status" role="status"></p>
+    <div class="editor-grid">
+      <div><h3>Operator routing</h3><label for="editor-algorithm">Algorithm<select id="editor-algorithm"></select></label>
+        <svg class="editor-graph" id="editor-routing" viewBox="0 0 500 330" role="img" aria-label="Operator routing diagram"></svg>
+      </div>
+      <div><h3>Envelope</h3><label for="editor-envelope">Edit envelope<select id="editor-envelope"></select></label>
+        <svg class="editor-graph" id="editor-env-graph" viewBox="0 0 500 200" role="img" aria-label="Envelope shape"></svg>
+        <p>Rates and levels use the instrument's 0–99 scale. Higher rates make faster segments; level 3 is the held level.</p>
+        <div class="editor-fields" id="editor-eg-fields"></div>
+      </div>
+    </div>
+    <h3>Current control page</h3>
+    <div class="editor-modes" aria-label="Editor modes">
+      <button type="button" data-editor-mode="home">Home</button><button type="button" data-editor-mode="env">Envelope macro</button>
+      <button type="button" data-editor-mode="edit">Operator</button><button type="button" data-editor-mode="lfo">LFO</button>
+      <button type="button" data-editor-mode="fx">Effects</button><button type="button" data-editor-mode="arp">Arpeggiator</button>
+      <button type="button" data-editor-mode="seq">Sequencer</button><button type="button" data-editor-mode="glo">Global</button>
+    </div>
+    <div class="editor-row"><button type="button" id="editor-prev">Previous page</button><span id="editor-page-title"></span><button type="button" id="editor-next">Next page</button></div>
+    <div class="editor-fields" id="editor-params"></div>
+  </section>
 
   <div class="under">
     <div class="card"><h2>Play</h2>Tap or drag across the keys. On a computer keyboard: <kbd>Z</kbd>–<kbd>M</kbd> and <kbd>Q</kbd>–<kbd>O</kbd> are the white keys, <kbd>S D F H J</kbd> and <kbd>2 3 4 6 7 9</kbd> the black ones. <kbd>←</kbd><kbd>→</kbd> shift octaves. Press both OCT buttons to reset.</div>
@@ -1255,7 +1300,7 @@ function renderKeys() {
 const KEYMAP = { z: 0, s: 1, x: 2, d: 3, c: 4, f: 5, v: 6, b: 7, h: 8, n: 9, j: 10, m: 11, q: 12, 2: 13, w: 14, 3: 15, e: 16, 4: 17, r: 18, t: 19, 6: 20, y: 21, 7: 22, u: 23, i: 24, 9: 25, o: 26 };
 window.addEventListener('keydown', (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
-  const tag = (e.target.tagName || '').toLowerCase(); if (tag === 'input' || tag === 'textarea') return;
+  const tag = (e.target.tagName || '').toLowerCase(); if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.closest('#expanded-editor')) return;
   if (e.target.closest && e.target.closest('[data-knob]')) return;
   const k = e.key.toLowerCase();
   if (k === 'arrowleft' || k === 'arrowright') { if (!e.repeat) { S.oct = Math.max(-3, Math.min(3, S.oct + (k === 'arrowright' ? 1 : -1))); S.popup = { kind: 'oct', until: performance.now() + 900 }; renderButtons(); draw(); } e.preventDefault(); return; }
@@ -1283,6 +1328,144 @@ function onMidi(ev) {
   else if (type === 0x80 || (type === 0x90 && d2 === 0)) stopNote('m' + d1);
   else if (type === 0xe0) { const v = ((d2 << 7) | d1) - 8192; const st2 = v >= 0 ? v / 8191 * S.glob.bendUp : v / 8192 * S.glob.bendDown; node && node.port.postMessage({ type: 'bend', v: st2 }); }
   else if (type === 0xb0 && d1 === 7) { S.master = d2 / 127; masterGain && masterGain.gain.setTargetAtTime(S.master * S.master, ctx.currentTime, 0.02); setKnobVisual('master', 0); }
+}
+
+// Expanded editor shares the hardware controls' patch and action paths.
+const setEditorText = (el, text) => { if (el.textContent !== String(text)) el.textContent = text; };
+const parameterName = name => ({FreqCoarse:'Coarse frequency',FreqFine:'Fine frequency',OscMode:'Oscillator mode','A ModSens':'Amplitude modulation sensitivity',KeyVelocity:'Velocity sensitivity','Out Level':'Output level','L Depth':'Left scaling depth','R Depth':'Right scaling depth',BreakPoint:'Scaling breakpoint','L Curve':'Left scaling curve','R Curve':'Right scaling curve',RateScale:'Keyboard rate scaling',PMD:'Pitch modulation depth',AMD:'Amplitude modulation depth',CutOff:'Cutoff frequency',Q:'Resonance',Freq:'Frequency','Pitch Sens':'Pitch modulation sensitivity'}[name] || name);
+const presetList = document.getElementById('preset-list');
+const presetName = document.getElementById('preset-name');
+const editorStatus = document.getElementById('editor-status');
+const algorithmList = document.getElementById('editor-algorithm');
+const envelopeList = document.getElementById('editor-envelope');
+const paramFields = document.getElementById('editor-params');
+const svgNS = 'http://www.w3.org/2000/svg';
+for (let i = 0; i < 128; i++) presetList.add(new Option('', String(i)));
+for (let i = 0; i < 32; i++) algorithmList.add(new Option('Algorithm ' + (i + 1), String(i)));
+for (let i = 1; i <= 6; i++) envelopeList.add(new Option('Operator ' + i, 'op' + i));
+envelopeList.add(new Option('Pitch envelope', 'pit'));
+const svgElement = (tag, attrs, text) => {
+  const el = document.createElementNS(svgNS, tag);
+  Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+  if (text !== undefined) el.textContent = text;
+  return el;
+};
+let lastPreset = -1, lastPatch = null, lastPageKey = '', lastGraphKey = '';
+function editorEnvelope() {
+  const choice = envelopeList.value;
+  return choice === 'pit' ? S.patch.pit : S.patch.ops[+choice.slice(2) - 1];
+}
+const egFields = [];
+['Rate', 'Level'].forEach((kind, row) => {
+  for (let i = 0; i < 4; i++) {
+    const label = document.createElement('label');
+    const text = document.createElement('span'); text.textContent = kind + ' ' + (i + 1);
+    const input = document.createElement('input'); input.type = 'range'; input.min = 0; input.max = 99; input.step = 1;
+    const output = document.createElement('output');
+    input.id = 'eg-' + kind.toLowerCase() + '-' + i; label.htmlFor = input.id;
+    label.append(text, input, output); document.getElementById('editor-eg-fields').append(label);
+    input.addEventListener('input', () => { editorEnvelope()[row ? 'l' : 'r'][i] = +input.value; patchChanged(); });
+    egFields.push({input, output, row, i});
+  }
+});
+document.getElementById('preset-load').addEventListener('click', () => {
+  loadPreset(+presetList.value); editorStatus.textContent = 'Loaded ' + S.patch.name + '.';
+});
+document.getElementById('preset-save').addEventListener('click', () => {
+  const patch = clone(S.patch); patch.name = presetName.value.trim().slice(0, 24) || S.patch.name;
+  const previous = saved.user[S.presetIdx]; saved.user[S.presetIdx] = patch;
+  if (!persist()) {
+    if (previous) saved.user[S.presetIdx] = previous; else delete saved.user[S.presetIdx];
+    editorStatus.textContent = 'Save failed: browser storage is unavailable.'; return;
+  }
+  S.patch.name = patch.name; S.dirty = false;
+  editorStatus.textContent = 'Saved ' + patch.name + ' in slot ' + (S.presetIdx + 1) + ' in this browser.';
+  draw(); renderButtons();
+});
+algorithmList.addEventListener('change', () => { S.patch.alg = +algorithmList.value; patchChanged(); });
+envelopeList.addEventListener('change', () => { S.editSec = envelopeList.value; S.mode = 'edit'; S.page = 0; lastGraphKey = ''; renderButtons(); renderKeys(); draw(); });
+document.getElementById('editor-prev').addEventListener('click', () => turn('select', -1));
+document.getElementById('editor-next').addEventListener('click', () => turn('select', 1));
+document.querySelectorAll('[data-editor-mode]').forEach(b => b.addEventListener('click', () => setMode(b.dataset.editorMode)));
+function updateEditor() {
+  const pages = curPages(), pg = pages[Math.min(S.page, pages.length - 1)];
+  const scope = (S.mode === 'edit' ? S.editSec.toUpperCase() + ' · ' : '') + (pg ? pg.title : S.mode);
+  // Native title tooltips and assistive values always describe the active page.
+  fm.querySelectorAll('[data-knob]').forEach(k => {
+    const id = k.dataset.knob; let name, value, min, max, text;
+    if (id === 'master') { name = 'Master volume'; value = Math.round(S.master * 100); min = 0; max = 100; text = value + '%'; }
+    else if (id === 'presets') { name = 'Preset'; value = S.presetIdx + 1; min = 1; max = 128; text = value + ': ' + S.patch.name; }
+    else if (id === 'algorithm') {
+      const transpose = S.pressedBtns.has('octdown') || S.pressedBtns.has('octup');
+      name = transpose ? 'Transpose' : 'Algorithm'; value = transpose ? S.trans : S.patch.alg + 1;
+      min = transpose ? -12 : 1; max = transpose ? 12 : 32; text = transpose ? value + ' semitones' : 'Algorithm ' + value;
+    } else if (id === 'select') {
+      name = S.mode === 'fx' ? (S.fxGrab ? 'Move effect' : 'Effect slot') : 'Editor page';
+      value = S.mode === 'fx' ? S.fxSlot + 1 : S.page + 1; min = 1; max = S.mode === 'fx' ? 6 : Math.max(1, pages.length);
+      text = value + ' of ' + max + ': ' + scope;
+    } else {
+      const p = pg && pg.params[+id.slice(1) - 1];
+      name = scope + ' · ' + (p ? parameterName(p.name) : 'Unused knob ' + id.slice(1));
+      value = p ? +p.get() : 0; min = p ? p.min : 0; max = p ? p.max : 0; text = p ? p.fmt(p.get()) : 'Not assigned';
+    }
+    k.setAttribute('aria-label', name); k.setAttribute('aria-valuemin', min); k.setAttribute('aria-valuemax', max);
+    k.setAttribute('aria-valuenow', value); k.setAttribute('aria-valuetext', text); k.title = name + ': ' + text;
+    k.setAttribute('aria-disabled', String(min === max));
+  });
+  if (lastPreset !== S.presetIdx || lastPatch !== S.patch) {
+    presetList.value = String(S.presetIdx); presetName.value = S.patch.name;
+  }
+  [...presetList.options].forEach((o, i) => {
+    const text = String(i + 1).padStart(3, '0') + ' · ' + (saved.user[i] || FACTORY[i]).name + (saved.user[i] ? ' · saved' : '');
+    if (o.text !== text) o.text = text;
+  });
+  setEditorText(document.getElementById('current-preset'), 'Current: ' + (S.presetIdx + 1) + ' · ' + S.patch.name + (S.dirty ? ' · unsaved changes' : ''));
+  algorithmList.value = String(S.patch.alg);
+  setEditorText(document.getElementById('editor-page-title'), scope);
+  document.querySelectorAll('[data-editor-mode]').forEach(b => b.setAttribute('aria-pressed', String(S.mode === b.dataset.editorMode)));
+  const pageKey = S.mode + ':' + S.editSec + ':' + S.page + ':' + S.fxSlot;
+  if (lastPageKey !== pageKey || lastPatch !== S.patch) {
+    paramFields.replaceChildren();
+    (pg ? pg.params : []).forEach((p, i) => {
+      if (!p) return;
+      const label = document.createElement('label'), span = document.createElement('span'), output = document.createElement('output');
+      span.textContent = parameterName(p.name);
+      const input = document.createElement('input'); input.type = 'range'; input.min = p.min; input.max = p.max; input.step = 1;
+      input.id = 'editor-param-' + i; input.dataset.param = i; label.htmlFor = input.id; input.disabled = p.min === p.max;
+      input.addEventListener('input', () => { const current = curPages()[S.page].params[i]; turn('k' + (i + 1), +input.value - current.get()); });
+      label.append(span, input, output); paramFields.append(label);
+    });
+    lastPageKey = pageKey;
+  }
+  paramFields.querySelectorAll('input').forEach(input => {
+    const p = pg.params[+input.dataset.param]; input.value = p.get(); input.setAttribute('aria-valuetext', p.fmt(p.get()));
+    setEditorText(input.nextElementSibling, p.fmt(p.get()));
+  });
+  ['editor-prev', 'editor-next'].forEach(id => document.getElementById(id).disabled = pages.length < 2 && S.mode !== 'fx');
+  if (S.mode === 'edit' && /^(op[1-6]|pit)$/.test(S.editSec)) envelopeList.value = S.editSec;
+  const env = editorEnvelope();
+  egFields.forEach(({input, output, row, i}) => { input.value = env[row ? 'l' : 'r'][i]; setEditorText(output, input.value); input.setAttribute('aria-label', envelopeList.selectedOptions[0].text + ' ' + (row ? 'level ' : 'rate ') + (i + 1)); });
+  const graphKey = JSON.stringify([S.patch.alg, envelopeList.value, env.r, env.l]);
+  if (graphKey !== lastGraphKey) {
+    const diagram = document.getElementById('editor-routing'), A = ALGS[S.patch.alg]; diagram.replaceChildren();
+    diagram.append(svgElement('title', {}, 'Algorithm ' + (S.patch.alg + 1) + '. Connections: ' + A.edges.map(([s,d]) => 'operator ' + (s+1) + ' to ' + (d+1)).join(', ') + '. Carriers: ' + A.carList.map(i=>i+1).join(', ') + '. Feedback: ' + (A.fbSrc+1) + ' to ' + (A.fbDst+1) + '.'));
+    const pos = i => [35 + (A.pos[i] + .5) * 410 / A.width, 270 - (A.level[i] + .5) * 230 / A.height];
+    const path = (d, color = '#d2b39a') => svgElement('path', {d, stroke:color, 'stroke-width':2, fill:'none'});
+    A.edges.forEach(([s,d]) => { const [x,y]=pos(s),[xx,yy]=pos(d); diagram.append(path(`M${x} ${y+15}V${(y+yy)/2}H${xx}V${yy-15}`)); });
+    A.carList.forEach(i=>{const [x,y]=pos(i);diagram.append(path(`M${x} ${y+15}V285H250`, '#efaaa8'));});
+    const [fx,fy]=pos(A.fbSrc),[tx,ty]=pos(A.fbDst);
+    diagram.append(path(`M${fx+24} ${fy}H${fx+36}V${Math.min(fy,ty)-26}H${tx}V${ty-15}`, '#dfb66e'));
+    for(let i=0;i<6;i++){const [x,y]=pos(i);diagram.append(svgElement('rect',{x:x-24,y:y-15,width:48,height:30,rx:6,fill:A.car[i]?'#efaaa8':'#cbb39a'}),svgElement('text',{x,y:y+5,'text-anchor':'middle',fill:'#291a14','font-size':15},'OP'+(i+1)));}
+    diagram.append(svgElement('text',{x:250,y:310,'text-anchor':'middle',fill:'#f7ece0','font-size':13},'OUTPUT · pink = carrier · beige = modulator'));
+    const graph = document.getElementById('editor-env-graph'); graph.replaceChildren();
+    graph.append(svgElement('title',{},envelopeList.selectedOptions[0].text + ': rates ' + env.r.join(', ') + '; levels ' + env.l.join(', ')));
+    const widths=env.r.map(r=>12+(99-r)*.55), total=widths.reduce((a,b)=>a+b,0)+25;
+    let x=20; const y=l=>175-l/99*150; let d=`M${x} ${y(env.l[3])}`;
+    for(let i=0;i<4;i++){x+=widths[i]/total*450;d+=`L${x} ${y(env.l[i])}`;if(i===2){x+=25/total*450;d+=`H${x}`;}}
+    graph.append(path('M20 25V175H480','#725849'),path(d,'#efaaa8'));
+    lastGraphKey=graphKey;
+  }
+  lastPreset=S.presetIdx; lastPatch=S.patch;
 }
 
 // ---------- TFT drawing ----------
@@ -1357,6 +1540,7 @@ function drawEnv(rates, levels, x, y, w, h, color, pitch) {
 }
 const scopeBuf = new Float32Array(1024);
 function draw() {
+  updateEditor();
   g.fillStyle = C.bg; g.fillRect(0, 0, 240, 240);
   const grd = g.createLinearGradient(0, 24, 0, 216); grd.addColorStop(0, '#19120e'); grd.addColorStop(1, '#0e0a08'); g.fillStyle = grd; g.fillRect(0, 24, 240, 192);
   header();
