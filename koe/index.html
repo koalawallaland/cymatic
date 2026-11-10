@@ -79,7 +79,21 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
 .card b{color:#f7ece0}
 .rotate-tip{display:none;text-align:center;color:var(--tiff);font-size:12px;margin:10px 0 0}
 @media (max-width:560px) and (orientation:portrait){.rotate-tip{display:block}}
-.queen-feature{border:2px solid #a75383;border-radius:999px;background:#ffe0ee;color:#552143;padding:10px 16px;font:700 13px "Space Mono",monospace;cursor:pointer;box-shadow:0 2px 12px #a7538340}.queen-feature[aria-pressed="true"]{background:#d8ff3e;color:#302339}.duet-feature{border-color:#5b3a4a;background:#2a1a22;color:#f1d7de}.duet-feature[aria-pressed="true"]{background:#8d2f4a;color:#fff3f5}.ctlbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:center;margin:16px auto 0;max-width:940px;font-size:12px;color:var(--muted)}
+.queen-feature{border:2px solid #a75383;border-radius:999px;background:#ffe0ee;color:#552143;padding:10px 16px;font:700 13px "Space Mono",monospace;cursor:pointer;box-shadow:0 2px 12px #a7538340}.queen-feature[aria-pressed="true"]{background:#d8ff3e;color:#302339}.duet-feature{border-color:#5b3a4a;background:#2a1a22;color:#f1d7de}.duet-feature[aria-pressed="true"]{background:#8d2f4a;color:#fff3f5}.nympho-simple{width:100%;border:1px solid #945472;border-radius:16px;background:#281e29;padding:12px 14px;color:#f6e8ef}
+.nympho-main{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.nympho-main strong{font:700 17px Syne,sans-serif;color:#ffe4f0}
+.nympho-main p{max-width:59ch;margin:3px 0 0;font-size:12px;line-height:1.45;color:#dec2d4}
+.nympho-main button{flex-shrink:0;min-height:44px}
+#nymphoTime{display:block;font-size:12px;line-height:1.45;margin-top:8px;color:#eed1df;overflow-wrap:anywhere}
+.nympho-advanced{border-top:1px solid #76526a;margin-top:10px;padding-top:8px}
+.nympho-advanced summary{cursor:pointer;font-size:12px;color:#e2c0ce;min-height:28px}
+.nympho-advanced p{font-size:12px;line-height:1.5}
+.nympho-tools{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-top:10px}
+.nympho-tools label{display:inline-flex;align-items:center;gap:6px}
+.nympho-tools input[type=file]{max-width:170px;font-size:11px}
+.nympho-tools input[type=range]{max-width:110px}
+#nymphoMap[hidden]{display:none!important}
+.ctlbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:center;margin:16px auto 0;max-width:940px;font-size:12px;color:var(--muted)}
 .seg{display:inline-flex;border:1px solid #80705f;border-radius:999px;overflow:hidden}
 .seg button{border:0;background:#33271f;color:#f8f4f0;padding:7px 12px;font:12px "Space Mono",monospace;cursor:pointer}
 .seg button+button{border-left:1px solid #80705f}
@@ -274,7 +288,29 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
     </div>
     <p class="key-help" id="key-help">Tab to the keys, use ← / → to choose a note, and hold Space or Enter to play. Home / End go to the first / last key. Z / X shift the octave.</p>
     <div class="ctlbar">
-      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="koala" aria-pressed="true">KT’s voice</button></div><button type="button" id="autoQueen" class="queen-feature" aria-pressed="false" title="Auto-play the Queen of the Night aria in KT’s voice">👑 AUTO QUEEN</button><span class="nympho-control" style="display:inline-flex;flex-wrap:wrap;gap:6px;align-items:center"><label for="nymphoFile" style="cursor:pointer;border:1px solid #a75383;border-radius:20px;padding:8px;color:#ffe0ee">🦇 NYMPHOALA · choose backing once</label><input id="nymphoFile" type="file" accept="audio/*,.mp3,.m4a,.wav" style="max-width:170px;font-size:11px" aria-label="Choose local instrumental backing track"><label for="nymphoScore" title="Load a vocal score as MIDI or saved cue JSON">🎼 vocal score</label><input id="nymphoScore" type="file" accept=".mid,.midi,.json" disabled style="max-width:150px;font-size:11px" aria-label="Choose vocal MIDI or Nymphoala cue JSON"><span id="nymphoMap" hidden style="display:inline-flex;gap:5px;align-items:center;flex-wrap:wrap"><label>your vocals <select id="nymphoFemaleTrack" aria-label="Female vocal MIDI track"></select></label><label>koala growls <select id="nymphoMaleTrack" aria-label="Harsh vocal MIDI track"></select></label><button type="button" id="nymphoImport">Import vocal tracks</button></span><button type="button" id="nymphoPlay" class="queen-feature duet-feature" disabled>▶ NYMPHOALA</button><button type="button" id="nymphoGrowl" title="Trigger koala growl" disabled>🐨 GROWL</button><button type="button" id="nymphoAh" title="Trigger KT soprano vowel" disabled>🎤 AH</button><button type="button" id="nymphoRec" aria-pressed="false" title="Play the backing and record your own cues: hold GROWL or AH, or play the keys" disabled>● REC CUES</button><button type="button" id="nymphoClear" title="Forget your recorded cues for this file" disabled>✕ clear cues</button><label>sync <input id="nymphoOffset" type="range" min="-30" max="30" step=".05" value="0" aria-label="Vocal cue offset seconds"> <output id="nymphoOffsetOut" style="font:11px monospace">0.00s</output></label><label>score speed <input id="nymphoRate" type="range" min=".85" max="1.15" step=".001" value="1" aria-label="Vocal score playback speed"> <output id="nymphoRateOut" style="font:11px monospace">1.000×</output></label><button type="button" id="nymphoExport" disabled title="Download the vocal cue arrangement">↓ export cues</button><output id="nymphoTime" style="font:11px monospace" role="status">Select your backing MP3 once · saved privately on this device</output></span><button type="button" id="autoDuet" class="queen-feature duet-feature" aria-pressed="false" title="Auto-play an original gothic duet: FM riffs, KT’s soprano and koala growls">🦇 DROP BEAR NOCTURNE · ORIGINAL DEMO</button><div class="seg" role="group" aria-label="Other voices"><button type="button" data-voice="noise" aria-pressed="false">🐨 Koala noise</button><button type="button" data-voice="builtin" aria-pressed="false">Vocaloid voice</button></div>
+      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="koala" aria-pressed="true">KT’s voice</button></div><button type="button" id="autoQueen" class="queen-feature" aria-pressed="false" title="Auto-play the Queen of the Night aria in KT’s voice">👑 AUTO QUEEN</button><section class="nympho-simple" aria-label="Nymphoala duet player">
+  <div class="nympho-main">
+    <div><strong>🦇 Nymphoala</strong><p>A koala-growl and KT-voice duet. Tap Play to choose the instrumental on this device the first time.</p></div>
+    <button type="button" id="nymphoPlay" class="queen-feature duet-feature">▶ Play Nymphoala</button>
+  </div>
+  <output id="nymphoTime" role="status" aria-live="polite">Tap Play to choose your backing track. Your music stays on your device.</output>
+  <details class="nympho-advanced">
+    <summary>Make your own duet · Advanced tools</summary>
+    <p>1. Choose an instrumental. 2. Add a vocal MIDI score (or record cues). 3. Press Play to hear both parts.</p>
+    <div class="nympho-tools">
+      <label>Backing <input id="nymphoFile" type="file" accept="audio/*,.mp3,.m4a,.wav" aria-label="Choose local instrumental backing track"></label>
+      <label>Vocal score <input id="nymphoScore" type="file" accept=".mid,.midi,.json" disabled aria-label="Choose vocal MIDI or Nymphoala cue JSON"></label>
+      <span id="nymphoMap" hidden><label>KT vocals <select id="nymphoFemaleTrack" aria-label="Female vocal MIDI track"></select></label><label>Koala growls <select id="nymphoMaleTrack" aria-label="Harsh vocal MIDI track"></select></label><button type="button" id="nymphoImport">Import vocal tracks</button></span>
+      <button type="button" id="nymphoGrowl" title="Hold to trigger a koala growl" disabled>🐨 Growl</button>
+      <button type="button" id="nymphoAh" title="Hold to sing a KT vowel" disabled>🎤 KT voice</button>
+      <button type="button" id="nymphoRec" aria-pressed="false" title="Record your own vocal cues" disabled>● Record cues</button>
+      <button type="button" id="nymphoClear" title="Clear your recorded cues" disabled>✕ Clear cues</button>
+      <label>Sync <input id="nymphoOffset" type="range" min="-30" max="30" step=".05" value="0" aria-label="Vocal cue offset seconds"> <output id="nymphoOffsetOut">0.00s</output></label>
+      <label>Tempo <input id="nymphoRate" type="range" min=".85" max="1.15" step=".001" value="1" aria-label="Vocal score playback speed"> <output id="nymphoRateOut">1.000×</output></label>
+      <button type="button" id="nymphoExport" disabled title="Download vocal cue arrangement">↓ Export cues</button>
+    </div>
+  </details>
+</section><button type="button" id="autoDuet" class="queen-feature duet-feature" aria-pressed="false" title="Auto-play an original gothic duet: FM riffs, KT’s soprano and koala growls">🦇 DROP BEAR NOCTURNE · ORIGINAL DEMO</button><div class="seg" role="group" aria-label="Other voices"><button type="button" data-voice="noise" aria-pressed="false">🐨 Koala noise</button><button type="button" data-voice="builtin" aria-pressed="false">Vocaloid voice</button></div>
       <div class="seg" role="group" aria-label="Mode"><button type="button" data-mode="vowel" aria-pressed="false">VOWEL</button><button type="button" data-mode="doremi" aria-pressed="true">DO·RE·MI</button><button type="button" data-mode="lyric" aria-pressed="false">LYRIC</button></div>
       <label>lyric <input type="text" id="lyricIn" value="do you remember?" aria-label="Lyric, in romaji or kana"></label>
       <label>tone <input type="range" id="toneIn" min="0.8" max="1.25" step="0.01" value="1" aria-label="Koala voice tone, deeper to cuter"></label>

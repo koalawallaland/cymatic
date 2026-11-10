@@ -184,7 +184,7 @@ function install(o) {
     drawStatus();
   }
   async function start() {
-    if(!audio.src){status.textContent='Choose the Nymphetamine backing MP3 once to unlock playback';return false;}
+    if(!audio.src){status.textContent='Choose your instrumental MP3 first. Tap Play to open Files.';return false;}
     o.stopOther();
     // Start the local backing directly from the button click, BEFORE any potentially
     // expensive voice-bank initialization. Safari otherwise expires the user gesture.
@@ -289,18 +289,30 @@ function install(o) {
     status.textContent='Choose the two VOCAL tracks, then import. Instrument tracks are not vocals.';
   }
   file.addEventListener('change',()=>{
-    stop();
     const f=file.files&&file.files[0];if(!f)return;
+    stop();
     useBacking(f,f.name);
-    backingRecord({blob:f,name:f.name}).then(
-      ()=>drawStatus('Backing saved privately on this device · '),
-      ()=>drawStatus('Backing loaded for this session · ')
+    // Once the user selects a file, attempt immediate playback so the
+    // primary flow is Play → pick file → hear the track.
+    start().then(ok=>{
+      if(!ok)status.textContent='Backing selected. Tap Play Nymphoala once more to start it.';
+    });
+    backingRecord({blob:f,name:f.name}).catch(err=>
+      console.debug('Backing can be played but could not be saved',err)
     );
   });
   audio.addEventListener('loadedmetadata',()=>drawStatus());
   audio.addEventListener('seeked',()=>{resetVoices();refresh();});
   audio.addEventListener('ended',stop);
-  play.addEventListener('click',()=>audio.paused?start():stop());
+  play.addEventListener('click',()=>{
+    if(!audio.src){
+      status.textContent='Step 1 of 2: choose your instrumental MP3 from Files. Then playback starts.';
+      // Open the native file picker during this direct user gesture.
+      file.click();
+      return;
+    }
+    if(audio.paused)start();else stop();
+  });
   // Switching to another showcase must stop the duet's backing as well.
   for (const id of ['autoQueen','autoDuet']) {
     const b=$(id);if(b)b.addEventListener('click',()=>{if(!audio.paused)stop();},true);
@@ -360,7 +372,7 @@ function install(o) {
     a.href=u;a.download='nymphoala-vocal-cues.json';a.click();
     setTimeout(()=>URL.revokeObjectURL(u),3000);
   });
-  drawStatus('Choose your Nymphetamine backing MP3 once · ');
+  drawStatus('Tap Play to choose your backing MP3 · ');
   restoreBacking();
   return {mark,unmark,stop,get recording(){return recording;}};
 }
