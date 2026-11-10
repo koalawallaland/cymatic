@@ -79,7 +79,7 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
 .card b{color:#f7ece0}
 .rotate-tip{display:none;text-align:center;color:var(--tiff);font-size:12px;margin:10px 0 0}
 @media (max-width:560px) and (orientation:portrait){.rotate-tip{display:block}}
-.queen-feature{border:2px solid #a75383;border-radius:999px;background:#ffe0ee;color:#552143;padding:10px 16px;font:700 13px "Space Mono",monospace;cursor:pointer;box-shadow:0 2px 12px #a7538340}.queen-feature[aria-pressed="true"]{background:#d8ff3e;color:#302339}.ctlbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:center;margin:16px auto 0;max-width:940px;font-size:12px;color:var(--muted)}
+.queen-feature{border:2px solid #a75383;border-radius:999px;background:#ffe0ee;color:#552143;padding:10px 16px;font:700 13px "Space Mono",monospace;cursor:pointer;box-shadow:0 2px 12px #a7538340}.queen-feature[aria-pressed="true"]{background:#d8ff3e;color:#302339}.duet-feature{border-color:#5b3a4a;background:#2a1a22;color:#f1d7de}.duet-feature[aria-pressed="true"]{background:#8d2f4a;color:#fff3f5}.ctlbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:center;margin:16px auto 0;max-width:940px;font-size:12px;color:var(--muted)}
 .seg{display:inline-flex;border:1px solid #80705f;border-radius:999px;overflow:hidden}
 .seg button{border:0;background:#33271f;color:#f8f4f0;padding:7px 12px;font:12px "Space Mono",monospace;cursor:pointer}
 .seg button+button{border-left:1px solid #80705f}
@@ -265,7 +265,7 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
     </div>
     <p class="key-help" id="key-help">Tab to the keys, use ← / → to choose a note, and hold Space or Enter to play. Home / End go to the first / last key. Z / X shift the octave.</p>
     <div class="ctlbar">
-      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="koala" aria-pressed="true">KT’s voice</button></div><button type="button" id="autoQueen" class="queen-feature" aria-pressed="false" title="Auto-play the Queen of the Night aria in KT’s voice">👑 AUTO QUEEN</button><div class="seg" role="group" aria-label="Other voices"><button type="button" data-voice="noise" aria-pressed="false">🐨 Koala noise</button><button type="button" data-voice="builtin" aria-pressed="false">Vocaloid voice</button></div>
+      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="koala" aria-pressed="true">KT’s voice</button></div><button type="button" id="autoQueen" class="queen-feature" aria-pressed="false" title="Auto-play the Queen of the Night aria in KT’s voice">👑 AUTO QUEEN</button><button type="button" id="autoDuet" class="queen-feature duet-feature" aria-pressed="false" title="Auto-play an original gothic duet: FM riffs, KT’s soprano and koala growls">🦇 DROP BEAR NOCTURNE</button><div class="seg" role="group" aria-label="Other voices"><button type="button" data-voice="noise" aria-pressed="false">🐨 Koala noise</button><button type="button" data-voice="builtin" aria-pressed="false">Vocaloid voice</button></div>
       <div class="seg" role="group" aria-label="Mode"><button type="button" data-mode="vowel" aria-pressed="false">VOWEL</button><button type="button" data-mode="doremi" aria-pressed="true">DO·RE·MI</button><button type="button" data-mode="lyric" aria-pressed="false">LYRIC</button></div>
       <label>lyric <input type="text" id="lyricIn" value="do you remember?" aria-label="Lyric, in romaji or kana"></label>
       <label>tone <input type="range" id="toneIn" min="0.8" max="1.25" step="0.01" value="1" aria-label="Koala voice tone, deeper to cuter"></label>
@@ -331,7 +331,7 @@ const FORM = { a: [850, 1350, 2900, 3900], i: [320, 2650, 3250, 4100], u: [360, 
 const BW = [150, 170, 220, 280], FG = [1, 0.7, 0.3, 0.14];
 
 // ---------- audio ----------
-let kn = null, knSeg = -1;
+let kn = null, knSeg = -1, knGain = null;
 let kv = null, kvReady = false, kvSource = null, kvLoading = null, kvBusy = false, bus = null;
 let ctx, osc, vibLfo, vibGain, srcGain, noise, noiseG, fric, fricG, forms = [], fgain = [], env, master, sum, tilt, started = null;
 function glottalWave(c) {
@@ -370,7 +370,7 @@ function start() {
     osc.start(); vibLfo.start(); noise.start();
     if (ctx.state !== 'running') await ctx.resume();
     try { await VB.loadWorklet(ctx); kv = new VB.Engine(ctx); kv.connect(bus); kv.tone(S.tone); loadBank(); } catch (e) { console.warn('koala voice unavailable', e); }
-    try { await KoalaNoise.load(ctx); kn = new KoalaNoise.Engine(ctx); const kng = ctx.createGain(); kng.gain.value = 0.9; kn.connect(kng); kng.connect(bus); kn.onseg = noiseSeg; } catch (e) { console.warn('koala noises unavailable', e); }
+    try { await KoalaNoise.load(ctx); kn = new KoalaNoise.Engine(ctx); const kng = ctx.createGain(); kng.gain.value = 0.9; kn.connect(kng); kng.connect(bus); knGain = kng; kn.onseg = noiseSeg; } catch (e) { console.warn('koala noises unavailable', e); }
     S.power = true; document.querySelector('[data-start]').hidden = true; render();
   })();
   return started;
@@ -624,7 +624,7 @@ function pressBtn(id) {
   }
   if (id === 'power') {
     if (!S.power) start();
-    else { noteOff(); ctx && ctx.suspend(); S.power = false; started = null; setBubble('…', 'off'); if (ctx) { const c = ctx; ctx = null; c.close(); forms = []; fgain = []; kv = null; kn = null; kvReady = false; kvLoading = null; } document.querySelector('[data-start]').hidden = false; }
+    else { duetStop(); noteOff(); ctx && ctx.suspend(); S.power = false; started = null; setBubble('…', 'off'); if (ctx) { const c = ctx; ctx = null; c.close(); forms = []; fgain = []; kv = null; kn = null; kvReady = false; kvLoading = null; } document.querySelector('[data-start]').hidden = false; }
   }
   render();
 }
@@ -804,6 +804,7 @@ function queenStop(){
 }
 queenButton.addEventListener('click',async()=>{
  if(queenRunning){queenStop();return;}
+ if(duetRunning)duetStop();
  if(S.voice!=='koala'){queenStatus.textContent='Switch to KT’s voice to perform.';return;}
  try{await start();}catch{queenStatus.textContent='Power on the instrument first.';return;}
  if(!kvReady||!kv){queenStatus.textContent='KT voice samples are still loading. Try again shortly.';return;}queenRunning=true;queenPrevious={oct:S.oct,vib:S.vib,mode:S.mode,vowel:S.vowel};S.mode='vowel';S.vowel='a';queenButton.textContent='■ STOP QUEEN';queenButton.setAttribute('aria-pressed','true');
@@ -830,6 +831,86 @@ queenButton.addEventListener('click',async()=>{
  queenWait(queenStop,ms+160);
 });
 
+
+/* DROP BEAR NOCTURNE: an original gothic duet written for this page (not a cover of anything).
+   A small two-operator FM voice plays the riffs, bells, pad and drums; KT's voice sings the clean
+   soprano line; the koala noise engine growls the answering lines. */
+let duetRunning=false,duetTimers=[],duetBus=null;
+const duetButton=document.getElementById('autoDuet');
+const duetWait=(fn,ms)=>{const t=setTimeout(fn,ms);duetTimers.push(t);};
+function duetStop(){
+ duetTimers.forEach(clearTimeout);duetTimers=[];
+ if(duetRunning){if(kv){kv.off();kv.vib(0,5.6);}if(kn){kn.off();kn.growl(false);}if(knGain&&ctx)knGain.gain.setTargetAtTime(0.9,T(),0.05);koe.classList.remove('singing');mouthFor(null);setBubble('こえ','koe');}
+ if(duetBus&&ctx){const b=duetBus;try{b.gain.setTargetAtTime(0,T(),0.04);}catch(e){}setTimeout(()=>{try{b.disconnect();}catch(e){}},400);}
+ duetBus=null;duetRunning=false;
+ duetButton.textContent='🦇 DROP BEAR NOCTURNE';duetButton.setAttribute('aria-pressed','false');if(!queenRunning)queenStatus.textContent='';
+}
+// one FM note: a sine carrier whose pitch is wobbled by a sine modulator (ratio x the note, depth "index" that decays)
+function duetFM(out,t,midi,dur,o){
+ const f=hz(midi),car=ctx.createOscillator(),mod=ctx.createOscillator(),mg=ctx.createGain(),amp=ctx.createGain();
+ car.frequency.value=f;mod.frequency.value=f*o.ratio;
+ mg.gain.setValueAtTime(f*o.index,t);mg.gain.exponentialRampToValueAtTime(Math.max(1,f*o.index*o.keep),t+dur);
+ amp.gain.setValueAtTime(0.0001,t);amp.gain.linearRampToValueAtTime(o.gain,t+o.attack);
+ if(o.sustain){amp.gain.setValueAtTime(o.gain,t+Math.max(o.attack,dur-o.release));amp.gain.linearRampToValueAtTime(0.0001,t+dur);}
+ else amp.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+ mod.connect(mg).connect(car.frequency);car.connect(amp).connect(out);
+ car.start(t);mod.start(t);car.stop(t+dur+0.05);mod.stop(t+dur+0.05);
+}
+function duetKick(out,t){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(170,t);o.frequency.exponentialRampToValueAtTime(48,t+0.09);g.gain.setValueAtTime(0.32,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.16);o.connect(g).connect(out);o.start(t);o.stop(t+0.2);}
+function duetSnare(out,t,buf){const n=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();n.buffer=buf;f.type='bandpass';f.frequency.value=1900;f.Q.value=0.7;g.gain.setValueAtTime(0.3,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.17);n.connect(f).connect(g).connect(out);n.start(t);n.stop(t+0.2);}
+duetButton.addEventListener('click',async()=>{
+ if(duetRunning){duetStop();return;}
+ if(queenRunning)queenStop();
+ try{await start();}catch{queenStatus.textContent='Power on the instrument first.';return;}
+ if(!kvReady||!kv){queenStatus.textContent='KT voice samples are still loading. Try again shortly.';return;}
+ noteOff();duetRunning=true;duetButton.textContent='■ STOP NOCTURNE';duetButton.setAttribute('aria-pressed','true');
+ queenStatus.textContent='Drop Bear Nocturne — an original duet: FM riffs, KT’s soprano, koala growls';
+ const BEAT=60/138,BAR=BEAT*4,S16=BEAT/4,t0=T()+0.25;
+ duetBus=ctx.createGain();duetBus.gain.value=1.9;duetBus.connect(bus);
+ if(knGain)knGain.gain.setTargetAtTime(0.42,T(),0.02); // the growls sit beside the soprano instead of over her
+ // the riff goes through a little grit and a low-pass, like an amp
+ const grit=ctx.createWaveShaper(),curve=new Float32Array(513);for(let i=0;i<513;i++)curve[i]=Math.tanh((i/256-1)*3.2);grit.curve=curve;
+ const cab=ctx.createBiquadFilter();cab.type='lowpass';cab.frequency.value=3400;const riffG=ctx.createGain();riffG.gain.value=0.26;
+ grit.connect(cab).connect(riffG).connect(duetBus);
+ const nb=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.25),ctx.sampleRate),nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+ const RIFF={ratio:1,index:3.2,keep:0.5,gain:0.55,attack:0.004},BELL={ratio:3.5,index:2.6,keep:0.04,gain:0.11,attack:0.003},PAD={ratio:2,index:0.7,keep:0.8,gain:0.035,attack:0.5,sustain:true,release:0.6};
+ const CH=[[45,3],[41,4],[38,3],[40,4]]; // A minor, F, D minor, E: root and its third
+ const riffPat=(t)=>[0,0,12,0,0,12+t,0,0,19,0,0,12+t,0,12,12+t,19];
+ const ARP=[[69,72,76,81,76,72,71,72],[69,72,77,81,77,72,69,72],[69,74,77,81,77,74,69,74],[68,71,76,80,76,71,68,71]];
+ // what each bar holds: r = riff (0 none, 1 full, .5 soft), d = drums (0 none, 1 driving, .5 half-time), b = bells, g = growls, s = soprano
+ // growls are [beat, beats long]; soprano notes are [beat, beats long, midi]
+ const BARS=[
+  {b:1},{b:1},
+  {r:1,d:1,g:[[0,2.6]]},{r:1,d:1,g:[[0,0.7],[1.5,2.1]]},{r:1,d:1,g:[[0,3.1]]},{r:1,d:1,g:[[0,0.55],[1,0.55],[2,1.7]]},
+  {r:.5,d:.5,b:1,s:[[0,2,76],[2,1,74],[3,1,72]]},{r:.5,d:.5,b:1,s:[[0,1.5,69],[1.5,.5,72],[2,2,77]]},{r:.5,d:.5,b:1,s:[[0,1,77],[1,1,76],[2,1,74],[3,1,81]]},{r:.5,d:.5,b:1,s:[[0,3,80]]},
+  {r:1,d:1,g:[[0,3.2]]},{r:1,d:1,s:[[0,1,81],[1,.5,79],[1.5,.5,77],[2,2,76]]},{r:1,d:1,g:[[0,0.55],[1,0.55],[2,0.55],[3,0.8]]},{r:1,d:1,s:[[0,.5,74],[.5,.5,76],[1,1,80],[2,2,83]]},
+  {r:1,d:1,b:1,s:[[0,7.5,81]],g:[[2,5.2]],c:0},{b:1,c:0}
+ ];
+ const aKey=kv.pick('a')||[...kv.keys][0];
+ BARS.forEach((bar,i)=>{
+  const at=t0+i*BAR,ci=bar.c??(i%4),[root,third]=CH[ci];
+  // FM parts are scheduled on the audio clock a moment before their bar
+  duetWait(()=>{
+   if(!duetRunning||!ctx)return;
+   duetFM(duetBus,at,root+24,BAR,PAD);duetFM(duetBus,at,root+24+third,BAR,PAD);duetFM(duetBus,at,root+31,BAR,PAD);
+   if(bar.r){const pat=riffPat(third);for(let k=0;k<16;k++)duetFM(grit,at+k*S16,root+12+pat[k],S16*0.92,{...RIFF,gain:RIFF.gain*bar.r});}
+   if(bar.b){ARP[ci].forEach((m,k)=>duetFM(duetBus,at+k*BEAT/2,m+(i>=14?12:0),1.1,BELL));}
+   if(bar.d===1){for(let k=0;k<8;k++)duetKick(duetBus,at+k*BEAT/2);duetSnare(duetBus,at+BEAT*2,nb);}
+   if(bar.d===.5){duetKick(duetBus,at);duetKick(duetBus,at+BEAT*2.5);duetSnare(duetBus,at+BEAT*2,nb);}
+  },Math.max(0,(at-T())*1000-120));
+  // the two singers are driven by timers
+  (bar.g||[]).forEach(([b,len])=>{
+   duetWait(()=>{if(!duetRunning||!kn)return;kn.growl(true);kn.on(50,false);setBubble('ガオ','growl');googly.kick(0.8);},(at+b*BEAT-T())*1000);
+   duetWait(()=>{if(duetRunning&&kn)kn.off();},(at+(b+len)*BEAT-T())*1000);
+  });
+  (bar.s||[]).forEach(([b,len,midi],k)=>{
+   const slur=k>0;
+   duetWait(()=>{if(!duetRunning||!kv)return;kv.on(aKey,hz(midi),slur,slur);kv.vib(len>=1.5?38:6,5.6);koe.classList.add('singing');mouthFor('a');setBubble('あ','a');},(at+b*BEAT-T())*1000);
+   if(k===bar.s.length-1)duetWait(()=>{if(!duetRunning||!kv)return;kv.off();koe.classList.remove('singing');mouthFor(null);},(at+(b+len)*BEAT-T())*1000-40);
+  });
+ });
+ duetWait(duetStop,(t0+BARS.length*BAR-T())*1000+900);
+});
 window.__koe = { S, start, noteOn, noteOff, pressBtn, releaseBtn, get ctx() { return ctx; }, get master() { return master; }, get kv() { return kv; }, get kn() { return kn; }, get knSeg() { return knSeg; }, get kvReady() { return kvReady; }, loadBank };
 })();
 </script>
