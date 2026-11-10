@@ -60,6 +60,8 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
 .strip .hot{fill:#dd9e9e33;stroke:#dd9e9e;stroke-width:1.2;filter:drop-shadow(0 0 3px #dd9e9e)}
 .stylus{position:absolute;left:0;top:0;width:5cqw;height:18cqw;pointer-events:none;transform-origin:50% 0;z-index:9;opacity:0;transition:opacity .15s}
 .stylus.show{opacity:1}
+/* a googly-eye sticker stuck on the faceplate glass: it belongs to the instrument, not the singer */
+.googly{position:absolute;left:72.2%;top:16.3%;width:5.4cqw;height:5.4cqw;transform:translate(-50%,-50%) rotate(-7deg);pointer-events:none;z-index:8;overflow:visible;filter:drop-shadow(.22cqw .42cqw .3cqw #2f1c1575) drop-shadow(0 .08cqw .06cqw #2f1c1566)}
 .bubble{font-family:"Zen Maru Gothic",sans-serif}
 @keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.2px)}}
 .breathe{animation:breathe 4.2s ease-in-out infinite}
@@ -235,6 +237,23 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
           <svg id="keys" viewBox="0 0 750 100" preserveAspectRatio="none" role="group" aria-label="Piano keys" aria-describedby="key-help"></svg>
         </div>
       </div>
+      <svg class="googly" id="googly" viewBox="-50 -50 100 100" aria-hidden="true">
+        <defs>
+          <radialGradient id="gooBack" cx=".42" cy=".36" r=".75"><stop offset="0" stop-color="#ffffff"/><stop offset=".7" stop-color="#f4f1ee"/><stop offset="1" stop-color="#d9d3ce"/></radialGradient>
+          <radialGradient id="gooDome" cx=".34" cy=".26" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".35" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#6b5a52" stop-opacity=".16"/></radialGradient>
+          <clipPath id="gooClip"><circle r="42"/></clipPath>
+        </defs>
+        <circle r="49" fill="#fbfaf8" stroke="#cfc8c2" stroke-width="1.2"/>
+        <circle r="42" fill="url(#gooBack)"/>
+        <g clip-path="url(#gooClip)">
+          <ellipse id="googlyShade" cx="2" cy="24" rx="23" ry="22" fill="#3b2a24" opacity=".22"/>
+          <circle id="googlyPupil" cx="0" cy="18" r="22" fill="#141011"/>
+        </g>
+        <circle r="42" fill="url(#gooDome)"/>
+        <circle r="42" fill="none" stroke="#bdb5af" stroke-width="1.6" opacity=".8"/>
+        <path d="M-30 -18Q-22 -34 -4 -37" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".85"/>
+        <circle cx="-31" cy="-6" r="2.6" fill="#fff" opacity=".8"/>
+      </svg>
       <svg class="stylus" id="stylus" viewBox="0 0 50 180" aria-hidden="true"><defs><linearGradient id="sty" x1="0" x2="1"><stop offset="0" stop-color="#efe7e2"/><stop offset=".5" stop-color="#fff7ed"/><stop offset="1" stop-color="#dcd0c8"/></linearGradient></defs><path d="M25 0L23.4 24H26.6Z" fill="#d2cdc9"/><rect x="22.6" y="22" width="4.8" height="34" rx="1.5" fill="#e0dbd8"/><path d="M18 54Q25 50 32 54L35 170Q25 178 15 170Z" fill="url(#sty)" stroke="#ccbdb4"/><circle cx="25" cy="150" r="3" fill="#dd9e9e"/></svg>
     </div>
     <p class="rotate-tip">Tip: turn your phone sideways for a longer key strip.</p>
@@ -468,7 +487,7 @@ function countUse() {
   try { if (sessionStorage.getItem('kwl-koe-session') === 'recorded') return; sessionStorage.setItem('kwl-koe-session', 'recorded'); } catch (e) {}
   fetch('https://countapi.mileshilliard.com/api/v1/hit/koalawallaland_cymatic_koe_plays_20261109_v1', { credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store' }).catch(() => {});
 }
-function noteOn(note, legato) { countUse();
+function noteOn(note, legato) { countUse(); if (!legato && downKeys.length) googly.kick(0.6);
   if (!S.power) { start().then(() => noteOn(note, false)); return; }
   const n = note + S.oct * 12;
   if (noiseOn()) { kn.on(n, legato); kn.growl(S.vib); S.note = note; koe.classList.add('singing'); keyHot(note); noiseSeg(n > 70 ? 4 : 0); return; }
@@ -614,6 +633,31 @@ function releaseBtn(id) {
   if (id === 'shift') S.shift = false;
   render();
 }
+// ---------- googly eye sticker: the loose pupil settles at the bottom and jiggles when the instrument is touched ----------
+const googly = (() => {
+  const pupil = document.getElementById('googlyPupil'), shade = document.getElementById('googlyShade');
+  const LIM = 19, REST = 18; // how far the pupil can slide inside the dome, and where gravity leaves it
+  let x = 0, y = REST, vx = 0, vy = 0, raf = 0, last = 0;
+  const still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function frame(t) {
+    const dt = Math.min(0.032, (t - last) / 1000 || 0.016); last = t;
+    for (let i = 0; i < 2; i++) { // gravity towards the bottom of the dome, a little friction
+      const h = dt / 2; vy += 900 * h; vx += -x * 60 * h; vx *= 1 - 3.2 * h; vy *= 1 - 3.2 * h; x += vx * h; y += vy * h;
+      const d = Math.hypot(x, y);
+      if (d > LIM) { const nx = x / d, ny = y / d, vn = vx * nx + vy * ny; x = nx * LIM; y = ny * LIM; if (vn > 0) { vx -= 1.45 * vn * nx; vy -= 1.45 * vn * ny; } }
+    }
+    pupil.setAttribute('cx', x.toFixed(2)); pupil.setAttribute('cy', y.toFixed(2)); shade.setAttribute('cx', (x + 2).toFixed(2)); shade.setAttribute('cy', (y + 6).toFixed(2));
+    if (Math.hypot(vx, vy) < 4 && Math.hypot(x, y - LIM) < 1.5) { raf = 0; return; }
+    raf = requestAnimationFrame(frame);
+  }
+  return { kick(amount) {
+    if (still) return;
+    const a = -Math.PI / 2 + (Math.random() - 0.5) * 2.2, p = 130 * amount * (0.75 + Math.random() * 0.5);
+    vx += Math.cos(a) * p; vy += Math.sin(a) * p;
+    if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); }
+  } };
+})();
+koe.addEventListener('pointerdown', () => googly.kick(1), true);
 koe.addEventListener('pointerdown', (e) => {
   const b = e.target.closest('[data-b]'); if (!b) return;
   e.preventDefault(); b.setPointerCapture(e.pointerId); const id = b.dataset.b; pressBtn(id);
