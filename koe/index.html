@@ -265,7 +265,7 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
     </div>
     <p class="key-help" id="key-help">Tab to the keys, use ← / → to choose a note, and hold Space or Enter to play. Home / End go to the first / last key. Z / X shift the octave.</p>
     <div class="ctlbar">
-      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="koala" aria-pressed="true">KT’s voice</button></div><button type="button" id="autoQueen" class="queen-feature" aria-pressed="false" title="Auto-play the Queen of the Night aria in KT’s voice">👑 AUTO QUEEN</button><button type="button" id="autoDuet" class="queen-feature duet-feature" aria-pressed="false" title="Auto-play an original gothic duet: FM riffs, KT’s soprano and koala growls">🦇 DROP BEAR NOCTURNE</button><div class="seg" role="group" aria-label="Other voices"><button type="button" data-voice="noise" aria-pressed="false">🐨 Koala noise</button><button type="button" data-voice="builtin" aria-pressed="false">Vocaloid voice</button></div>
+      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="koala" aria-pressed="true">KT’s voice</button></div><button type="button" id="autoQueen" class="queen-feature" aria-pressed="false" title="Auto-play the Queen of the Night aria in KT’s voice">👑 AUTO QUEEN</button><span class="nympho-control" style="display:inline-flex;flex-wrap:wrap;gap:6px;align-items:center"><label for="nymphoFile" style="cursor:pointer;border:1px solid #a75383;border-radius:20px;padding:8px;color:#ffe0ee">🦇 NYMPHOALA · load backing</label><input id="nymphoFile" type="file" accept="audio/*,.mp3,.m4a,.wav" style="max-width:170px;font-size:11px" aria-label="Choose local instrumental backing track"><button type="button" id="nymphoPlay" class="queen-feature duet-feature" disabled>▶ NYMPHOALA</button><button type="button" id="nymphoGrowl" title="Trigger koala growl" disabled>🐨 GROWL</button><button type="button" id="nymphoAh" title="Trigger KT soprano vowel" disabled>🎤 AH</button><label>sync <input id="nymphoOffset" type="range" min="-10" max="10" step=".25" value="0" aria-label="Vocal cue offset seconds"></label><output id="nymphoTime" style="font:11px monospace">No file</output></span><button type="button" id="autoDuet" class="queen-feature duet-feature" aria-pressed="false" title="Auto-play an original gothic duet: FM riffs, KT’s soprano and koala growls">🦇 DROP BEAR NOCTURNE</button><div class="seg" role="group" aria-label="Other voices"><button type="button" data-voice="noise" aria-pressed="false">🐨 Koala noise</button><button type="button" data-voice="builtin" aria-pressed="false">Vocaloid voice</button></div>
       <div class="seg" role="group" aria-label="Mode"><button type="button" data-mode="vowel" aria-pressed="false">VOWEL</button><button type="button" data-mode="doremi" aria-pressed="true">DO·RE·MI</button><button type="button" data-mode="lyric" aria-pressed="false">LYRIC</button></div>
       <label>lyric <input type="text" id="lyricIn" value="do you remember?" aria-label="Lyric, in romaji or kana"></label>
       <label>tone <input type="range" id="toneIn" min="0.8" max="1.25" step="0.01" value="1" aria-label="Koala voice tone, deeper to cuter"></label>
@@ -911,6 +911,59 @@ duetButton.addEventListener('click',async()=>{
  });
  duetWait(duetStop,(t0+BARS.length*BAR-T())*1000+900);
 });
+
+/* NYMPHOALA: local-only backing playback. No copyrighted backing is uploaded or embedded.
+   Cue regions are an editable first-pass approximation, not a transcription of the recording. */
+const nFile=document.getElementById('nymphoFile'),nPlay=document.getElementById('nymphoPlay'),
+ nGrowl=document.getElementById('nymphoGrowl'),nAh=document.getElementById('nymphoAh'),
+ nOffset=document.getElementById('nymphoOffset'),nTime=document.getElementById('nymphoTime');
+const nAudio=new Audio();nAudio.preload='metadata';let nURL=null,nTick=null,nVoice='',nLast=-1;
+const nRegions=[
+ [0,23,'ah'],[23,70,'none'],[70,97,'ah'],[97,128,'growl'],
+ [128,155,'none'],[155,184,'ah'],[184,217,'growl'],
+ [217,240,'none'],[240,263,'ah'],[263,289,'growl'],[289,303,'ah']
+];
+function nSilence(){if(kv)kv.off();if(kn){kn.off();kn.growl(false);}nVoice='';}
+function nStop(){nAudio.pause();nAudio.currentTime=0;nSilence();clearInterval(nTick);nTick=null;nPlay.textContent='▶ NYMPHOALA';nPlay.setAttribute('aria-pressed','false');nTime.textContent=nAudio.duration?('0:00 / '+Math.floor(nAudio.duration/60)+':'+String(Math.floor(nAudio.duration%60)).padStart(2,'0')):'No file';}
+function nCue(type){
+ nSilence();if(type==='none')return;
+ if(type==='growl'&&kn){kn.growl(true);kn.on(50,false);nVoice='growl';setBubble('ガオ','growl');}
+ if(type==='ah'&&kv&&kvReady){const key=kv.pick('a')||[...kv.keys][0];kv.on(key,hz(76),false,false);kv.vib(22,5.6);nVoice='ah';setBubble('あ','a');}
+}
+nFile.addEventListener('change',()=>{
+ nStop();if(nURL)URL.revokeObjectURL(nURL);
+ const file=nFile.files&&nFile.files[0];if(!file)return;
+ nURL=URL.createObjectURL(file);nAudio.src=nURL;nAudio.load();
+ nPlay.disabled=false;nGrowl.disabled=false;nAh.disabled=false;nTime.textContent=file.name;
+});
+nPlay.addEventListener('click',async()=>{
+ if(!nAudio.src){nTime.textContent='Choose a local audio file first';return;}
+ if(!nAudio.paused){nStop();return;}
+ if(queenRunning)queenStop();if(duetRunning)duetStop();
+ try{await start();if(ctx.state==='suspended')await ctx.resume();await nAudio.play();}
+ catch(e){nTime.textContent='Playback blocked; tap again';return;}
+ nPlay.textContent='■ STOP NYMPHOALA';nPlay.setAttribute('aria-pressed','true');
+ nLast=-1;
+ clearInterval(nTick);
+ nTick=setInterval(()=>{
+  if(nAudio.paused)return;
+  const t=nAudio.currentTime+Number(nOffset.value);
+  const ix=nRegions.findIndex(([a,b])=>t>=a&&t<b);
+  // Small repeating phrases; manual GROWL/AH buttons allow live intervention.
+  const pulse=Math.floor(t/2.2),id=ix*10000+pulse;
+  if(id!==nLast){nLast=id;const type=ix<0?'none':nRegions[ix][2];nCue(type);}
+  const fmt=x=>Math.floor(x/60)+':'+String(Math.floor(x%60)).padStart(2,'0');
+  nTime.textContent=fmt(nAudio.currentTime)+' / '+fmt(nAudio.duration||0);
+ },120);
+});
+nGrowl.addEventListener('pointerdown',()=>nCue('growl'));
+nGrowl.addEventListener('pointerup',nSilence);
+nGrowl.addEventListener('pointercancel',nSilence);
+nAh.addEventListener('pointerdown',()=>nCue('ah'));
+nAh.addEventListener('pointerup',nSilence);
+nAh.addEventListener('pointercancel',nSilence);
+nAudio.addEventListener('ended',nStop);
+
 window.__koe = { S, start, noteOn, noteOff, pressBtn, releaseBtn, get ctx() { return ctx; }, get master() { return master; }, get kv() { return kv; }, get kn() { return kn; }, get knSeg() { return knSeg; }, get kvReady() { return kvReady; }, loadBank };
 })();
 </script>
