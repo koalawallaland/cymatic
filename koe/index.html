@@ -270,7 +270,7 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
       <label>lyric <input type="text" id="lyricIn" value="do you remember?" aria-label="Lyric, in romaji or kana"></label>
       <label>tone <input type="range" id="toneIn" min="0.8" max="1.25" step="0.01" value="1" aria-label="Koala voice tone, deeper to cuter"></label>
       <span class="kvstat" id="kvStat" aria-live="polite"></span>
-      <div class="seg" role="group" aria-label="Record performance"><button type="button" id="recStart">● Record</button><button type="button" id="recStop" disabled>■ Stop</button><button type="button" id="recSave" disabled>↓ Save audio</button></div><span class="kvstat" id="recStatus" role="status" aria-live="polite"></span>
+      <div class="seg" role="group" aria-label="Record performance"><button type="button" id="recStart">● Record</button><button type="button" id="recStop" disabled>■ Stop</button><button type="button" id="recSave" disabled>↓ Save audio</button></div><span class="kvstat" id="recStatus" role="status" aria-live="polite"></span><button type="button" id="autoQueen" aria-pressed="false" title="Auto-play a playful coloratura demo with KT voice">👑 AUTO QUEEN</button><span class="kvstat" id="queenStatus" role="status" aria-live="polite"></span>
       <a href="booth.html">🎙 record the koala's voice</a>
     </div>
   </div>
@@ -787,6 +787,38 @@ recSave.addEventListener('click',()=>{
  const ext=(recorder?.mimeType||recMime).includes('mp4')?'m4a':'webm';
  const a=document.createElement('a');a.href=recUrl;a.download='koe-performance-'+new Date().toISOString().replace(/[:.]/g,'-')+'.'+ext;
  document.body.appendChild(a);a.click();a.remove();
+});
+
+
+/* AUTO QUEEN: original coloratura demonstration, not a transcription of Mozart's score. */
+let queenRunning=false,queenTimers=[],queenWig=null,queenCameo=null,queenPrevious=null;
+const queenButton=document.getElementById('autoQueen'),queenStatus=document.getElementById('queenStatus');
+const queenWait=(fn,ms)=>{const t=setTimeout(fn,ms);queenTimers.push(t);};
+function queenStop(){
+ queenTimers.forEach(clearTimeout);queenTimers=[];if(queenRunning)noteOff();queenRunning=false;
+ if(queenPrevious){S.oct=queenPrevious.oct;S.vib=queenPrevious.vib;queenPrevious=null;renderKeyboard();}
+ if(kv)kv.vib(0,5.6);
+ queenWig?.remove();queenWig=null;queenCameo?.remove();queenCameo=null;
+ queenButton.textContent='👑 AUTO QUEEN';queenButton.setAttribute('aria-pressed','false');queenStatus.textContent='';
+}
+queenButton.addEventListener('click',async()=>{
+ if(queenRunning){queenStop();return;}
+ if(S.voice!=='koala'){queenStatus.textContent='Switch to KT’s voice to perform.';return;}
+ try{await start();}catch{queenStatus.textContent='Power on the instrument first.';return;}
+ queenRunning=true;queenPrevious={oct:S.oct,vib:S.vib};queenButton.textContent='■ STOP QUEEN';queenButton.setAttribute('aria-pressed','true');
+ queenStatus.textContent='Queen of the Screech — playful coloratura demo';
+ // Original ascending ornaments, climaxing on F6 (MIDI 89).
+ const score=[[72,350],[76,280],[79,300],[84,460],[83,140],[84,140],[86,140],[88,140],[89,550],[88,125],[86,125],[84,125],[83,125],[81,125],[79,220],[81,135],[83,135],[84,135],[86,135],[88,135],[89,650],[84,300],[89,800]];
+ let ms=180;
+ const stage=document.querySelector('.art svg')||document.getElementById('koe');
+ queenCameo=document.createElement('span');queenCameo.textContent='🐨';queenCameo.setAttribute('aria-hidden','true');Object.assign(queenCameo.style,{position:'fixed',left:'12%',top:'30%',zIndex:'999',fontSize:'clamp(30px,5vw,65px)',pointerEvents:'none',transition:'transform 1s'}); 
+ queenWait(()=>{if(!queenRunning)return;document.body.appendChild(queenCameo);queenCameo.style.transform='translateX(65px) rotate(-15deg)';},650);
+ queenWait(()=>{if(!queenRunning)return;queenWig=document.createElement('span');queenWig.textContent='👑';queenWig.setAttribute('aria-label','Oversized opera wig');Object.assign(queenWig.style,{position:'fixed',left:'48%',top:'23%',zIndex:'998',fontSize:'clamp(35px,6vw,75px)',pointerEvents:'none',transform:'rotate(-10deg)'});document.body.appendChild(queenWig);queenCameo.style.transform='translateX(-180px)';},1550);
+ score.forEach(([midi,duration],i)=>{
+  queenWait(()=>{if(!queenRunning)return;S.oct=0;S.vib=duration>=300;const pitch=midi-LOW;noteOn(pitch,i>0);if(kv)kv.vib(duration>=300?65:8,5.8);if(queenWig&&midi===89)queenWig.style.transform='translateY(-14px) rotate(15deg)';},ms);
+  ms+=duration;
+ });
+ queenWait(queenStop,ms+160);
 });
 
 window.__koe = { S, start, noteOn, noteOff, pressBtn, releaseBtn, get ctx() { return ctx; }, get master() { return master; }, get kv() { return kv; }, get kn() { return kn; }, get knSeg() { return knSeg; }, get kvReady() { return kvReady; }, loadBank };
