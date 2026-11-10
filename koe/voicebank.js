@@ -116,19 +116,50 @@ function analyze(raw, sr) {
   const start = Math.max(0, on * hop - Math.round(sr * 0.015));
   const end = Math.min(raw.length, be * hop + win + Math.round(sr * 0.02));
   const data = raw.slice(start, end);
+  // clear out everything well under the sung pitch (room rumble, mains hum, handling thumps):
+  // it is not voice, and it gets louder than the note when the take is sung high
+  { const k = Math.exp(-6.2832 * 0.6 * fRef / sr);
+    for (let pass = 0; pass < 2; pass++) {
+      let x1 = 0, y1 = 0; for (let i = 0; i < data.length; i++) { const x = data[i]; y1 = k * (y1 + x - x1); x1 = x; data[i] = y1; }
+      x1 = 0; y1 = 0; for (let i = data.length - 1; i >= 0; i--) { const x = data[i]; y1 = k * (y1 + x - x1); x1 = x; data[i] = y1; }
+    }
+  }
   const vs = Math.max(0, bs * hop - start), ve = Math.min(data.length - 1, be * hop + win - start);
-  // pitch marks (epochs) on the dominant-polarity peaks
+  // pitch marks (epochs): one per period, on the crest of the voice's fundamental.
+  // Peaks are picked on a smoothed copy (zero-phase low-pass just above the pitch), because on the
+  // raw wave the overtones make the tallest peak hop around inside the period, and uneven marks
+  // come out as a warble when the take is sung.
+  const smooth = (() => {
+    const y = Float32Array.from(data), k = 1 - Math.exp(-6.2832 * 1.15 * fRef / sr);
+    for (let pass = 0; pass < 2; pass++) {
+      let z = 0; for (let i = 0; i < y.length; i++) { z += (y[i] - z) * k; y[i] = z; }
+      z = 0; for (let i = y.length - 1; i >= 0; i--) { z += (y[i] - z) * k; y[i] = z; }
+    }
+    return y;
+  })();
   const fAt = (pos) => { const f = Math.min(be, Math.max(bs, Math.round((pos + start) / hop))); return f0[f] || fRef; };
   let pos = 0, neg = 0; const mid0 = Math.floor((vs + ve) / 2); for (let i = mid0; i < Math.min(ve, mid0 + sr * 0.1); i++) { if (data[i] > pos) pos = data[i]; if (-data[i] > neg) neg = -data[i]; }
   const sg = pos >= neg ? 1 : -1;
   const ep = []; let T = sr / fAt(vs);
-  let e = vs; { let bv = -1e9; for (let i = vs; i < Math.min(ve, vs + T); i++) if (sg * data[i] > bv) { bv = sg * data[i]; e = i; } }
+  let e = vs; { let bv = -1e9; for (let i = vs; i < Math.min(ve, vs + T); i++) if (sg * smooth[i] > bv) { bv = sg * smooth[i]; e = i; } }
   ep.push(e);
   while (true) {
     T = sr / fAt(e); const a = Math.floor(e + 0.75 * T), b = Math.ceil(e + 1.25 * T);
     if (b >= ve) break;
-    let bi = a, bv = -1e9; for (let i = a; i <= b; i++) if (sg * data[i] > bv) { bv = sg * data[i]; bi = i; }
+    let bi = a, bv = -1e9; for (let i = a; i <= b; i++) if (sg * smooth[i] > bv) { bv = sg * smooth[i]; bi = i; }
     ep.push(bi); e = bi;
+  }
+  // nudge each mark so its period lines up with the one before it (soft vowels have a broad, flat crest)
+  { const R = Math.max(2, Math.round(sr * 0.00025));
+    for (let j = 1; j < ep.length; j++) {
+      const p0 = ep[j - 1], p1 = ep[j], h = Math.round((p1 - p0) / 2); let bd = 0, bc = -Infinity;
+      if (p0 - h < 0 || p1 + h + R >= data.length) continue;
+      for (let dl = -R; dl <= R; dl++) {
+        let c = 0, m = 0; for (let i = -h; i <= h; i += 2) { const u = data[p0 + i], v = data[p1 + dl + i]; c += u * v; m += v * v; }
+        c = c / Math.sqrt(m + 1e-12) - Math.abs(dl) * 1e-4; if (c > bc) { bc = c; bd = dl; }
+      }
+      ep[j] = p1 + bd;
+    }
   }
   if (ep.length < 8) return { error: 'novoice', peak };
   // loudness normalise over the voiced part
@@ -136,8 +167,46 @@ function analyze(raw, sr) {
   const vr = Math.sqrt(ss / Math.max(1, ve - vs)); let dp = 0; for (let i = 0; i < data.length; i++) dp = Math.max(dp, Math.abs(data[i]));
   const gain = Math.min(0.13 / Math.max(vr, 1e-4), 0.95 / Math.max(dp, 1e-4));
   for (let i = 0; i < data.length; i++) data[i] *= gain;
-  const n = ep.length; const la = Math.floor(n * 0.35), lb = Math.max(la + 4, Math.floor(n * 0.82));
+  // the part of the vowel that a held note loops over: the steady stretch around the middle.
+  // (A fixed 35%..82% reached into the fade at the end of a take, so held notes swelled and sank.)
+  const n = ep.length; let la = Math.floor(n * 0.35), lb = Math.max(la + 4, Math.floor(n * 0.82));
+  { const pr = new Float32Array(n);
+    for (let j = 1; j < n - 1; j++) { let q = 0; for (let i = ep[j - 1]; i < ep[j + 1]; i++) q += data[i] * data[i]; pr[j] = Math.sqrt(q / Math.max(1, ep[j + 1] - ep[j - 1])); }
+    const mid = Array.from(pr.subarray(Math.floor(n * 0.3), Math.floor(n * 0.7))).sort((x, y) => x - y), med = mid[mid.length >> 1] || 0;
+    const ok = (j) => pr[j] > med * 0.72 && pr[j] < med * 1.4;
+    let c = n >> 1, a0 = c, b0 = c;
+    while (a0 > Math.floor(n * 0.2) && ok(a0 - 1)) a0--;
+    while (b0 < Math.floor(n * 0.9) && ok(b0 + 1)) b0++;
+    if (b0 - a0 >= Math.max(12, n * 0.2)) { la = a0; lb = b0; }
+  }
   return { data, sr, ep: Int32Array.from(ep), vs: ep[0], la, lb: Math.min(lb, n - 2), f0: fRef, peak, voicedSec: (ve - vs) / sr, consSec: vs / sr };
+}
+
+// How loud a take comes out at each note, relative to its own pitch -> make-up gain per semitone.
+// Singing a take far above where it was recorded puts the harmonics between the formants,
+// so without this the top of the keyboard is many times quieter than the middle.
+const GT_LOW = 24, GT_N = 85, GT_MAX = 4, GT_MIN = 0.6;
+function levelTable(a) {
+  const { data, ep, sr } = a, grains = [];
+  for (let i = 0; i < 6; i++) {
+    const k = Math.min(ep.length - 2, Math.max(1, Math.round(a.la + (a.lb - a.la) * i / 5)));
+    const L = Math.round((ep[k + 1] - ep[k - 1]) / 2), c = ep[k], g = new Float32Array(2 * L + 1);
+    for (let j = -L; j <= L; j++) g[j + L] = (data[c + j] || 0) * (0.5 + 0.5 * Math.cos(Math.PI * j / L));
+    grains.push(g);
+  }
+  const level = (f) => {
+    let p = 0;
+    for (const g of grains) for (let h = 1; h * f < Math.min(9000, sr / 2); h++) {
+      if (h * f < 70) continue;
+      const w = 6.2832 * h * f / sr; let re = 0, im = 0;
+      for (let j = 0; j < g.length; j++) { re += g[j] * Math.cos(w * j); im += g[j] * Math.sin(w * j); }
+      p += re * re + im * im;
+    }
+    return Math.sqrt(p / grains.length) * f / sr;
+  };
+  const ref = level(a.f0), gt = new Float32Array(GT_N);
+  for (let m = 0; m < GT_N; m++) { const l = level(440 * Math.pow(2, (m + GT_LOW - 69) / 12)); gt[m] = Math.min(GT_MAX, Math.max(GT_MIN, ref / Math.max(l, 1e-9))); }
+  return gt;
 }
 
 // ---------- worklets ----------
@@ -145,15 +214,15 @@ const WORKLET = `
 const D = 1400;
 class KoalaVoice extends AudioWorkletProcessor {
   constructor() { super(); this.bank = new Map(); this.N = 32768; this.R = new Float32Array(this.N); this.t = 0; this.slots = [];
-    this.f0 = 220; this.f0T = 220; this.gl = 0.18; this.vD = 0; this.vDT = 0; this.vR = 5.6; this.vP = 0; this.q = 1; this.qT = 1;
+    this.f0 = 220; this.f0T = 220; this.gl = 0.18; this.vD = 0; this.vDT = 0; this.vR = 5.6; this.vP = 0; this.q = 1; this.qT = 1; this.h = [0, 0, 0, 0]; this.pw = 0.0144; this.trim = 1;
     this.port.onmessage = (e) => this.msg(e.data); }
   msg(m) {
-    if (m.type === 'syl') this.bank.set(m.key, m.s);
+    if (m.type === 'syl') { const s = m.s; let h = 0; while (h < s.la && s.ep[h] - s.ep[0] < sampleRate * 0.14) h++; s.hs = h; this.bank.set(m.key, s); }
     else if (m.type === 'clear') this.bank.clear();
     else if (m.type === 'on') {
       const s = this.bank.get(m.key); if (!s) return;
       if (m.legato && this.slots.some((x) => x.gate)) { this.f0T = m.f0; if (m.same) return; }
-      else { this.f0T = m.f0; this.f0 = m.f0 * 0.985; }
+      else { this.f0T = m.f0; this.f0 = m.f0 * 0.985; this.pw = 0.0144; }
       for (const x of this.slots) { x.gate = false; x.rel = 0.045; }
       this.slots.push(this.slot(s));
     } else if (m.type === 'off') { for (const x of this.slots) { x.gate = false; x.rel = 0.1; } }
@@ -183,18 +252,31 @@ class KoalaVoice extends AudioWorkletProcessor {
       const Ta = k > 0 && k + 1 < ep.length ? (ep[k + 1] - ep[k - 1]) / 2 : (k + 1 < ep.length ? ep[k + 1] - ep[k] : ep[k] - ep[k - 1]);
       const q = this.q; const L = Math.min(D - 8, Math.max(8, Math.floor(Ta / q)));
       if (!x.rawOn) { const tc = x.gate ? x.att : x.rel; x.amp += ((x.gate ? 1 : 0) - x.amp) * (1 - Math.exp(-To / (tc * sr))); }
-      const g = x.amp;
+      // level: a take sung far above its own pitch loses most of its energy, so make it up (table from levelTable)
+      let mk = 1; if (s.gt) { const m = Math.min(s.gt.length - 1.001, Math.max(0, 69 + 12 * Math.log2(f / 440) - s.gm)), m0 = Math.floor(m); mk = s.gt[m0] + (s.gt[m0 + 1] - s.gt[m0]) * (m - m0); }
+      const g = x.amp * mk;
+      // Far above the take's own pitch the note lands between the take's overtones, where every
+      // period of the recording answers a little differently, and that comes out as hiss around the
+      // note. So up there, move through the held vowel slowly and blend each period into the next.
+      const r = Ta / To, held = x.ana >= ep[s.hs];
+      const sp = held && r > 1.2 ? Math.max(1 / 30, Math.pow(1.2 / r, 3)) : 1;
+      let c2 = -1, a2 = 0;
+      if (r > 1.2) { const k0 = ep[k] <= x.ana ? k : k - 1; if (k0 >= 0 && k0 + 1 < ep.length) { a2 = Math.min(1, Math.max(0, (x.ana - ep[k0]) / (ep[k0 + 1] - ep[k0]))); c2 = ep[k0 + 1]; x.c1 = ep[k0]; } }
       if (g > 1e-5) {
-        const base = Math.round(x.next) + D;
-        for (let j = -L; j <= L; j++) {
-          const src = c + j * q, i0 = Math.floor(src);
-          if (i0 < 0 || i0 + 1 >= d.length) continue;
-          const w = 0.5 + 0.5 * Math.cos(Math.PI * j / L);
-          R[(base + j) % N] += (d[i0] + (d[i0 + 1] - d[i0]) * (src - i0)) * w * g;
+        // place each grain at its exact (fractional) time: whole-sample rounding made high notes rough
+        const fl = Math.floor(x.next), fr = x.next - fl, base = fl + D;
+        const c1 = c2 >= 0 ? x.c1 : c, g1 = c2 >= 0 ? g * (1 - a2) : g, g2 = g * a2;
+        for (let j = -L; j <= L + 1; j++) {
+          const u = j - fr; if (u < -L || u > L) continue;
+          const w = 0.5 + 0.5 * Math.cos(Math.PI * u / L);
+          let src = c1 + u * q, i0 = Math.floor(src), v = 0;
+          if (i0 >= 0 && i0 + 1 < d.length) v = (d[i0] + (d[i0 + 1] - d[i0]) * (src - i0)) * g1;
+          if (g2 > 0) { src = c2 + u * q; i0 = Math.floor(src); if (i0 >= 0 && i0 + 1 < d.length) v += (d[i0] + (d[i0 + 1] - d[i0]) * (src - i0)) * g2; }
+          R[(base + j) % N] += v * w;
         }
       }
       x.next += To;
-      x.ana += To * x.dir;
+      x.ana += To * x.dir * sp;
       const la = ep[s.la], lb = ep[s.lb], last = ep[ep.length - 1];
       if (x.gate) { if (x.dir > 0 && x.ana > lb) x.dir = -1; else if (x.dir < 0 && x.ana < la) x.dir = 1; }
       else if (x.dir < 0) x.dir = 1;
@@ -223,7 +305,21 @@ class KoalaVoice extends AudioWorkletProcessor {
     }
     this.vP += 6.2832 * this.vR * n / sr;
     this.slots = this.slots.filter((x) => !x.dead);
-    for (let i = 0; i < n; i++) { const k = (t0 + i) % N; out[i] = R[k]; R[k] = 0; }
+    const hc = Math.exp(-6.2832 * Math.min(160, Math.max(35, this.f0 * 0.45)) / sr), h = this.h;
+    for (let i = 0; i < n; i++) {
+      const k = (t0 + i) % N; const v = R[k]; R[k] = 0;
+      const y1 = hc * (h[1] + v - h[0]); h[0] = v; h[1] = y1;
+      const y2 = hc * (h[3] + y1 - h[2]); h[2] = y1; h[3] = y2;
+      out[i] = y2;
+    }
+    // leveller: the make-up table is only a first guess (how loud a note lands depends on which
+    // part of the vowel is sounding), so ride the level gently towards one loudness while a note is held
+    let bp = 0; for (let i = 0; i < n; i++) bp += out[i] * out[i]; bp /= n;
+    if (bp > 2e-5 && this.slots.some((x) => x.gate && x.psola)) this.pw += (bp - this.pw) * (1 - Math.exp(-n / (0.05 * sr)));
+    const want = Math.min(3, Math.max(0.4, 0.12 / Math.sqrt(this.pw))), t1 = this.trim;
+    const t2 = t1 + (want - t1) * (1 - Math.exp(-n / ((want < t1 ? 0.03 : 0.12) * sr)));
+    for (let i = 0; i < n; i++) out[i] *= t1 + (t2 - t1) * i / n;
+    this.trim = t2;
     this.t += n;
     return true;
   }
@@ -246,7 +342,7 @@ class Engine {
     this.node = new AudioWorkletNode(ctx, 'koala-voice', { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [1] });
   }
   load(key, a) {
-    const s = { data: a.data, ep: a.ep, la: a.la, lb: a.lb };
+    const s = { data: a.data, ep: a.ep, la: a.la, lb: a.lb, gt: levelTable(a), gm: GT_LOW };
     this.node.port.postMessage({ type: 'syl', key, s }); this.keys.add(key); this.info[key] = { f0: a.f0, consSec: a.consSec, voicedSec: a.voicedSec };
   }
   has(key) { return this.keys.has(key); }
@@ -328,5 +424,5 @@ async function fill(engine, takes, onEach) {
   return ok;
 }
 
-G.KoalaVB = { SYLS, KEYS, KANA, SLOT_SEC, EXPORT_SR, parseLyric, split, analyze, loadWorklet, Engine, db, exportWav, loadWav, fill, resample };
+G.KoalaVB = { SYLS, KEYS, KANA, SLOT_SEC, EXPORT_SR, parseLyric, split, analyze, loadWorklet, Engine, db, exportWav, loadWav, fill, resample, levelTable };
 })(window);
