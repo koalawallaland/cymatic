@@ -458,7 +458,17 @@ function noiseSeg(seg) {
 }
 const koalaOn = () => S.voice === 'koala' && kvReady && kv;
 let lastKey = null, kvVibT = null;
-function noteOn(note, legato) {
+// Play counter: one anonymous tally per browser session, the first time someone plays a note.
+// Katie's own devices are skipped (set on blog/stats.html, "Don't count this device").
+let useCounted = false;
+function countUse() {
+  if (useCounted) return; useCounted = true;
+  if (location.hostname !== 'koalawallaland.github.io') return;
+  try { if (localStorage.getItem('kwl-journal-owner') === '1') return; } catch (e) {}
+  try { if (sessionStorage.getItem('kwl-koe-session') === 'recorded') return; sessionStorage.setItem('kwl-koe-session', 'recorded'); } catch (e) {}
+  fetch('https://countapi.mileshilliard.com/api/v1/hit/koalawallaland_cymatic_koe_plays_20261109_v1', { credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store' }).catch(() => {});
+}
+function noteOn(note, legato) { countUse();
   if (!S.power) { start().then(() => noteOn(note, false)); return; }
   const n = note + S.oct * 12;
   if (noiseOn()) { kn.on(n, legato); kn.growl(S.vib); S.note = note; koe.classList.add('singing'); keyHot(note); noiseSeg(n > 70 ? 4 : 0); return; }
