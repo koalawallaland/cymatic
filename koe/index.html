@@ -79,7 +79,7 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
 .card b{color:#f7ece0}
 .rotate-tip{display:none;text-align:center;color:var(--tiff);font-size:12px;margin:10px 0 0}
 @media (max-width:560px) and (orientation:portrait){.rotate-tip{display:block}}
-.ctlbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:center;margin:16px auto 0;max-width:940px;font-size:12px;color:var(--muted)}
+.queen-feature{border:2px solid #a75383;border-radius:999px;background:#ffe0ee;color:#552143;padding:10px 16px;font:700 13px "Space Mono",monospace;cursor:pointer;box-shadow:0 2px 12px #a7538340}.queen-feature[aria-pressed="true"]{background:#d8ff3e;color:#302339}.ctlbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:center;margin:16px auto 0;max-width:940px;font-size:12px;color:var(--muted)}
 .seg{display:inline-flex;border:1px solid #80705f;border-radius:999px;overflow:hidden}
 .seg button{border:0;background:#33271f;color:#f8f4f0;padding:7px 12px;font:12px "Space Mono",monospace;cursor:pointer}
 .seg button+button{border-left:1px solid #80705f}
@@ -265,12 +265,12 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
     </div>
     <p class="key-help" id="key-help">Tab to the keys, use ← / → to choose a note, and hold Space or Enter to play. Home / End go to the first / last key. Z / X shift the octave.</p>
     <div class="ctlbar">
-      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="koala" aria-pressed="true">KT’s voice</button><button type="button" data-voice="noise" aria-pressed="false">🐨 Koala noise</button><button type="button" data-voice="builtin" aria-pressed="false">Vocaloid voice</button></div>
+      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="koala" aria-pressed="true">KT’s voice</button></div><button type="button" id="autoQueen" class="queen-feature" aria-pressed="false" title="Auto-play KT’s coloratura demo">👑 AUTO QUEEN</button><div class="seg" role="group" aria-label="Other voices"><button type="button" data-voice="noise" aria-pressed="false">🐨 Koala noise</button><button type="button" data-voice="builtin" aria-pressed="false">Vocaloid voice</button></div>
       <div class="seg" role="group" aria-label="Mode"><button type="button" data-mode="vowel" aria-pressed="false">VOWEL</button><button type="button" data-mode="doremi" aria-pressed="true">DO·RE·MI</button><button type="button" data-mode="lyric" aria-pressed="false">LYRIC</button></div>
       <label>lyric <input type="text" id="lyricIn" value="do you remember?" aria-label="Lyric, in romaji or kana"></label>
       <label>tone <input type="range" id="toneIn" min="0.8" max="1.25" step="0.01" value="1" aria-label="Koala voice tone, deeper to cuter"></label>
       <span class="kvstat" id="kvStat" aria-live="polite"></span>
-      <div class="seg" role="group" aria-label="Record performance"><button type="button" id="recStart">● Record</button><button type="button" id="recStop" disabled>■ Stop</button><button type="button" id="recSave" disabled>↓ Save audio</button></div><span class="kvstat" id="recStatus" role="status" aria-live="polite"></span><button type="button" id="autoQueen" aria-pressed="false" title="Auto-play a playful coloratura demo with KT voice">👑 AUTO QUEEN</button><span class="kvstat" id="queenStatus" role="status" aria-live="polite"></span>
+      <div class="seg" role="group" aria-label="Record performance"><button type="button" id="recStart">● Record</button><button type="button" id="recStop" disabled>■ Stop</button><button type="button" id="recSave" disabled>↓ Save audio</button></div><span class="kvstat" id="recStatus" role="status" aria-live="polite"></span><span class="kvstat" id="queenStatus" role="status" aria-live="polite"></span>
       <a href="booth.html">🎙 record the koala's voice</a>
     </div>
   </div>
