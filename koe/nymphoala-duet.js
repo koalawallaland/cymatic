@@ -51,6 +51,7 @@ function install(o) {
     restoring=true;
     try{
       const saved=await backingRecord(null,'readonly');
+      if(file.files?.length)return; // a new selection must win over a late restore
       if(saved?.blob instanceof Blob && saved.blob.size){
         useBacking(saved.blob,saved.name);
         drawStatus('Saved backing restored · ');
@@ -193,16 +194,22 @@ function install(o) {
       status.textContent='Backing playback blocked. Tap Play again.';
       console.warn('Backing playback blocked',err);return false;
     }
+    // The instrumental starts even if the vocalist is still initializing.
+    play.textContent='■ STOP NYMPHOALA';play.setAttribute('aria-pressed','true');
+    o.koe.classList.add('nympho-mode');
     try{
       await o.start();
       if(!o.femaleReady())await o.loadFemale();
       if(o.activateFemale)o.activateFemale();
+      if(!o.femaleReady()){
+        status.textContent='Backing playing; KT voice recordings unavailable';
+      }
     }catch(err){
       console.warn('Nymphoala voice bank unavailable, backing continues',err);
+      status.textContent='Backing playing; vocal engine unavailable';
     }
     const ctx=o.context();
     if(ctx?.state==='suspended')try{await ctx.resume();}catch(_){}
-    o.koe.classList.add('nympho-mode');
     if(o.getMaleGain()&&o.context())
       o.getMaleGain().gain.setTargetAtTime(.65,o.context().currentTime,.05);
     resetVoices();
