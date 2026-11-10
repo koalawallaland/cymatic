@@ -91,6 +91,13 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
 .koe.koalamode #singer{display:none}
 #koala{display:none}
 .koe.koalamode #koala{display:inline}
+
+.strip .key-name{position:absolute;top:78%;transform:translateX(-50%);color:#f6dfc8;font:1.15cqw 'Space Mono',monospace;pointer-events:none}.strip .key-name.sharp{top:40%;font-size:.85cqw}
+.strip .hot{fill:#e8b7a3;stroke:#fff1df;stroke-width:2;filter:drop-shadow(0 0 4px #dd9e9e)}
+.strip .key-name.active{color:#291a14;font-weight:700}.strip [role=button]:focus-visible{outline:none;stroke:#f6cd75;stroke-width:2.5}
+.key-status{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:center;margin:16px 0 8px;color:#f7ece0;font-size:13px}
+.key-status button{border:1px solid #b3947e;border-radius:8px;background:#533b30;color:#fff0df;padding:8px 12px;font:inherit;cursor:pointer}.key-status button:disabled{opacity:.45}
+.key-status :focus-visible{outline:3px solid #f6cd75;outline-offset:3px}.key-help{font-size:12px;line-height:1.6;color:var(--muted);text-align:center;max-width:70ch;margin:10px auto}
 </style>
 </head>
 <body>
@@ -213,12 +220,19 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
       <!-- keyboard -->
       <div class="well">
         <div class="strip" id="strip" role="group" aria-label="Stylus keyboard, two octaves">
-          <svg id="keys" viewBox="0 0 750 100" preserveAspectRatio="none"></svg>
+          <svg id="keys" viewBox="0 0 750 100" preserveAspectRatio="none" role="group" aria-label="Piano keys" aria-describedby="key-help"></svg>
         </div>
       </div>
       <svg class="stylus" id="stylus" viewBox="0 0 50 180" aria-hidden="true"><defs><linearGradient id="sty" x1="0" x2="1"><stop offset="0" stop-color="#efe7e2"/><stop offset=".5" stop-color="#fff7ed"/><stop offset="1" stop-color="#dcd0c8"/></linearGradient></defs><path d="M25 0L23.4 24H26.6Z" fill="#d2cdc9"/><rect x="22.6" y="22" width="4.8" height="34" rx="1.5" fill="#e0dbd8"/><path d="M18 54Q25 50 32 54L35 170Q25 178 15 170Z" fill="url(#sty)" stroke="#ccbdb4"/><circle cx="25" cy="150" r="3" fill="#dd9e9e"/></svg>
     </div>
     <p class="rotate-tip">Tip: turn your phone sideways for a longer key strip.</p>
+    <div class="key-status">
+      <button type="button" id="octave-down" aria-label="Lower keyboard octave">Octave −</button>
+      <span id="octave-status" role="status"></span>
+      <button type="button" id="octave-up" aria-label="Raise keyboard octave">Octave +</button>
+      <span id="note-status" role="status">No note held</span>
+    </div>
+    <p class="key-help" id="key-help">Tab to the keys, use ← / → to choose a note, and hold Space or Enter to play. Home / End go to the first / last key. Z / X shift the octave.</p>
     <div class="ctlbar">
       <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="builtin" aria-pressed="true">built-in voice</button><button type="button" data-voice="koala" aria-pressed="false">🐨 koala voice</button><button type="button" data-voice="noise" aria-pressed="false">🌿 koala noises</button></div>
       <div class="seg" role="group" aria-label="Mode"><button type="button" data-mode="vowel" aria-pressed="false">VOWEL</button><button type="button" data-mode="doremi" aria-pressed="false">DO·RE·MI</button><button type="button" data-mode="lyric" aria-pressed="true">LYRIC</button></div>
@@ -255,6 +269,15 @@ for (let n = LOW; n < LOW + NKEYS; n++) if (isBlack(n)) {
   const wi = whites.indexOf(n - 1); const r = document.createElementNS(NS, 'rect');
   r.setAttribute('x', (wi + 1) * ww - ww * 0.32); r.setAttribute('y', 6); r.setAttribute('width', ww * 0.64); r.setAttribute('height', 52); r.setAttribute('rx', 2); r.setAttribute('class', 'kb'); svgK.appendChild(r); keyRects.set(n, r);
 }
+// Each note is a named button with a single tab stop for the whole keyboard.
+const noteName = n => ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][((n % 12) + 12) % 12] + (Math.floor(n / 12) - 1);
+const keyLabels = new Map();
+const noteOrder = [...keyRects.keys()].sort((a,b) => a-b);
+keyRects.forEach((rect,n) => {
+  rect.dataset.note = n; rect.setAttribute('role','button'); rect.setAttribute('tabindex',n === LOW ? '0' : '-1'); rect.setAttribute('aria-pressed','false');
+  const label = document.createElement('span'); label.style.left = ((+rect.getAttribute('x') + +rect.getAttribute('width') / 2) / 750 * 100) + '%'; label.setAttribute('class','key-name' + (isBlack(n) ? ' sharp' : '')); label.setAttribute('aria-hidden','true');
+  document.getElementById('strip').appendChild(label); keyLabels.set(n,label);
+});
 // speaker grille
 const gr = document.getElementById('grille');
 for (let ring = 0; ring < 5; ring++) { const count = ring === 0 ? 1 : ring * 7; for (let i = 0; i < count; i++) { const a = i / count * Math.PI * 2 + ring * 0.3; const rad = ring * 10; const c = document.createElementNS(NS, 'circle'); c.setAttribute('cx', 50 + Math.cos(a) * rad); c.setAttribute('cy', 50 + Math.sin(a) * rad); c.setAttribute('r', 3.1); c.setAttribute('fill', '#524237'); gr.appendChild(c); } }
@@ -463,8 +486,23 @@ function sparkNote() {
   t.setAttribute('font-size', 16 + Math.random() * 8); t.setAttribute('fill', ['#cb6a79', '#b48d64', '#c9b0a0'][Math.floor(Math.random() * 3)]); t.setAttribute('class', 'fnote');
   g.appendChild(t); setTimeout(() => t.remove(), 1700);
 }
-function keyHot(n) { keyRects.forEach((r, k) => { r.setAttribute('class', (k === n ? 'hot ' : '') + (isBlack(k) ? 'kb' : 'kw')); }); }
+function keyHot(n) {
+  keyRects.forEach((r,k) => { r.setAttribute('class',(k === n ? 'hot ' : '') + (isBlack(k) ? 'kb' : 'kw')); r.setAttribute('aria-pressed',String(k === n)); keyLabels.get(k).classList.toggle('active',k === n); });
+  document.getElementById('note-status').textContent = n === null ? 'No note held' : 'Playing ' + noteName(n + S.oct * 12);
+}
+let labeledOctave = null;
+function renderKeyboard() {
+  if (labeledOctave === S.oct) return; labeledOctave = S.oct;
+  keyRects.forEach((rect,n) => { const name = noteName(n + S.oct * 12); rect.setAttribute('aria-label',name); keyLabels.get(n).textContent = name; });
+  document.getElementById('octave-status').textContent = noteName(LOW + S.oct * 12) + '–' + noteName(LOW + NKEYS - 1 + S.oct * 12) + ' · octave ' + (S.oct > 0 ? '+' : '') + S.oct;
+  document.getElementById('octave-down').disabled = S.oct <= -2; document.getElementById('octave-up').disabled = S.oct >= 2;
+}
+function changeOctave(delta) { noteOff(); S.oct = Math.max(-2,Math.min(2,S.oct + delta)); renderKeyboard(); }
+document.getElementById('octave-down').addEventListener('click', () => changeOctave(-1));
+document.getElementById('octave-up').addEventListener('click', () => changeOctave(1));
+
 function render() {
+  renderKeyboard();
   koe.querySelector('[data-b="power"]').classList.toggle('on', S.power);
   document.querySelectorAll('[data-led]').forEach((el) => el.classList.toggle('on', S.power && el.dataset.led === S.mode));
   document.querySelectorAll('.vowel').forEach((b) => b.classList.toggle('on', S.mode === 'vowel' && b.dataset.b === S.vowel));
@@ -530,7 +568,7 @@ function pressBtn(id) {
   if (id === 'shift') S.shift = true;
   if (id === 'up' || id === 'down') {
     const d = id === 'up' ? 1 : -1;
-    if (S.shift) { S.oct = Math.max(-2, Math.min(2, S.oct + d)); flashBubble('オク' + (S.oct > 0 ? '+' : '') + S.oct, 'octave ' + (S.oct > 0 ? '+' : '') + S.oct); }
+    if (S.shift) { changeOctave(d); flashBubble('オク' + (S.oct > 0 ? '+' : '') + S.oct, 'octave ' + (S.oct > 0 ? '+' : '') + S.oct); }
     else { S.vol = Math.max(0, Math.min(1, S.vol + d * 0.1)); if (master) master.gain.setTargetAtTime(S.vol * S.vol, T(), 0.03); flashBubble('♪' + Math.round(S.vol * 10), 'volume ' + Math.round(S.vol * 10)); }
   }
   if (id === 'power') {
@@ -585,18 +623,46 @@ const endPtr = (e) => { if (activePtr !== e.pointerId) return; activePtr = null;
 strip.addEventListener('pointerup', endPtr); strip.addEventListener('pointercancel', endPtr);
 strip.addEventListener('contextmenu', (e) => e.preventDefault());
 
+let focusedHold = null, keyTicket = 0;
+function focusNote(n) {
+  keyRects.forEach((r,k) => r.setAttribute('tabindex', k === n ? '0' : '-1'));
+  keyRects.get(n).focus({preventScroll:true});
+}
+function stopFocusedNote() { keyTicket++; if (focusedHold !== null) { focusedHold = null; noteOff(); } }
+svgK.addEventListener('keydown', e => {
+  const rect = e.target.closest('[data-note]'); if (!rect) return;
+  const n = +rect.dataset.note, idx = noteOrder.indexOf(n);
+  if (['ArrowLeft','ArrowRight','Home','End'].includes(e.key)) {
+    e.preventDefault(); e.stopPropagation(); stopFocusedNote();
+    focusNote(e.key === 'Home' ? LOW : e.key === 'End' ? LOW + NKEYS - 1 : noteOrder[Math.max(0,Math.min(NKEYS-1,idx+(e.key === 'ArrowRight' ? 1 : -1)))]); return;
+  }
+  if (e.key !== ' ' && e.key !== 'Enter') return;
+  e.preventDefault(); e.stopPropagation(); if (e.repeat) return;
+  focusedHold = n; const ticket = ++keyTicket;
+  if (S.power) noteOn(n,false); else start().then(() => { if (ticket === keyTicket && focusedHold === n) noteOn(n,false); });
+});
+svgK.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); stopFocusedNote(); } });
+svgK.addEventListener('focusout', stopFocusedNote);
+svgK.addEventListener('click', e => {
+  const rect = e.target.closest('[data-note]'); if (!rect || e.detail !== 0) return;
+  const n = +rect.dataset.note, ticket = ++keyTicket;
+  start().then(() => { if(ticket !== keyTicket) return; focusedHold=n; noteOn(n,false); setTimeout(() => { if(ticket === keyTicket) stopFocusedNote(); },400); });
+});
+window.addEventListener('blur', stopFocusedNote);
 // computer keys
 const KM = { a: 0, w: 1, s: 2, e: 3, d: 4, f: 5, t: 6, g: 7, y: 8, h: 9, u: 10, j: 11, k: 12, o: 13, l: 14, p: 15, ';': 16, "'": 17 };
 const downKeys = [];
 window.addEventListener('keydown', (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.closest('input,textarea,select,[contenteditable=true]')) return;
+  if (e.target.closest('button,[role=button]') && [' ', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
   if (e.key === 'Shift') { if (!S.shift) pressBtn('shift'); return; }
   if (e.repeat) { if (e.key === ' ') e.preventDefault(); return; }
   const k = e.key.toLowerCase();
   if (e.target.closest && e.target.closest('[data-b]') && (k === ' ' || k === 'enter')) return;
   if (k === ' ') { e.preventDefault(); pressBtn('vibrato'); return; }
   if ('12345'.includes(k) && k.length === 1) { const v = 'aiueo'[+k - 1]; pressBtn(v); releaseBtn(v); return; }
-  if (k === 'z' || k === 'x') { S.oct = Math.max(-2, Math.min(2, S.oct + (k === 'x' ? 1 : -1))); setBubble('オク' + (S.oct > 0 ? '+' : '') + S.oct, 'octave ' + S.oct); return; }
+  if (k === 'z' || k === 'x') { changeOctave(k === 'x' ? 1 : -1); setBubble('オク' + (S.oct > 0 ? '+' : '') + S.oct, 'octave ' + S.oct); return; }
   if (k === 'arrowup' || k === 'arrowdown') { e.preventDefault(); pressBtn(k === 'arrowup' ? 'up' : 'down'); releaseBtn(k === 'arrowup' ? 'up' : 'down'); return; }
   const kk = e.key === ';' || e.key === "'" ? e.key : k;
   if (!(kk in KM)) return;
@@ -607,7 +673,7 @@ window.addEventListener('keyup', (e) => {
   if (e.key === 'Shift') { releaseBtn('shift'); return; }
   if (e.key === ' ') { releaseBtn('vibrato'); return; }
   const k = e.key === ';' || e.key === "'" ? e.key : e.key.toLowerCase(); if (!(k in KM)) return;
-  const n = LOW + KM[k]; const i = downKeys.lastIndexOf(n); if (i >= 0) downKeys.splice(i, 1);
+  const n = LOW + KM[k]; const i = downKeys.lastIndexOf(n); if (i < 0) return; downKeys.splice(i, 1);
   if (downKeys.length) { const m = downKeys[downKeys.length - 1]; if (m !== S.note) noteOn(m, true); } else noteOff();
 });
 window.addEventListener('blur', () => { downKeys.length = 0; noteOff(); if (S.shift) releaseBtn('shift'); if (S.vib) releaseBtn('vibrato'); });
