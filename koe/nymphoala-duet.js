@@ -236,7 +236,7 @@ function install(o) {
     if(url)URL.revokeObjectURL(url);
     const f=file.files&&file.files[0];if(!f)return;
     url=URL.createObjectURL(f);audio.src=url;audio.load();name=f.name;load();
-    play.disabled=false;growl.disabled=false;ah.disabled=false;record.disabled=false;
+    play.disabled=false;growl.disabled=false;ah.disabled=false;record.disabled=false;score.disabled=false;
   });
   audio.addEventListener('loadedmetadata',()=>drawStatus());
   audio.addEventListener('seeked',()=>{resetVoices();refresh();});
