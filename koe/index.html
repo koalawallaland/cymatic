@@ -584,7 +584,7 @@ function kvStatus() {
   let v = '';
   if (S.voice === 'koala') {
     if (kvBusy) v = 'loading the koala voice…';
-    else if (kvReady) v = `koala voice: ${kv.keys.size} syllables` + (kvSource === 'local' ? ' (your takes in this browser)' : '');
+    else if (kvReady) v = `KT sampled voice: ${kv.keys.size} recorded syllables` + (kvSource === 'local' ? ' (local takes)' : ' (published bank)');
     else if (S.power) v = 'the koala hasn\'t recorded her voice yet, so this is the built-in voice';
     else v = 'power on to load the koala voice';
   }
@@ -856,7 +856,7 @@ function duetStop(){
  if(duetRunning){if(kv){kv.off();kv.vib(0,5.6);}if(kn){kn.off();kn.growl(false);}if(knGain&&ctx)knGain.gain.setTargetAtTime(0.9,T(),0.05);koe.classList.remove('singing');mouthFor(null);setBubble('こえ','koe');}
  if(duetBus&&ctx){const b=duetBus;try{b.gain.setTargetAtTime(0,T(),0.04);}catch(e){}setTimeout(()=>{try{b.disconnect();}catch(e){}},400);}
  duetBus=null;duetRunning=false;
- duetButton.textContent='🦇 DROP BEAR NOCTURNE';duetButton.setAttribute('aria-pressed','false');if(!queenRunning)queenStatus.textContent='';
+ duetButton.textContent='🦇 DROP BEAR NOCTURNE · ORIGINAL DEMO';duetButton.setAttribute('aria-pressed','false');if(!queenRunning)queenStatus.textContent='';
 }
 // one FM note: a sine carrier whose pitch is wobbled by a sine modulator (ratio x the note, depth "index" that decays)
 function duetFM(out,t,midi,dur,o){
