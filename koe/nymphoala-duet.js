@@ -15,7 +15,52 @@ function install(o) {
   audio.preload = 'metadata';
   const now = {female:null, male:null}, held = {female:false,male:false};
   let url = null, tick = null, name = '', cues = [], recording = false,
-      open = new Map(), midi = null, mixSource = null, mixGain = null;
+      open = new Map(), midi = null, restoring = false;
+  // Preserve the visitor's private backing in their browser only. No MP3 is published
+  // or uploaded to GitHub; a one-time selection is remembered on this device.
+  const BACKING_DB = 'kwl-nymphoala-private-backing';
+  const db = () => new Promise((resolve,reject) => {
+    const req=indexedDB.open(BACKING_DB,1);
+    req.onupgradeneeded=()=>req.result.createObjectStore('audio');
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+  async function backingRecord(value, mode='readwrite') {
+    const d=await db();
+    return new Promise((resolve,reject)=>{
+      const tx=d.transaction('audio',mode),req=mode==='readonly'
+        ? tx.objectStore('audio').get('last')
+        : tx.objectStore('audio').put(value,'last');
+      req.onsuccess=()=>resolve(req.result);
+      req.onerror=()=>reject(req.error);
+      tx.oncomplete=()=>d.close();
+      tx.onerror=()=>{d.close();};
+    });
+  }
+  function useBacking(blob, filename) {
+    if(url)URL.revokeObjectURL(url);
+    url=URL.createObjectURL(blob);
+    audio.src=url;
+    audio.load();
+    name=filename||'Local backing track';
+    load();
+    play.disabled=false;growl.disabled=false;ah.disabled=false;
+    record.disabled=false;score.disabled=false;
+  }
+  async function restoreBacking(){
+    restoring=true;
+    try{
+      const saved=await backingRecord(null,'readonly');
+      if(file.files?.length)return; // a new selection must win over a late restore
+      if(saved?.blob instanceof Blob && saved.blob.size){
+        useBacking(saved.blob,saved.name);
+        drawStatus('Saved backing restored · ');
+      } else drawStatus('Select your backing track once · ');
+    }catch(err){
+      console.debug('Local Nymphoala backing cannot be restored',err);
+      drawStatus('Select your backing track · ');
+    }finally{restoring=false;}
+  }
   const role = (t) => t === 'kn' || t === 'growl' ? 'male' : 'female';
   const fmt = (sec) => {
     if (!Number.isFinite(sec) || sec < 0) sec = 0;
@@ -139,24 +184,32 @@ function install(o) {
     drawStatus();
   }
   async function start() {
-    if(!audio.src){status.textContent='Load a local backing track first';return false;}
+    if(!audio.src){status.textContent='Choose the Nymphetamine backing MP3 once to unlock playback';return false;}
     o.stopOther();
-    try {
+    // Start the local backing directly from the button click, BEFORE any potentially
+    // expensive voice-bank initialization. Safari otherwise expires the user gesture.
+    audio.volume=.8;
+    let playback;
+    try{playback=audio.play();await playback;}catch(err){
+      status.textContent='Backing playback blocked. Tap Play again.';
+      console.warn('Backing playback blocked',err);return false;
+    }
+    // The instrumental starts even if the vocalist is still initializing.
+    play.textContent='■ STOP NYMPHOALA';play.setAttribute('aria-pressed','true');
+    o.koe.classList.add('nympho-mode');
+    try{
       await o.start();
       if(!o.femaleReady())await o.loadFemale();
-      const ctx=o.context();
-      if(ctx && ctx.state==='suspended')await ctx.resume();
-      // The backing plays as a plain audio element, not through the Web Audio graph: wiring it into
-      // the graph tied it to one audio context for good (silent after the instrument was powered off
-      // and on again) and made it obey the iPhone silent switch.
-      audio.volume=.8;
-      await audio.play();
-    } catch (err) {
-      console.warn('Nymphoala start',err);
-      status.textContent='Audio could not start. Tap again or choose another file.';
-      return false;
+      if(o.activateFemale)o.activateFemale();
+      if(!o.femaleReady()){
+        status.textContent='Backing playing; KT voice recordings unavailable';
+      }
+    }catch(err){
+      console.warn('Nymphoala voice bank unavailable, backing continues',err);
+      status.textContent='Backing playing; vocal engine unavailable';
     }
-    o.koe.classList.add('nympho-mode');
+    const ctx=o.context();
+    if(ctx?.state==='suspended')try{await ctx.resume();}catch(_){}
     if(o.getMaleGain()&&o.context())
       o.getMaleGain().gain.setTargetAtTime(.65,o.context().currentTime,.05);
     resetVoices();
@@ -237,10 +290,12 @@ function install(o) {
   }
   file.addEventListener('change',()=>{
     stop();
-    if(url)URL.revokeObjectURL(url);
     const f=file.files&&file.files[0];if(!f)return;
-    url=URL.createObjectURL(f);audio.src=url;audio.load();name=f.name;load();
-    play.disabled=false;growl.disabled=false;ah.disabled=false;record.disabled=false;score.disabled=false;
+    useBacking(f,f.name);
+    backingRecord({blob:f,name:f.name}).then(
+      ()=>drawStatus('Backing saved privately on this device · '),
+      ()=>drawStatus('Backing loaded for this session · ')
+    );
   });
   audio.addEventListener('loadedmetadata',()=>drawStatus());
   audio.addEventListener('seeked',()=>{resetVoices();refresh();});
@@ -305,7 +360,8 @@ function install(o) {
     a.href=u;a.download='nymphoala-vocal-cues.json';a.click();
     setTimeout(()=>URL.revokeObjectURL(u),3000);
   });
-  drawStatus();
+  drawStatus('Choose your Nymphetamine backing MP3 once · ');
+  restoreBacking();
   return {mark,unmark,stop,get recording(){return recording;}};
 }
 global.createNymphoalaDuet=install;
