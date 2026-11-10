@@ -796,7 +796,7 @@ const queenButton=document.getElementById('autoQueen'),queenStatus=document.getE
 const queenWait=(fn,ms)=>{const t=setTimeout(fn,ms);queenTimers.push(t);};
 function queenStop(){
  queenTimers.forEach(clearTimeout);queenTimers=[];if(queenRunning)noteOff();queenRunning=false;
- if(queenPrevious){S.oct=queenPrevious.oct;S.vib=queenPrevious.vib;queenPrevious=null;renderKeyboard();}
+ if(queenPrevious){S.oct=queenPrevious.oct;S.vib=queenPrevious.vib;S.mode=queenPrevious.mode;S.vowel=queenPrevious.vowel;queenPrevious=null;renderKeyboard();}
  if(kv)kv.vib(0,5.6);
  queenWig?.remove();queenWig=null;queenCameo?.remove();queenCameo=null;
  queenButton.textContent='👑 AUTO QUEEN';queenButton.setAttribute('aria-pressed','false');queenStatus.textContent='';
@@ -805,8 +805,8 @@ queenButton.addEventListener('click',async()=>{
  if(queenRunning){queenStop();return;}
  if(S.voice!=='koala'){queenStatus.textContent='Switch to KT’s voice to perform.';return;}
  try{await start();}catch{queenStatus.textContent='Power on the instrument first.';return;}
- queenRunning=true;queenPrevious={oct:S.oct,vib:S.vib};queenButton.textContent='■ STOP QUEEN';queenButton.setAttribute('aria-pressed','true');
- queenStatus.textContent='Queen of the Screech — playful coloratura demo';
+ if(!kvReady||!kv){queenStatus.textContent='KT voice samples are still loading. Try again shortly.';return;}queenRunning=true;queenPrevious={oct:S.oct,vib:S.vib,mode:S.mode,vowel:S.vowel};S.mode='vowel';S.vowel='a';queenButton.textContent='■ STOP QUEEN';queenButton.setAttribute('aria-pressed','true');
+ queenStatus.textContent='Queen of the Screech — KT vowel samples (high notes are pitch-shifted)';
  // Original ascending ornaments, climaxing on F6 (MIDI 89).
  const score=[[72,350],[76,280],[79,300],[84,460],[83,140],[84,140],[86,140],[88,140],[89,550],[88,125],[86,125],[84,125],[83,125],[81,125],[79,220],[81,135],[83,135],[84,135],[86,135],[88,135],[89,650],[84,300],[89,800]];
  let ms=180;
@@ -815,7 +815,7 @@ queenButton.addEventListener('click',async()=>{
  queenWait(()=>{if(!queenRunning)return;document.body.appendChild(queenCameo);queenCameo.style.transform='translateX(65px) rotate(-15deg)';},650);
  queenWait(()=>{if(!queenRunning)return;queenWig=document.createElement('span');queenWig.textContent='👑';queenWig.setAttribute('aria-label','Oversized opera wig');Object.assign(queenWig.style,{position:'fixed',left:'48%',top:'23%',zIndex:'998',fontSize:'clamp(35px,6vw,75px)',pointerEvents:'none',transform:'rotate(-10deg)'});document.body.appendChild(queenWig);queenCameo.style.transform='translateX(-180px)';},1550);
  score.forEach(([midi,duration],i)=>{
-  queenWait(()=>{if(!queenRunning)return;S.oct=0;S.vib=duration>=300;const pitch=midi-LOW;noteOn(pitch,i>0);if(kv)kv.vib(duration>=300?65:8,5.8);if(queenWig&&midi===89)queenWig.style.transform='translateY(-14px) rotate(15deg)';},ms);
+  queenWait(()=>{if(!queenRunning)return;S.oct=0;S.mode='vowel';S.vowel='a';S.vib=duration>=300;const pitch=midi-LOW;noteOn(pitch,i>0);if(kv)kv.vib(duration>=300?42:4,5.6);if(queenWig&&midi===89)queenWig.style.transform='translateY(-14px) rotate(15deg)';},ms);
   ms+=duration;
  });
  queenWait(queenStop,ms+160);
