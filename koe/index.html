@@ -596,7 +596,7 @@ document.querySelectorAll('[data-voice]').forEach((b) => b.addEventListener('cli
   setBubble(S.voice === 'noise' ? 'ぐぉ' : S.voice === 'koala' ? 'こあら' : 'こえ', S.voice === 'noise' ? 'koala noises' : S.voice === 'koala' ? 'koala' : 'koe'); render();
 }));
 document.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { S.mode = b.dataset.mode; S.lyricIdx = 0; render(); }));
-document.getElementById('lyricIn').addEventListener('input', (e) => { const l = lyricFrom(e.target.value); S.lyric = l.length ? l : lyricFrom(DEFAULT_LYRIC); S.lyricIdx = 0; if (S.mode !== 'lyric') S.mode = 'lyric'; render(); });
+document.getElementById('lyricIn').addEventListener('input', (e) => { const l = lyricFrom(e.target.value); S.lyric = l.length ? l : lyricFrom(DEFAULT_LYRIC); S.lyricIdx = 0; render(); });
 document.getElementById('lyricIn').addEventListener('keydown', (e) => e.stopPropagation());
 document.getElementById('toneIn').addEventListener('input', (e) => { S.tone = +e.target.value; kv && kv.tone(S.tone); });
 function flashBubble(k, r) { setBubble(k, r); }
