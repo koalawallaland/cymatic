@@ -265,7 +265,7 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
     </div>
     <p class="key-help" id="key-help">Tab to the keys, use ← / → to choose a note, and hold Space or Enter to play. Home / End go to the first / last key. Z / X shift the octave.</p>
     <div class="ctlbar">
-      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="koala" aria-pressed="true">KT’s voice</button></div><button type="button" id="autoQueen" class="queen-feature" aria-pressed="false" title="Auto-play the Queen of the Night aria in KT’s voice">👑 AUTO QUEEN</button><span class="nympho-control" style="display:inline-flex;flex-wrap:wrap;gap:6px;align-items:center"><label for="nymphoFile" style="cursor:pointer;border:1px solid #a75383;border-radius:20px;padding:8px;color:#ffe0ee">🦇 NYMPHOALA · load backing</label><input id="nymphoFile" type="file" accept="audio/*,.mp3,.m4a,.wav" style="max-width:170px;font-size:11px" aria-label="Choose local instrumental backing track"><button type="button" id="nymphoPlay" class="queen-feature duet-feature" disabled>▶ NYMPHOALA</button><button type="button" id="nymphoGrowl" title="Trigger koala growl" disabled>🐨 GROWL</button><button type="button" id="nymphoAh" title="Trigger KT soprano vowel" disabled>🎤 AH</button><label>sync <input id="nymphoOffset" type="range" min="-10" max="10" step=".25" value="0" aria-label="Vocal cue offset seconds"></label><output id="nymphoTime" style="font:11px monospace">No file</output></span><button type="button" id="autoDuet" class="queen-feature duet-feature" aria-pressed="false" title="Auto-play an original gothic duet: FM riffs, KT’s soprano and koala growls">🦇 DROP BEAR NOCTURNE</button><div class="seg" role="group" aria-label="Other voices"><button type="button" data-voice="noise" aria-pressed="false">🐨 Koala noise</button><button type="button" data-voice="builtin" aria-pressed="false">Vocaloid voice</button></div>
+      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="koala" aria-pressed="true">KT’s voice</button></div><button type="button" id="autoQueen" class="queen-feature" aria-pressed="false" title="Auto-play the Queen of the Night aria in KT’s voice">👑 AUTO QUEEN</button><span class="nympho-control" style="display:inline-flex;flex-wrap:wrap;gap:6px;align-items:center"><label for="nymphoFile" style="cursor:pointer;border:1px solid #a75383;border-radius:20px;padding:8px;color:#ffe0ee">🦇 NYMPHOALA · load backing</label><input id="nymphoFile" type="file" accept="audio/*,.mp3,.m4a,.wav" style="max-width:170px;font-size:11px" aria-label="Choose local instrumental backing track"><button type="button" id="nymphoPlay" class="queen-feature duet-feature" disabled>▶ NYMPHOALA</button><button type="button" id="nymphoGrowl" title="Trigger koala growl" disabled>🐨 GROWL</button><button type="button" id="nymphoAh" title="Trigger KT soprano vowel" disabled>🎤 AH</button><button type="button" id="nymphoRec" aria-pressed="false" title="Play the backing and record your own cues: hold GROWL or AH, or play the keys" disabled>● REC CUES</button><button type="button" id="nymphoClear" title="Forget your recorded cues for this file" disabled>✕ clear cues</button><label>sync <input id="nymphoOffset" type="range" min="-10" max="10" step=".05" value="0" aria-label="Vocal cue offset seconds"> <output id="nymphoOffsetOut" style="font:11px monospace">0.00s</output></label><output id="nymphoTime" style="font:11px monospace" role="status">No file</output></span><button type="button" id="autoDuet" class="queen-feature duet-feature" aria-pressed="false" title="Auto-play an original gothic duet: FM riffs, KT’s soprano and koala growls">🦇 DROP BEAR NOCTURNE</button><div class="seg" role="group" aria-label="Other voices"><button type="button" data-voice="noise" aria-pressed="false">🐨 Koala noise</button><button type="button" data-voice="builtin" aria-pressed="false">Vocaloid voice</button></div>
       <div class="seg" role="group" aria-label="Mode"><button type="button" data-mode="vowel" aria-pressed="false">VOWEL</button><button type="button" data-mode="doremi" aria-pressed="true">DO·RE·MI</button><button type="button" data-mode="lyric" aria-pressed="false">LYRIC</button></div>
       <label>lyric <input type="text" id="lyricIn" value="do you remember?" aria-label="Lyric, in romaji or kana"></label>
       <label>tone <input type="range" id="toneIn" min="0.8" max="1.25" step="0.01" value="1" aria-label="Koala voice tone, deeper to cuter"></label>
@@ -491,7 +491,7 @@ function countUse() {
 function noteOn(note, legato) { countUse(); if (!legato && downKeys.length) googly.kick(0.6);
   if (!S.power) { start().then(() => noteOn(note, false)); return; }
   const n = note + S.oct * 12;
-  if (noiseOn()) { kn.on(n, legato); kn.growl(S.vib); S.note = note; koe.classList.add('singing'); keyHot(note); noiseSeg(n > 70 ? 4 : 0); return; }
+  if (noiseOn()) { kn.on(n, legato); kn.growl(S.vib); S.note = note; koe.classList.add('singing'); keyHot(note); noiseSeg(n > 70 ? 4 : 0); if (nRec) nMark('kn', n); return; }
   const key = syllableFor(n);
   if (koalaOn()) {
     const k = kv.pick(key) || kv.pick('a') || [...kv.keys][0];
@@ -506,8 +506,9 @@ function noteOn(note, legato) { countUse(); if (!legato && downKeys.length) goog
   }
   S.note = note; document.getElementById('koe').classList.add('singing');
   keyHot(note);
+  if (nRec) nMark('kv', n);
 }
-function noteOff() { S.note = null; stopSinging(); document.getElementById('koe').classList.remove('singing'); keyHot(null); }
+function noteOff() { if (nRec) nUnmark(); S.note = null; stopSinging(); document.getElementById('koe').classList.remove('singing'); keyHot(null); }
 
 // ---------- UI ----------
 const koe = document.getElementById('koe');
@@ -864,7 +865,7 @@ duetButton.addEventListener('click',async()=>{
  try{await start();}catch{queenStatus.textContent='Power on the instrument first.';return;}
  if(!kvReady||!kv){queenStatus.textContent='KT voice samples are still loading. Try again shortly.';return;}
  noteOff();duetRunning=true;duetButton.textContent='■ STOP NOCTURNE';duetButton.setAttribute('aria-pressed','true');
- queenStatus.textContent='Drop Bear Nocturne — an original duet: FM riffs, KT’s soprano, koala growls';
+ queenStatus.textContent='Drop Bear Nocturne — an original gothic duet: FM riffs, KT’s soprano, koala growls';
  const BEAT=60/138,BAR=BEAT*4,S16=BEAT/4,t0=T()+0.25;
  duetBus=ctx.createGain();duetBus.gain.value=1.9;duetBus.connect(bus);
  if(knGain)knGain.gain.setTargetAtTime(0.42,T(),0.02); // the growls sit beside the soprano instead of over her
@@ -874,94 +875,157 @@ duetButton.addEventListener('click',async()=>{
  grit.connect(cab).connect(riffG).connect(duetBus);
  const nb=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.25),ctx.sampleRate),nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
  const RIFF={ratio:1,index:3.2,keep:0.5,gain:0.55,attack:0.004},BELL={ratio:3.5,index:2.6,keep:0.04,gain:0.11,attack:0.003},PAD={ratio:2,index:0.7,keep:0.8,gain:0.035,attack:0.5,sustain:true,release:0.6};
- const CH=[[45,3],[41,4],[38,3],[40,4]]; // A minor, F, D minor, E: root and its third
+ // chords as [root, third]: i, VI, iv, V, VII, and the V of the new key for the bridge
+ const Am=[45,3],F=[41,4],Dm=[38,3],E=[40,4],G=[43,4],Fs=[42,4];
  const riffPat=(t)=>[0,0,12,0,0,12+t,0,0,19,0,0,12+t,0,12,12+t,19];
- const ARP=[[69,72,76,81,76,72,71,72],[69,72,77,81,77,72,69,72],[69,74,77,81,77,74,69,74],[68,71,76,80,76,71,68,71]];
- // what each bar holds: r = riff (0 none, 1 full, .5 soft), d = drums (0 none, 1 driving, .5 half-time), b = bells, g = growls, s = soprano
- // growls are [beat, beats long]; soprano notes are [beat, beats long, midi]
+ const arp=([root,t])=>[0,t,7,12,7,t,0,t].map((x)=>root+24+x);
+ // koala lines: [beat, beats long, pitch]. soprano lines: [beat, beats long, midi note].
+ const K1=[[0,.4,50],[.5,.4,50],[1,.9,53],[2,1.6,48]],K2=[[0,.9,52],[1,.4,50],[1.5,.4,50],[2,.4,53],[2.5,1.2,47]],K3=[[0,1.4,53],[1.5,.4,50],[2,.4,50],[2.5,.4,52],[3,.8,48]],K4=[[0,.4,50],[.75,.4,52],[1.5,.4,53],[2,1.8,47]];
+ const V1=[[0,1,72],[1,1,77],[2,2,76]],V2=[[0,1.5,71],[1.5,.5,74],[2,2,76]],V3=[[0,.5,77],[.5,.5,76],[1,1,72],[2,2,81]],V4=[[0,3.5,80]];
+ const C=[[[0,2,81],[2,1,79],[3,1,77]],[[0,1.5,79],[1.5,.5,81],[2,2,83]],[[0,3,84],[3,.5,83],[3.5,.5,81]],[[0,3,76]],[[0,1,77],[1,1,81],[2,2,84]],[[0,1.5,83],[1.5,.5,79],[2,2,86]],[[0,2,83],[2,2,80]],[[0,1,76],[1,1,80],[2,2,83]]];
+ const CC=[F,G,Am,Am,F,G,E,E];
+ // each bar: c chord · tr key shift · r riff (1 full, .5 soft) · d drums (1 driving, .5 half-time) · b bells (1 flowing, 'box' music box)
+ // pad (false = none) · g koala line · w whispered koala · s soprano line · fill = snare run-up · vib = vibrato depth change
  const BARS=[
-  {b:1},{b:1},
-  {r:1,d:1,g:[[0,2.6]]},{r:1,d:1,g:[[0,0.7],[1.5,2.1]]},{r:1,d:1,g:[[0,3.1]]},{r:1,d:1,g:[[0,0.55],[1,0.55],[2,1.7]]},
-  {r:.5,d:.5,b:1,s:[[0,2,76],[2,1,74],[3,1,72]]},{r:.5,d:.5,b:1,s:[[0,1.5,69],[1.5,.5,72],[2,2,77]]},{r:.5,d:.5,b:1,s:[[0,1,77],[1,1,76],[2,1,74],[3,1,81]]},{r:.5,d:.5,b:1,s:[[0,3,80]]},
-  {r:1,d:1,g:[[0,3.2]]},{r:1,d:1,s:[[0,1,81],[1,.5,79],[1.5,.5,77],[2,2,76]]},{r:1,d:1,g:[[0,0.55],[1,0.55],[2,0.55],[3,0.8]]},{r:1,d:1,s:[[0,.5,74],[.5,.5,76],[1,1,80],[2,2,83]]},
-  {r:1,d:1,b:1,s:[[0,7.5,81]],g:[[2,5.2]],c:0},{b:1,c:0}
+  // music box alone, then a whisper in the dark
+  {c:Am,b:'box',pad:false},{c:F,b:'box',pad:false},{c:Dm,b:'box',w:1,g:[[1,2.4,45]]},{c:E,b:'box',w:1,g:[[0,1.2,45],[2,1.8,43]],fill:1},
+  // the band crashes in
+  {c:Am,r:1,d:1},{c:E,r:1,d:1},
+  // verse: the koala speaks, the lady answers
+  {c:Am,r:1,d:1,g:K1},{c:F,r:.5,d:.5,b:1,s:V1},{c:Dm,r:1,d:1,g:K2},{c:E,r:.5,d:.5,b:1,s:V2},
+  {c:Am,r:1,d:1,g:K3},{c:F,r:.5,d:.5,b:1,s:V3},{c:Dm,r:1,d:1,g:K4},{c:E,r:.5,d:.5,b:1,s:V4,fill:1},
+  // chorus
+  ...C.map((s,i)=>({c:CC[i],r:1,d:1,b:1,s,g:i===3?[[3,.8,50]]:i===7?[[0,.4,50],[1,.4,50],[2,.4,52],[3,.4,53]]:null})),
+  // short second verse
+  {c:Am,r:1,d:1,g:K2},{c:F,r:.5,d:.5,b:1,s:V3},{c:Dm,r:1,d:1,g:K4},{c:E,r:.5,d:.5,b:1,s:V4},
+  // the bridge: everything drops away, then heaves itself up a key
+  {c:E,b:1,s:[[0,2,76],[2,2,80]]},{c:Fs,b:1,s:[[0,2,78],[2,2,82]],g:[[0,3.8,45]],fill:1},
+  // last chorus, a whole step higher
+  ...C.slice(0,7).map((s,i)=>({c:CC[i],tr:2,r:1,d:1,b:1,s,g:i===3?[[3,.8,50]]:null})),
+  // the ending: she lands the last note and will not let go of it
+  {c:Am,tr:2,r:1,d:1,b:1,s:[[0,18,81]],hold:1},{c:Am,tr:2,r:1,d:1,vib:70},
+  {c:Am,tr:2,b:'box',pad:false,vib:95},{c:Am,tr:2,pad:false,g:[[1,.5,55]],huh:1,vib:120},{c:Am,tr:2,b:'box',pad:false,g:[[3,.7,45]]}
  ];
  const aKey=kv.pick('a')||[...kv.keys][0];
+ const knLevel=(v)=>{if(knGain&&ctx)knGain.gain.setTargetAtTime(v,T(),0.03);};
  BARS.forEach((bar,i)=>{
-  const at=t0+i*BAR,ci=bar.c??(i%4),[root,third]=CH[ci];
+  const at=t0+i*BAR,tr=bar.tr||0,root=bar.c[0]+tr,third=bar.c[1],when=(b)=>(at+b*BEAT-T())*1000;
   // FM parts are scheduled on the audio clock a moment before their bar
   duetWait(()=>{
    if(!duetRunning||!ctx)return;
-   duetFM(duetBus,at,root+24,BAR,PAD);duetFM(duetBus,at,root+24+third,BAR,PAD);duetFM(duetBus,at,root+31,BAR,PAD);
+   if(bar.pad!==false){duetFM(duetBus,at,root+24,BAR,PAD);duetFM(duetBus,at,root+24+third,BAR,PAD);duetFM(duetBus,at,root+31,BAR,PAD);}
    if(bar.r){const pat=riffPat(third);for(let k=0;k<16;k++)duetFM(grit,at+k*S16,root+12+pat[k],S16*0.92,{...RIFF,gain:RIFF.gain*bar.r});}
-   if(bar.b){ARP[ci].forEach((m,k)=>duetFM(duetBus,at+k*BEAT/2,m+(i>=14?12:0),1.1,BELL));}
+   if(bar.b===1)arp([root,third]).forEach((m,k)=>duetFM(duetBus,at+k*BEAT/2,m,1.1,BELL));
+   if(bar.b==='box')arp([root,third]).filter((m,k)=>k%2===0).forEach((m,k)=>duetFM(duetBus,at+k*BEAT,m+12,1.6,{...BELL,gain:0.09}));
    if(bar.d===1){for(let k=0;k<8;k++)duetKick(duetBus,at+k*BEAT/2);duetSnare(duetBus,at+BEAT*2,nb);}
    if(bar.d===.5){duetKick(duetBus,at);duetKick(duetBus,at+BEAT*2.5);duetSnare(duetBus,at+BEAT*2,nb);}
+   if(bar.fill)for(let k=0;k<4;k++)duetSnare(duetBus,at+BEAT*(3+k/4),nb);
   },Math.max(0,(at-T())*1000-120));
   // the two singers are driven by timers
-  (bar.g||[]).forEach(([b,len])=>{
-   duetWait(()=>{if(!duetRunning||!kn)return;kn.growl(true);kn.on(50,false);setBubble('ガオ','growl');googly.kick(0.8);},(at+b*BEAT-T())*1000);
-   duetWait(()=>{if(duetRunning&&kn)kn.off();},(at+(b+len)*BEAT-T())*1000);
+  (bar.g||[]).forEach(([b,len,pitch])=>{
+   duetWait(()=>{if(!duetRunning||!kn)return;knLevel(bar.w?0.14:0.42);kn.growl(!bar.w);kn.on(pitch||50,false);if(bar.huh)setBubble('？','huh');else if(!bar.w)setBubble('ガオ','growl');googly.kick(bar.w?0.3:0.8);},when(b));
+   duetWait(()=>{if(duetRunning&&kn)kn.off();},when(b+len));
   });
   (bar.s||[]).forEach(([b,len,midi],k)=>{
    const slur=k>0;
-   duetWait(()=>{if(!duetRunning||!kv)return;kv.on(aKey,hz(midi),slur,slur);kv.vib(len>=1.5?38:6,5.6);koe.classList.add('singing');mouthFor('a');setBubble('あ','a');},(at+b*BEAT-T())*1000);
-   if(k===bar.s.length-1)duetWait(()=>{if(!duetRunning||!kv)return;kv.off();koe.classList.remove('singing');mouthFor(null);},(at+(b+len)*BEAT-T())*1000-40);
+   duetWait(()=>{if(!duetRunning||!kv)return;kv.on(aKey,hz(midi+tr),slur,slur);kv.vib(len>=1.5?38:6,5.6);koe.classList.add('singing');mouthFor('a');setBubble(bar.hold?'あ〜〜':'あ',bar.hold?'aaaaah':'a');},when(b));
+   if(k===bar.s.length-1)duetWait(()=>{if(!duetRunning||!kv)return;kv.off();kv.vib(0,5.6);koe.classList.remove('singing');mouthFor(null);},when(b+len)-40);
   });
+  if(bar.vib)duetWait(()=>{if(duetRunning&&kv)kv.vib(bar.vib,6.2);},when(0));
  });
  duetWait(duetStop,(t0+BARS.length*BAR-T())*1000+900);
 });
 
-/* NYMPHOALA: local-only backing playback. No copyrighted backing is uploaded or embedded.
-   Cue regions are an editable first-pass approximation, not a transcription of the recording. */
+/* NYMPHOALA: sing along to a backing track that stays on the visitor's own device.
+   The audio file is opened locally (never uploaded, never part of the site). This page holds no
+   notes or words of any song: the vocal parts are whatever the visitor performs and records as cues
+   (hold GROWL / AH or play the keys while the track runs). Cues are kept in this browser only.
+   Until cues exist for a file, a rough section map pulses the two voices as a placeholder. */
 const nFile=document.getElementById('nymphoFile'),nPlay=document.getElementById('nymphoPlay'),
  nGrowl=document.getElementById('nymphoGrowl'),nAh=document.getElementById('nymphoAh'),
- nOffset=document.getElementById('nymphoOffset'),nTime=document.getElementById('nymphoTime');
-const nAudio=new Audio();nAudio.preload='metadata';let nURL=null,nTick=null,nVoice='',nLast=-1;
+ nOffset=document.getElementById('nymphoOffset'),nOffsetOut=document.getElementById('nymphoOffsetOut'),nTime=document.getElementById('nymphoTime'),
+ nRecBtn=document.getElementById('nymphoRec'),nClear=document.getElementById('nymphoClear');
+const nAudio=new Audio();nAudio.preload='metadata';
+let nURL=null,nTick=null,nVoice='',nLast=-1,nName='',nCues=[],nRec=false,nOpen=null,nHeld=false,nNow=null;
+// placeholder map of [from, to, voice] in seconds, used only when no cues have been recorded for the file
 const nRegions=[
  [0,23,'ah'],[23,70,'none'],[70,97,'ah'],[97,128,'growl'],
  [128,155,'none'],[155,184,'ah'],[184,217,'growl'],
  [217,240,'none'],[240,263,'ah'],[263,289,'growl'],[289,303,'ah']
 ];
-function nSilence(){if(kv)kv.off();if(kn){kn.off();kn.growl(false);}nVoice='';}
-function nStop(){nAudio.pause();nAudio.currentTime=0;nSilence();clearInterval(nTick);nTick=null;nPlay.textContent='▶ NYMPHOALA';nPlay.setAttribute('aria-pressed','false');nTime.textContent=nAudio.duration?('0:00 / '+Math.floor(nAudio.duration/60)+':'+String(Math.floor(nAudio.duration%60)).padStart(2,'0')):'No file';}
-function nCue(type){
- nSilence();if(type==='none')return;
- if(type==='growl'&&kn){kn.growl(true);kn.on(50,false);nVoice='growl';setBubble('ガオ','growl');}
- if(type==='ah'&&kv&&kvReady){const key=kv.pick('a')||[...kv.keys][0];kv.on(key,hz(76),false,false);kv.vib(22,5.6);nVoice='ah';setBubble('あ','a');}
+const nKey=()=>'kwl-nymphoala-cues:'+nName;
+const nFmt=(x)=>Math.floor(x/60)+':'+String(Math.floor(x%60)).padStart(2,'0');
+function nLoadCues(){nCues=[];try{const j=JSON.parse(localStorage.getItem(nKey())||'[]');if(Array.isArray(j))nCues=j.filter((c)=>Array.isArray(c)&&c.length>=3);}catch(e){}nClear.disabled=!nCues.length;}
+function nSaveCues(){nCues.sort((x,y)=>x[0]-y[0]);try{localStorage.setItem(nKey(),JSON.stringify(nCues));}catch(e){}nClear.disabled=!nCues.length;}
+function nSilence(){if(kv){kv.off();kv.vib(0,5.6);}if(kn){kn.off();kn.growl(false);}nVoice='';koe.classList.remove('singing');mouthFor(null);}
+// sound one cue: 'growl' / 'ah' are the two buttons, 'kn' / 'kv' are notes played on the keys
+function nSound(type,midi){
+ if(type==='growl'||type==='kn'){if(!kn)return;if(kv)kv.off();kn.growl(true);kn.on(type==='kn'?midi:50,false);nVoice='growl';setBubble('ガオ','growl');}
+ else if(type==='ah'||type==='kv'){if(!kv||!kvReady)return;if(kn)kn.off();const key=kv.pick('a')||[...kv.keys][0];kv.on(key,hz(type==='kv'?midi:76),nVoice==='ah',nVoice==='ah');kv.vib(22,5.6);nVoice='ah';koe.classList.add('singing');mouthFor('a');setBubble('あ','a');}
+}
+function nCue(type){nSilence();if(type!=='none')nSound(type);}
+// recording: every hold of a button or key while the track plays becomes [start, end, voice, note]
+function nMark(type,midi){
+ if(!nRec||nAudio.paused)return;
+ nUnmark();nOpen=[+nAudio.currentTime.toFixed(3),null,type,midi||0];
+}
+function nUnmark(){
+ if(!nOpen)return;const end=+nAudio.currentTime.toFixed(3);
+ if(end-nOpen[0]>0.04){nOpen[1]=end;nCues=nCues.filter((c)=>c[1]<=nOpen[0]||c[0]>=end);nCues.push(nOpen);}
+ nOpen=null;
+}
+function nRecStop(){if(!nRec)return;nUnmark();nRec=false;nSaveCues();nRecBtn.textContent='● REC CUES';nRecBtn.setAttribute('aria-pressed','false');}
+function nStop(){
+ nRecStop();nAudio.pause();nAudio.currentTime=0;nSilence();clearInterval(nTick);nTick=null;nNow=null;nHeld=false;
+ if(knGain&&ctx)knGain.gain.setTargetAtTime(0.9,T(),0.05);
+ nPlay.textContent='▶ NYMPHOALA';nPlay.setAttribute('aria-pressed','false');
+ nTime.textContent=nAudio.duration?('0:00 / '+nFmt(nAudio.duration)+(nCues.length?' · your cues: '+nCues.length:' · no cues yet (rough map)')):'No file';
+}
+async function nStart(){
+ if(!nAudio.src){nTime.textContent='Choose a local audio file first';return false;}
+ if(queenRunning)queenStop();if(duetRunning)duetStop();
+ try{await start();if(ctx.state==='suspended')await ctx.resume();await nAudio.play();}
+ catch(e){nTime.textContent='Playback blocked; tap again';return false;}
+ if(knGain)knGain.gain.setTargetAtTime(0.5,T(),0.05); // keep the koala beside the track, not over it
+ nPlay.textContent='■ STOP NYMPHOALA';nPlay.setAttribute('aria-pressed','true');
+ nLast=-1;nNow=null;clearInterval(nTick);
+ nTick=setInterval(()=>{
+  if(nAudio.paused)return;
+  const t=nAudio.currentTime+Number(nOffset.value);
+  nTime.textContent=(nRec?'● recording · ':'')+nFmt(nAudio.currentTime)+' / '+nFmt(nAudio.duration||0)+(nCues.length?' · your cues: '+nCues.length:'');
+  if(nRec||nHeld||S.note!==null)return; // she is performing: the page stays out of the way
+  if(nCues.length){
+   // play back her cues; the one that started last wins
+   let cur=null;for(const c of nCues){if(c[0]>t)break;if(t<c[1])cur=c;}
+   if(cur!==nNow){nNow=cur;if(cur)nSound(cur[2],cur[3]);else nSilence();}
+   return;
+  }
+  const ix=nRegions.findIndex(([a,b])=>t>=a&&t<b),pulse=Math.floor(t/2.2),id=ix*10000+pulse;
+  if(id!==nLast){nLast=id;nCue(ix<0?'none':nRegions[ix][2]);}
+ },40);
+ return true;
 }
 nFile.addEventListener('change',()=>{
  nStop();if(nURL)URL.revokeObjectURL(nURL);
  const file=nFile.files&&nFile.files[0];if(!file)return;
- nURL=URL.createObjectURL(file);nAudio.src=nURL;nAudio.load();
- nPlay.disabled=false;nGrowl.disabled=false;nAh.disabled=false;nTime.textContent=file.name;
+ nURL=URL.createObjectURL(file);nAudio.src=nURL;nAudio.load();nName=file.name;nLoadCues();
+ nPlay.disabled=false;nGrowl.disabled=false;nAh.disabled=false;nRecBtn.disabled=false;
+ nTime.textContent=file.name+(nCues.length?' · your cues: '+nCues.length:' · no cues yet (rough map)');
 });
-nPlay.addEventListener('click',async()=>{
- if(!nAudio.src){nTime.textContent='Choose a local audio file first';return;}
- if(!nAudio.paused){nStop();return;}
- if(queenRunning)queenStop();if(duetRunning)duetStop();
- try{await start();if(ctx.state==='suspended')await ctx.resume();await nAudio.play();}
- catch(e){nTime.textContent='Playback blocked; tap again';return;}
- nPlay.textContent='■ STOP NYMPHOALA';nPlay.setAttribute('aria-pressed','true');
- nLast=-1;
- clearInterval(nTick);
- nTick=setInterval(()=>{
-  if(nAudio.paused)return;
-  const t=nAudio.currentTime+Number(nOffset.value);
-  const ix=nRegions.findIndex(([a,b])=>t>=a&&t<b);
-  // Small repeating phrases; manual GROWL/AH buttons allow live intervention.
-  const pulse=Math.floor(t/2.2),id=ix*10000+pulse;
-  if(id!==nLast){nLast=id;const type=ix<0?'none':nRegions[ix][2];nCue(type);}
-  const fmt=x=>Math.floor(x/60)+':'+String(Math.floor(x%60)).padStart(2,'0');
-  nTime.textContent=fmt(nAudio.currentTime)+' / '+fmt(nAudio.duration||0);
- },120);
+nAudio.addEventListener('loadedmetadata',()=>{if(nAudio.paused)nTime.textContent=nName+' · '+nFmt(nAudio.duration)+(nCues.length?' · your cues: '+nCues.length:' · no cues yet (rough map)');});
+nPlay.addEventListener('click',()=>{if(!nAudio.paused){nStop();return;}nStart();});
+nRecBtn.addEventListener('click',async()=>{
+ if(nRec){nStop();return;}
+ if(nAudio.paused&&!(await nStart()))return;
+ nSilence();nRec=true;nRecBtn.textContent='■ STOP REC';nRecBtn.setAttribute('aria-pressed','true');
 });
-nGrowl.addEventListener('pointerdown',()=>nCue('growl'));
-nGrowl.addEventListener('pointerup',nSilence);
-nGrowl.addEventListener('pointercancel',nSilence);
-nAh.addEventListener('pointerdown',()=>nCue('ah'));
-nAh.addEventListener('pointerup',nSilence);
-nAh.addEventListener('pointercancel',nSilence);
+nClear.addEventListener('click',()=>{nCues=[];try{localStorage.removeItem(nKey());}catch(e){}nClear.disabled=true;nNow=null;nSilence();nTime.textContent='Cues cleared for '+nName;});
+nOffset.addEventListener('input',()=>{nOffsetOut.textContent=(Number(nOffset.value)>=0?'+':'')+Number(nOffset.value).toFixed(2)+'s';});
+[[nGrowl,'growl'],[nAh,'ah']].forEach(([btn,type])=>{
+ const up=()=>{if(!nHeld)return;nHeld=false;nUnmark();nSilence();nNow=null;};
+ btn.addEventListener('pointerdown',async(e)=>{e.preventDefault();try{btn.setPointerCapture(e.pointerId);}catch(_){ }try{await start();}catch(_){return;}nHeld=true;nSilence();nSound(type);nMark(type);});
+ btn.addEventListener('pointerup',up);btn.addEventListener('pointercancel',up);btn.addEventListener('lostpointercapture',up);
+});
 nAudio.addEventListener('ended',nStop);
 
 window.__koe = { S, start, noteOn, noteOff, pressBtn, releaseBtn, get ctx() { return ctx; }, get master() { return master; }, get kv() { return kv; }, get kn() { return kn; }, get knSeg() { return knSeg; }, get kvReady() { return kvReady; }, loadBank };
