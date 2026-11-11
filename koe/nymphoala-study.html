@@ -98,17 +98,23 @@ async function start(){
    await ctx.resume();
    const comp=ctx.createDynamicsCompressor();comp.threshold.value=-22;comp.ratio.value=3;
    mix=ctx.createGain();mix.gain.value=.65;mix.connect(comp).connect(ctx.destination);
-   const results=await Promise.allSettled([
+   // Start the score immediately; iPhone users should not wait for 8 MB of
+   // vocal samples to decode before hearing a single note.
+   ix=fi=mi=0;activeVoices=0;startTime=ctx.currentTime+.2;playing=true;
+   readout.textContent='Playing the arrangement · loading KT and koala voices…';
+   Promise.allSettled([
      (async()=>{await window.KoalaVB.loadWorklet(ctx);const v=new window.KoalaVB.Engine(ctx);v.connect(mix);
        const takes=await window.KoalaVB.loadWav('voicebank/koala-voice.wav',ctx);
        const loaded=await window.KoalaVB.fill(v,takes);
        return loaded>0?v:null;})(),
      (async()=>{await window.KoalaNoise.load(ctx);const k=new window.KoalaNoise.Engine(ctx);const g=ctx.createGain();g.gain.value=.27;k.connect(g);g.connect(mix);return k;})()
-   ]);
-   kv=results[0].status==='fulfilled'?results[0].value:null;
-   kn=results[1].status==='fulfilled'?results[1].value:null;
-   ix=fi=mi=0;activeVoices=0;startTime=ctx.currentTime+.2;playing=true;
-   readout.textContent=(kv?'KT voice ready':'KT voice samples unavailable')+' · '+(kn?'koala ready':'growl unavailable');
+   ]).then(results=>{
+     if(!playing)return;
+     kv=results[0].status==='fulfilled'?results[0].value:null;
+     kn=results[1].status==='fulfilled'?results[1].value:null;
+     readout.textContent=(kv?'KT recorded voice ready':'KT voice could not load')+
+       ' · '+(kn?'koala growl ready':'koala growl unavailable');
+   });
    button.textContent='■ Stop performance';button.disabled=false;
    runner=setInterval(()=>{
      if(!playing)return;
