@@ -36,7 +36,7 @@ const $=id=>document.getElementById(id),score=window.NymphoalaStudyScore;
 const button=$('play'),readout=$('readout'),bar=$('progress'),kt=$('kt'),koala=$('koala');
 const hz=n=>440*Math.pow(2,(n-69)/12),duration=score.duration/1000;
 bar.max=duration;
-let ctx=null,mix=null,kv=null,kn=null,playing=false,runner=null,startTime=0,ix=0,fi=0,mi=0,timers=[],activeVoices=0;
+let ctx=null,mix=null,kv=null,kn=null,playing=false,runner=null,startTime=0,ix=0,fi=0,mi=0,timers=[],activeVoices=0,activeGrowl=0;
 const clock=()=>ctx.currentTime-startTime;
 const timeString=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
 function schedule(fn,at){
@@ -74,14 +74,20 @@ function voiceCue(c,sex){
  if(sex==='male'&&kn){
    schedule(()=>{
      if(!playing||!kn)return;
-     const pitch=Math.max(38,Math.min(55,n));
+     // Octave-fold rather than clamp: follow the phrase's interval contour in
+     // the low growl register instead of producing one flat repeated grunt.
+     let pitch=n;
+     while(pitch>58)pitch-=12;
+     while(pitch<38)pitch+=12;
      kn.growl(true);kn.on(pitch,false);koala.classList.add('on');
-     schedule(()=>{if(!playing)return;kn.off();koala.classList.remove('on');},ctx.currentTime+Math.min(d/1000,.58));
+     const thisGrowl=++activeGrowl;
+     schedule(()=>{if(!playing||thisGrowl!==activeGrowl)return;kn.off();kn.growl(false);koala.classList.remove('on');},ctx.currentTime+Math.min(d/1000,.32));
    },at);
  }
 }
 function stop(){
  playing=false;clearInterval(runner);runner=null;timers.forEach(clearTimeout);timers=[];
+ ++activeGrowl;
  if(kv){kv.off();kv.vib(0,5.6)}if(kn){kn.off();kn.growl(false)}
  if(mix){try{mix.gain.setTargetAtTime(0,ctx.currentTime,.02)}catch(_){}}
  kt.classList.remove('on');koala.classList.remove('on');
@@ -100,14 +106,14 @@ async function start(){
    mix=ctx.createGain();mix.gain.value=.65;mix.connect(comp).connect(ctx.destination);
    // Start the score immediately; iPhone users should not wait for 8 MB of
    // vocal samples to decode before hearing a single note.
-   ix=fi=mi=0;activeVoices=0;startTime=ctx.currentTime+.2;playing=true;
+   ix=fi=mi=0;activeVoices=0;activeGrowl=0;startTime=ctx.currentTime+.2;playing=true;
    readout.textContent='Playing the arrangement · loading KT and koala voices…';
    Promise.allSettled([
      (async()=>{await window.KoalaVB.loadWorklet(ctx);const v=new window.KoalaVB.Engine(ctx);v.connect(mix);
        const takes=await window.KoalaVB.loadWav('voicebank/koala-voice.wav',ctx);
        const loaded=await window.KoalaVB.fill(v,takes);
        return loaded>0?v:null;})(),
-     (async()=>{await window.KoalaNoise.load(ctx);const k=new window.KoalaNoise.Engine(ctx);const g=ctx.createGain();g.gain.value=.27;k.connect(g);g.connect(mix);return k;})()
+     (async()=>{await window.KoalaNoise.load(ctx);const k=new window.KoalaNoise.Engine(ctx);const g=ctx.createGain();g.gain.value=.20;k.connect(g);g.connect(mix);return k;})()
    ]).then(results=>{
      if(!playing)return;
      kv=results[0].status==='fulfilled'?results[0].value:null;
