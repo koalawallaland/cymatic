@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Nymphoala — Stylophone performance study</title>
+<title>Nymphoala — opening excerpt</title>
 <style>
 :root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif;background:#15141c;color:#f6ecf2}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#4e293c 0%,#19151d 70%)}
@@ -15,18 +15,18 @@ button:disabled{opacity:.6;cursor:progress}progress{width:100%;height:7px;accent
 #readout{display:block;min-height:23px;font-size:13px;color:#e6c7d8;padding:7px 2px}
 .note{font-size:12px;color:#c6a9bd;line-height:1.55;margin-top:17px}small{color:#b499ae}
 </style></head>
-<body><main><header><a href="./">← KOE</a><small>PRIVATE TEST · STYLOPHONE STUDY</small></header>
+<body><main><header><a href="./">← KOE</a><small>STYLOPHONE STUDY · OPENING EXCERPT</small></header>
 <h1>Nymphoala <span aria-hidden="true">🖤🐨</span></h1>
-<p class="lead">One button. Your recorded voice + the koala's growl synthesizer, driven by timed note sequences instead of uploaded vocal recordings.</p>
+<p class="lead">The opening 45 seconds: your sampled voice, the koala's sparing growls, and the Stylophone notes.</p>
 <div class="stage" aria-label="Two singers on stage">
 <div class="performer" id="kt"><img src="art/singer.png" alt="Female avatar"><b>KT · sampled voice</b></div>
 <div class="performer" id="koala"><img src="art/koala-noise.png" alt="Koala"><b>Koala · growls</b></div></div>
 <div class="control">
-<button type="button" id="play">▶ Hear the Stylophone study</button>
-<progress id="progress" max="287.275" value="0"></progress>
-<output id="readout" role="status" aria-live="polite">Press Play to hear the automated draft.</output>
+<button type="button" id="play">▶ Play the opening</button>
+<progress id="progress" max="45" value="0"></progress>
+<output id="readout" role="status" aria-live="polite">A short opening excerpt · press Play.</output>
 </div>
-<p class="note"><strong>Work-in-progress:</strong> This is a self-contained MIDI-derived instrumental sketch with preliminary generated singer cues, <em>not</em> a verified transcription of the real vocal lines. It needs a proper note-by-note vocal pass before it can replace Nymphoala in KOE. No third-party backing recording is hosted here.</p>
+<p class="note"><strong>Work-in-progress:</strong> Only the opening excerpt remains. This is still a MIDI-derived performance study, <em>not</em> a verified transcription of the real vocal lines. No third-party backing recording is hosted here.</p>
 </main>
 <script src="voicebank.js"></script><script src="koala-noise.js?v=1"></script><script src="nymphoala-study-score.js"></script>
 <script>
@@ -91,7 +91,7 @@ function stop(){
  if(kv){kv.off();kv.vib(0,5.6)}if(kn){kn.off();kn.growl(false)}
  if(mix){try{mix.gain.setTargetAtTime(0,ctx.currentTime,.02)}catch(_){}}
  kt.classList.remove('on');koala.classList.remove('on');
- button.textContent='▶ Hear the Stylophone study';button.disabled=false;
+ button.textContent='▶ Play the opening';button.disabled=false;
  readout.textContent='Stopped · press Play to restart';
  bar.value=0;
 }
