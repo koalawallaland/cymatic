@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nymphoala — Stylophone performance study</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif;background:#15141c;color:#f6ecf2}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#4e293c 0%,#19151d 70%)}
+main{max-width:720px;margin:auto;padding:26px 18px 58px}header{display:flex;align-items:center;justify-content:space-between}
+a{color:#e8c5d6;text-decoration:none}h1{margin:35px 0 6px;font-size:clamp(33px,8vw,57px);line-height:1.05;letter-spacing:-.04em}
+.lead{font-size:15px;color:#dbc1d0;line-height:1.55}.stage{position:relative;border:1px solid #875674;background:#231d2d;border-radius:25px;margin:26px 0 18px;overflow:hidden;min-height:250px;display:flex;justify-content:space-around;align-items:flex-end;padding:32px 12px 0}
+.performer{position:relative;text-align:center;width:48%;min-width:0;transition:transform .12s ease}.performer img{width:100%;max-width:210px;max-height:230px;object-fit:contain;filter:drop-shadow(0 2px 17px #e8b6b14a)}
+.performer b{display:block;padding:7px 0 12px}.performer.on{transform:translateY(-8px)}.performer.on img{filter:drop-shadow(0 0 20px #e8b6b1c2)}
+#koala img{max-height:190px}.control{border:1px solid #6f5269;border-radius:16px;padding:16px;background:#25202b}
+button{cursor:pointer;border:0;background:#f0bccc;color:#24141d;border-radius:999px;font-weight:800;font-size:16px;padding:16px 20px;min-height:52px;width:100%}
+button:disabled{opacity:.6;cursor:progress}progress{width:100%;height:7px;accent-color:#eab3d0;margin-top:18px}
+#readout{display:block;min-height:23px;font-size:13px;color:#e6c7d8;padding:7px 2px}
+.note{font-size:12px;color:#c6a9bd;line-height:1.55;margin-top:17px}small{color:#b499ae}
+</style></head>
+<body><main><header><a href="./">← KOE</a><small>PRIVATE TEST · STYLOPHONE STUDY</small></header>
+<h1>Nymphoala <span aria-hidden="true">🖤🐨</span></h1>
+<p class="lead">One button. Your recorded voice + the koala's growl synthesizer, driven by timed note sequences instead of uploaded vocal recordings.</p>
+<div class="stage" aria-label="Two singers on stage">
+<div class="performer" id="kt"><img src="art/singer.png" alt="Female avatar"><b>KT · sampled voice</b></div>
+<div class="performer" id="koala"><img src="art/koala-noise.png" alt="Koala"><b>Koala · growls</b></div></div>
+<div class="control">
+<button type="button" id="play">▶ Hear the Stylophone study</button>
+<progress id="progress" max="287.275" value="0"></progress>
+<output id="readout" role="status" aria-live="polite">Press Play to hear the automated draft.</output>
+</div>
+<p class="note"><strong>Work-in-progress:</strong> This is a self-contained MIDI-derived instrumental sketch with preliminary generated singer cues, <em>not</em> a verified transcription of the real vocal lines. It needs a proper note-by-note vocal pass before it can replace Nymphoala in KOE. No third-party backing recording is hosted here.</p>
+</main>
+<script src="voicebank.js"></script><script src="koala-noise.js?v=1"></script><script src="nymphoala-study-score.js"></script>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id),score=window.NymphoalaStudyScore;
+const button=$('play'),readout=$('readout'),bar=$('progress'),kt=$('kt'),koala=$('koala');
+const hz=n=>440*Math.pow(2,(n-69)/12),duration=score.duration/1000;
+bar.max=duration;
+let ctx=null,mix=null,kv=null,kn=null,playing=false,runner=null,startTime=0,ix=0,fi=0,mi=0,timers=[],activeVoices=0;
+const clock=()=>ctx.currentTime-startTime;
+const timeString=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
+function schedule(fn,at){
+ const ms=Math.max(0,(at-ctx.currentTime)*1000);
+ const handle=setTimeout(fn,ms);
+ timers.push(handle);
+}
+function oscillator([t,d,n,ch]){
+ if(!playing)return;
+ const at=startTime+t/1000,dur=Math.max(.05,d/1000);
+ const osc=ctx.createOscillator(),env=ctx.createGain();
+ const f=hz(n);
+ osc.type=n<50?'sawtooth':n>68?'triangle':'square';
+ osc.frequency.setValueAtTime(f,at);
+ const vol=(n<49?.025:n>68?.032:.015)/(ch===0?1:1.5);
+ env.gain.setValueAtTime(.0001,at);
+ env.gain.exponentialRampToValueAtTime(Math.max(.0002,vol),at+.012);
+ env.gain.setValueAtTime(Math.max(.0002,vol*.75),at+Math.max(.014,dur-.075));
+ env.gain.exponentialRampToValueAtTime(.0001,at+dur+.04);
+ osc.connect(env).connect(mix);osc.start(at);osc.stop(at+dur+.06);
+}
+function voiceCue(c,sex){
+ if(!playing)return;
+ const [t,d,n]=c,at=startTime+t/1000;
+ if(sex==='female'&&kv){
+   schedule(()=>{
+     if(!playing||!kv)return;
+     const vowels=['a','o','e','i','u'],v=vowels[Math.floor(t/700)%vowels.length];
+     const key=kv.pick(v)||kv.pick('a');if(!key)return;
+     kv.on(key,hz(n>=80?n-12:n),false,false);kv.vib(15,5.6);
+     kt.classList.add('on');let generation=++activeVoices;
+     schedule(()=>{if(playing&&generation===activeVoices){kv.off();kt.classList.remove('on');}},ctx.currentTime+Math.min(d/1000,1.7));
+   },at);
+ }
+ if(sex==='male'&&kn){
+   schedule(()=>{
+     if(!playing||!kn)return;
+     const pitch=Math.max(38,Math.min(55,n));
+     kn.growl(true);kn.on(pitch,false);koala.classList.add('on');
+     schedule(()=>{if(!playing)return;kn.off();koala.classList.remove('on');},ctx.currentTime+Math.min(d/1000,.58));
+   },at);
+ }
+}
+function stop(){
+ playing=false;clearInterval(runner);runner=null;timers.forEach(clearTimeout);timers=[];
+ if(kv){kv.off();kv.vib(0,5.6)}if(kn){kn.off();kn.growl(false)}
+ if(mix){try{mix.gain.setTargetAtTime(0,ctx.currentTime,.02)}catch(_){}}
+ kt.classList.remove('on');koala.classList.remove('on');
+ button.textContent='▶ Hear the Stylophone study';button.disabled=false;
+ readout.textContent='Stopped · press Play to restart';
+ bar.value=0;
+}
+async function start(){
+ if(playing){stop();return;}
+ button.disabled=true;readout.textContent='Preparing the Stylophone and KT voice samples…';
+ try{
+   if(!ctx||ctx.state==='closed')ctx=new (window.AudioContext||window.webkitAudioContext)({latencyHint:'playback'});
+   try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(_){}
+   await ctx.resume();
+   const comp=ctx.createDynamicsCompressor();comp.threshold.value=-22;comp.ratio.value=3;
+   mix=ctx.createGain();mix.gain.value=.65;mix.connect(comp).connect(ctx.destination);
+   const results=await Promise.allSettled([
+     (async()=>{await window.KoalaVB.loadWorklet(ctx);const v=new window.KoalaVB.Engine(ctx);v.connect(mix);
+       const takes=await window.KoalaVB.loadWav('voicebank/koala-voice.wav',ctx);
+       const loaded=await window.KoalaVB.fill(v,takes);
+       return loaded>0?v:null;})(),
+     (async()=>{await window.KoalaNoise.load(ctx);const k=new window.KoalaNoise.Engine(ctx);const g=ctx.createGain();g.gain.value=.27;k.connect(g);g.connect(mix);return k;})()
+   ]);
+   kv=results[0].status==='fulfilled'?results[0].value:null;
+   kn=results[1].status==='fulfilled'?results[1].value:null;
+   ix=fi=mi=0;activeVoices=0;startTime=ctx.currentTime+.2;playing=true;
+   readout.textContent=(kv?'KT voice ready':'KT voice samples unavailable')+' · '+(kn?'koala ready':'growl unavailable');
+   button.textContent='■ Stop performance';button.disabled=false;
+   runner=setInterval(()=>{
+     if(!playing)return;
+     const t=clock(),ahead=t+.28;
+     while(ix<score.notes.length&&score.notes[ix][0]/1000<=ahead)oscillator(score.notes[ix++]);
+     while(fi<score.female.length&&score.female[fi][0]/1000<=ahead)voiceCue(score.female[fi++],'female');
+     while(mi<score.male.length&&score.male[mi][0]/1000<=ahead)voiceCue(score.male[mi++],'male');
+     bar.value=Math.min(duration,Math.max(0,t));
+     if(t>=duration+.5){stop();readout.textContent='Performance finished';}
+     else if(Math.floor(t)%3===0)readout.textContent='Playing '+timeString(Math.max(t,0))+' / '+timeString(duration)+' · experimental note map';
+   },75);
+ }catch(err){readout.textContent='Audio could not start: '+err.message;console.error(err);button.disabled=false;}
+}
+button.addEventListener('click',start);
+})();
+</script></body></html>
