@@ -17,7 +17,7 @@ button:disabled{opacity:.6;cursor:progress}progress{width:100%;height:7px;accent
 </style></head>
 <body><main><header><a href="./">← KOE</a><small>STYLOPHONE STUDY · OPENING EXCERPT</small></header>
 <h1>Nymphoala <span aria-hidden="true">🖤🐨</span></h1>
-<p class="lead">The opening 45 seconds: your sampled voice, the koala's sparing growls, and the Stylophone notes.</p>
+<p class="lead">The opening 45 seconds: three layers of your sampled voice, sparing koala growls, and Stylophone notes.</p>
 <div class="stage" aria-label="Two singers on stage">
 <div class="performer" id="kt"><img src="art/singer.png" alt="Female avatar"><b>KT · sampled voice</b></div>
 <div class="performer" id="koala"><img src="art/koala-noise.png" alt="Koala"><b>Koala · growls</b></div></div>
@@ -36,7 +36,7 @@ const $=id=>document.getElementById(id),score=window.NymphoalaStudyScore;
 const button=$('play'),readout=$('readout'),bar=$('progress'),kt=$('kt'),koala=$('koala');
 const hz=n=>440*Math.pow(2,(n-69)/12),duration=score.duration/1000;
 bar.max=duration;
-let ctx=null,mix=null,kv=null,kn=null,playing=false,runner=null,startTime=0,ix=0,fi=0,mi=0,timers=[],activeVoices=0,activeGrowl=0;
+let ctx=null,mix=null,kv=null,ktLayers=[],kn=null,playing=false,runner=null,startTime=0,ix=0,fi=0,mi=0,timers=[],activeVoices=0,activeGrowl=0,runSerial=0;
 const clock=()=>ctx.currentTime-startTime;
 const timeString=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
 function schedule(fn,at){
@@ -66,9 +66,24 @@ function voiceCue(c,sex){
      if(!playing||!kv)return;
      const vowels=['a','o','e','i','u'],v=vowels[Math.floor(t/700)%vowels.length];
      const key=kv.pick(v)||kv.pick('a');if(!key)return;
-     kv.on(key,hz(n>=80?n-12:n),false,false);kv.vib(15,5.6);
+     const fundamental=hz(n>=80?n-12:n);
+     kv.on(key,fundamental,false,false);kv.vib(15,5.6);
+     // Three distinct sampled-voice synth engines: lead, a soft double
+     // a few cents wide, and a quiet harmony a minor third above the lead.
+     // All three use KT's uploaded voice bank, not generic oscillators/TTS.
+     const [double,harmony]=ktLayers;
+     if(double){
+       const doubleKey=double.pick(v)||double.pick('a')||key;
+       schedule(()=>{if(playing){double.on(doubleKey,fundamental*Math.pow(2,-5/1200),false,false);double.vib(9,5.1);}},ctx.currentTime+.026);
+     }
+     if(harmony){
+       const harmonyKey=harmony.pick(v)||harmony.pick('a')||key;
+       schedule(()=>{if(playing){harmony.on(harmonyKey,fundamental*Math.pow(2,3/12),false,false);harmony.vib(10,5.3);}},ctx.currentTime+.052);
+     }
      kt.classList.add('on');let generation=++activeVoices;
-     schedule(()=>{if(playing&&generation===activeVoices){kv.off();kt.classList.remove('on');}},ctx.currentTime+Math.min(d/1000,1.7));
+     schedule(()=>{if(playing&&generation===activeVoices){
+       kv.off();for(const v of ktLayers)v.off();kt.classList.remove('on');
+     }},ctx.currentTime+Math.min(d/1000,1.7));
    },at);
  }
  if(sex==='male'&&kn){
@@ -88,7 +103,9 @@ function voiceCue(c,sex){
 function stop(){
  playing=false;clearInterval(runner);runner=null;timers.forEach(clearTimeout);timers=[];
  ++activeGrowl;
- if(kv){kv.off();kv.vib(0,5.6)}if(kn){kn.off();kn.growl(false)}
+ ++runSerial;
+ if(kv){kv.off();kv.vib(0,5.6)}for(const layer of ktLayers)layer.off();
+ if(kn){kn.off();kn.growl(false)}
  if(mix){try{mix.gain.setTargetAtTime(0,ctx.currentTime,.02)}catch(_){}}
  kt.classList.remove('on');koala.classList.remove('on');
  button.textContent='▶ Play the opening';button.disabled=false;
@@ -107,18 +124,45 @@ async function start(){
    // Start the score immediately; iPhone users should not wait for 8 MB of
    // vocal samples to decode before hearing a single note.
    ix=fi=mi=0;activeVoices=0;activeGrowl=0;startTime=ctx.currentTime+.2;playing=true;
+   kv=null;ktLayers=[];kn=null;const thisRun=++runSerial;
    readout.textContent='Playing the arrangement · loading KT and koala voices…';
    Promise.allSettled([
-     (async()=>{await window.KoalaVB.loadWorklet(ctx);const v=new window.KoalaVB.Engine(ctx);v.connect(mix);
+     (async()=>{
+       await window.KoalaVB.loadWorklet(ctx);
+       const lead=new window.KoalaVB.Engine(ctx);
+       const doubles=[];
+       const voices=[
+         {engine:lead,gain:0.72,pan:0},
+         {engine:new window.KoalaVB.Engine(ctx),gain:0.16,pan:-0.48},
+         {engine:new window.KoalaVB.Engine(ctx),gain:0.11,pan:0.48}
+       ];
+       const buses=voices.map(({engine,gain,pan})=>{
+         const g=ctx.createGain();g.gain.value=gain;
+         if(ctx.createStereoPanner){
+           const p=ctx.createStereoPanner();p.pan.value=pan;
+           engine.connect(g);g.connect(p);p.connect(mix);
+         }else{engine.connect(g);g.connect(mix);}
+         return engine;
+       });
+       // Analyze each vowel ONCE, then distribute the resulting sampled
+       // synthesis model to all engines. Avoid tripling expensive analysis.
+       const original=lead.load.bind(lead);
+       lead.load=(key,analysis)=>{
+         original(key,analysis);
+         for(const engine of buses.slice(1))engine.load(key,analysis);
+       };
        const takes=await window.KoalaVB.loadWav('voicebank/koala-voice.wav',ctx);
-       const loaded=await window.KoalaVB.fill(v,takes);
-       return loaded>0?v:null;})(),
+       const loaded=await window.KoalaVB.fill(lead,takes);
+       return loaded>0?{lead,layers:buses.slice(1)}:null;
+     })(),
      (async()=>{await window.KoalaNoise.load(ctx);const k=new window.KoalaNoise.Engine(ctx);const g=ctx.createGain();g.gain.value=.20;k.connect(g);g.connect(mix);return k;})()
    ]).then(results=>{
-     if(!playing)return;
-     kv=results[0].status==='fulfilled'?results[0].value:null;
+     if(!playing||thisRun!==runSerial)return;
+     const voicePack=results[0].status==='fulfilled'?results[0].value:null;
+     kv=voicePack?.lead||null;
+     ktLayers=voicePack?.layers||[];
      kn=results[1].status==='fulfilled'?results[1].value:null;
-     readout.textContent=(kv?'KT recorded voice ready':'KT voice could not load')+
+     readout.textContent=(kv?'KT 3-layer sampled voice ready':'KT voice could not load')+
        ' · '+(kn?'koala growl ready':'koala growl unavailable');
    });
    button.textContent='■ Stop performance';button.disabled=false;
