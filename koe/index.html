@@ -93,6 +93,9 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
 .nympho-tools input[type=file]{max-width:170px;font-size:11px}
 .nympho-tools input[type=range]{max-width:110px}
 #nymphoMap[hidden]{display:none!important}
+/* one page, two views: the instrument's own controls, or the songs it can play by itself */
+.viewseg{display:flex!important;width:max-content;max-width:100%;margin:14px auto 0!important;align-self:center;justify-self:center}.viewseg button{min-height:44px;padding:9px 18px;font-size:13px}
+main[data-koeview="play"] [data-panel="songs"],main[data-koeview="songs"] [data-panel="play"]{display:none!important}
 .ctlbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:center;margin:16px auto 0;max-width:940px;font-size:12px;color:var(--muted)}
 .seg{display:inline-flex;border:1px solid #80705f;border-radius:999px;overflow:hidden}
 .seg button{border:0;background:#33271f;color:#f8f4f0;padding:7px 12px;font:12px "Space Mono",monospace;cursor:pointer}
@@ -280,15 +283,16 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
       <svg class="stylus" id="stylus" viewBox="0 0 50 180" aria-hidden="true"><defs><linearGradient id="sty" x1="0" x2="1"><stop offset="0" stop-color="#efe7e2"/><stop offset=".5" stop-color="#fff7ed"/><stop offset="1" stop-color="#dcd0c8"/></linearGradient></defs><path d="M25 0L23.4 24H26.6Z" fill="#d2cdc9"/><rect x="22.6" y="22" width="4.8" height="34" rx="1.5" fill="#e0dbd8"/><path d="M18 54Q25 50 32 54L35 170Q25 178 15 170Z" fill="url(#sty)" stroke="#ccbdb4"/><circle cx="25" cy="150" r="3" fill="#dd9e9e"/></svg>
     </div>
     <p class="rotate-tip">Tip: turn your phone sideways for a longer key strip.</p>
-    <div class="key-status">
+    <div class="seg viewseg" role="group" aria-label="Show the instrument controls or the songs"><button type="button" data-view="play" aria-pressed="true">🎹 Play it yourself</button><button type="button" data-view="songs" aria-pressed="false">🎵 Songs</button></div>
+    <div class="key-status" data-panel="play">
       <button type="button" id="octave-down" aria-label="Lower keyboard octave">Octave −</button>
       <span id="octave-status" role="status"></span>
       <button type="button" id="octave-up" aria-label="Raise keyboard octave">Octave +</button>
       <span id="note-status" role="status">No note held</span>
     </div>
-    <p class="key-help" id="key-help">Tab to the keys, use ← / → to choose a note, and hold Space or Enter to play. Home / End go to the first / last key. Z / X shift the octave.</p>
+    <p class="key-help" id="key-help" data-panel="play">Tab to the keys, use ← / → to choose a note, and hold Space or Enter to play. Home / End go to the first / last key. Z / X shift the octave.</p>
     <div class="ctlbar">
-      <div class="seg" role="group" aria-label="Voice"><button type="button" data-voice="koala" aria-pressed="true">KT’s voice</button></div><button type="button" id="autoQueen" class="queen-feature" aria-pressed="false" title="Auto-play the Queen of the Night aria in KT’s voice">👑 AUTO QUEEN</button><section class="nympho-simple" aria-label="Nymphoala duet player">
+      <div class="seg" role="group" aria-label="Voice" data-panel="play"><button type="button" data-voice="koala" aria-pressed="true">KT’s voice</button><button type="button" data-voice="noise" aria-pressed="false">🐨 Koala noise</button><button type="button" data-voice="builtin" aria-pressed="false">Vocaloid voice</button></div><button type="button" id="autoQueen" data-panel="songs" class="queen-feature" aria-pressed="false" title="Auto-play the Queen of the Night aria in KT’s voice">👑 AUTO QUEEN</button><section class="nympho-simple" data-panel="songs" aria-label="Nymphoala duet player">
   <div class="nympho-main">
     <div><strong>🦇 Nymphoala</strong><p>A koala-growl and KT-voice duet. Tap Play to choose the instrumental on this device the first time.</p></div>
     <button type="button" id="nymphoPlay" class="queen-feature duet-feature">▶ Play Nymphoala</button>
@@ -310,13 +314,13 @@ h1 small{font-family:"Space Mono",monospace;font-size:.32em;color:var(--tiff);le
       <button type="button" id="nymphoExport" disabled title="Download vocal cue arrangement">↓ Export cues</button>
     </div>
   </details>
-</section><button type="button" id="autoDuet" class="queen-feature duet-feature" aria-pressed="false" hidden style="display:none!important" aria-hidden="true" tabindex="-1">🦇 DROP BEAR NOCTURNE · ORIGINAL DEMO</button><a href="nymphoala-study.html" class="queen-feature duet-feature" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;min-height:44px;padding:8px 16px;border-radius:999px;background:#e8bfd7;color:#342130;font-weight:750">🖤 Hear Nymphoala · 45s</a><div class="seg" role="group" aria-label="Other voices"><button type="button" data-voice="noise" aria-pressed="false">🐨 Koala noise</button><button type="button" data-voice="builtin" aria-pressed="false">Vocaloid voice</button></div>
-      <div class="seg" role="group" aria-label="Mode"><button type="button" data-mode="vowel" aria-pressed="false">VOWEL</button><button type="button" data-mode="doremi" aria-pressed="true">DO·RE·MI</button><button type="button" data-mode="lyric" aria-pressed="false">LYRIC</button></div>
-      <label>lyric <input type="text" id="lyricIn" value="do you remember?" aria-label="Lyric, in romaji or kana"></label>
-      <label>tone <input type="range" id="toneIn" min="0.8" max="1.25" step="0.01" value="1" aria-label="Koala voice tone, deeper to cuter"></label>
-      <span class="kvstat" id="kvStat" aria-live="polite"></span>
-      <div class="seg" role="group" aria-label="Record performance"><button type="button" id="recStart">● Record</button><button type="button" id="recStop" disabled>■ Stop</button><button type="button" id="recSave" disabled>↓ Save audio</button></div><span class="kvstat" id="recStatus" role="status" aria-live="polite"></span><span class="kvstat" id="queenStatus" role="status" aria-live="polite"></span>
-      <a href="booth.html">🎙 record the koala's voice</a>
+</section><button type="button" id="autoDuet" class="queen-feature duet-feature" aria-pressed="false" hidden style="display:none!important" aria-hidden="true" tabindex="-1">🦇 DROP BEAR NOCTURNE · ORIGINAL DEMO</button><a href="nymphoala-study.html" data-panel="songs" class="queen-feature duet-feature" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;min-height:44px;padding:8px 16px;border-radius:999px;background:#e8bfd7;color:#342130;font-weight:750">🖤 Hear Nymphoala · 45s</a>
+      <div class="seg" role="group" aria-label="Mode" data-panel="play"><button type="button" data-mode="vowel" aria-pressed="false">VOWEL</button><button type="button" data-mode="doremi" aria-pressed="true">DO·RE·MI</button><button type="button" data-mode="lyric" aria-pressed="false">LYRIC</button></div>
+      <label data-panel="play">lyric <input type="text" id="lyricIn" value="do you remember?" aria-label="Lyric, in romaji or kana"></label>
+      <label data-panel="play">tone <input type="range" id="toneIn" min="0.8" max="1.25" step="0.01" value="1" aria-label="Koala voice tone, deeper to cuter"></label>
+      <span class="kvstat" id="kvStat" data-panel="play" aria-live="polite"></span>
+      <div class="seg" role="group" aria-label="Record performance" data-panel="play"><button type="button" id="recStart">● Record</button><button type="button" id="recStop" disabled>■ Stop</button><button type="button" id="recSave" disabled>↓ Save audio</button></div><span class="kvstat" id="recStatus" data-panel="play" role="status" aria-live="polite"></span><span class="kvstat" id="queenStatus" data-panel="songs" role="status" aria-live="polite"></span>
+      <a href="booth.html" data-panel="play">🎙 record the koala's voice</a>
     </div>
   </div>
 
@@ -1020,6 +1024,15 @@ const nymphoEngine=window.createNymphoalaDuet({
 });
 function nMark(type,midi){nymphoEngine.mark(type,midi);}
 function nUnmark(){nymphoEngine.unmark();}
+
+// ---------- the two views: play it yourself / songs ----------
+(() => {
+  const main = document.querySelector('main'), btns = [...document.querySelectorAll('[data-view]')];
+  const show = (v) => { main.dataset.koeview = v; btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v))); try { localStorage.setItem('kwl-koe-view', v); } catch (e) {} };
+  let saved = 'play'; try { saved = localStorage.getItem('kwl-koe-view') || 'play'; } catch (e) {}
+  show(saved === 'songs' ? 'songs' : 'play');
+  btns.forEach((b) => b.addEventListener('click', () => show(b.dataset.view)));
+})();
 
 window.__koe = { S, start, noteOn, noteOff, pressBtn, releaseBtn, get ctx() { return ctx; }, get master() { return master; }, get kv() { return kv; }, get kn() { return kn; }, get knSeg() { return knSeg; }, get kvReady() { return kvReady; }, loadBank };
 })();
