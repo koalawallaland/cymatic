@@ -116,7 +116,7 @@ main:not([data-koemode="lyric"]) .only-lyric,main:not([data-koevoice="koala"]) .
 .ctlbar label{display:flex;align-items:center;gap:6px}
 .ctlbar input[type=text]{background:#33271f;color:#f8f4f0;border:1px solid #80705f;border-radius:10px;padding:6px 9px;font:12px "Space Mono",monospace;width:min(56vw,230px)}
 .ctlbar a{color:#ebc7cc}
-.kvstat{color:#b3a69d}
+.kvstat{color:#b3a69d}#kvStat{flex-basis:100%;text-align:center}
 .kvstat b{color:#f4e1e4}
 .koe.koalamode #singer{display:none}
 #koala{display:none}
@@ -364,7 +364,7 @@ main:not([data-koemode="lyric"]) .only-lyric,main:not([data-koevoice="koala"]) .
 </main>
 <script src="voicebank.js"></script>
 <script src="koala-noise.js?v=1"></script>
-<script src="nymphoala-duet.js?v=3"></script>
+<script src="nymphoala-duet.js?v=4"></script>
 <script>
 (() => {
 'use strict';
@@ -654,7 +654,7 @@ function kvStatus() {
   let v = '';
   if (S.voice === 'koala') {
     if (kvBusy) v = 'loading the koala voice…';
-    else if (kvReady) v = `KT sampled voice: ${kv.keys.size} recorded syllables` + (kvSource === 'local' ? ' (local takes)' : ' (published bank)');
+    else if (kvReady) v = `KT’s voice · <b>${kv.keys.size} of ${VB.KEYS.length}</b> syllables recorded` + (kvSource === 'local' ? ' · your takes on this device' : '');
     else if (S.power) v = 'the koala hasn\'t recorded her voice yet, so this is the built-in voice';
     else v = 'power on to load the koala voice';
   }

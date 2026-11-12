@@ -74,9 +74,9 @@ function install(o) {
   ).sort((a,b)=>a[0]-b[0]);
   const storage = () => 'kwl-nymphoala-cues:' + name;
   function drawStatus(prefix) {
-    status.textContent = (prefix||'')+(audio.src ? fmt(audio.currentTime)+' / '+fmt(audio.duration||0) : 'Choose local backing')+
-      (name ? ' · '+name : '')+' · '+cues.length+' vocal cues'+
-      (!cues.length?' · no vocal score (no fake auto-melody)':'');
+    if(!audio.src){status.textContent='Tap Play and pick your backing track. It stays on your device.';return;}
+    status.textContent = (/recording/.test(prefix||'')?prefix:'')+fmt(audio.currentTime)+' / '+fmt(audio.duration||0)+
+      (name ? ' · '+name : '')+' · '+(cues.length?cues.length+' vocal cues':'no vocal part yet');
   }
   function save() {
     cues = normalize(cues);
