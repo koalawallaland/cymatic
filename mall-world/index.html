@@ -7,4 +7,4 @@
 function showLoadError(message){var p=document.getElementById('introText');p.textContent=message;document.getElementById('intro').hidden=false;var b=document.getElementById('enter');b.disabled=false;b.textContent='Retry';b.onclick=function(){location.reload()}}
 window.addEventListener('error',function(e){if(e.message&&/webgl context/i.test(e.message))return;showLoadError('The world could not finish loading. '+(e.message||'A required file could not load.'))});
 window.addEventListener('unhandledrejection',function(e){showLoadError('The world could not finish loading. '+String(e.reason&&e.reason.message||e.reason||'Please retry.'))});
-</script><script type="module">import('./engine/main.js?v=gentle-nav-1').catch(function(e){showLoadError('Unable to load the world: '+e.message)})</script></body></html>
+</script><script type="module">import('./engine/main.js?v=resonance-1').catch(function(e){showLoadError('Unable to load the world: '+e.message)})</script></body></html>
