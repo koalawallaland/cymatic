@@ -22,6 +22,39 @@ floor.position.y=-1.48;scene.add(floor);
 const ring=new THREE.Mesh(new THREE.TorusGeometry(2.05,.025,8,80),new THREE.MeshBasicMaterial({color:0xffb0d6}));ring.rotation.x=Math.PI/2;ring.position.y=-1.39;scene.add(ring);
 
 const say=text=>{$('status').textContent=text;};
+// Original Web Audio effects: no third-party sample downloads or redistribution.
+let magicSfx='off', magicLast=0;
+const magicControl=document.createElement('label');
+magicControl.className='magic-sfx-control';
+magicControl.textContent='🫧 little sounds ';
+const magicSelect=document.createElement('select');
+magicSelect.setAttribute('aria-label','Magical interaction sounds');
+for(const [value,label] of [['off','off'],['bubbles','bubble pops'],['stars','star twinkles'],['both','bubbles + stars']]){
+ const option=document.createElement('option');option.value=value;option.textContent=label;magicSelect.append(option);
+}
+magicControl.append(magicSelect);
+$('sound').insertAdjacentElement('afterend',magicControl);
+magicSelect.addEventListener('change',()=>{magicSfx=magicSelect.value;if(magicSfx!=='off')playMagic('star');});
+function playMagic(kind='bubble'){
+ if(!sound||magicSfx==='off')return;
+ if(magicSfx!=='both'&&magicSfx!==(kind==='bubble'?'bubbles':'stars'))return;
+ const now=performance.now();if(now-magicLast<105)return;magicLast=now;
+ try{
+  audio ||= new (window.AudioContext||window.webkitAudioContext)();
+  if(audio.state==='suspended')audio.resume().catch(()=>{});
+  const t=audio.currentTime+.008,osc=audio.createOscillator(),gain=audio.createGain();
+  osc.type=kind==='bubble'?'sine':'triangle';
+  const f=kind==='bubble'?330+Math.random()*180:950+Math.random()*400;
+  osc.frequency.setValueAtTime(f,t);
+  osc.frequency.exponentialRampToValueAtTime(kind==='bubble'?f*1.8:f*.64,t+(kind==='bubble'?.11:.3));
+  gain.gain.setValueAtTime(.0001,t);
+  gain.gain.exponentialRampToValueAtTime(kind==='bubble'?.045:.028,t+.012);
+  gain.gain.exponentialRampToValueAtTime(.0001,t+(kind==='bubble'?.14:.4));
+  osc.connect(gain).connect(audio.destination);osc.start(t);osc.stop(t+(kind==='bubble'?.15:.42));
+  osc.onended=()=>{osc.disconnect();gain.disconnect();};
+ }catch{}
+}
+
 const sounds=['9113546532','9113546474','9113547940'].map(id=>new Audio(`assets/wax_${id}.ogg`));
 const bigCrack=new Audio('assets/wax_9120826936.ogg');
 function playCrack(first=false){if(!sound)return;const a=first?bigCrack:sounds[Math.floor(Math.random()*sounds.length)];a.currentTime=0;a.volume=.42;a.playbackRate=1.1+Math.random()*.3;a.play().catch(()=>{});}
@@ -79,12 +112,12 @@ function dip(){
 function squeeze(){
   if(!model)return;
   const now=performance.now();if(now-pressedAt<180)return;pressedAt=now;
-  if(!shell){squishes++;squeezeTime=now;splat();$('counter').textContent=`${squishes} happy squeeze${squishes===1?'':'s'}`;say('Squeeeze… and let it slowly rise back.');return;}
+  if(!shell){squishes++;squeezeTime=now;splat();playMagic('bubble');$('counter').textContent=`${squishes} happy squeeze${squishes===1?'':'s'}`;say('Squeeeze… and let it slowly rise back.');return;}
   if(!cracked){
-    cracked=true;playCrack(true);pieces.forEach(p=>{p.scale.setScalar(.955);p.position.addScaledVector(p.userData.center,.025);});
+    cracked=true;playCrack(true);playMagic('star');pieces.forEach(p=>{p.scale.setScalar(.955);p.position.addScaledVector(p.userData.center,.025);});
     $('squeeze').textContent='Pop the pieces ♡';say('CRACK! A little mosaic of wax. Keep squeezing to pop the pieces off.');return;
   }
-  playCrack();const count=Math.min(pieces.length,12+Math.floor(Math.random()*7));
+  playCrack();playMagic('bubble');const count=Math.min(pieces.length,12+Math.floor(Math.random()*7));
   for(let i=0;i<count;i++){
     const index=Math.floor(Math.random()*pieces.length),p=pieces.splice(index,1)[0];
     p.userData.velocity=p.userData.center.clone().normalize().multiplyScalar(1.5+Math.random()*2);p.userData.velocity.y+=2.5;
