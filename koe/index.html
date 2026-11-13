@@ -684,6 +684,7 @@ async function loadBank() {
   return kvLoading;
 }
 document.querySelectorAll('[data-voice]').forEach((b) => b.addEventListener('click', async () => {
+  if(queenRunning)queenStop();
   S.voice = b.dataset.voice; noteOff(); render();
   if (S.voice === 'koala') { if (!S.power) await start(); await loadBank(); }
   if (S.voice === 'noise' && !S.power) await start();
