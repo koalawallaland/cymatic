@@ -6,7 +6,7 @@
  toggle.type='button';toggle.textContent='✧ little sounds off';
  toggle.setAttribute('aria-label','Toggle magical desk sounds');
  toggle.setAttribute('aria-pressed','false');
- toggle.style.cssText='position:fixed;right:12px;bottom:calc(66px + env(safe-area-inset-bottom));z-index:10000;background:#fff1fa;color:#573d62;border:1px solid #caa9d4;border-radius:20px;padding:7px 11px;font:600 12px system-ui;box-shadow:0 2px 8px #30203833;cursor:pointer';
+ toggle.style.cssText='position:fixed;right:12px;bottom:calc(66px + env(safe-area-inset-bottom));z-index:10000;background:#fff1fa;color:#573d62;border:1px solid #caa9d4;border-radius:22px;padding:7px 14px;min-height:44px;font:600 12px system-ui;box-shadow:0 2px 8px #30203833;cursor:pointer';
  document.body.append(toggle);
  let enabled=false,ctx,last=0;
  toggle.addEventListener('click',()=>{
@@ -37,7 +37,15 @@
  root.addEventListener('keyup',e=>{
   if(e.key==='Enter'||e.key===' ')chirp('bubble');
  });
- root.addEventListener('drop',()=>chirp('star'));
+ // Placement: the board moves caps with pointer events (no native drag-and-drop, so no 'drop' event).
+ // A cap landing is the board re-parenting a .cap into a socket or tray, so watch for that, and only
+ // count it when the visitor just did something (the paw that swipes caps by itself stays silent).
+ let lastTouch=0;const touched=()=>{lastTouch=performance.now();};
+ ['pointerup','click','keyup'].forEach(t=>root.addEventListener(t,touched,true));
+ new MutationObserver(list=>{
+  if(performance.now()-lastTouch>600)return;
+  for(const m of list)for(const n of m.addedNodes)if(n.nodeType===1&&n.classList.contains('cap')){chirp('star');return;}
+ }).observe(root,{childList:true,subtree:true});
  // Mirror and navigational portals get a quieter twinkle on activation.
  document.addEventListener('click',e=>{
   const el=e.target.closest('a,button');if(!el||el===toggle||root.contains(el))return;
