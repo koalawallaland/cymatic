@@ -30,7 +30,20 @@ this.sign('TOKYO / OBSERVATION LOUNGE',0,3.4,-24.3,0,7);
 for(let row=0;row<3;row++)for(let i=0;i<4;i++){
 const x=21+i*4.6,z=-7+row*8;
 B(x-1.9,.95,z,.12,1.9,4.6,this.tile,true);B(x,1.1,z-2.25,3.8,2.2,.12,this.tile,true);
-B(x+.7,1.0,z+2.2,2.2,1.3,.1,(i+row)%2?this.pink:this.walnut,true);
+const door = B(x+.7,1.0,z+2.2,2.2,1.3,.1,(i+row)%2?this.pink:this.walnut,true);
+if (row === 1 && i === 0) {
+  const collider = this.colliders.at(-1);
+  const hinge = new THREE.Group();
+  hinge.position.set(x-.4,1,z+2.2);
+  hinge.add(door);
+  door.position.set(1.1,0,0);
+  scene.add(hinge);
+  this.unlockResonanceStall = () => {
+    hinge.rotation.y = -Math.PI / 2;
+    this.colliders.splice(this.colliders.indexOf(collider),1);
+  };
+  this.sign('RESONANCE STALL',x+.7,2,z+2.25,0,2.8);
+}
 this.toilet(x,z-1);
 }
 this.sign('PRIVACY / NEXT STALL',29,3.4,-11.7,0,7);
