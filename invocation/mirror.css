@@ -44,6 +44,7 @@
     content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
     background: url("../koe/art/singer-open.png") center / 100% 100% no-repeat;
     opacity: 0;
+    backface-visibility: visible;
   }
   .mp-mirror-singer::before {
     clip-path: polygon(31% 9%, 41% 14%, 48% 17%, 56% 17%, 57% 24%, 54% 31%, 50% 37%, 39% 39%, 31% 32%, 28% 23%, 32% 23%);
@@ -58,13 +59,19 @@
   @media (prefers-reduced-motion: no-preference) {
     .mp-mirror-blink { animation: mp-mirror-blink 7.3s infinite; }
     .mp-mirror-koala { animation: mp-mirror-peek 19s infinite; }
-    .mp-mirror-singer::before { animation: mp-wing-fold 23s infinite; --wing-angle: -24deg; --wing-fold: -.76; }
-    .mp-mirror-singer::after { animation: mp-wing-fold 23s infinite; --wing-angle: 24deg; --wing-fold: -.95; }
+    .mp-mirror-singer::before, .mp-mirror-singer::after { animation: mp-wing-fold 23s ease-in-out infinite; }
+    .mp-mirror-singer::before { --wing-turn: -158deg; --wing-dip: -17deg; }
+    .mp-mirror-singer::after { --wing-turn: 158deg; --wing-dip: 17deg; }
+    .mp-mirror-singer img:first-child { animation: mp-headband-base 23s steps(1, end) infinite; }
   }
   @keyframes mp-wing-fold {
-    0%, 41%, 56%, 100% { opacity: 0; transform: rotate(0deg) scaleX(1); }
-    42%, 55% { opacity: 1; transform: rotate(0deg) scaleX(1); }
-    46%, 51% { opacity: 1; transform: rotate(var(--wing-angle)) scaleX(var(--wing-fold)); }
+    0%, 40%, 59%, 100% { opacity: 0; transform: perspective(450px) rotateZ(0deg) rotateY(0deg); }
+    41%, 58% { opacity: 1; transform: perspective(450px) rotateZ(0deg) rotateY(0deg); }
+    47%, 52% { opacity: 1; transform: perspective(450px) rotateZ(var(--wing-dip)) rotateY(var(--wing-turn)); }
+  }
+  @keyframes mp-headband-base {
+    0%, 58%, 100% { clip-path: none; }
+    41% { clip-path: polygon(56% 0, 80% 0, 80% 37%, 100% 40%, 100% 100%, 0 100%, 0 40%, 56% 37%); }
   }
   @keyframes mp-mirror-blink {
     0%, 31%, 34%, 75%, 78%, 100% { opacity: 0; }
@@ -87,9 +94,9 @@
   transform: perspective(24rem) rotateY(-12deg) rotateZ(-2deg);
 }
 .desk-mirror .mp-mirror-singer {
-  width: 109%;
-  left: -26%;
-  bottom: 5%;
+  width: 128%;
+  left: -40%;
+  bottom: 2%;
   transform: rotate(2deg);
   transform-origin: 66% 85%;
 }
