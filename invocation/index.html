@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Middle Pillar Mirror · Cymatic Studio</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="mirror.css">
+<style>
+  body { margin: 0; color: #fff3ff; background: radial-gradient(ellipse at top, #39264e, #100917 65%) fixed; font: 1rem/1.5 system-ui, sans-serif; }
+  main { width: min(38rem, calc(100% - 2rem)); margin: 1.5rem auto 3rem; }
+  main > a { color: #f5c8ff; }
+  h2 { font-family: Georgia, serif; font-weight: normal; }
+  .mp-mirror-control { width: min(100%, 23rem); }
+</style>
+<style>
+  #middle-pillar { scroll-margin-top: 4rem; }
+  #middle-pillar .mp-panel { padding: .85rem; border: 1px solid #9474ac; border-radius: 1rem; background: #24152f; color: #fff3ff; }
+  #middle-pillar summary { display: list-item; cursor: pointer; color: #f5c8ff; }
+  #middle-pillar p { margin: .6rem 0; line-height: 1.5; }
+  #middle-pillar h3 { margin: .55rem 0; font-size: 1rem; color: #f5c8ff; }
+  #middle-pillar .mp-orbs { display: flex; justify-content: center; gap: .7rem; margin: 1rem 0; }
+  #middle-pillar .mp-orbs i { width: .78rem; height: .78rem; border: 1px solid #ba95c9; border-radius: 50%; }
+  #middle-pillar .mp-orbs i.lit { background: radial-gradient(circle at 34% 30%, #fff, #f5a2f1 45%, #915ee6 75%); box-shadow: 0 0 .7rem #e599f0a6; }
+  #middle-pillar .mp-steps { padding-inline-start: 1.25rem; margin: 0; }
+  #middle-pillar .mp-controls:not([hidden]) { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+  #middle-pillar .mp-progress { flex-basis: 100%; font-size: .85em; }
+  #middle-pillar button { min-height: 44px; padding: .35rem .7rem; border: 1px solid #ba95c9; border-radius: .5rem; background: #39244a; color: inherit; font: inherit; cursor: pointer; }
+  #middle-pillar button:disabled { opacity: .55; cursor: default; }
+  #middle-pillar :focus-visible { outline: 2px solid #ffd7ff; outline-offset: 3px; }
+  #middle-pillar .mp-source { font-size: .85em; }
+  #middle-pillar a { color: #f5c8ff; text-decoration: underline; }
+  #middle-pillar [hidden] { display: none !important; }
+</style>
+<style>
+  #middle-pillar .mp-mirror-control { padding: 0; border: 0; background: none; border-radius: 0; }
+</style>
+</head>
+<body>
+<main>
+  <a href="../home.html">← Back to the desk</a>
+<section id="middle-pillar" aria-labelledby="h-middle-pillar" data-no-type>
+  <h2 id="h-middle-pillar">Middle Pillar Invocation</h2>
+  <details class="mp-panel" open>
+    <summary>Invocation steps</summary>
+    <button class="mp-mirror mp-mirror-control" type="button" aria-label="Show the koala in the mirror" aria-pressed="false">
+      <span class="mp-mirror-frame" aria-hidden="true"></span>
+      <span class="mp-mirror-glass" aria-hidden="true">
+        <img class="mp-mirror-koala" src="../koe/art/koala-noise.png" alt="" loading="lazy" width="900" height="660">
+        <span class="mp-mirror-singer">
+          <img src="../koe/art/singer-open.png" alt="" loading="lazy" width="900" height="660">
+          <img class="mp-mirror-blink" src="../koe/art/singer.png" alt="" loading="lazy" width="900" height="660">
+        </span>
+      </span>
+    </button>
+    <p>Sit with your feet on the floor and let your breath settle. Picture a thread of light descending through five points. Pause for an easy breath at each. You can intone each name softly or say it inwardly.</p>
+    <div class="mp-orbs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <ol class="mp-steps">
+      <li><h3>Kether · Above the crown</h3><p>Picture a small sphere of white light just above your head.</p><p><b>Eheieh</b><br><small>eh-hey-yay</small></p></li>
+      <li><h3>Daath · Nape of the neck</h3><p>Let a thread of light descend from the crown and form a sphere at the nape.</p><p><b>YHVH Elohim</b><br><small>yode-heh-vav-heh el-oh-heem</small></p></li>
+      <li><h3>Tiphareth · Center of the chest</h3><p>Follow the thread down to the center of your chest. Imagine the sphere glowing like sunlight.</p><p><b>YHVH Eloah ve-Daath</b><br><small>yode-heh-vav-heh el-oh-ah v’dah-ath</small></p></li>
+      <li><h3>Yesod · Pelvis</h3><p>Let the light descend to the pelvis and gather into a sphere there.</p><p><b>Shaddai El Chai</b><br><small>shah-dye el-khai</small></p></li>
+      <li><h3>Malkuth · Feet</h3><p>Bring the thread down to your feet and picture the last sphere where they meet the floor.</p><p><b>Adonai ha-Aretz</b><br><small>ah-doe-nye ha-ah-retz</small></p></li>
+    </ol>
+    <div class="mp-close">
+      <h3>Close the practice</h3>
+      <p>Picture all five lights connected for a breath or two. Let the image fade and feel your feet on the floor.</p>
+      <p>For a quiet scry, wait a few seconds. If an image, word, or sensation comes up, jot it down as you experienced it.</p>
+    </div>
+    <div class="mp-controls" hidden>
+      <p class="mp-progress" role="status"></p>
+      <button type="button" data-mp-back>Back</button>
+      <button type="button" data-mp-next>Next</button>
+    </div>
+    <p class="mp-source">Adapted from Israel Regardie’s <a href="https://survey.llewellyn.com/encyclopedia/article/1295">Middle Pillar exercise</a>.</p>
+  </details>
+</section>
+<script type="module">
+  const practice = document.getElementById('middle-pillar');
+  const mirror = practice.querySelector('.mp-mirror-control');
+  mirror.addEventListener('click', () => {
+    mirror.setAttribute('aria-pressed', String(mirror.getAttribute('aria-pressed') !== 'true'));
+  });
+  const steps = [...practice.querySelectorAll('.mp-steps li'), practice.querySelector('.mp-close')];
+  const orbs = [...practice.querySelectorAll('.mp-orbs i')];
+  const controls = practice.querySelector('.mp-controls');
+  const progress = practice.querySelector('.mp-progress');
+  const back = practice.querySelector('[data-mp-back]');
+  const next = practice.querySelector('[data-mp-next]');
+  let index = 0;
+
+  function showStep(moveFocus = false) {
+    const closing = index === orbs.length;
+    steps.forEach((step, position) => { step.hidden = position !== index; });
+    orbs.forEach((orb, position) => { orb.classList.toggle('lit', position <= index); });
+    progress.textContent = closing ? 'Closing' : `Center ${index + 1} of ${orbs.length}`;
+    back.disabled = index === 0;
+    next.textContent = closing ? 'Begin again' : index === orbs.length - 1 ? 'Close the practice' : 'Next';
+    if (moveFocus) {
+      const heading = steps[index].querySelector('h3');
+      heading.tabIndex = -1;
+      heading.focus();
+    }
+  }
+
+  back.addEventListener('click', () => { index -= 1; showStep(true); });
+  next.addEventListener('click', () => { index = (index + 1) % steps.length; showStep(true); });
+  showStep();
+  controls.hidden = false;
+</script>
+</main>
+</body>
+</html>
