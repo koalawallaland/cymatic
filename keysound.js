@@ -6,12 +6,17 @@
     creamy: { label: 'Creamy', body: [215, 104], bodyDur: .08, bodyG: .62, nF: 1150, nQ: .9, nG: .5, nDur: .045, caps: [620, 1180], capG: .16, capDur: .036, upF: 1700, upG: .13, upDelay: .085, lp: 4800 },
     topre: { label: 'Topre thock', body: [168, 84], bodyDur: .115, bodyG: .72, nF: 720, nQ: .7, nG: .5, nDur: .072, caps: [440, 890], capG: .2, capDur: .052, upF: 1050, upG: .22, upDelay: .1, lp: 3000 },
     clicky: { label: 'Clicky', body: [262, 150], bodyDur: .05, bodyG: .36, nF: 2400, nQ: 1.2, nG: .42, nDur: .03, caps: [1450, 2650], capG: .16, capDur: .024, upF: 3600, upG: .3, upDelay: .07, lp: 9000, click: true },
+    velvet: { label: 'Velvet thock', body: [142, 72], bodyDur: .13, bodyG: .78, nF: 520, nQ: .6, nG: .4, nDur: .082, caps: [360, 720], capG: .12, capDur: .06, upF: 820, upG: .13, upDelay: .105, lp: 2300 },
+    bump: { label: 'Tactile bump', body: [236, 128], bodyDur: .07, bodyG: .56, nF: 1500, nQ: 1.3, nG: .46, nDur: .036, caps: [800, 1520], capG: .18, capDur: .034, upF: 2000, upG: .19, upDelay: .08, lp: 5600 },
+    silk: { label: 'Silk linear', body: [200, 110], bodyDur: .07, bodyG: .5, nF: 950, nQ: .6, nG: .3, nDur: .04, caps: [540, 1000], capG: .1, capDur: .03, upF: 1400, upG: .08, upDelay: .09, lp: 4000 },
+    pop: { label: 'Bubble pop', body: [300, 190], bodyDur: .045, bodyG: .44, nF: 1800, nQ: 1.6, nG: .48, nDur: .028, caps: [1100, 2100], capG: .22, capDur: .03, upF: 2400, upG: .2, upDelay: .07, lp: 7000 },
     marble: { label: 'Marble clack', body: [320, 180], bodyDur: .04, bodyG: .36, nF: 2000, nQ: 2, nG: .6, nDur: .025, caps: [1500, 2900, 4300], capG: .24, capDur: .05, upF: 2600, upG: .12, upDelay: .075, lp: 9000 },
   };
   const KEY = 'kwl-keysound';
   const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { return {}; } };
   const saved = read();
-  const state = { on: saved.on !== false, profile: PROFILES[saved.profile] ? saved.profile : 'creamy' };
+  const clampVol = (v) => { v = Number(v); return Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 1; };
+  const state = { on: saved.on !== false, profile: PROFILES[saved.profile] ? saved.profile : 'creamy', volume: clampVol(saved.volume ?? 1) };
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {} };
 
   const noiseFor = new WeakMap();
@@ -100,7 +105,8 @@
   function whoosh(ctx, out, t) { noise(ctx, out, t, { f: 500, sweep: 3200, q: .7, gain: .1, dur: .16 }); }
   function nope(ctx, out, t) { tone(ctx, out, t, { f: 150, to: 90, gain: .3, dur: .08 }); noise(ctx, out, t, { f: 900, q: 1, gain: .12, dur: .02 }); }
 
-  let ctx = null, out = null;
+  let ctx = null, out = null, masterGain = null;
+  const BASE_GAIN = .8;
   function ensure(force) {
     if (!state.on && !force) return null;
     try {
@@ -109,7 +115,7 @@
         try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch {}
         ctx = new (window.AudioContext || window.webkitAudioContext)();
         const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 4; comp.attack.value = .002; comp.release.value = .12;
-        const master = ctx.createGain(); master.gain.value = .8;
+        const master = masterGain = ctx.createGain(); master.gain.value = BASE_GAIN * state.volume;
         out = ctx.createGain();
         out.connect(comp);
         // a small, dark room around the board
@@ -134,6 +140,8 @@
     set on(v) { state.on = !!v; save(); },
     get profile() { return state.profile; },
     set profile(v) { if (PROFILES[v]) { state.profile = v; save(); } },
+    get volume() { return state.volume; },
+    set volume(v) { state.volume = clampVol(v); save(); if (masterGain) masterGain.gain.value = BASE_GAIN * state.volume; },
     key: play((c, o, t, opts) => keystroke(c, o, t, opts)),
     // the lab has its own sound button, so it doesn't follow the home board's mute
     labKey(opts) { const c = ensure(true); if (c) { api.count++; keystroke(c, out, c.currentTime + .002, opts); } },
@@ -143,4 +151,31 @@
     thud: play((c, o, t) => nope(c, o, t)),
   };
   window.KWLKeys = api;
+
+  // Any sound picker on the page gets every profile and a volume slider.
+  if (typeof document !== 'undefined') {
+    document.querySelectorAll('select[data-profile]').forEach((select) => {
+      const have = new Set([...select.options].map((o) => o.value));
+      for (const [id, p] of Object.entries(PROFILES)) {
+        if (have.has(id)) continue;
+        const option = document.createElement('option');
+        option.value = id; option.textContent = p.label;
+        for (const a of select.options[0]?.attributes || []) if (a.name.startsWith('data-astro-cid')) option.setAttribute(a.name, '');
+        select.append(option);
+      }
+      select.value = state.profile;
+      select.addEventListener('change', () => { api.profile = select.value; api.key({ code: 'KeyA' }); });
+      if (select.parentElement.querySelector('[data-kwl-volume]')) return;
+      const label = document.createElement('label');
+      label.style.cssText = 'display:inline-flex;align-items:center;gap:.4rem;font:inherit;font-size:.8em';
+      const text = document.createElement('span'); text.textContent = 'volume';
+      const range = document.createElement('input');
+      range.type = 'range'; range.min = '0'; range.max = '1'; range.step = '.05'; range.value = String(state.volume);
+      range.setAttribute('data-kwl-volume', ''); range.setAttribute('aria-label', 'Keyboard sound volume');
+      range.style.cssText = 'width:6.5rem;min-height:32px;accent-color:var(--kwl-pink,#ff7ab8)';
+      range.addEventListener('input', () => { api.volume = range.value; });
+      range.addEventListener('change', () => api.key({ code: 'KeyA' }));
+      label.append(text, range); select.after(label);
+    });
+  }
 })();
