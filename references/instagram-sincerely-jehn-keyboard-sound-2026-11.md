@@ -1,33 +1,30 @@
-# Reference: @sincerely.jehn — pastel stars and keyboard sound
+# Sound effects referenced in the Instagram share
 
-**Source material:** user-provided Instagram screenshot, post dated November 3 (year not visible). Screenshot itself is preserved in the conversation, **not** committed to this repository. No original post permalink was verified.
+**Scope: audio references only.** No wallpaper, illustrations, stickers, or visual design elements are requested from this share.
 
-## Identifiable references from the screenshot
+## Directly visible sound reference
 
-- Creator account: [@sincerely.jehn](https://www.instagram.com/sincerely.jehn/) — profile URL based on visible handle; the particular post is not verified.
-- Visible audio/track attribution in Instagram overlay: **frad · ditto** (not verified as a direct music link).
-- Featured sound card: **PC typing keyboard Kacha (1140880)**, credited on-screen to **Gloveity**, timestamp **00:02**. Original download/asset URL not independently verified.
-- Visual motifs: softly textured cream background, scattered small five-point pastel stars, a large mint/pink outlined star, watercolor-like apple character with bow, dark compact sound-card UI and cyan outline.
+- **PC typing keyboard Kacha (1140880)** — credited to **Gloveity**, 00:02 in the user-provided screenshot of an Instagram post from @sincerely.jehn.
+- **Exact original sound page:** not yet verified. Do not present an alternative sample as the exact Gloveity recording.
+- **Instagram post URL:** not verified from screenshot. Profile: https://www.instagram.com/sincerely.jehn/
 
-## Verified, usable sound references (not necessarily sources used by the Instagram creator)
+## Sound-effect libraries and specific assets to audition
 
-- [TypeLouder keyboard sound test](https://typelouder.app/keyboard-sound-test/) — audition actual mechanical keyboard recordings; check licensing before reuse.
-- [Freesound: PC-1600 XT typing by zrrion](https://freesound.org/people/zrrion/sounds/618596/) — CC0 sample, suitable as a source candidate for a typing sound layer.
-- [KeyboardSimulators](https://www.keyboardsimulators.com/) — interactive switch-sound comparison.
-- [KeyEcho sound test](https://keyecho.app/keyboard-sound-test) — interactive key sound UI inspiration; check licensing before reuse.
+These are **independently researched alternatives**, not links claimed to have been provided by the Instagram poster.
 
-## Concrete Cymatic implementation ideas
+1. **Mechvibes keyboard and mouse sound packs** — https://mechvibes.com/sound-packs — broad collection organized by sound character (creamy, thocky, clacky, clicky, poppy), switch, and keyboard. Check each pack's rights before rehosting.
+2. **Casper single-keystroke effects** — https://www.casper.tw/sound-effects/keyboard-typing/ — separate mechanical, soft, click, metallic, deep and shallow presses, suitable for reactive keypress playback. Check the specific site's license.
+3. **Pixabay short keyboard typing effect by DRAGON-STUDIO** — https://pixabay.com/sound-effects/film-special-effects-keyboard-typing-sound-effect-335503/ — eight-second keyboard recording, offered under the Pixabay Content License.
+4. **Rjalker Clickity Clackity keyboard recordings** — https://rjalker.itch.io/free-clickity-clackity-keyboard-audio — multiple real typing recordings, name-your-price; check individual asset license before publishing.
+5. **Levi V. B. Complete Keyboard Sounds** — https://levivb.itch.io/complete-keyboard-sounds — commercial WAV asset pack with stated personal/commercial project usage and restrictions on standalone redistribution.
 
-1. **Desk keyboard ASMR:** individual keydown/keyup audio events, adjustable volume, optional sound presets, default off until the visitor opts into sound.
-2. **Tiny sound-card overlay:** an unobtrusive compact player with title, play state, and optional favorite action. Do not imitate Instagram branding.
-3. **Pastel ambient wallpaper mode:** sparse, softly textured stars with a subtle slow drift; honor reduced-motion preferences.
-4. **Original sticker motif:** commission/draw an original small fruit character and oversized layered star, using the mood rather than copying the pictured illustration.
-5. **Discovery:** label the keyboard sound feature, add it to the field guide, and test on iPhone Safari.
+## Integration plan (not yet implemented)
 
-## Verification and rights
+- Build a **sound effects catalog**, with each entry recording title, creator, original URL, license, download/asset location, and approved uses.
+- Provide a keyboard sound selector: soft / creamy / clacky / thocky / poppy, with individual keydown events and a sound-off toggle.
+- Do not hotlink or redistribute third-party recordings without license checks.
+- Preserve existing desk audio and default playback settings until a separate implementation is approved.
 
-- **Do not claim** the example links were linked by @sincerely.jehn. They are independently located alternatives.
-- The screenshot does not reveal the post permalink, product store, licensing, or original artwork ownership.
-- Do not copy the creator's apple illustration or the Instagram UI into the public site without permission.
-- Before shipping a sound, check the actual license; the listed Freesound recording is marked CC0.
-- Keep any implementation in a separate PR; this file is a reference record only.
+## Missing sources
+
+Only **one sound-effect card** is visible in the supplied screenshot. Additional effects mentioned in other frames/posts cannot be cataloged accurately until their screenshots, reel link, or audio titles are provided.
