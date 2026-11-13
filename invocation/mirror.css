@@ -72,11 +72,48 @@
   }
   @keyframes mp-mirror-peek {
     0%, 32%, 59%, 100% { transform: translate(0, 0) rotate(-5deg); }
-    39%, 50% { transform: translate(39%, 26%) rotate(14deg); }
+    39%, 50% { transform: translate(var(--mp-peek-x, 39%), var(--mp-peek-y, 26%)) rotate(var(--mp-peek-angle, 14deg)); }
   }
 
 .mp-mirror-control { display: block; padding: 0; border: 0; background: none; cursor: pointer; }
 .mp-mirror-control:focus-visible { outline: 2px solid #ffd7ff; outline-offset: 4px; }
 .mp-mirror-control[aria-pressed="true"] .mp-mirror-koala {
   animation: none; transform: translate(39%, 26%) rotate(14deg);
+}
+
+/* The desk looks into the glass from off to one side. */
+.desk-mirror .mp-mirror-frame,
+.desk-mirror .mp-mirror-glass {
+  transform: perspective(24rem) rotateY(-12deg) rotateZ(-2deg);
+}
+.desk-mirror .mp-mirror-singer {
+  width: 109%;
+  left: -26%;
+  bottom: 5%;
+  transform: rotate(2deg);
+  transform-origin: 66% 85%;
+}
+.desk-mirror .mp-mirror-glass::before {
+  left: 21%;
+  top: 47%;
+  width: 61%;
+  height: 52%;
+}
+.desk-mirror .mp-mirror-koala {
+  width: 57%;
+  left: 14%;
+  top: 31%;
+  --mp-peek-x: -27%;
+  --mp-peek-y: 14%;
+  --mp-peek-angle: -16deg;
+}
+.desk-mirror .mp-mirror-singer .mp-mirror-blink { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .desk-mirror .mp-mirror-singer .mp-mirror-blink {
+    animation: mp-desk-glance 17s infinite;
+  }
+}
+@keyframes mp-desk-glance {
+  0%, 68%, 80%, 100% { opacity: 1; }
+  70%, 78% { opacity: 0; }
 }
