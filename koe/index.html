@@ -143,6 +143,7 @@ main:not([data-koemode="lyric"]) .only-lyric,main:not([data-koevoice="koala"]) .
 .key-status button{border:1px solid #b3947e;border-radius:8px;background:#533b30;color:#fff0df;padding:8px 12px;font:inherit;cursor:pointer}.key-status button:disabled{opacity:.45}
 .key-status :focus-visible{outline:3px solid #f6cd75;outline-offset:3px}.key-help{font-size:12px;line-height:1.6;color:var(--muted);text-align:center;max-width:70ch;margin:10px auto}
 </style>
+<link rel="stylesheet" href="instax.css">
 </head>
 <body>
 <main>
@@ -300,6 +301,13 @@ main:not([data-koemode="lyric"]) .only-lyric,main:not([data-koevoice="koala"]) .
       <button type="button" id="octave-up" aria-label="Raise keyboard octave">Octave +</button>
       <span id="note-status" role="status">No note held</span>
     </div>
+    <section id="instax" class="koe-instax" data-panel="play" aria-label="Instax phrase">
+      <div class="instax-paper"><canvas width="180" height="112" aria-hidden="true"></canvas><span class="instax-caption">Instax print</span></div>
+      <button type="button" id="instax-play">Play phrase</button>
+      <button type="button" id="instax-practice">Practice</button>
+      <button type="button" id="instax-stop" hidden>Stop phrase</button>
+      <p id="instax-status" role="status"></p>
+    </section>
     <details class="keys-help" data-panel="play"><summary>⌨ Keyboard shortcuts</summary><p class="key-help" id="key-help">Tab to the keys, use ← / → to choose a note, and hold Space or Enter to play. Home / End go to the first / last key. Z / X shift the octave.</p></details>
     <div class="ctlbar">
       <div class="seg" role="group" aria-label="Voice" data-panel="play"><button type="button" data-voice="koala" aria-pressed="true">KT’s voice</button><button type="button" data-voice="noise" aria-pressed="false">🐨 Koala noise</button><button type="button" data-voice="builtin" aria-pressed="false">Vocaloid voice</button></div><a href="../performance-deck/" style="display:inline-flex;align-items:center;border:1px solid #a75383;border-radius:999px;padding:9px 13px;color:#ffe0ee;text-decoration:none;background:#2a1a22">🎛 PERFORMANCE DECK</a><button type="button" id="autoQueen" data-panel="songs" class="queen-feature" aria-pressed="false" title="Auto-play the Queen of the Night aria in KT’s voice">👑 AUTO QUEEN</button><section class="nympho-simple" data-panel="songs" aria-label="Nymphoala duet player" hidden aria-hidden="true" style="display:none!important">
@@ -365,7 +373,9 @@ main:not([data-koemode="lyric"]) .only-lyric,main:not([data-koevoice="koala"]) .
 <script src="voicebank.js"></script>
 <script src="koala-noise.js?v=1"></script>
 <script src="nymphoala-duet.js?v=4"></script>
-<script>
+<script type="module">
+import { createPhraseCapture, drawPrint, readPhrase } from './instax.js';
+
 (() => {
 'use strict';
 // ---------- keyboard drawing ----------
@@ -589,7 +599,7 @@ function noteOn(note, legato) { countUse(); if (!legato && downKeys.length) goog
   keyHot(note);
   if (nRec) nMark('kv', n);
 }
-function noteOff() { if (nRec) nUnmark(); S.note = null; stopSinging(); document.getElementById('koe').classList.remove('singing'); keyHot(null); }
+function noteOff() { phraseCapture.release(); if (nRec) nUnmark(); S.note = null; stopSinging(); document.getElementById('koe').classList.remove('singing'); keyHot(null); releasePracticeNote(); }
 
 // ---------- UI ----------
 const koe = document.getElementById('koe');
@@ -627,7 +637,7 @@ function renderKeyboard() {
   document.getElementById('octave-status').textContent = noteName(LOW + S.oct * 12) + '–' + noteName(LOW + NKEYS - 1 + S.oct * 12) + ' · octave ' + (S.oct > 0 ? '+' : '') + S.oct;
   document.getElementById('octave-down').disabled = S.oct <= -2; document.getElementById('octave-up').disabled = S.oct >= 2;
 }
-function changeOctave(delta) { keyTicket++; focusedHold = null; downKeys.length = 0; noteOff(); S.oct = Math.max(-2,Math.min(2,S.oct + delta)); renderKeyboard(); }
+function changeOctave(delta) { stopPhrase(); keyTicket++; focusedHold = null; downKeys.length = 0; noteOff(); S.oct = Math.max(-2,Math.min(2,S.oct + delta)); renderKeyboard(); }
 document.getElementById('octave-down').addEventListener('click', () => changeOctave(-1));
 document.getElementById('octave-up').addEventListener('click', () => changeOctave(1));
 
@@ -707,7 +717,7 @@ function pressBtn(id) {
   }
   if (id === 'power') {
     if (!S.power) start();
-    else { duetStop(); noteOff(); ctx && ctx.suspend(); S.power = false; started = null; setBubble('…', 'off'); if (ctx) { const c = ctx; ctx = null; c.close(); forms = []; fgain = []; kv = null; kn = null; kvReady = false; kvLoading = null; } document.querySelector('[data-start]').hidden = false; }
+    else { stopPhrase(); duetStop(); noteOff(); ctx && ctx.suspend(); S.power = false; started = null; setBubble('…', 'off'); if (ctx) { const c = ctx; ctx = null; c.close(); forms = []; fgain = []; kv = null; kn = null; kvReady = false; kvLoading = null; } document.querySelector('[data-start]').hidden = false; }
   }
   render();
 }
@@ -770,13 +780,13 @@ strip.addEventListener('pointerleave', () => { if (activePtr === null) sty.class
 strip.addEventListener('pointerdown', (e) => {
   e.preventDefault(); strip.setPointerCapture(e.pointerId); activePtr = e.pointerId;
   sty.classList.add('show'); moveStylus(e, true);
-  const n = noteAt(e.clientX, e.clientY); if (n !== null) noteOn(n, false);
+  const n = noteAt(e.clientX, e.clientY); if (n !== null) playManualNote(n, false);
 });
 strip.addEventListener('pointermove', (e) => {
   moveStylus(e, activePtr !== null);
   if (activePtr !== e.pointerId) return;
   const n = noteAt(e.clientX, e.clientY);
-  if (n !== null && n !== S.note) noteOn(n, true);
+  if (n !== null && n !== S.note) playManualNote(n, true);
 });
 const endPtr = (e) => { if (activePtr !== e.pointerId) return; activePtr = null; noteOff(); if (e.pointerType !== 'mouse') sty.classList.remove('show'); };
 strip.addEventListener('pointerup', endPtr); strip.addEventListener('pointercancel', endPtr);
@@ -798,14 +808,14 @@ svgK.addEventListener('keydown', e => {
   if (e.key !== ' ' && e.key !== 'Enter') return;
   e.preventDefault(); e.stopPropagation(); if (e.repeat) return;
   focusedHold = n; const ticket = ++keyTicket;
-  if (S.power) noteOn(n,false); else start().then(() => { if (ticket === keyTicket && focusedHold === n) noteOn(n,false); });
+  if (S.power) playManualNote(n, false); else start().then(() => { if (ticket === keyTicket && focusedHold === n) playManualNote(n, false); });
 });
 svgK.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); stopFocusedNote(); } });
 svgK.addEventListener('focusout', stopFocusedNote);
 svgK.addEventListener('click', e => {
   const rect = e.target.closest('[data-note]'); if (!rect || e.detail !== 0) return;
   const n = +rect.dataset.note, ticket = ++keyTicket;
-  start().then(() => { if(ticket !== keyTicket) return; focusedHold=n; noteOn(n,false); setTimeout(() => { if(ticket === keyTicket) stopFocusedNote(); },400); });
+  start().then(() => { if(ticket !== keyTicket) return; focusedHold=n; playManualNote(n, false); setTimeout(() => { if(ticket === keyTicket) stopFocusedNote(); },400); });
 });
 window.addEventListener('blur', stopFocusedNote);
 // computer keys
@@ -826,14 +836,14 @@ window.addEventListener('keydown', (e) => {
   const kk = e.key === ';' || e.key === "'" ? e.key : k;
   if (!(kk in KM)) return;
   e.preventDefault();
-  const n = LOW + KM[kk]; const legato = S.note !== null; downKeys.push(n); noteOn(n, legato);
+  const n = LOW + KM[kk]; const legato = S.note !== null; downKeys.push(n); playManualNote(n, legato);
 });
 window.addEventListener('keyup', (e) => {
   if (e.key === 'Shift') { releaseBtn('shift'); return; }
   if (e.key === ' ') { releaseBtn('vibrato'); return; }
   const k = e.key === ';' || e.key === "'" ? e.key : e.key.toLowerCase(); if (!(k in KM)) return;
   const n = LOW + KM[k]; const i = downKeys.lastIndexOf(n); if (i < 0) return; downKeys.splice(i, 1);
-  if (downKeys.length) { const m = downKeys[downKeys.length - 1]; if (m !== S.note) noteOn(m, true); } else noteOff();
+  if (downKeys.length) { const m = downKeys[downKeys.length - 1]; if (m !== S.note) playManualNote(m, true); } else noteOff();
 });
 window.addEventListener('blur', () => { downKeys.length = 0; noteOff(); if (S.shift) releaseBtn('shift'); if (S.vib) releaseBtn('vibrato'); });
 
@@ -1060,10 +1070,150 @@ function nUnmark(){nymphoEngine.unmark();}
   const main = document.querySelector('main'), btns = [...document.querySelectorAll('[data-view]')];
   const show = (v) => { main.dataset.koeview = v; btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v))); try { localStorage.setItem('kwl-koe-view', v); } catch (e) {} };
   let saved = 'play'; try { saved = localStorage.getItem('kwl-koe-view') || 'play'; } catch (e) {}
-  show(['songs', 'guide'].includes(saved) ? saved : 'play');
+  show(location.hash === '#instax' ? 'play' : ['songs', 'guide'].includes(saved) ? saved : 'play');
   document.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => { show(b.dataset.goto); document.querySelector('.viewseg').scrollIntoView({ block: 'center', behavior: 'smooth' }); }));
-  btns.forEach((b) => b.addEventListener('click', () => show(b.dataset.view)));
+  btns.forEach((b) => b.addEventListener('click', () => { stopPhrase(); show(b.dataset.view); }));
 })();
+
+const phraseCapture = createPhraseCapture();
+const instax = document.getElementById('instax');
+const phraseStatus = document.getElementById('instax-status');
+const playPhraseButton = document.getElementById('instax-play');
+const practiceButton = document.getElementById('instax-practice');
+const stopPhraseButton = document.getElementById('instax-stop');
+let { notes: printedNotes, demo: demoPrint } = readPhrase();
+let phraseMode = null, phraseTimer, phraseStep = 0, previousOctave = 0, cueKey;
+let phraseRun = 0;
+
+function setCue(key) {
+  keyRects.get(cueKey)?.classList.remove('instax-cue');
+  cueKey = key;
+  keyRects.get(cueKey)?.classList.add('instax-cue');
+}
+
+function stopPhrase(message = '') {
+  if (!phraseMode) return;
+  const playing = phraseMode === 'play';
+  phraseMode = null;
+  practiceHeld = false;
+  phraseRun++;
+  clearTimeout(phraseTimer);
+  setCue(null);
+  if (playing || S.note !== null) noteOff();
+  S.oct = previousOctave;
+  renderKeyboard();
+  stopPhraseButton.hidden = true;
+  phraseStatus.textContent = message;
+}
+
+function showPracticeNote() {
+  const note = printedNotes[phraseStep];
+  S.oct = note.octave;
+  renderKeyboard();
+  setCue(note.key);
+  phraseStatus.textContent = `Play ${noteName(note.key + note.octave * 12)} · ${phraseStep + 1} of ${printedNotes.length}`;
+}
+
+function playManualNote(key, legato) {
+  if (phraseMode === 'play') { stopPhrase(); legato = false; }
+  if (!phraseMode) phraseCapture.press(key, S.oct);
+  const expected = printedNotes[phraseStep];
+  const correct = phraseMode === 'practice' && key === expected.key && S.oct === expected.octave;
+  noteOn(key, legato);
+  if (phraseMode === 'practice') {
+    if (correct) {
+      // Advance after release so the next octave cannot change the note being held.
+      setCue(key);
+      practiceHeld = true;
+    }
+    keyRects.get(cueKey)?.classList.add('instax-cue');
+  }
+}
+
+let practiceHeld = false;
+function releasePracticeNote() {
+  if (!practiceHeld) {
+    keyRects.get(cueKey)?.classList.add('instax-cue');
+    return;
+  }
+  practiceHeld = false;
+  if (phraseMode !== 'practice') return;
+  const keyboardFocused = svgK.contains(document.activeElement);
+  phraseStep++;
+  if (phraseStep === printedNotes.length) stopPhrase('Phrase complete!');
+  else {
+    showPracticeNote();
+    if (keyboardFocused) focusNote(cueKey);
+  }
+}
+
+function preparePhrase(mode) {
+  stopPhrase();
+  phraseCapture.flush();
+  queenStop();
+  duetStop();
+  noteOff();
+  previousOctave = S.oct;
+  phraseMode = mode;
+  phraseStep = 0;
+  stopPhraseButton.hidden = false;
+  document.getElementById('strip').scrollIntoView({ block: 'center' });
+  return ++phraseRun;
+}
+
+playPhraseButton.addEventListener('click', async () => {
+  const run = preparePhrase('play');
+  phraseStatus.textContent = 'Starting playback…';
+  try {
+    await start();
+    if (S.voice === 'koala') await loadBank();
+  } catch {
+    if (run === phraseRun) stopPhrase('Audio could not start. Try again.');
+    return;
+  }
+  if (run !== phraseRun) return;
+  const origin = performance.now();
+  function waitUntil(at, action) {
+    phraseTimer = setTimeout(action, Math.max(0, origin + at - performance.now()));
+  }
+  function playStep() {
+    const note = printedNotes[phraseStep];
+    S.oct = note.octave;
+    renderKeyboard();
+    noteOn(note.key, false);
+    setCue(note.key);
+    phraseStatus.textContent = `${noteName(note.key + note.octave * 12)} · ${phraseStep + 1} of ${printedNotes.length}`;
+    waitUntil(note.at + note.length, () => {
+      noteOff();
+      setCue(null);
+      phraseStep++;
+      if (phraseStep === printedNotes.length) stopPhrase('Phrase finished.');
+      else waitUntil(printedNotes[phraseStep].at, playStep);
+    });
+  }
+  waitUntil(printedNotes[0].at, playStep);
+});
+
+practiceButton.addEventListener('click', () => {
+  preparePhrase('practice');
+  showPracticeNote();
+  focusNote(cueKey);
+});
+stopPhraseButton.addEventListener('click', () => {
+  stopPhrase('Phrase stopped.');
+  playPhraseButton.focus({ preventScroll: true });
+});
+function renderPrint() {
+  drawPrint(instax.querySelector('canvas'), printedNotes);
+  instax.querySelector('.instax-caption').textContent = demoPrint ? 'Demo print' : 'Your phrase';
+  phraseStatus.textContent = 'Watch the keys light up, or practice one note at a time.';
+}
+renderPrint();
+if (location.hash === '#instax') {
+  requestAnimationFrame(() => playPhraseButton.focus({ preventScroll: true }));
+}
+window.addEventListener('pagehide', () => phraseCapture.flush());
+window.addEventListener('blur', () => { if (phraseMode === 'play') stopPhrase(); });
 
 window.__koe = { S, start, noteOn, noteOff, pressBtn, releaseBtn, get ctx() { return ctx; }, get master() { return master; }, get kv() { return kv; }, get kn() { return kn; }, get knSeg() { return knSeg; }, get kvReady() { return kvReady; }, loadBank };
 })();

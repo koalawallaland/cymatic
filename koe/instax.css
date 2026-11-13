@@ -1,0 +1,74 @@
+.instax-paper {
+  box-sizing: border-box;
+  display: block;
+  padding: 7% 7% 9%;
+  background: #fff6f3;
+  color: #532b4c;
+  border-radius: 3px;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 4px 10px #22112666;
+}
+.instax-paper canvas { display: block; width: 100%; height: auto; }
+.instax-paper[hidden] { display: none; }
+.instax-caption { display: block; margin-top: .32em; font: 700 clamp(8px, 1.1vw, 13px)/1.15 system-ui; }
+.underdesk-printer .instax-body {
+  position: absolute;
+  inset: 20% 9% 4%;
+  width: 82%;
+  padding: 0;
+  cursor: pointer;
+  border: 1px solid #e7a0b4;
+  border-radius: 19% / 23%;
+  background: repeating-linear-gradient(90deg, #fff2f53a 0 1px, transparent 1px 4px),
+    linear-gradient(155deg, #ffd9e4, #ef9fbd 83%, #dd86a8);
+  box-shadow: inset 0 3px #ffe7efbb, inset 0 -4px #b9558355, 0 5px 8px #2c172766;
+  z-index: 1;
+}
+.instax-body::before {
+  content: '';
+  position: absolute;
+  top: 12%;
+  left: 14%;
+  width: 72%;
+  height: 10%;
+  border-radius: 999px;
+  background: #6e3d55;
+  box-shadow: 0 2px #ffd3e3;
+}
+.instax-body::after {
+  content: 'instax';
+  position: absolute;
+  bottom: 19%;
+  left: 0;
+  width: 100%;
+  color: #663a54;
+  font: 700 clamp(7px, 1.1vw, 13px)/1 system-ui;
+  letter-spacing: .05em;
+}
+.underdesk-printer .instax-paper {
+  position: absolute;
+  z-index: 2;
+  width: 94%;
+  min-height: 24px;
+  bottom: 65%;
+  left: 3%;
+  transform-origin: bottom center;
+  animation: instax-eject .6s ease-out both;
+}
+@keyframes instax-eject {
+  from { transform: translateY(40%) scaleY(.2); clip-path: inset(100% 0 0); }
+  to { transform: none; clip-path: inset(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .underdesk-printer .instax-paper { animation: none; }
+}
+.koe-instax { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; margin: .65rem 0; }
+.koe-instax .instax-paper { width: 112px; padding: 6px 6px 9px; margin: 0; }
+.koe-instax [role=status] { flex-basis: 100%; font-size: .85rem; }
+.strip .instax-cue {
+  fill: #fbd7ff;
+  stroke: #862e9a;
+  stroke-width: 3;
+  filter: drop-shadow(0 0 4px #de83ff);
+}
