@@ -23,6 +23,12 @@
     background: radial-gradient(ellipse at 44% 42%, #665186, #1b102b 76%);
     box-shadow: 0 0 0 3px #08060e, 0 0 0 4px #524b60;
   }
+  .mp-mirror-glass::before {
+    content: ""; position: absolute; left: 15%; top: 35%; width: 70%; height: 65%;
+    background: url("../graphics/lavender-desk-chair.webp") center top / 184% auto no-repeat;
+    border-radius: 38% 38% 12% 12%;
+    clip-path: inset(0 0 45% 0 round 24% 24% 8% 8%);
+  }
   .mp-mirror-glass::after {
     content: ""; position: absolute; inset: 0; pointer-events: none;
     background: linear-gradient(135deg, #ffa8bf66, #e4ba6244 23%, #8cf6d452 42%, #789cff50 61%, #e6a5ff61 80%, #ffc7e045);
@@ -34,11 +40,31 @@
     clip-path: polygon(0 0, 41% 0, 45% 17%, 51% 18%, 55% 10%, 60% 6%, 69% 6%, 74% 10%, 78% 18%, 86% 17%, 91% 0, 100% 0, 100% 100%, 0 100%);
   }
   .mp-mirror-singer img { width: 100%; }
+  .mp-mirror-singer::before, .mp-mirror-singer::after {
+    content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background: url("../koe/art/singer-open.png") center / 100% 100% no-repeat;
+    opacity: 0;
+  }
+  .mp-mirror-singer::before {
+    clip-path: polygon(31% 9%, 41% 14%, 48% 17%, 56% 17%, 57% 24%, 54% 31%, 50% 37%, 39% 39%, 31% 32%, 28% 23%, 32% 23%);
+    transform-origin: 54% 27%;
+  }
+  .mp-mirror-singer::after {
+    clip-path: polygon(100% 7%, 91% 15%, 85% 18%, 81% 18%, 80% 24%, 83% 33%, 89% 39%, 96% 37%, 100% 28%);
+    transform-origin: 82% 27%;
+  }
   .mp-mirror-singer .mp-mirror-blink { position: absolute; inset: 0; opacity: 0; clip-path: inset(33% 19% 51% 52%); }
   .mp-mirror-koala { position: absolute; width: 72%; top: 9%; left: 5%; transform: rotate(-5deg); }
   @media (prefers-reduced-motion: no-preference) {
     .mp-mirror-blink { animation: mp-mirror-blink 7.3s infinite; }
     .mp-mirror-koala { animation: mp-mirror-peek 19s infinite; }
+    .mp-mirror-singer::before { animation: mp-wing-fold 23s infinite; --wing-angle: -24deg; --wing-fold: -.76; }
+    .mp-mirror-singer::after { animation: mp-wing-fold 23s infinite; --wing-angle: 24deg; --wing-fold: -.95; }
+  }
+  @keyframes mp-wing-fold {
+    0%, 41%, 56%, 100% { opacity: 0; transform: rotate(0deg) scaleX(1); }
+    42%, 55% { opacity: 1; transform: rotate(0deg) scaleX(1); }
+    46%, 51% { opacity: 1; transform: rotate(var(--wing-angle)) scaleX(var(--wing-fold)); }
   }
   @keyframes mp-mirror-blink {
     0%, 31%, 34%, 75%, 78%, 100% { opacity: 0; }

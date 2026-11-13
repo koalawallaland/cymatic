@@ -24,13 +24,18 @@
   #middle-pillar [hidden] { display: none !important; }
 </style>
 <style>
-  [data-stage] > .m-up { left: 40% !important; }
+  [data-stage] > .m-up { left: 42% !important; top: 19% !important; }
   [data-stage] > .m-cym { left: 33% !important; }
   [data-stage] > .m-lab { left: 68% !important; }
   [data-stage] > .monitor-mounts { transform: translateX(15%); }
   [data-stage] > .desk-mirror {
-    position: absolute; z-index: 1; left: 12%; top: 27%; width: 28%;
+    position: absolute; z-index: 1; left: 11%; top: 35%; width: 28%;
     display: block; margin: 0;
+  }
+  [data-stage] > .desk-mirror .mp-mirror-singer,
+  [data-stage] > .desk-mirror .mp-mirror-koala { opacity: .67; }
+  [data-stage] > .desk-mirror .mp-mirror-glass::after {
+    background: linear-gradient(135deg, #db98cf8c, #e4ba6244 23%, #8cf6d452 42%, #789cff66 61%, #403257a6 100%);
   }
   [data-stage] > .desk-mirror:focus-visible { outline: .5cqw solid #fff; outline-offset: .4cqw; }
 </style>
