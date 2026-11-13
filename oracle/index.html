@@ -58,6 +58,47 @@ button.chip{min-height:44px;padding:.45rem .95rem;border-radius:999px;border:1px
 button.chip[aria-pressed="true"]{border-color:#fff;background:linear-gradient(135deg,#ff7ab8aa,#8f7bffaa)}
 button.all{border-color:var(--mint);color:var(--mint)}
 
+
+/* Resin Reliquary: lightweight spectral finish, entirely CSS, no new assets. */
+.stage{isolation:isolate}
+.orb{
+  isolation:isolate;
+  background:
+    radial-gradient(ellipse at 30% 19%,#fff9 0 4%,transparent 20%),
+    radial-gradient(circle at 27% 30%,#f9c6ff88 0,transparent 40%),
+    radial-gradient(circle at 78% 67%,#6cfce488 0,transparent 45%),
+    radial-gradient(circle at 53% 58%,#7555a7cc 0,#28183fdd 60%,#120c28 100%);
+  box-shadow:0 0 0 2px #effdff88,0 0 0 5px #f6baff33,
+    0 0 45px #b28cff88,0 0 90px #ff7ab83d,
+    inset 0 0 0 3px #ffffff26,inset 12px 10px 30px #fff4,
+    inset -16px -22px 38px #070316bb;
+}
+.orb::before{
+  content:"";position:absolute;inset:2%;border-radius:50%;pointer-events:none;z-index:3;
+  background:
+    conic-gradient(from 24deg at 50% 50%,transparent 0 12%,#c7ffff3b 17%,transparent 25% 42%,#ff9fd02b 49%,transparent 55% 70%,#e6c2ff55 78%,transparent 86%),
+    repeating-radial-gradient(circle at 46% 48%,#ffffff0b 0 1px,transparent 1px 5px);
+  mix-blend-mode:screen;opacity:.78;
+}
+.orb::after{
+  content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;z-index:5;
+  background:linear-gradient(180deg,transparent 46%,#ffffff85 49%,#c4ffff88 50%,#ffaddb66 51%,transparent 54%);
+  mask-image:radial-gradient(ellipse 50% 47% at 50% 50%,transparent 70%,#000 83%,transparent 96%);
+  filter:drop-shadow(0 0 4px #fff8);
+}
+.orb .swirl{filter:blur(17px) saturate(1.65);mix-blend-mode:screen;opacity:.68}
+.orb .swirl.b{opacity:.4}
+.orb .sheen{
+  z-index:4;
+  background:
+    radial-gradient(ellipse 28% 11% at 32% 18%,#fff 0,#fffd 25%,transparent 100%),
+    radial-gradient(ellipse 48% 24% at 60% 93%,#8effe955,transparent 75%),
+    linear-gradient(116deg,transparent 29%,#ff9cda29 36%,#a7ffff44 38%,transparent 44%,transparent 62%,#e9c2ff30 65%,transparent 69%);
+}
+.orb .vision{z-index:4;text-shadow:-2px 0 #ff70b8,2px 0 #90fff3,0 0 25px #fff}
+.orb:focus-visible{outline:3px solid #cafff3;outline-offset:8px}
+@media(prefers-reduced-motion:reduce){.orb .swirl,.orb .sheen{animation:none!important}}
+
 /* readings */
 #out{text-align:left;display:grid;gap:.9rem}
 .card{padding:1rem 1.1rem;border-radius:1.1rem;border:1px solid #8a69b6;background:linear-gradient(150deg,#2a1845ee,#170d27ee);box-shadow:0 0 0 1px #ffffff0d inset;animation:rise .6s ease both}
