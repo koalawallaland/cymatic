@@ -1,0 +1,158 @@
+/* koalawallaland shared layer.
+   One palette, one type set and three small shared pieces for every room.
+   Linked first in each page's head, so a room's own styles still win. */
+
+:root {
+  /* palette */
+  --kwl-night: #16131b;
+  --kwl-plum: #2b1650;
+  --kwl-line: #2c2637;
+  --kwl-ink: #eae6f2;
+  --kwl-muted: #9c93ad;
+  --kwl-pink: #ff7ab8;
+  --kwl-blush: #ffd2e6;
+  --kwl-lilac: #b9a6ff;
+  --kwl-cyan: #8fe9ff;
+  --kwl-lime: #d8ff3e;
+
+  /* the aura: pink into lilac into cyan */
+  --kwl-aura: linear-gradient(90deg, #ff7ac8, #b9a6ff 60%, #6ff3ff);
+  --kwl-aura-soft: radial-gradient(70% 45% at 18% 16%, rgba(255, 47, 158, .34), transparent 70%),
+    radial-gradient(70% 45% at 88% 30%, rgba(0, 190, 255, .26), transparent 70%),
+    radial-gradient(90% 40% at 50% 96%, rgba(120, 40, 170, .3), transparent 70%);
+
+  /* type */
+  --kwl-font-display: "Modak", "Syne", sans-serif;
+  --kwl-font-word: "Syne", "Zen Maru Gothic", system-ui, sans-serif;
+  --kwl-font-body: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --kwl-font-mono: "Space Mono", ui-monospace, monospace;
+}
+
+/* Signature: a thin aura line across the top of every room. */
+html::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 3px;
+  z-index: 2147483000;
+  background: var(--kwl-aura);
+  pointer-events: none;
+}
+
+::selection {
+  background: var(--kwl-pink);
+  color: var(--kwl-night);
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--kwl-pink);
+  outline-offset: 3px;
+}
+
+/* Way home, for rooms that had no link back to the desk. */
+.kwl-home {
+  position: fixed;
+  left: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  z-index: 2147482000;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  min-height: 36px;
+  padding: .35rem .8rem;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 99px;
+  background: rgba(22, 19, 27, .82);
+  color: var(--kwl-ink);
+  font: 700 13px/1 var(--kwl-font-word);
+  letter-spacing: .01em;
+  text-decoration: none;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.kwl-home::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--kwl-aura);
+}
+.kwl-home:hover {
+  border-color: var(--kwl-pink);
+}
+
+/* Shop waitlist */
+.kwl-waitlist {
+  margin: 1.4rem 0 1rem;
+  padding: 1rem 1.1rem 1.1rem;
+  border: 1px solid var(--kwl-line);
+  border-radius: 14px;
+  background: linear-gradient(170deg, rgba(47, 39, 72, .7), rgba(22, 19, 27, .7));
+}
+.kwl-waitlist h2 {
+  margin: 0 0 .2rem;
+  font: 700 1.15rem/1.2 var(--kwl-font-word);
+}
+.kwl-waitlist p {
+  margin: .2rem 0 .7rem;
+  color: var(--kwl-muted);
+  font-size: .9rem;
+}
+.kwl-waitlist .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+.kwl-waitlist label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.kwl-waitlist input[type="email"] {
+  flex: 1 1 14rem;
+  min-height: 44px;
+  padding: .5rem .8rem;
+  border: 1px solid #4a4160;
+  border-radius: 10px;
+  background: var(--kwl-night);
+  color: var(--kwl-ink);
+  font: 400 1rem var(--kwl-font-body);
+}
+.kwl-waitlist button {
+  min-height: 44px;
+  padding: .5rem 1.1rem;
+  border: 0;
+  border-radius: 99px;
+  background: var(--kwl-aura);
+  color: var(--kwl-night);
+  font: 700 .9rem var(--kwl-font-mono);
+  cursor: pointer;
+}
+.kwl-waitlist button[disabled] {
+  opacity: .6;
+  cursor: default;
+}
+.kwl-waitlist .hp {
+  position: absolute;
+  left: -9999px;
+}
+.kwl-waitlist [role="status"] {
+  min-height: 1.4em;
+  margin: .7rem 0 0;
+  color: var(--kwl-blush);
+}
+.kwl-waitlist small {
+  display: block;
+  margin-top: .5rem;
+  color: var(--kwl-muted);
+  font: 400 .75rem var(--kwl-font-mono);
+}
+
+@media print {
+  html::before,
+  .kwl-home {
+    display: none;
+  }
+}
