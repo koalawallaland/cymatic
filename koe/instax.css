@@ -64,7 +64,9 @@
   .underdesk-printer .instax-paper { animation: none; }
 }
 .koe-instax { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; margin: .65rem 0; }
-.koe-instax .instax-paper { width: 112px; padding: 6px 6px 9px; margin: 0; }
+.koe-instax .instax-paper { flex: 0 0 76px; width: 76px; max-width: 76px; padding: 4px 4px 7px; margin: 0; }
+.koe-instax .instax-caption { font-size: 8px; }
+@media (max-width: 520px) { .koe-instax .instax-paper { flex-basis: 68px; width: 68px; max-width: 68px; } }
 .koe-instax [role=status] { flex-basis: 100%; font-size: .85rem; }
 .strip .instax-cue {
   fill: #fbd7ff;
