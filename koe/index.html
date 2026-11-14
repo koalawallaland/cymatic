@@ -142,15 +142,31 @@ main:not([data-koemode="lyric"]) .only-lyric,main:not([data-koevoice="koala"]) .
 .key-status{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:center;margin:16px 0 8px;color:#f7ece0;font-size:13px}
 .key-status button{border:1px solid #b3947e;border-radius:8px;background:#533b30;color:#fff0df;padding:8px 12px;font:inherit;cursor:pointer}.key-status button:disabled{opacity:.45}
 .key-status :focus-visible{outline:3px solid #f6cd75;outline-offset:3px}.key-help{font-size:12px;line-height:1.6;color:var(--muted);text-align:center;max-width:70ch;margin:10px auto}
+  .easy-keys,.full-koe,.koe-settings{max-width:36rem;margin:1rem auto;text-align:center}
+  .easy-keys p{min-height:1.25em;margin:.5rem 0}
+  #easy-notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(3rem,1fr));gap:.35rem}
+  #easy-notes button{min-height:48px;padding:.25rem;background:#f6e5d5;color:#271d16;border:2px solid #977161;border-radius:.6rem;font:700 .95rem system-ui;cursor:pointer}
+  #easy-notes .sharp{background:#48344a;color:#fff2ff}
+  #easy-notes .instax-cue,#easy-notes .hot{background:#d8ff91;color:#1d2b06;border-color:#29370f;box-shadow:inset 0 0 0 2px #29370f}
+  #easy-notes :focus-visible,main summary:focus-visible{outline:3px solid #f6cd75;outline-offset:2px}
+  .full-koe summary,.koe-settings summary,.guide-ref summary{cursor:pointer;padding:12px;min-height:44px}
+  .full-koe .stagewrap{margin-top:8px}
+  .ctlbar .seg button,.key-status button{min-height:44px}
 </style>
 <link rel="stylesheet" href="instax.css">
 </head>
 <body>
-<main>
+<main data-koeview="play">
   <div class="top"><a href="../home.html" style="display:inline-block;padding:12px 0">← Back to desk</a><span style="font-size:12px;color:#b3a69d">under the desk · synth no. 2</span></div>
   <h1>koe pocket <small>STYLUS · SINGING VOICE</small></h1>
-  <p class="lede">A pocket synth that sings. Touch the key strip and she sings a syllable; slide and she glides between notes. New here? Open <b>📖 How to</b> under the instrument. (<i>koe</i> is Japanese for "voice".)</p>
+  <div class="seg viewseg" role="group" aria-label="Show the instrument controls or the songs"><button type="button" data-view="play" aria-pressed="true">🎹 Play</button><button type="button" data-view="songs" aria-pressed="false">🎵 Songs</button><button type="button" data-view="guide" aria-pressed="false">📖 How to</button></div>
+  <section class="easy-keys" data-panel="play" aria-label="Play notes">
+    <p id="easy-help">Tap a note or press Enter to play it.</p>
+    <div id="easy-notes" role="group" aria-label="Notes" aria-describedby="easy-help"></div>
+    <p id="easy-status" role="status"></p>
+  </section>
 
+  <details class="full-koe" data-panel="play"><summary>Full stylophone</summary>
   <div class="stagewrap">
     <button class="startcover" type="button" data-start><span>▶ power on</span></button>
     <div class="koe" id="koe">
@@ -294,7 +310,7 @@ main:not([data-koemode="lyric"]) .only-lyric,main:not([data-koevoice="koala"]) .
       <svg class="stylus" id="stylus" viewBox="0 0 50 180" aria-hidden="true"><defs><linearGradient id="sty" x1="0" x2="1"><stop offset="0" stop-color="#efe7e2"/><stop offset=".5" stop-color="#fff7ed"/><stop offset="1" stop-color="#dcd0c8"/></linearGradient></defs><path d="M25 0L23.4 24H26.6Z" fill="#d2cdc9"/><rect x="22.6" y="22" width="4.8" height="34" rx="1.5" fill="#e0dbd8"/><path d="M18 54Q25 50 32 54L35 170Q25 178 15 170Z" fill="url(#sty)" stroke="#ccbdb4"/><circle cx="25" cy="150" r="3" fill="#dd9e9e"/></svg>
     </div>
     <p class="rotate-tip">Tip: turn your phone sideways for a longer key strip.</p>
-    <div class="seg viewseg" role="group" aria-label="Show the instrument controls or the songs"><button type="button" data-view="play" aria-pressed="true">🎹 Play</button><button type="button" data-view="songs" aria-pressed="false">🎵 Songs</button><button type="button" data-view="guide" aria-pressed="false">📖 How to</button></div>
+  </details>
     <div class="key-status" data-panel="play">
       <button type="button" id="octave-down" aria-label="Lower keyboard octave">Octave −</button>
       <span id="octave-status" role="status"></span>
@@ -333,32 +349,28 @@ main:not([data-koemode="lyric"]) .only-lyric,main:not([data-koevoice="koala"]) .
     </div>
   </details>
 </section><button type="button" id="autoDuet" class="queen-feature duet-feature" aria-pressed="false" hidden style="display:none!important" aria-hidden="true" tabindex="-1">🦇 DROP BEAR NOCTURNE · ORIGINAL DEMO</button>
+      <details class="koe-settings" data-panel="play"><summary>Sound settings and recording</summary>
       <div class="seg" role="group" aria-label="Mode" data-panel="play"><button type="button" data-mode="vowel" aria-pressed="false">VOWEL</button><button type="button" data-mode="doremi" aria-pressed="true">DO·RE·MI</button><button type="button" data-mode="lyric" aria-pressed="false">LYRIC</button></div>
       <label data-panel="play" class="only-lyric">lyric <input type="text" id="lyricIn" value="do you remember?" aria-label="Lyric, in romaji or kana"></label>
       <label data-panel="play" class="only-kt">tone <input type="range" id="toneIn" min="0.8" max="1.25" step="0.01" value="1" aria-label="Koala voice tone, deeper to cuter"></label>
       <span class="kvstat only-kt" id="kvStat" data-panel="play" aria-live="polite"></span>
-      <div class="seg" role="group" aria-label="Record performance" data-panel="play"><button type="button" id="recStart">● Record</button><button type="button" id="recStop" disabled>■ Stop</button><button type="button" id="recSave" disabled>↓ Save audio</button></div><span class="kvstat" id="recStatus" data-panel="play" role="status" aria-live="polite"></span><span class="kvstat" id="queenStatus" data-panel="songs" role="status" aria-live="polite"></span>
-      <a href="booth.html" data-panel="play">🎙 record the koala's voice</a>
+      <div class="seg" role="group" aria-label="Record performance" data-panel="play"><button type="button" id="recStart">● Record</button><button type="button" id="recStop" disabled>■ Stop</button><button type="button" id="recSave" disabled>↓ Save audio</button></div><span class="kvstat" id="recStatus" data-panel="play" role="status" aria-live="polite"></span>
+      <a href="booth.html">🎙 Record the koala's voice</a>
+      </details>
+      <span class="kvstat" id="queenStatus" data-panel="songs" role="status"></span>
     </div>
   </div>
 
   <section class="guide" data-panel="guide" aria-labelledby="guideTitle">
-    <h2 id="guideTitle">Make your first song</h2>
-    <p>You don't need to read music. A song is a short tune you repeat, a second tune that lifts, and words that fit. Give it about twenty minutes.</p>
+    <h2 id="guideTitle">Play your first tune</h2>
     <ol class="steps">
-      <li><b>Wake her up</b>Press <i>power on</i>, open <b>🎹 Play</b>, and pick <b>Vocaloid voice</b>. It can sing any syllable. (KT’s voice only knows a few syllables so far.)</li>
-      <li><b>Find your five safe notes</b>Play only the keys marked <b>C, D, E, G</b> and <b>A</b>. These five sound good in any order, so you can't hit a wrong note. Start and finish on C. That's home.</li>
-      <li><b>Make a hook</b>Tap four or five safe notes until a little pattern sticks in your head. Play it three times in a row. If you can hum it without looking, that's your chorus.</li>
-      <li><b>Make a verse</b>Find a second pattern that sits lower and moves less, more like talking. The verse tells the story. The chorus is the part people remember.</li>
-      <li><b>Give it words</b>Write one short line for each pattern, with one syllable for every note. Press <b>LYRIC</b> and type the line in the lyric box as simple sounds, like <code>ko a ra no u ta</code>. Each key you press sings the next syllable.</li>
-      <li><b>Put it in order</b>Verse, chorus, verse, chorus, then the chorus once more, ending on C. Type all the lines into the lyric box in that order. That is a whole song, about a minute long.</li>
-      <li><b>Add feeling</b>Slide between two keys instead of lifting. Hold the last note of each line and press <b>VIBRATO</b>. Play the last chorus higher with <b>Octave +</b>.</li>
-      <li><b>Record it</b>Press <b>● Record</b>, play it start to finish, press <b>■ Stop</b>, then <b>↓ Save audio</b>. A wobbly first take still counts. Do three and keep the best one.</li>
+      <li>Tap C, D and E, then end on C.</li>
+      <li>Choose a voice under the notes to hear the same tune in a different sound.</li>
+      <li>Choose Practice on the Instax print to follow the highlighted notes one at a time.</li>
     </ol>
-    <p style="margin-top:12px">Stuck on words? Sing the whole thing on <code>la la la</code> first, get the tune right, then swap the words in.</p>
     <button type="button" class="go" data-goto="play">🎹 Start playing</button>
   </section>
-  <div class="guide-ref" data-panel="guide"><h2>What each control does</h2>
+  <details class="guide-ref" data-panel="guide"><summary>Full stylophone shortcuts</summary>
   <div class="under">
     <div class="card"><h2>Sing</h2>Press on the black strip and drag. On a computer keyboard, <kbd>A</kbd>–<kbd>;</kbd> is the bottom octave and <kbd>W E T Y U O P</kbd> are the sharps. <kbd>Z</kbd>/<kbd>X</kbd> move the octave.</div>
     <div class="card"><h2>Vowels</h2>Tap <b>あ い う え お</b> (or <kbd>1</kbd>–<kbd>5</kbd>), or press them while she's singing, to change the vowel. Watch her mouth change shape.</div>
@@ -367,7 +379,7 @@ main:not([data-koemode="lyric"]) .only-lyric,main:not([data-koevoice="koala"]) .
     <div class="card"><h2>🌿 Koala noises</h2><p>Switch to <b>koala noises</b> and the keys stop singing. The low half of the strip is a bellow: a snoring breath in, then a belching breath out, for as long as you hold the key. The high half is the whine a female or a joey makes, which sounds like a sad kazoo sliding downhill. Slide between the two halves to morph one into the other, and hold <b>VIBRATO</b> to make it growl.</p></div>
     <div class="card"><h2>Expression</h2>Hold <b>VIBRATO</b> (<kbd>Space</kbd>) for a deep vibrato. Long notes also pick up a soft natural vibrato on their own. <b>▲ ▼</b> set the volume. With SHIFT held, they change the octave.</div>
   </div>
-  </div>
+  </details>
 
 </main>
 <script src="voicebank.js"></script>
@@ -393,6 +405,16 @@ for (let n = LOW; n < LOW + NKEYS; n++) if (isBlack(n)) {
 // Each note is a named button with a single tab stop for the whole keyboard.
 const noteName = n => ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][((n % 12) + 12) % 12] + (Math.floor(n / 12) - 1);
 const keyLabels = new Map();
+const easyNotes = new Map();
+const easyStatus = document.getElementById('easy-status');
+for (let note = LOW; note < LOW + NKEYS; note++) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.classList.toggle('sharp', isBlack(note));
+  button.addEventListener('click', () => playNoteTap(note));
+  document.getElementById('easy-notes').append(button);
+  easyNotes.set(note, button);
+}
 const noteOrder = [...keyRects.keys()].sort((a,b) => a-b);
 keyRects.forEach((rect,n) => {
   rect.dataset.note = n; rect.setAttribute('role','button'); rect.setAttribute('tabindex',n === LOW ? '0' : '-1'); rect.setAttribute('aria-pressed','false');
@@ -463,7 +485,11 @@ function start() {
     try { await VB.loadWorklet(ctx); kv = new VB.Engine(ctx); kv.connect(bus); kv.tone(S.tone); loadBank(); } catch (e) { console.warn('koala voice unavailable', e); }
     try { await KoalaNoise.load(ctx); kn = new KoalaNoise.Engine(ctx); const kng = ctx.createGain(); kng.gain.value = 0.9; kn.connect(kng); kng.connect(bus); knGain = kng; kn.onseg = noiseSeg; } catch (e) { console.warn('koala noises unavailable', e); }
     S.power = true; document.querySelector('[data-start]').hidden = true; render();
-  })();
+  })().catch(error => {
+    if (ctx && ctx.state !== 'closed') ctx.close().catch(() => {});
+    forms = []; fgain = []; started = null;
+    throw error;
+  });
   return started;
 }
 function ir(c) { const len = Math.floor(c.sampleRate * 1.4), b = c.createBuffer(2, len, c.sampleRate); for (let ch = 0; ch < 2; ch++) { const d = b.getChannelData(ch); let lp = 0; for (let i = 0; i < len; i++) { lp += ((Math.random() * 2 - 1) - lp) * 0.4; d[i] = lp * Math.pow(1 - i / len, 2.6); } } return b; }
@@ -628,12 +654,13 @@ function sparkNote() {
 }
 function keyHot(n) {
   keyRects.forEach((r,k) => { r.setAttribute('class',(k === n ? 'hot ' : '') + (isBlack(k) ? 'kb' : 'kw')); r.setAttribute('aria-pressed',String(k === n)); keyLabels.get(k).classList.toggle('active',k === n); });
+  easyNotes.forEach((button, key) => button.classList.toggle('hot', key === n));
   document.getElementById('note-status').textContent = n === null ? 'No note held' : 'Playing ' + noteName(n + S.oct * 12);
 }
 let labeledOctave = null;
 function renderKeyboard() {
   if (labeledOctave === S.oct) return; labeledOctave = S.oct;
-  keyRects.forEach((rect,n) => { const name = noteName(n + S.oct * 12); rect.setAttribute('aria-label',name); keyLabels.get(n).textContent = name; });
+  keyRects.forEach((rect,n) => { const name = noteName(n + S.oct * 12); rect.setAttribute('aria-label',name); keyLabels.get(n).textContent = name; easyNotes.get(n).textContent = name; });
   document.getElementById('octave-status').textContent = noteName(LOW + S.oct * 12) + '–' + noteName(LOW + NKEYS - 1 + S.oct * 12) + ' · octave ' + (S.oct > 0 ? '+' : '') + S.oct;
   document.getElementById('octave-down').disabled = S.oct <= -2; document.getElementById('octave-up').disabled = S.oct >= 2;
 }
@@ -813,10 +840,20 @@ svgK.addEventListener('keydown', e => {
 });
 svgK.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); stopFocusedNote(); } });
 svgK.addEventListener('focusout', stopFocusedNote);
+function playNoteTap(note) {
+  stopFocusedNote();
+  const ticket = ++keyTicket;
+  (S.power ? Promise.resolve() : start()).then(() => {
+    if (ticket !== keyTicket) return;
+    focusedHold = note;
+    easyStatus.textContent = 'Played ' + noteName(note + S.oct * 12);
+    playManualNote(note, false);
+    setTimeout(() => { if (ticket === keyTicket) stopFocusedNote(); }, 300);
+  }).catch(() => { easyStatus.textContent = 'Sound could not start. Tap a note to try again.'; });
+}
 svgK.addEventListener('click', e => {
-  const rect = e.target.closest('[data-note]'); if (!rect || e.detail !== 0) return;
-  const n = +rect.dataset.note, ticket = ++keyTicket;
-  start().then(() => { if(ticket !== keyTicket) return; focusedHold=n; playManualNote(n, false); setTimeout(() => { if(ticket === keyTicket) stopFocusedNote(); },400); });
+  const rect = e.target.closest('[data-note]');
+  if (rect && e.detail === 0) playNoteTap(+rect.dataset.note);
 });
 window.addEventListener('blur', stopFocusedNote);
 // computer keys
@@ -1091,7 +1128,7 @@ function nUnmark(){nymphoEngine.unmark();}
   let saved = 'play'; try { saved = localStorage.getItem('kwl-koe-view') || 'play'; } catch (e) {}
   show(location.hash === '#instax' ? 'play' : ['songs', 'guide'].includes(saved) ? saved : 'play');
   document.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => { show(b.dataset.goto); document.querySelector('.viewseg').scrollIntoView({ block: 'center', behavior: 'smooth' }); }));
-  btns.forEach((b) => b.addEventListener('click', () => { stopPhrase(); show(b.dataset.view); }));
+  btns.forEach((b) => b.addEventListener('click', () => { stopFocusedNote(); stopPhrase(); show(b.dataset.view); }));
 })();
 
 const phraseCapture = createPhraseCapture();
@@ -1106,8 +1143,10 @@ let phraseRun = 0;
 
 function setCue(key) {
   keyRects.get(cueKey)?.classList.remove('instax-cue');
+  easyNotes.get(cueKey)?.classList.remove('instax-cue');
   cueKey = key;
   keyRects.get(cueKey)?.classList.add('instax-cue');
+  easyNotes.get(cueKey)?.classList.add('instax-cue');
 }
 
 function stopPhrase(message = '') {
@@ -1176,7 +1215,7 @@ function preparePhrase(mode) {
   phraseMode = mode;
   phraseStep = 0;
   stopPhraseButton.hidden = false;
-  document.getElementById('strip').scrollIntoView({ block: 'center' });
+  document.getElementById('easy-notes').scrollIntoView({ block: 'center' });
   return ++phraseRun;
 }
 

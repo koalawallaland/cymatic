@@ -40,38 +40,11 @@
     clip-path: polygon(0 0, 41% 0, 45% 17%, 51% 18%, 55% 10%, 60% 6%, 69% 6%, 74% 10%, 78% 18%, 86% 17%, 91% 0, 100% 0, 100% 100%, 0 100%);
   }
   .mp-mirror-singer img { width: 100%; }
-  .mp-mirror-singer::before, .mp-mirror-singer::after {
-    content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-    background: url("../koe/art/singer-open.png") center / 100% 100% no-repeat;
-    opacity: 0;
-    backface-visibility: visible;
-  }
-  .mp-mirror-singer::before {
-    clip-path: polygon(31% 9%, 41% 14%, 48% 17%, 56% 17%, 57% 24%, 54% 31%, 50% 37%, 39% 39%, 31% 32%, 28% 23%, 32% 23%);
-    transform-origin: 54% 27%;
-  }
-  .mp-mirror-singer::after {
-    clip-path: polygon(100% 7%, 91% 15%, 85% 18%, 81% 18%, 80% 24%, 83% 33%, 89% 39%, 96% 37%, 100% 28%);
-    transform-origin: 82% 27%;
-  }
   .mp-mirror-singer .mp-mirror-blink { position: absolute; inset: 0; opacity: 0; clip-path: inset(33% 19% 51% 52%); }
   .mp-mirror-koala { position: absolute; width: 72%; top: 9%; left: 5%; transform: rotate(-5deg); }
   @media (prefers-reduced-motion: no-preference) {
     .mp-mirror-blink { animation: mp-mirror-blink 7.3s infinite; }
     .mp-mirror-koala { animation: mp-mirror-peek 19s infinite; }
-    .mp-mirror-singer::before, .mp-mirror-singer::after { animation: mp-wing-fold 23s ease-in-out infinite; }
-    .mp-mirror-singer::before { --wing-turn: -158deg; --wing-dip: -17deg; }
-    .mp-mirror-singer::after { --wing-turn: 158deg; --wing-dip: 17deg; }
-    .mp-mirror-singer img:first-child { animation: mp-headband-base 23s steps(1, end) infinite; }
-  }
-  @keyframes mp-wing-fold {
-    0%, 40%, 59%, 100% { opacity: 0; transform: perspective(450px) rotateZ(0deg) rotateY(0deg); }
-    41%, 58% { opacity: 1; transform: perspective(450px) rotateZ(0deg) rotateY(0deg); }
-    47%, 52% { opacity: 1; transform: perspective(450px) rotateZ(var(--wing-dip)) rotateY(var(--wing-turn)); }
-  }
-  @keyframes mp-headband-base {
-    0%, 58%, 100% { clip-path: none; }
-    41% { clip-path: polygon(56% 0, 80% 0, 80% 37%, 100% 40%, 100% 100%, 0 100%, 0 40%, 56% 37%); }
   }
   @keyframes mp-mirror-blink {
     0%, 31%, 34%, 75%, 78%, 100% { opacity: 0; }
@@ -113,14 +86,4 @@
   --mp-peek-x: -27%;
   --mp-peek-y: 14%;
   --mp-peek-angle: -16deg;
-}
-.desk-mirror .mp-mirror-singer .mp-mirror-blink { opacity: 1; }
-@media (prefers-reduced-motion: no-preference) {
-  .desk-mirror .mp-mirror-singer .mp-mirror-blink {
-    animation: mp-desk-glance 17s infinite;
-  }
-}
-@keyframes mp-desk-glance {
-  0%, 68%, 80%, 100% { opacity: 1; }
-  70%, 78% { opacity: 0; }
 }
