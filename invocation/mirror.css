@@ -49,7 +49,9 @@
   .mp-mirror-singer--loop picture { display: block; width: 100%; height: 100%; }
   .mp-mirror-singer--loop .mp-mirror-motion {
     display: block; width: 100%; height: 100%;
-    object-fit: contain; object-position: center center;
+    /* The portrait mirror is taller than the square source.
+       Crop only the sides so her shirt reaches the lower glass edge. */
+    object-fit: cover; object-position: center bottom;
   }
 
   .mp-mirror-singer .mp-mirror-blink { position: absolute; inset: 0; opacity: 0; clip-path: inset(33% 19% 51% 52%); }
