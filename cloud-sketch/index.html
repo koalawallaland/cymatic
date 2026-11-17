@@ -31,7 +31,7 @@ h1{font-size:clamp(31px,5vw,66px);line-height:1.13;margin:13px 0 3px;letter-spac
 #art,#ink{position:absolute;inset:0;width:100%;height:100%;display:block}
 #art{overflow:visible;pointer-events:none}#ink{touch-action:none;cursor:crosshair}
 .stage[data-mode="move"] #ink{pointer-events:none}.stage[data-mode="move"] #art{pointer-events:auto}
-.stage[data-mode="move"] #art [data-draggable]{pointer-events:bounding-box;cursor:grab}
+.stage[data-mode="move"] #art [data-draggable]{pointer-events:all;cursor:grab}
 .stage[data-mode="move"] #art [data-draggable]:focus-visible{outline:none;filter:drop-shadow(0 0 12px #fff)}
 #art .koala-halo{stroke:#fff7ff;stroke-width:15;opacity:.65;fill:none;stroke-linecap:round;stroke-linejoin:round;filter:url(#softGlow)}
 #art .koala-pink{stroke:#ff8bdf;stroke-width:7;fill:none;stroke-linecap:round;stroke-linejoin:round;filter:url(#pinkGlow)}
@@ -134,7 +134,7 @@ function paint(a,b){ctx.save();ctx.lineWidth=mode==="erase"?Number(width.value)*
 ink.addEventListener("pointerdown",e=>{if(mode==="move")return;down=true;last=coord(e);ink.setPointerCapture(e.pointerId);paint(last,{x:last.x+.03,y:last.y+.03})});
 ink.addEventListener("pointermove",e=>{if(!down)return;const p=coord(e);paint(last,p);last=p});
 function endInk(){down=false;last=null}ink.addEventListener("pointerup",endInk);ink.addEventListener("pointercancel",endInk);
-document.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click",()=>{mode=b.dataset.mode;stage.dataset.mode=mode;document.querySelectorAll("[data-mode]").forEach(t=>t.setAttribute("aria-pressed",String(t===b)));tell(mode==="move"?"Drag the outline; arrow keys work too.":"")}));
+document.querySelectorAll(".small-btn[data-mode]").forEach(b=>b.addEventListener("click",()=>{mode=b.dataset.mode;stage.dataset.mode=mode;document.querySelectorAll(".small-btn[data-mode]").forEach(t=>t.setAttribute("aria-pressed",String(t===b)));tell(mode==="move"?"Drag the outline; arrow keys work too.":"")}));
 document.querySelectorAll("[data-color]").forEach(b=>b.addEventListener("click",()=>{color=b.dataset.color;document.querySelectorAll("[data-color]").forEach(t=>t.setAttribute("aria-pressed",String(t===b)))}));
 width.addEventListener("input",()=>out.textContent=width.value);
 document.querySelectorAll("[data-sky-choice]").forEach(b=>b.addEventListener("click",()=>{stage.dataset.sky=b.dataset.skyChoice;document.querySelectorAll("[data-sky-choice]").forEach(t=>t.setAttribute("aria-pressed",String(t===b)));if(uploadedUrl){URL.revokeObjectURL(uploadedUrl);uploadedUrl=null;uploaded=null;sky.classList.remove("uploaded");sky.style.backgroundImage=""}tell("")}));
