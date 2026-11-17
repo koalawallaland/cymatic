@@ -1,6 +1,6 @@
 (()=>{
 "use strict";
-const trigger=document.querySelector(".kw .cloud-float");
+const trigger=document.querySelector(".stage .cloud-float");
 if(!trigger)return;
 const W=1100,H=660;
 const dialog=document.createElement("dialog");dialog.id="cloud-studio-dialog";dialog.setAttribute("aria-labelledby","cloud-studio-title");
