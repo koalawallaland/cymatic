@@ -1,122 +1,128 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Motion Room · Cymatic Studio</title>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171020">
+<title>Avatar Loop · Cymatic Studio</title>
 <style>
-:root{font-family:ui-monospace,Menlo,Consolas,monospace;color:#f7e3f0;color-scheme:dark;background:#100d18}*{box-sizing:border-box}body{margin:0;padding:clamp(14px,4vw,30px);background:radial-gradient(ellipse at top,#302039,#100d18 70%);min-height:100vh}main{max-width:980px;margin:auto}h1{margin:20px 0 8px;font-size:clamp(26px,5vw,44px)}h2{font-size:16px;margin:0 0 12px}p{line-height:1.55}.eyebrow,.muted{color:#c7afc4;font-size:12px}.eyebrow{letter-spacing:.17em}a{color:#f9bbdf}.card{padding:20px;border:1px solid #795b7b;background:#211728;border-radius:20px}.stage{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:17px 0}.screen{position:relative;min-height:340px;overflow:hidden;border-radius:17px;border:1px solid #866389;background:radial-gradient(ellipse,#463050,#17111e)}video{width:100%;height:100%;object-fit:contain;position:absolute;inset:0;background:#0b0810}.screen .empty{height:100%;display:grid;place-items:center;text-align:center;padding:30px;color:#b99cb2;font-size:13px}.puppet{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden}.avatar{position:absolute;left:50%;bottom:0;width:100%;max-width:670px;aspect-ratio:900 / 660;transform:translateX(-50%);pointer-events:none}.avatar img,.avatar canvas{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:contain}.avatar canvas{opacity:0}.avatar.ready canvas{opacity:1}.avatar.ready img{visibility:hidden}.screen-label{position:absolute;left:12px;top:12px;background:#140e1cd9;border:1px solid #7e647a;padding:5px 9px;border-radius:8px;font-size:10px;letter-spacing:.08em}.fields{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;align-items:end}.field label{display:block;margin-bottom:7px;font-size:12px;color:#e2c8d9}select,input[type=file],button{font:inherit}input[type=file]{display:block;width:100%;color:#ead6e5;font-size:12px}input::file-selector-button{background:#59405c;border:1px solid #ad89aa;color:#fff;padding:9px;border-radius:9px;margin-right:9px}select{background:#38283d;border:1px solid #957491;color:#f8e8f5;border-radius:8px;padding:9px;width:100%}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:17px}button{background:#9c668f;border:1px solid #dab1d1;border-radius:10px;color:white;padding:11px 16px;cursor:pointer;font-size:13px}button.secondary{background:#3b2a40}button:disabled{opacity:.42;cursor:not-allowed}progress{width:100%;height:10px;margin:16px 0 6px;accent-color:#d596c5}.data{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:16px}.metric{background:#302139;border-radius:12px;padding:12px;min-width:0}.metric strong{display:block;font-size:18px;margin-bottom:3px}.metric span{font-size:10px;color:#c8a9c0}input[type=range]{width:100%;accent-color:#d596c5}.smallnote{font-size:12px;color:#bfa4b9;line-height:1.6}.privacy{color:#a9eddc}.failed{color:#ffc3c3}.good{color:#a9eddc}footer{padding:26px 0;font-size:12px;color:#ba9eae}@media(max-width:660px){.stage{grid-template-columns:1fr}.screen{height:340px;min-height:0}.fields{grid-template-columns:1fr 1fr}.field:first-child{grid-column:span 2}.data{grid-template-columns:1fr 1fr}}
-</style></head>
-<body><main>
-<div class="eyebrow">CYMATIC STUDIO / EXPERIMENTAL</div><h1>motion room <span aria-hidden="true">✧</span></h1>
-<p>Extract movements from a recorded video. <strong>No voice, no microphone, no audio processing.</strong> The video stays in your browser; only motion parameters can be downloaded.</p>
-<div class="card">
-<div class="fields">
-<div class="field"><label for="clip">Choose video (processed locally)</label><input id="clip" type="file" accept="video/*"></div>
-<div class="field"><label for="length">Process</label><select id="length"><option value="15">First 15 seconds</option><option value="30" selected>First 30 seconds</option><option value="60">First 60 seconds</option><option value="all">Entire clip</option></select></div>
-<div class="field"><label for="fps">Sampling</label><select id="fps"><option value="6" selected>6 frames/sec</option><option value="12">12 frames/sec</option></select></div>
-</div>
-<div class="stage">
-<div class="screen"><video id="video" playsinline muted preload="metadata" aria-label="Selected local video frame"></video><div class="empty" id="empty">Choose a clip to preview its frames. Audio is always muted.</div><span class="screen-label">SOURCE · SILENT</span></div>
-<div class="screen"><div class="puppet"><div class="avatar" id="avatar"><img id="avatar-fallback" src="../art/singer-open.png" alt="Cymatic avatar movement preview"><canvas id="rig" width="900" height="660" role="img" aria-label="2.5D avatar with head, upper-body and silent mouth animation"></canvas></div></div><span class="screen-label" id="avatar-mode">AVATAR · AUTO DEMO</span></div>
-</div>
-<div class="actions"><button id="extract" disabled>Extract movement</button><button class="secondary" id="replay">Replay avatar motion</button><button class="secondary" id="pause-motion">Pause motion</button><button class="secondary" id="download" disabled>Download motion JSON</button></div>
-<progress id="progress" max="100" value="0" aria-label="Extraction progress"></progress>
-<p id="status" role="status" class="muted">Playing a silent built-in movement demo. Choose a clip to replace it with extracted movements.</p>
-<div class="data"><div class="metric"><strong id="frames">0</strong><span>KEYFRAMES</span></div><div class="metric"><strong id="head">—</strong><span>HEAD TURN</span></div><div class="metric"><strong id="shoulders">—</strong><span>SHOULDER TILT</span></div><div class="metric"><strong id="blinks">—</strong><span>EYE BLINK</span></div><div class="metric"><strong id="mouth">—</strong><span>MOUTH OPEN</span></div></div>
-<div style="margin-top:14px"><label class="muted" for="timeline">Scrub captured movement</label><input id="timeline" type="range" min="0" max="0" step="1" value="0" disabled></div>
-</div>
-<p class="smallnote privacy">Privacy: video stays in this browser tab. Only the MediaPipe software and model files are fetched from external servers. No frames, recordings, audio, or biometric landmark meshes are uploaded or committed to GitHub. Export includes simplified motion coefficients, not the original footage.</p>
-<p class="smallnote">This prototype now anchors the body, bends the upper image in small, separate deformations, preserves the existing blinking artwork, and animates the mouth from <em>visual</em> face-tracking data. It is still a 2.5D approximation using flattened images, <em>not</em> a professional Live2D model; actual independent hair, arms and wings require layered Cubism artwork. The body tracker can only recover parts visible in the footage. Detection and motion estimates are approximate.</p>
-<footer><a href="../">← KOE pocket</a></footer>
-<script type="module">
-const MOTION_MODULE='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/vision_bundle.mjs';
-const $=s=>document.querySelector(s),video=$('#video'),file=$('#clip'),button=$('#extract'),status=$('#status'),progress=$('#progress'),avatar=$('#avatar'),rig=$('#rig'),ctx=rig.getContext('2d');
-const WASM='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm';
-const FACE='https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
-const POSE='https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
-let url=null,face=null,pose=null,records=[],animationFrame=0,playing=false,playbackStart=0,playbackPosition=0,isDemo=true,currentlyProcessing=false;const prefersReducedMotion=matchMedia("(prefers-reduced-motion: reduce)");
-function say(message,kind=''){status.textContent=message;status.className=kind||'muted'}
-function clamp(v,a=-1,b=1){return Math.max(a,Math.min(b,Number.isFinite(v)?v:0))}
-function blend(result,name){const cats=result?.faceBlendshapes?.[0]?.categories||[];return cats.find(c=>c.categoryName===name)?.score||0}
-function posePoint(pts,i){const p=pts?.[i];return p&&(p.visibility===undefined||p.visibility>.35)?p:null}
-function extractFrame(faceResult,poseResult,time){
- const f=faceResult?.faceLandmarks?.[0],p=poseResult?.landmarks?.[0];
- let yaw=0,pitch=0,roll=0,blink=0,smile=0,jawOpen=0,pucker=0;
- if(f){const a=f[33],b=f[263],nose=f[1],chin=f[152],cx=(a.x+b.x)/2,cy=(a.y+b.y)/2,dist=Math.max(.01,Math.hypot(a.x-b.x,a.y-b.y));
-  yaw=clamp(((nose.x-cx)/dist)*1.7);roll=clamp(Math.atan2(b.y-a.y,b.x-a.x)*2.4);pitch=clamp((nose.y-cy)/Math.max(.01,chin.y-cy)*4-1.7);
-  blink=clamp((blend(faceResult,'eyeBlinkLeft')+blend(faceResult,'eyeBlinkRight'))/2,0,1);
-  smile=clamp((blend(faceResult,'mouthSmileLeft')+blend(faceResult,'mouthSmileRight'))/2,0,1);jawOpen=clamp(blend(faceResult,'jawOpen'),0,1);pucker=clamp(Math.max(blend(faceResult,'mouthPucker'),blend(faceResult,'mouthFunnel')),0,1);
- }
- let shoulderTilt=0,bodyLean=0,leftArm=null,rightArm=null;
- if(p){const l=posePoint(p,11),r=posePoint(p,12),wl=posePoint(p,15),wr=posePoint(p,16);
-  if(l&&r){shoulderTilt=clamp((r.y-l.y)*4);const hipL=posePoint(p,23),hipR=posePoint(p,24);bodyLean=hipL&&hipR?clamp(((l.x+r.x-hipL.x-hipR.x)/2)*4):0;}
-  if(l&&wl)leftArm=clamp((l.y-wl.y)*2.5);if(r&&wr)rightArm=clamp((r.y-wr.y)*2.5);
- }
- return {t:+time.toFixed(3),faceFound:!!f,poseFound:!!p,head:{yaw:+yaw.toFixed(3),pitch:+pitch.toFixed(3),roll:+roll.toFixed(3)},eyes:{blink:+blink.toFixed(3)},expression:{smile:+smile.toFixed(3),jawOpen:+jawOpen.toFixed(3),pucker:+pucker.toFixed(3)},body:{lean:+bodyLean.toFixed(3),shoulderTilt:+shoulderTilt.toFixed(3),leftArm:leftArm===null?null:+leftArm.toFixed(3),rightArm:rightArm===null?null:+rightArm.toFixed(3)}};
+:root{color-scheme:dark;font-family:ui-monospace,Menlo,Consolas,monospace;background:#120e19;color:#f8e8f4}
+*{box-sizing:border-box}
+body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% 10%,#33223b,#120e19 72%);padding:clamp(14px,3vw,30px)}
+main{max-width:880px;margin:auto}
+a{color:#e9b9de}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin:5px 0 20px}
+.eyebrow{font-size:11px;color:#d6b2cd;letter-spacing:.17em}
+h1{font-family:ui-sans-serif,system-ui,sans-serif;font-size:clamp(26px,5vw,40px);font-weight:650;letter-spacing:-.04em;margin:9px 0 5px}
+.sub{font-size:13px;color:#cdb5ca;margin:0;line-height:1.5}
+.tag{font-size:11px;letter-spacing:.09em;color:#cdf5e8;border:1px solid #5d9c8d;border-radius:999px;padding:9px 11px;white-space:nowrap}
+.scene{position:relative;width:100%;height:clamp(450px,72svh,660px);border:1px solid #8e6089;border-radius:26px;overflow:hidden;background:radial-gradient(ellipse 65% 50% at 50% 52%,#4e3455 0,#30203d 48%,#18121f 100%);isolation:isolate}
+.scene:before{content:"";position:absolute;left:10%;right:10%;bottom:8%;height:20%;background:radial-gradient(ellipse,#9a67853a,transparent 65%);filter:blur(19px)}
+.halo{position:absolute;left:50%;top:45%;width:min(80%,470px);aspect-ratio:1;transform:translate(-50%,-50%);border:1px solid #dca4d522;border-radius:50%;box-shadow:0 0 90px 4px #e8a7f00d, inset 0 0 80px #d6b1e30b;pointer-events:none}
+.halo:after{content:"";position:absolute;inset:8%;border:1px solid #c8a8db17;border-radius:50%}
+.avatar{position:absolute;left:50%;bottom:18%;width:min(114%,600px);aspect-ratio:900/660;transform:translateX(-66%);pointer-events:none;filter:drop-shadow(0 15px 25px #1007136e)}
+.avatar img,.avatar canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+.avatar canvas{opacity:0}
+.avatar.ready canvas{opacity:1}
+.avatar.ready img{visibility:hidden}
+.scene-label{position:absolute;top:17px;left:17px;display:flex;align-items:center;gap:9px;background:#170e20bd;border:1px solid #9e709a85;border-radius:999px;padding:8px 12px;font-size:11px;letter-spacing:.08em;color:#f6d5ed;z-index:3}
+.pulse{height:6px;width:6px;border-radius:50%;background:#baf0de;box-shadow:0 0 9px #befce0}
+.controls{position:absolute;bottom:18px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:12px;z-index:5}
+button{font:inherit;cursor:pointer;padding:12px 22px;color:#fff1fa;border:1px solid #bd8bac;background:#65415e;border-radius:999px;box-shadow:0 8px 20px #1209145c}
+button:focus-visible{outline:3px solid #f7d2fb;outline-offset:3px}
+.loop-label{font-size:11px;color:#d4b4c9;letter-spacing:.04em}
+.note{margin:14px 4px 0;color:#bda7bc;font-size:12px;line-height:1.6}
+@media(min-width:650px){.scene{height:clamp(540px,75svh,710px)}.avatar{width:min(94%,790px);bottom:3%}}
+@media(max-width:400px){.tag{font-size:10px}header{gap:10px}.scene{height:clamp(430px,70svh,570px)}}
+@media(prefers-reduced-motion:reduce){.pulse{box-shadow:none}}
+</style>
+</head>
+<body>
+<main>
+<header><div><div class="eyebrow">CYMATIC STUDIO · KOE</div><h1>avatar loop ♡</h1><p class="sub">Fluid movement and expressions. No audio, no upload.</p></div><span class="tag">SILENT · LOOP</span></header>
+<section class="scene" aria-label="Silent automatically looping avatar animation">
+ <div class="halo" aria-hidden="true"></div>
+ <div class="scene-label"><span class="pulse" aria-hidden="true"></span><span id="scene-status">AUTO LOOP · LOADING</span></div>
+ <div class="avatar" id="avatar">
+  <img src="../art/singer-open.png" alt="Cymatic Studio avatar with wings and koala ears" id="fallback">
+  <canvas width="900" height="660" id="render" role="img" aria-label="Animated avatar with changing mouth shape, blinking and flowing upper-body movement"></canvas>
+ </div>
+ <div class="controls"><button type="button" id="toggle" aria-pressed="false">Pause motion</button><span class="loop-label">↻ continuous</span></div>
+</section>
+<p class="note">This is a hand-animated 2.5D loop using the existing avatar artwork. True independent limbs, hair, and feather physics will require a layered Live2D rig. The original video-to-movement workbench is preserved separately; it is not required to enjoy this loop.</p>
+</main>
+<script>
+(()=>{
+'use strict';
+const W=900,H=660,MOUTH_X=593,MOUTH_Y=337,canvas=document.getElementById('render'),ctx=canvas.getContext('2d'),avatar=document.getElementById('avatar'),btn=document.getElementById('toggle'),label=document.getElementById('scene-status');
+let openImage=null,closedImage=null,cleanMouth=null,raf=0,playing=false,time=0,last=0;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,Number.isFinite(v)?v:0));
+const smooth=(a,b,x)=>{let t=clamp((x-a)/(b-a));return t*t*(3-2*t)};
+const poses=[
+ // seconds, head yaw, head roll, head pitch, torso lean, shoulder tilt, mouth opening, smile, pucker, left arm, right arm
+ [0,0,0,0,0,0,0,.12,0,0,0],
+ [.55,-.11,-.025,.045,-.05,-.035,.05,.18,0,.10,-.07],
+ [.93,-.13,-.02,.04,-.075,-.04,.42,.18,.1,.12,-.10],
+ [1.36,-.04,.014,-.01,.02,.025,.17,.25,0,.18,-.08],
+ [1.96,.10,.025,-.04,.11,.055,.53,.12,.05,.07,.14],
+ [2.42,.09,.01,.04,.10,.02,.07,.35,0,-.08,.21],
+ [3.13,.02,-.01,.02,.015,0,.03,.4,0,-.20,.10],
+ [3.76,-.10,-.035,0,-.10,-.035,.36,.15,.43,-.13,-.08],
+ [4.23,-.08,-.025,.055,-.12,-.05,.08,.25,0,.03,-.16],
+ [4.92,.05,.018,-.055,.025,.045,.5,.1,0,.14,.02],
+ [5.37,.10,.024,.025,.07,.045,.08,.32,0,.08,.19],
+ [6.04,.06,-.01,0,.02,-.015,.40,.2,.09,-.11,.13],
+ [6.65,-.03,-.035,.04,-.075,-.04,.02,.28,0,-.18,-.03],
+ [7.3,-.04,.015,.02,-.02,-.005,.28,.18,.08,-.07,-.1],
+ [7.7,-.01,0,.01,0,0,.05,.12,0,0,0],
+ [8,0,0,0,0,0,0,.12,0,0,0]
+];
+function pose(t){
+ t=((t%8)+8)%8;
+ let n=0;while(n<poses.length-2&&poses[n+1][0]<t)n++;
+ const a=poses[n],b=poses[n+1],x=smooth(a[0],b[0],t);
+ const lerp=i=>a[i]+(b[i]-a[i])*x;
+ const blinkTimes=[.78,3.27,6.23];
+ const blink=clamp(Math.max(0,...blinkTimes.map(at=>1-Math.abs(t-at)/.105)));
+ return {yaw:lerp(1),roll:lerp(2),pitch:lerp(3),lean:lerp(4),tilt:lerp(5),jaw:lerp(6),smile:lerp(7),pucker:lerp(8),left:lerp(9),right:lerp(10),blink,breath:Math.sin(t*Math.PI/4)*.50};
 }
-// Separate torso bending from head motion: feet/bottom edge never translate.
-const W=900,H=660,MOUTH_X=594,MOUTH_Y=338;
-let artwork=null,prepared=null;
-function smoothstep(a,b,x){const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)}
-function rowWarp(y,p){
- const head=smoothstep(415,345,y);
- const body=smoothstep(350,465,y)*(1-smoothstep(618,660,y));
- const neck=smoothstep(660,370,y);
- const lean=(p.body?.lean||0)*13,tilt=(p.body?.shoulderTilt||0)*5;
- const headYaw=(p.head?.yaw||0)*8,headRoll=(p.head?.roll||0)*.040;
- const anchored=(lean+tilt)*neck;
- const x=anchored + head*(headYaw+headRoll*(370-y));
- const breath=(p.breath||0)*.008;
- const w=1+(breath+(.007*(p.body?.shoulderTilt||0)))*body;
- const jaw=(p.expression?.jawOpen||0)*3.2*smoothstep(332,400,y)*(1-smoothstep(450,510,y));
- const dy=(p.breath||0)*2*body - (p.head?.pitch||0)*2*head + jaw;
- return {x,w,dy};
+function warp(y,p){
+ const head=smooth(417,348,y);
+ const torso=smooth(370,470,y)*(1-smooth(620,660,y));
+ const neck=smooth(660,370,y);
+ const x=(p.lean*12+p.tilt*4)*neck+(p.yaw*7+p.roll*.039*(370-y))*head;
+ const width=1+torso*(p.breath*.008+p.tilt*.008);
+ const jawRegion=smooth(340,403,y)*(1-smooth(460,520,y));
+ const dy=p.breath*1.6*torso-p.pitch*2.4*head+p.jaw*2.1*jawRegion;
+ return {x,width,dy,torso};
 }
-function makeSkinPatch(img){
- const temp=document.createElement('canvas');temp.width=W;temp.height=H;
- const c=temp.getContext('2d',{willReadFrequently:true});c.drawImage(img,0,0,W,H);
- const image=c.getImageData(0,0,W,H),d=image.data,original=new Uint8ClampedArray(d);
- // Restore untouched cheek/skin colors across the closed mouth without moving the nose.
- const x0=565,x1=625,y0=326,y1=351;
+function makeMouthRepair(img){
+ const surface=document.createElement('canvas');surface.width=W;surface.height=H;
+ const c=surface.getContext('2d',{willReadFrequently:true});c.drawImage(img,0,0,W,H);
+ const data=c.getImageData(0,0,W,H),pixels=data.data,orig=new Uint8ClampedArray(pixels);
+ const x0=564,x1=624,y0=325,y1=353;
  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){
-  const nx=(x-x0)/(x1-x0),ny=(y-y0)/(y1-y0);
-  const edge=Math.min(nx,1-nx,ny,1-ny);
-  const strength=smoothstep(0,.21,edge);
-  if(!strength)continue;
-  const k=(y*W+x)*4,kA=(y0*W+x)*4,kB=(y1*W+x)*4;
-  const v=(ny*.78+.11);
-  for(let ch=0;ch<3;ch++)d[k+ch]=original[k+ch]*(1-strength)+(original[kA+ch]*(1-v)+original[kB+ch]*v)*strength;
+  const nx=(x-x0)/(x1-x0),ny=(y-y0)/(y1-y0),edge=Math.min(nx,1-nx,ny,1-ny);
+  const alpha=smooth(0,.21,edge);if(alpha<=0)continue;
+  const j=(y*W+x)*4,top=(y0*W+x)*4,bottom=(y1*W+x)*4;
+  const w=ny*.79+.10;
+  for(let c=0;c<3;c++)pixels[j+c]=orig[j+c]*(1-alpha)+(orig[top+c]*(1-w)+orig[bottom+c]*w)*alpha;
  }
- c.putImageData(image,0,0);return temp;
+ c.putImageData(data,0,0);return surface;
 }
-function loadArtwork(){
- const paths=['../art/singer-open.png','../art/singer.png'];
- const promises=paths.map(src=>new Promise((resolve,reject)=>{
-   const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(Error('Avatar image unavailable'));img.src=src;
- }));
- Promise.all(promises).then(([open,closed])=>{
-  artwork={open,closed};prepared=makeSkinPatch(open);avatar.classList.add('ready');
-  renderIndex(Number($('#timeline').value)||0);
- }).catch(()=>{say('The avatar artwork did not load. Motion data still works.','failed')});
-}
-function drawStrip(img,p,alpha=1){
- ctx.save();ctx.globalAlpha=alpha;
- // Stable head / face with gentle neck flexibility; independent sleeve/torso deformation.
+function drawArtwork(img,p,opacity){
+ ctx.save();ctx.globalAlpha=opacity;
  for(let y=0;y<H;){
-  const h=Math.min(y<360?6:12,H-y),r=rowWarp(y+h/2,p);
-  const destW=W*r.w;
+  let h=Math.min(y<360?5:11,H-y),v=warp(y+h*.5,p),destWidth=W*v.width;
   if(y<360){
-   ctx.drawImage(img,0,y,W,h, (W-destW)/2+r.x,y+r.dy,destW,h+.5);
+   ctx.drawImage(img,0,y,W,h,(W-destWidth)/2+v.x,y+v.dy,destWidth,h+.55);
   }else{
-   const outer=smoothstep(365,475,y)*(1-smoothstep(620,660,y));
-   const lArm=p.body?.leftArm||0, rArm=p.body?.rightArm||0;
-   const displacement=x=>{
-    const left=Math.exp(-Math.pow((x-340)/155,2));
-    const right=Math.exp(-Math.pow((x-785)/155,2));
-    return (lArm*7*left-rArm*7*right)*outer;
-   };
-   for(let x=0;x<W;x+=90){
-    const w=Math.min(90,W-x),destX=(x-W/2)*r.w+W/2+r.x+displacement(x),destRight=(x+w-W/2)*r.w+W/2+r.x+displacement(x+w);
-    ctx.drawImage(img,x,y,w,h,destX,y+r.dy,destRight-destX,h+.5);
+   const armFade=smooth(375,475,y)*(1-smooth(620,660,y));
+   const shift=x=>p.left*6*Math.exp(-Math.pow((x-338)/160,2))*armFade-p.right*6*Math.exp(-Math.pow((x-790)/160,2))*armFade;
+   for(let x=0;x<W;x+=72){
+    const w=Math.min(72,W-x),dx=(x-W/2)*v.width+W/2+v.x+shift(x),dx2=(x+w-W/2)*v.width+W/2+v.x+shift(x+w);
+    ctx.drawImage(img,x,y,w,h,dx,y+v.dy,dx2-dx,h+.55);
    }
   }
   y+=h;
@@ -124,138 +130,55 @@ function drawStrip(img,p,alpha=1){
  ctx.restore();
 }
 function drawMouth(p){
- const open=clamp(p.expression?.jawOpen||0,0,1);
- if(open<.055||!prepared)return;
- const o=smoothstep(.055,.18,open),w=rowWarp(MOUTH_Y,p);
- const mx=(MOUTH_X-W/2)*w.w+W/2+w.x,my=MOUTH_Y+w.dy;
- ctx.save();ctx.globalAlpha=o;
- // Pixel-matched repaired skin from the original image, covering only the old lip line.
- const sx=559,sy=320,sw=74,sh=39;
- ctx.drawImage(prepared,sx,sy,sw,sh,mx-(MOUTH_X-sx),my-(MOUTH_Y-sy),sw,sh);
- ctx.translate(mx,my);
- const smile=clamp(p.expression?.smile||0,0,1),pucker=clamp(p.expression?.pucker||0,0,1);
- const halfWidth=(17+smile*4)*(1-.45*pucker),height=1.2+open*(8.2+3*pucker);
- const gradient=ctx.createLinearGradient(0,-height,0,height);
- gradient.addColorStop(0,'#97505e');gradient.addColorStop(.35,'#602d41');gradient.addColorStop(1,'#a65361');
- ctx.beginPath();ctx.moveTo(-halfWidth,0);
- ctx.bezierCurveTo(-halfWidth*.44,-height*.78,halfWidth*.42,-height*.78,halfWidth,0);
- ctx.bezierCurveTo(halfWidth*.50,height*.9,-halfWidth*.50,height*.9,-halfWidth,0);
- ctx.fillStyle=gradient;ctx.fill();
- ctx.beginPath();ctx.moveTo(-halfWidth,0);ctx.quadraticCurveTo(0,-height*.9,halfWidth,0);
- ctx.strokeStyle='#bf7580';ctx.lineWidth=1.4;ctx.stroke();
- ctx.beginPath();ctx.moveTo(-halfWidth*.85,height*.24);ctx.quadraticCurveTo(0,height*1.02,halfWidth*.85,height*.24);
- ctx.strokeStyle='#e2a0a2';ctx.lineWidth=1.3;ctx.stroke();
+ if(p.jaw<.045||!cleanMouth)return;
+ const strength=smooth(.045,.17,p.jaw),w=warp(MOUTH_Y,p);
+ const x=(MOUTH_X-W/2)*w.width+W/2+w.x,y=MOUTH_Y+w.dy;
+ ctx.save();ctx.globalAlpha=strength;
+ const sx=563,sy=321,sw=67,sh=38;
+ ctx.drawImage(cleanMouth,sx,sy,sw,sh,x-(MOUTH_X-sx),y-(MOUTH_Y-sy),sw,sh);
+ ctx.translate(x,y);
+ const width=(15.5+p.smile*4)*(1-.34*p.pucker),height=1+p.jaw*(7.5+3*p.pucker);
+ const g=ctx.createLinearGradient(0,-height,0,height);
+ g.addColorStop(0,'#a45e6c');g.addColorStop(.37,'#622c40');g.addColorStop(1,'#a34d5f');
+ ctx.beginPath();ctx.moveTo(-width,0);
+ ctx.bezierCurveTo(-width*.48,-height*.78,width*.44,-height*.78,width,0);
+ ctx.bezierCurveTo(width*.49,height*.9,-width*.49,height*.9,-width,0);
+ ctx.fillStyle=g;ctx.fill();
+ ctx.beginPath();ctx.moveTo(-width,0);ctx.quadraticCurveTo(0,-height*.9,width,0);
+ ctx.strokeStyle='#d58b94';ctx.lineWidth=1.5;ctx.stroke();
+ ctx.beginPath();ctx.moveTo(-width*.83,height*.2);ctx.quadraticCurveTo(0,height*.95,width*.83,height*.2);
+ ctx.strokeStyle='#d999a6';ctx.lineWidth=1.1;ctx.stroke();
  ctx.restore();
 }
-function paint(data){
- if(!data)return;
- $('#head').textContent=Math.round((data.head?.yaw||0)*100)+'%';
- $('#shoulders').textContent=Math.round((data.body?.shoulderTilt||0)*100)+'%';
- $('#blinks').textContent=Math.round((data.eyes?.blink||0)*100)+'%';
- $('#mouth').textContent=Math.round((data.expression?.jawOpen||0)*100)+'%';
- if(!artwork)return;
- ctx.clearRect(0,0,W,H);
- // Two existing source illustrations preserve original artwork and familiar blink.
- drawStrip(artwork.open,data);
- if((data.eyes?.blink||0)>.01)drawStrip(artwork.closed,data,clamp(data.eyes.blink,0,1));
- drawMouth(data);
+function draw(t){
+ if(!openImage||!closedImage)return;
+ const p=pose(t);ctx.clearRect(0,0,W,H);
+ drawArtwork(openImage,p,1);
+ if(p.blink>.001)drawArtwork(closedImage,p,p.blink);
+ drawMouth(p);
 }
-loadArtwork();
-function stopPlayback(){cancelAnimationFrame(animationFrame);animationFrame=0;playing=false;$('#pause-motion').textContent='Resume motion';$('#pause-motion').setAttribute('aria-pressed','true')}
-function renderIndex(index){if(!records.length)return;$('#timeline').value=String(index);paint(records[index])}
-function interpolatePose(a,b,f){
- const lerp=(x,y)=>x+(y-x)*f, v=(o,k)=>o?.[k]??0;
- return {
-  head:{yaw:lerp(v(a.head,'yaw'),v(b.head,'yaw')),pitch:lerp(v(a.head,'pitch'),v(b.head,'pitch')),roll:lerp(v(a.head,'roll'),v(b.head,'roll'))},
-  eyes:{blink:lerp(v(a.eyes,'blink'),v(b.eyes,'blink'))},
-  expression:{smile:lerp(v(a.expression,'smile'),v(b.expression,'smile')),jawOpen:lerp(v(a.expression,'jawOpen'),v(b.expression,'jawOpen')),pucker:lerp(v(a.expression,'pucker'),v(b.expression,'pucker'))},
-  body:{lean:lerp(v(a.body,'lean'),v(b.body,'lean')),shoulderTilt:lerp(v(a.body,'shoulderTilt'),v(b.body,'shoulderTilt')),leftArm:lerp(v(a.body,'leftArm'),v(b.body,'leftArm')),rightArm:lerp(v(a.body,'rightArm'),v(b.body,'rightArm'))},
-  breath:lerp(a.breath??0,b.breath??0)
- }
+function setPlaying(on){
+ playing=on;btn.textContent=on?'Pause motion':'Play motion';btn.setAttribute('aria-pressed',String(!on));
+ label.textContent=on?'AUTO LOOP · PLAYING':'AUTO LOOP · PAUSED';
+ if(!on){cancelAnimationFrame(raf);raf=0}
+ else{last=0;raf=requestAnimationFrame(tick)}
 }
-function startPlayback(restart=true){
- if(!records.length)return;cancelAnimationFrame(animationFrame);
- if(restart)playbackPosition=0;
- playbackStart=performance.now()-playbackPosition*1000;playing=true;
- $('#pause-motion').textContent='Pause motion';$('#pause-motion').setAttribute('aria-pressed','false');
- const fps=isDemo?30:Number($('#fps').value),length=records.length;
- function tick(now){
-  if(!playing)return;
-  const seconds=(now-playbackStart)/1000;
-  playbackPosition=seconds%(length/fps);
-  const floatIndex=playbackPosition*fps,index=Math.floor(floatIndex)%length,frac=floatIndex-index;
-  // Keyframed motion interpolates smoothly even from 6 fps extracted clips.
-  const next=(index+1)%length;
-  const mix=frac*frac*(3-2*frac);
-  $('#timeline').value=String(index);
-  paint(interpolatePose(records[index],records[next],mix));
-  animationFrame=requestAnimationFrame(tick)
- }
- animationFrame=requestAnimationFrame(tick)
+function tick(now){
+ if(!playing)return;
+ if(!last)last=now;
+ const dt=Math.min((now-last)/1000,.08);
+ last=now;time=(time+dt)%8;draw(time);raf=requestAnimationFrame(tick);
 }
-function makeDemo(){
- // Silent acting samples: asymmetric gestures and mouth shapes, not a bouncing screensaver.
- // Each keyframe is [time, headYaw, headRoll, headPitch, torsoLean, shoulderTilt, jawOpen, smile, pucker].
- const poses=[
-  [0,0,0,0,0,0,0,.08,0],
-  [.6,-.13,-.04,.08,-.08,-.03,.03,.16,0],
-  [1.05,-.08,0,.06,-.08,-.03,.48,.12,.08],
-  [1.45,.03,.035,0,.04,.06,.16,.12,0],
-  [2.0,.13,.045,-.06,.18,.10,.60,.10,.05],
-  [2.4,.14,.02,-.04,.20,.09,.13,.25,0],
-  [3.0,.09,-.01,.03,.10,.01,.02,.4,0],
-  [3.6,-.08,-.06,.02,-.16,-.08,.32,.16,.48],
-  [4.1,-.11,-.02,.05,-.17,-.08,.06,.2,0],
-  [4.7,0,.02,-.07,0,.04,.55,.12,0],
-  [5.15,.06,.02,.05,.11,.07,.07,.3,0],
-  [5.85,.10,-.03,0,.04,0,.42,.12,.1],
-  [6.35,0,-.03,.02,-.05,-.03,.01,.18,0],
-  [7.05,-.06,.02,0,-.05,0,.25,.12,0],
-  [7.55,0,0,0,0,0,0,.08,0],
-  [8,0,0,0,0,0,0,.08,0]
- ];
- const frames=[];
- for(let i=0;i<240;i++){
-  const t=i/30;
-  let n=0;while(n<poses.length-2 && poses[n+1][0]<t)n++;
-  const a=poses[n],b=poses[n+1];
-  const x=Math.max(0,Math.min(1,(t-a[0])/(b[0]-a[0])));
-  const ease=x*x*(3-2*x),v=k=>+(a[k]+(b[k]-a[k])*ease).toFixed(3);
-  const blinkAt=[.82,3.2,6.22],blink=Math.max(0,...blinkAt.map(at=>Math.max(0,1-Math.abs(t-at)/.11)));
-  frames.push({t:+t.toFixed(3),faceFound:false,poseFound:false,
-   head:{yaw:v(1),roll:v(2),pitch:v(3)},
-   body:{lean:v(4),shoulderTilt:v(5),leftArm:+(.25*Math.sin(t*1.8+.5)).toFixed(3),rightArm:+(.2*Math.sin(t*2.1+1.4)).toFixed(3)},
-   eyes:{blink:+blink.toFixed(3)},
-   expression:{jawOpen:v(6),smile:v(7),pucker:v(8)},
-   breath:+(.45*Math.sin(t*1.7)).toFixed(3)})
- }
- return frames
-}
-function clearMotion(){stopPlayback();records=[];isDemo=false;$('#avatar-mode').textContent='AVATAR · MOTION TEST';$('#frames').textContent='0';progress.value=0;$('#timeline').disabled=true;$('#download').disabled=true;$('#replay').disabled=true;$('#pause-motion').disabled=true}
-file.addEventListener('change',()=>{if(currentlyProcessing)return;clearMotion();if(url)URL.revokeObjectURL(url);const f=file.files?.[0];if(!f){url=null;button.disabled=true;return;}if(!f.type.startsWith('video/')){say('Choose a video file.','failed');button.disabled=true;return;}url=URL.createObjectURL(f);video.pause();video.muted=true;video.defaultMuted=true;video.volume=0;video.src=url;video.load();$('#empty').hidden=true;button.disabled=true;say('Reading local clip metadata…')});
-video.addEventListener('loadedmetadata',()=>{button.disabled=!Number.isFinite(video.duration)||!video.duration;say('Ready · '+video.duration.toFixed(1)+' seconds. All audio ignored.');});
-video.addEventListener('error',()=>{say('Cannot decode this video in the browser. Try an H.264 MP4.','failed');button.disabled=true});
-async function loadModels(){if(face&&pose)return;say('Loading movement models (downloaded once per session)…');const {FilesetResolver,FaceLandmarker,PoseLandmarker}=await import(MOTION_MODULE);const wasm=await FilesetResolver.forVisionTasks(WASM);
- async function create(Ctor,asset,extra){for(const delegate of ['GPU','CPU']){try{return await Ctor.createFromOptions(wasm,{baseOptions:{modelAssetPath:asset,delegate},runningMode:'VIDEO',...extra})}catch(err){if(delegate==='CPU')throw err}}}
- face=await create(FaceLandmarker,FACE,{numFaces:1,outputFaceBlendshapes:true});pose=await create(PoseLandmarker,POSE,{numPoses:1});}
-function seek(time){return new Promise((resolve,reject)=>{const target=Math.min(Math.max(0,time),Math.max(0,video.duration-.03));if(Math.abs(video.currentTime-target)<.002){if(video.readyState>=2)return resolve();video.addEventListener('loadeddata',resolve,{once:true});return;}const timer=setTimeout(()=>{cleanup();reject(Error('Video seek timed out'))},10000);function cleanup(){clearTimeout(timer);video.removeEventListener('seeked',done);video.removeEventListener('error',bad)}function done(){cleanup();resolve()}function bad(){cleanup();reject(Error('Video seek failed'))}video.addEventListener('seeked',done);video.addEventListener('error',bad);video.currentTime=target})}
-button.addEventListener('click',async()=>{if(currentlyProcessing||!video.duration)return;currentlyProcessing=true;button.disabled=true;file.disabled=true;$('#replay').disabled=true;clearMotion();try{
- await loadModels();video.pause();video.muted=true;video.volume=0;const limit=$('#length').value;const end=limit==='all'?video.duration:Math.min(video.duration,Number(limit));const fps=Number($('#fps').value);const count=Math.max(1,Math.ceil(end*fps));
- for(let i=0;i<count;i++){const t=Math.min(i/fps,video.duration-.05);await seek(t);const timestamp=i*1000/fps+1;const fr=face.detectForVideo(video,timestamp);const pr=pose.detectForVideo(video,timestamp);records.push(extractFrame(fr,pr,t));progress.value=Math.round((i+1)/count*100);if(i%6===0){say('Extracting silent movement · '+(i+1)+' / '+count);await new Promise(r=>setTimeout(r,0))}}
- $('#frames').textContent=String(records.length);$('#timeline').max=String(records.length-1);$('#timeline').disabled=false;$('#download').disabled=false;$('#replay').disabled=false;$('#pause-motion').disabled=false;$('#avatar-mode').textContent='AVATAR · EXTRACTED MOTION';renderIndex(0);startPlayback();say('Done · '+records.length+' movement keyframes. Playing automatically, with audio excluded.','good');
- }catch(e){say('Could not extract movement: '+e.message,'failed')}finally{file.disabled=false;button.disabled=false;currentlyProcessing=false}});
-$('#timeline').addEventListener('input',e=>{stopPlayback();playbackPosition=Number(e.target.value)/(isDemo?30:Number($('#fps').value));renderIndex(+e.target.value);say('Motion paused for scrubbing. Select Resume motion to continue.')});
-$('#replay').addEventListener('click',()=>{startPlayback();say(isDemo?'Playing silent sample motion on repeat…':'Playing extracted movement on repeat · no audio.','good')});
-$('#pause-motion').addEventListener('click',()=>{if(playing){stopPlayback();say('Motion paused.')}else{startPlayback(false);say(isDemo?'Resuming silent demo…':'Resuming silent extracted motion…')}});
-$('#download').addEventListener('click',()=>{if(!records.length)return;const out={format:'cymatic-motion-v1',mode:'video-only-no-audio',samplingFps:Number($('#fps').value),durationSeconds:records.at(-1).t,notes:'Normalized estimated movements only. No source video, audio, full landmark mesh, or images.',frames:records};const blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'}),a=document.createElement('a');const link=URL.createObjectURL(blob);a.href=link;a.download='cymatic-movement-only.json';a.click();setTimeout(()=>URL.revokeObjectURL(link),1000)});
-window.addEventListener('pagehide',()=>{stopPlayback();if(url)URL.revokeObjectURL(url)});
-records=makeDemo();
-$('#frames').textContent=String(records.length);
-$('#timeline').max=String(records.length-1);
-$('#timeline').disabled=false;
-$('#pause-motion').disabled=false;
-renderIndex(0);
-if(prefersReducedMotion.matches){stopPlayback();say('Static preview: reduced motion is enabled on this device. Press Replay avatar motion to animate.')}
-else {startPlayback();say('Auto-playing a silent sample movement loop. Upload a video to replace it.','good')}
-
-</script></main></body></html>
+btn.addEventListener('click',()=>setPlaying(!playing));
+document.addEventListener('visibilitychange',()=>{last=0});
+const load=src=>new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src=src});
+Promise.all([load('../art/singer-open.png'),load('../art/singer.png')]).then(images=>{
+ [openImage,closedImage]=images;cleanMouth=makeMouthRepair(openImage);
+ avatar.classList.add('ready');draw(0);
+ if(reduce.matches){label.textContent='AUTO LOOP · MOTION REDUCED';btn.textContent='Play motion'}
+ else setPlaying(true);
+}).catch(()=>{label.textContent='ARTWORK UNAVAILABLE';btn.disabled=true});
+window.addEventListener('pagehide',()=>{cancelAnimationFrame(raf)});
+})();
+</script>
+</body></html>
