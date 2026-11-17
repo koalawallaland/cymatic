@@ -48,7 +48,7 @@ function extractFrame(faceResult,poseResult,time){
  }
  let shoulderTilt=0,bodyLean=0,leftArm=null,rightArm=null;
  if(p){const l=posePoint(p,11),r=posePoint(p,12),wl=posePoint(p,15),wr=posePoint(p,16);
-  if(l&&r){shoulderTilt=clamp((r.y-l.y)*4);bodyLean=clamp(((l.x+r.x)/2-.5)*2.4);}
+  if(l&&r){shoulderTilt=clamp((r.y-l.y)*4);const hipL=posePoint(p,23),hipR=posePoint(p,24);bodyLean=hipL&&hipR?clamp(((l.x+r.x-hipL.x-hipR.x)/2)*4):0;}
   if(l&&wl)leftArm=clamp((l.y-wl.y)*2.5);if(r&&wr)rightArm=clamp((r.y-wr.y)*2.5);
  }
  return {t:+time.toFixed(3),faceFound:!!f,poseFound:!!p,head:{yaw:+yaw.toFixed(3),pitch:+pitch.toFixed(3),roll:+roll.toFixed(3)},eyes:{blink:+blink.toFixed(3)},expression:{smile:+smile.toFixed(3),jawOpen:+jawOpen.toFixed(3),pucker:+pucker.toFixed(3)},body:{lean:+bodyLean.toFixed(3),shoulderTilt:+shoulderTilt.toFixed(3),leftArm:leftArm===null?null:+leftArm.toFixed(3),rightArm:rightArm===null?null:+rightArm.toFixed(3)}};
@@ -58,8 +58,8 @@ const W=900,H=660,MOUTH_X=594,MOUTH_Y=338;
 let artwork=null,prepared=null;
 function smoothstep(a,b,x){const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)}
 function rowWarp(y,p){
- const head=smoothstep(390,175, y); // overwritten below: head weight ramps upward
- const body=smoothstep(660,365,y);
+ const head=smoothstep(415,345,y);
+ const body=smoothstep(350,465,y)*(1-smoothstep(618,660,y));
  const neck=smoothstep(660,370,y);
  const lean=(p.body?.lean||0)*13,tilt=(p.body?.shoulderTilt||0)*5;
  const headYaw=(p.head?.yaw||0)*8,headRoll=(p.head?.roll||0)*.040;
@@ -67,7 +67,8 @@ function rowWarp(y,p){
  const x=anchored + head*(headYaw+headRoll*(370-y));
  const breath=(p.breath||0)*.008;
  const w=1+(breath+(.007*(p.body?.shoulderTilt||0)))*body;
- const dy=(p.breath||0)*2*body - (p.head?.pitch||0)*2*head;
+ const jaw=(p.expression?.jawOpen||0)*3.2*smoothstep(332,400,y)*(1-smoothstep(450,510,y));
+ const dy=(p.breath||0)*2*body - (p.head?.pitch||0)*2*head + jaw;
  return {x,w,dy};
 }
 function makeSkinPatch(img){
@@ -99,10 +100,26 @@ function loadArtwork(){
 }
 function drawStrip(img,p,alpha=1){
  ctx.save();ctx.globalAlpha=alpha;
- for(let y=0;y<H;y+=6){
-  const h=Math.min(6,H-y),r=rowWarp(y+h/2,p);
+ // Stable head / face with gentle neck flexibility; independent sleeve/torso deformation.
+ for(let y=0;y<H;){
+  const h=Math.min(y<360?6:12,H-y),r=rowWarp(y+h/2,p);
   const destW=W*r.w;
-  ctx.drawImage(img,0,y,W,h, (W-destW)/2+r.x,y+r.dy,destW,h+0.6);
+  if(y<360){
+   ctx.drawImage(img,0,y,W,h, (W-destW)/2+r.x,y+r.dy,destW,h+.5);
+  }else{
+   const outer=smoothstep(365,475,y)*(1-smoothstep(620,660,y));
+   const lArm=p.body?.leftArm||0, rArm=p.body?.rightArm||0;
+   const displacement=x=>{
+    const left=Math.exp(-Math.pow((x-340)/155,2));
+    const right=Math.exp(-Math.pow((x-785)/155,2));
+    return (lArm*7*left-rArm*7*right)*outer;
+   };
+   for(let x=0;x<W;x+=90){
+    const w=Math.min(90,W-x),destX=(x-W/2)*r.w+W/2+r.x+displacement(x),destRight=(x+w-W/2)*r.w+W/2+r.x+displacement(x+w);
+    ctx.drawImage(img,x,y,w,h,destX,y+r.dy,destRight-destX,h+.5);
+   }
+  }
+  y+=h;
  }
  ctx.restore();
 }
@@ -152,7 +169,7 @@ function interpolatePose(a,b,f){
   head:{yaw:lerp(v(a.head,'yaw'),v(b.head,'yaw')),pitch:lerp(v(a.head,'pitch'),v(b.head,'pitch')),roll:lerp(v(a.head,'roll'),v(b.head,'roll'))},
   eyes:{blink:lerp(v(a.eyes,'blink'),v(b.eyes,'blink'))},
   expression:{smile:lerp(v(a.expression,'smile'),v(b.expression,'smile')),jawOpen:lerp(v(a.expression,'jawOpen'),v(b.expression,'jawOpen')),pucker:lerp(v(a.expression,'pucker'),v(b.expression,'pucker'))},
-  body:{lean:lerp(v(a.body,'lean'),v(b.body,'lean')),shoulderTilt:lerp(v(a.body,'shoulderTilt'),v(b.body,'shoulderTilt'))},
+  body:{lean:lerp(v(a.body,'lean'),v(b.body,'lean')),shoulderTilt:lerp(v(a.body,'shoulderTilt'),v(b.body,'shoulderTilt')),leftArm:lerp(v(a.body,'leftArm'),v(b.body,'leftArm')),rightArm:lerp(v(a.body,'rightArm'),v(b.body,'rightArm'))},
   breath:lerp(a.breath??0,b.breath??0)
  }
 }
@@ -207,7 +224,7 @@ function makeDemo(){
   const blinkAt=[.82,3.2,6.22],blink=Math.max(0,...blinkAt.map(at=>Math.max(0,1-Math.abs(t-at)/.11)));
   frames.push({t:+t.toFixed(3),faceFound:false,poseFound:false,
    head:{yaw:v(1),roll:v(2),pitch:v(3)},
-   body:{lean:v(4),shoulderTilt:v(5),leftArm:null,rightArm:null},
+   body:{lean:v(4),shoulderTilt:v(5),leftArm:+(.25*Math.sin(t*1.8+.5)).toFixed(3),rightArm:+(.2*Math.sin(t*2.1+1.4)).toFixed(3)},
    eyes:{blink:+blink.toFixed(3)},
    expression:{jawOpen:v(6),smile:v(7),pucker:v(8)},
    breath:+(.45*Math.sin(t*1.7)).toFixed(3)})
