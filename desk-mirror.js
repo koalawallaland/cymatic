@@ -1,4 +1,4 @@
-const mirror = document.querySelector('.desk-mirror');
+const mirror = document.querySelector('[data-shadow-mirror]');
 const message = document.querySelector('.mirror-status');
 const soundToggle = document.querySelector('[data-desk-sound]');
 let audio;
