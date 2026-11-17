@@ -146,6 +146,16 @@ function paint(data){
 loadArtwork();
 function stopPlayback(){cancelAnimationFrame(animationFrame);animationFrame=0;playing=false;$('#pause-motion').textContent='Resume motion';$('#pause-motion').setAttribute('aria-pressed','true')}
 function renderIndex(index){if(!records.length)return;$('#timeline').value=String(index);paint(records[index])}
+function interpolatePose(a,b,f){
+ const lerp=(x,y)=>x+(y-x)*f, v=(o,k)=>o?.[k]??0;
+ return {
+  head:{yaw:lerp(v(a.head,'yaw'),v(b.head,'yaw')),pitch:lerp(v(a.head,'pitch'),v(b.head,'pitch')),roll:lerp(v(a.head,'roll'),v(b.head,'roll'))},
+  eyes:{blink:lerp(v(a.eyes,'blink'),v(b.eyes,'blink'))},
+  expression:{smile:lerp(v(a.expression,'smile'),v(b.expression,'smile')),jawOpen:lerp(v(a.expression,'jawOpen'),v(b.expression,'jawOpen')),pucker:lerp(v(a.expression,'pucker'),v(b.expression,'pucker'))},
+  body:{lean:lerp(v(a.body,'lean'),v(b.body,'lean')),shoulderTilt:lerp(v(a.body,'shoulderTilt'),v(b.body,'shoulderTilt'))},
+  breath:lerp(a.breath??0,b.breath??0)
+ }
+}
 function startPlayback(restart=true){
  if(!records.length)return;cancelAnimationFrame(animationFrame);
  if(restart)playbackPosition=0;
@@ -155,21 +165,52 @@ function startPlayback(restart=true){
  function tick(now){
   if(!playing)return;
   const seconds=(now-playbackStart)/1000;
-  const index=Math.floor(seconds*fps)%length;
   playbackPosition=seconds%(length/fps);
-  renderIndex(index);
+  const floatIndex=playbackPosition*fps,index=Math.floor(floatIndex)%length,frac=floatIndex-index;
+  // Keyframed motion interpolates smoothly even from 6 fps extracted clips.
+  const next=(index+1)%length;
+  const mix=frac*frac*(3-2*frac);
+  $('#timeline').value=String(index);
+  paint(interpolatePose(records[index],records[next],mix));
   animationFrame=requestAnimationFrame(tick)
  }
  animationFrame=requestAnimationFrame(tick)
 }
 function makeDemo(){
+ // Silent acting samples: asymmetric gestures and mouth shapes, not a bouncing screensaver.
+ // Each keyframe is [time, headYaw, headRoll, headPitch, torsoLean, shoulderTilt, jawOpen, smile, pucker].
+ const poses=[
+  [0,0,0,0,0,0,0,.08,0],
+  [.6,-.13,-.04,.08,-.08,-.03,.03,.16,0],
+  [1.05,-.08,0,.06,-.08,-.03,.48,.12,.08],
+  [1.45,.03,.035,0,.04,.06,.16,.12,0],
+  [2.0,.13,.045,-.06,.18,.10,.60,.10,.05],
+  [2.4,.14,.02,-.04,.20,.09,.13,.25,0],
+  [3.0,.09,-.01,.03,.10,.01,.02,.4,0],
+  [3.6,-.08,-.06,.02,-.16,-.08,.32,.16,.48],
+  [4.1,-.11,-.02,.05,-.17,-.08,.06,.2,0],
+  [4.7,0,.02,-.07,0,.04,.55,.12,0],
+  [5.15,.06,.02,.05,.11,.07,.07,.3,0],
+  [5.85,.10,-.03,0,.04,0,.42,.12,.1],
+  [6.35,0,-.03,.02,-.05,-.03,.01,.18,0],
+  [7.05,-.06,.02,0,-.05,0,.25,.12,0],
+  [7.55,0,0,0,0,0,0,.08,0],
+  [8,0,0,0,0,0,0,.08,0]
+ ];
  const frames=[];
  for(let i=0;i<240;i++){
-  const t=i/30,cycle=t*Math.PI*2/8,blink=(t%3.4>.04&&t%3.4<.20)?Math.sin(Math.PI*((t%3.4)-.04)/.16):0;
+  const t=i/30;
+  let n=0;while(n<poses.length-2 && poses[n+1][0]<t)n++;
+  const a=poses[n],b=poses[n+1];
+  const x=Math.max(0,Math.min(1,(t-a[0])/(b[0]-a[0])));
+  const ease=x*x*(3-2*x),v=k=>+(a[k]+(b[k]-a[k])*ease).toFixed(3);
+  const blinkAt=[.82,3.2,6.22],blink=Math.max(0,...blinkAt.map(at=>Math.max(0,1-Math.abs(t-at)/.11)));
   frames.push({t:+t.toFixed(3),faceFound:false,poseFound:false,
-    head:{yaw:+(.27*Math.sin(cycle)).toFixed(3),pitch:+(.18*Math.sin(cycle*2+.6)).toFixed(3),roll:+(.25*Math.sin(cycle+.4)).toFixed(3)},
-    eyes:{blink:+blink.toFixed(3)},expression:{smile:.13},
-    body:{lean:+(.28*Math.sin(cycle+.9)).toFixed(3),shoulderTilt:+(.19*Math.sin(cycle+.2)).toFixed(3),leftArm:null,rightArm:null}})
+   head:{yaw:v(1),roll:v(2),pitch:v(3)},
+   body:{lean:v(4),shoulderTilt:v(5),leftArm:null,rightArm:null},
+   eyes:{blink:+blink.toFixed(3)},
+   expression:{jawOpen:v(6),smile:v(7),pucker:v(8)},
+   breath:+(.45*Math.sin(t*1.7)).toFixed(3)})
  }
  return frames
 }
