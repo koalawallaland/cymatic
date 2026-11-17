@@ -1,0 +1,33 @@
+name: Sky observatory public data refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sky-observatory-cache
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Update CelesTrak and ADS-B snapshots
+        run: python3 observatory/update_feeds.py
+      - name: Commit new snapshot only when changed
+        run: |
+          git add observatory/data/visual.tle observatory/data/satellites-meta.json observatory/data/aircraft.json
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore(observatory): refresh public sky data [skip ci]"
+            git push
+          fi
