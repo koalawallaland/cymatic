@@ -54,7 +54,7 @@ button:focus-visible{outline:3px solid #f7d2fb;outline-offset:3px}
 <script>
 (()=>{
 'use strict';
-const W=900,H=660,MOUTH_X=593,MOUTH_Y=337,canvas=document.getElementById('render'),ctx=canvas.getContext('2d'),avatar=document.getElementById('avatar'),btn=document.getElementById('toggle'),label=document.getElementById('scene-status');
+const W=900,H=660,MOUTH_X=593,MOUTH_Y=337,canvas=document.getElementById('render'),ctx=canvas.getContext('2d'),avatar=document.getElementById('avatar'),baseImage=document.getElementById('fallback'),btn=document.getElementById('toggle'),label=document.getElementById('scene-status');
 let openImage=null,closedImage=null,cleanMouth=null,raf=0,playing=false,time=0,last=0,shownSecond=-1;
 const clock=document.getElementById('clock');
 // Autoplay is explicit for this page. Pause control remains available at all times.
@@ -152,10 +152,10 @@ function drawMouth(p){
  ctx.restore();
 }
 function draw(t){
- if(!openImage||!closedImage)return;
+ if(!openImage)return;
  const p=pose(t);ctx.clearRect(0,0,W,H);
  drawArtwork(openImage,p,1);
- if(p.blink>.001)drawArtwork(closedImage,p,p.blink);
+ if(closedImage&&p.blink>.001)drawArtwork(closedImage,p,p.blink);
  drawMouth(p);
 }
 function setPlaying(on){
@@ -174,13 +174,41 @@ function tick(now){
 }
 btn.addEventListener('click',()=>setPlaying(!playing));
 document.addEventListener('visibilitychange',()=>{last=0});
-const load=src=>new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=()=>reject(new Error('Could not load '+src));im.src=src});
-Promise.all([load('../art/singer-open.png'),load('../art/singer.png')]).then(images=>{
- [openImage,closedImage]=images;
- try{cleanMouth=makeMouthRepair(openImage)}catch(error){cleanMouth=openImage;console.warn('Mouth background repair unavailable, continuing without it',error)}
- avatar.classList.add('ready');draw(0);
- setPlaying(true);
-}).catch(error=>{label.textContent='ARTWORK UNAVAILABLE';console.error('Avatar loop initialization:',error);btn.disabled=true});
+// The visible <img> is the primary asset: it already loaded in Safari when the image is visible.
+// Never block the renderer waiting for an optional blink asset or canvas pixel readback.
+let initialized=false;
+function beginFromExistingArtwork(){
+ if(initialized||!baseImage.naturalWidth)return;
+ initialized=true;
+ openImage=baseImage;
+ try{cleanMouth=makeMouthRepair(openImage)}
+ catch(error){cleanMouth=openImage;console.warn('Canvas pixel access unavailable; keeping animation running',error)}
+ try{
+  draw(0);
+  avatar.classList.add('ready');
+  setPlaying(true);
+ }catch(error){
+  initialized=false;
+  avatar.classList.remove('ready');
+  label.textContent='RENDERER ERROR · '+(error?.name||'UNKNOWN');
+  console.error('Avatar canvas renderer error:',error);
+  return;
+ }
+ // Blink art is an optional progressive enhancement, never a condition for motion.
+ const blinkImage=new Image();
+ blinkImage.onload=()=>{closedImage=blinkImage;};
+ blinkImage.onerror=()=>{console.warn('Optional closed-eye art unavailable; body/mouth animation continues');};
+ blinkImage.src='../art/singer.png';
+}
+if(baseImage.complete&&baseImage.naturalWidth)beginFromExistingArtwork();
+else{
+ baseImage.addEventListener('load',beginFromExistingArtwork,{once:true});
+ baseImage.addEventListener('error',()=>{
+  label.textContent='PRIMARY ARTWORK MISSING';
+  btn.disabled=true;
+ },{once:true});
+}
+
 window.addEventListener('pagehide',()=>{cancelAnimationFrame(raf)});
 })();
 </script>
