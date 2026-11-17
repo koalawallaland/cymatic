@@ -56,7 +56,7 @@ button:focus-visible{outline:3px solid #f7d2fb;outline-offset:3px}
 'use strict';
 const W=900,H=660,MOUTH_X=593,MOUTH_Y=337,canvas=document.getElementById('render'),ctx=canvas.getContext('2d'),avatar=document.getElementById('avatar'),btn=document.getElementById('toggle'),label=document.getElementById('scene-status');
 let openImage=null,closedImage=null,cleanMouth=null,raf=0,playing=false,time=0,last=0;
-const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+// Autoplay is explicit for this page. Pause control remains available at all times.
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,Number.isFinite(v)?v:0));
 const smooth=(a,b,x)=>{let t=clamp((x-a)/(b-a));return t*t*(3-2*t)};
 const poses=[
@@ -91,10 +91,10 @@ function warp(y,p){
  const head=smooth(417,348,y);
  const torso=smooth(370,470,y)*(1-smooth(620,660,y));
  const neck=smooth(660,370,y);
- const x=(p.lean*12+p.tilt*4)*neck+(p.yaw*7+p.roll*.039*(370-y))*head;
- const width=1+torso*(p.breath*.008+p.tilt*.008);
+ const x=(p.lean*115+p.tilt*48)*neck+(p.yaw*150+p.roll*.92*(370-y))*head;
+ const width=1+torso*(p.breath*.036+p.tilt*.12);
  const jawRegion=smooth(340,403,y)*(1-smooth(460,520,y));
- const dy=p.breath*1.6*torso-p.pitch*2.4*head+p.jaw*2.1*jawRegion;
+ const dy=p.breath*8*torso-p.pitch*95*head+p.jaw*10*jawRegion;
  return {x,width,dy,torso};
 }
 function makeMouthRepair(img){
@@ -119,7 +119,7 @@ function drawArtwork(img,p,opacity){
    ctx.drawImage(img,0,y,W,h,(W-destWidth)/2+v.x,y+v.dy,destWidth,h+.55);
   }else{
    const armFade=smooth(375,475,y)*(1-smooth(620,660,y));
-   const shift=x=>p.left*6*Math.exp(-Math.pow((x-338)/160,2))*armFade-p.right*6*Math.exp(-Math.pow((x-790)/160,2))*armFade;
+   const shift=x=>p.left*85*Math.exp(-Math.pow((x-338)/175,2))*armFade-p.right*85*Math.exp(-Math.pow((x-790)/175,2))*armFade;
    for(let x=0;x<W;x+=72){
     const w=Math.min(72,W-x),dx=(x-W/2)*v.width+W/2+v.x+shift(x),dx2=(x+w-W/2)*v.width+W/2+v.x+shift(x+w);
     ctx.drawImage(img,x,y,w,h,dx,y+v.dy,dx2-dx,h+.55);
@@ -137,7 +137,7 @@ function drawMouth(p){
  const sx=563,sy=321,sw=67,sh=38;
  ctx.drawImage(cleanMouth,sx,sy,sw,sh,x-(MOUTH_X-sx),y-(MOUTH_Y-sy),sw,sh);
  ctx.translate(x,y);
- const width=(15.5+p.smile*4)*(1-.34*p.pucker),height=1+p.jaw*(7.5+3*p.pucker);
+ const width=(22+p.smile*6)*(1-.34*p.pucker),height=1.7+p.jaw*(24+7*p.pucker);
  const g=ctx.createLinearGradient(0,-height,0,height);
  g.addColorStop(0,'#a45e6c');g.addColorStop(.37,'#622c40');g.addColorStop(1,'#a34d5f');
  ctx.beginPath();ctx.moveTo(-width,0);
@@ -171,13 +171,13 @@ function tick(now){
 }
 btn.addEventListener('click',()=>setPlaying(!playing));
 document.addEventListener('visibilitychange',()=>{last=0});
-const load=src=>new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src=src});
+const load=src=>new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=()=>reject(new Error('Could not load '+src));im.src=src});
 Promise.all([load('../art/singer-open.png'),load('../art/singer.png')]).then(images=>{
- [openImage,closedImage]=images;cleanMouth=makeMouthRepair(openImage);
+ [openImage,closedImage]=images;
+ try{cleanMouth=makeMouthRepair(openImage)}catch(error){cleanMouth=openImage;console.warn('Mouth background repair unavailable, continuing without it',error)}
  avatar.classList.add('ready');draw(0);
- if(reduce.matches){label.textContent='AUTO LOOP · MOTION REDUCED';btn.textContent='Play motion'}
- else setPlaying(true);
-}).catch(()=>{label.textContent='ARTWORK UNAVAILABLE';btn.disabled=true});
+ setPlaying(true);
+}).catch(error=>{label.textContent='ARTWORK UNAVAILABLE';console.error('Avatar loop initialization:',error);btn.disabled=true});
 window.addEventListener('pagehide',()=>{cancelAnimationFrame(raf)});
 })();
 </script>
