@@ -47,7 +47,7 @@ button:focus-visible{outline:3px solid #f7d2fb;outline-offset:3px}
   <img src="../art/singer-open.png" alt="Cymatic Studio avatar with wings and koala ears" id="fallback">
   <canvas width="900" height="660" id="render" role="img" aria-label="Animated avatar with changing mouth shape, blinking and flowing upper-body movement"></canvas>
  </div>
- <div class="controls"><button type="button" id="toggle" aria-pressed="false">Pause motion</button><span class="loop-label">↻ continuous</span></div>
+ <div class="controls"><button type="button" id="toggle" aria-pressed="false">Pause motion</button><span class="loop-label" id="clock" aria-label="Loop playback position">00:00 / 00:08</span></div>
 </section>
 <p class="note">This is a hand-animated 2.5D loop using the existing avatar artwork. True independent limbs, hair, and feather physics will require a layered Live2D rig. The original video-to-movement workbench is preserved separately; it is not required to enjoy this loop.</p>
 </main>
@@ -55,7 +55,8 @@ button:focus-visible{outline:3px solid #f7d2fb;outline-offset:3px}
 (()=>{
 'use strict';
 const W=900,H=660,MOUTH_X=593,MOUTH_Y=337,canvas=document.getElementById('render'),ctx=canvas.getContext('2d'),avatar=document.getElementById('avatar'),btn=document.getElementById('toggle'),label=document.getElementById('scene-status');
-let openImage=null,closedImage=null,cleanMouth=null,raf=0,playing=false,time=0,last=0;
+let openImage=null,closedImage=null,cleanMouth=null,raf=0,playing=false,time=0,last=0,shownSecond=-1;
+const clock=document.getElementById('clock');
 // Autoplay is explicit for this page. Pause control remains available at all times.
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,Number.isFinite(v)?v:0));
 const smooth=(a,b,x)=>{let t=clamp((x-a)/(b-a));return t*t*(3-2*t)};
@@ -167,7 +168,9 @@ function tick(now){
  if(!playing)return;
  if(!last)last=now;
  const dt=Math.min((now-last)/1000,.08);
- last=now;time=(time+dt)%8;draw(time);raf=requestAnimationFrame(tick);
+ last=now;time=(time+dt)%8;draw(time);
+ const second=Math.floor(time);if(second!==shownSecond){shownSecond=second;clock.textContent='00:0'+second+' / 00:08'}
+ raf=requestAnimationFrame(tick);
 }
 btn.addEventListener('click',()=>setPlaying(!playing));
 document.addEventListener('visibilitychange',()=>{last=0});
