@@ -28,7 +28,7 @@
 <p class="smallnote">This is an initial tracking and motion-data preview using your existing flattened avatar artwork. It is <em>not</em> a finished Live2D rig; true independent eye, hair, body and wing deformation needs a layered Cubism model. The body tracker can only recover parts visible in the footage. Detection and motion estimates are approximate.</p>
 <footer><a href="../">← KOE pocket</a></footer>
 <script type="module">
-import {FilesetResolver,FaceLandmarker,PoseLandmarker} from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/vision_bundle.mjs';
+const MOTION_MODULE='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/vision_bundle.mjs';
 const $=s=>document.querySelector(s),video=$('#video'),file=$('#clip'),button=$('#extract'),status=$('#status'),progress=$('#progress'),avatar=$('#avatar'),closed=$('#closed');
 const WASM='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm';
 const FACE='https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
@@ -58,7 +58,7 @@ function clearMotion(){records=[];$('#frames').textContent='0';progress.value=0;
 file.addEventListener('change',()=>{if(currentlyProcessing)return;clearMotion();if(url)URL.revokeObjectURL(url);const f=file.files?.[0];if(!f){url=null;button.disabled=true;return;}if(!f.type.startsWith('video/')){say('Choose a video file.','failed');button.disabled=true;return;}url=URL.createObjectURL(f);video.pause();video.muted=true;video.defaultMuted=true;video.volume=0;video.src=url;video.load();$('#empty').hidden=true;button.disabled=true;say('Reading local clip metadata…')});
 video.addEventListener('loadedmetadata',()=>{button.disabled=!Number.isFinite(video.duration)||!video.duration;say('Ready · '+video.duration.toFixed(1)+' seconds. All audio ignored.');});
 video.addEventListener('error',()=>{say('Cannot decode this video in the browser. Try an H.264 MP4.','failed');button.disabled=true});
-async function loadModels(){if(face&&pose)return;say('Loading movement models (downloaded once per session)…');const wasm=await FilesetResolver.forVisionTasks(WASM);
+async function loadModels(){if(face&&pose)return;say('Loading movement models (downloaded once per session)…');const {FilesetResolver,FaceLandmarker,PoseLandmarker}=await import(MOTION_MODULE);const wasm=await FilesetResolver.forVisionTasks(WASM);
  async function create(Ctor,asset,extra){for(const delegate of ['GPU','CPU']){try{return await Ctor.createFromOptions(wasm,{baseOptions:{modelAssetPath:asset,delegate},runningMode:'VIDEO',...extra})}catch(err){if(delegate==='CPU')throw err}}}
  face=await create(FaceLandmarker,FACE,{numFaces:1,outputFaceBlendshapes:true});pose=await create(PoseLandmarker,POSE,{numPoses:1});}
 function seek(time){return new Promise((resolve,reject)=>{const target=Math.min(Math.max(0,time),Math.max(0,video.duration-.03));if(Math.abs(video.currentTime-target)<.002){if(video.readyState>=2)return resolve();video.addEventListener('loadeddata',resolve,{once:true});return;}const timer=setTimeout(()=>{cleanup();reject(Error('Video seek timed out'))},10000);function cleanup(){clearTimeout(timer);video.removeEventListener('seeked',done);video.removeEventListener('error',bad)}function done(){cleanup();resolve()}function bad(){cleanup();reject(Error('Video seek failed'))}video.addEventListener('seeked',done);video.addEventListener('error',bad);video.currentTime=target})}
