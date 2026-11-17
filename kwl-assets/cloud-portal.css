@@ -1,0 +1,75 @@
+
+/* Cloud portal, self-hosted in-desk preview. Namespaced to avoid desk regressions. */
+.kw[data-astro-cid-ussyln6m]{position:relative}
+.kw .cloud-float{
+  position:absolute;z-index:4;right:11%;top:10%;
+  display:grid;place-items:center;
+  width:clamp(46px,7.5vw,70px);height:clamp(45px,7vw,66px);
+  padding:0;border:0;border-radius:50%;background:transparent;
+  cursor:pointer;isolation:isolate;opacity:.88;
+  filter:drop-shadow(0 0 8px #fff8) drop-shadow(0 0 7px #d0adff9b);
+  animation:cloud-portal-drift 6.2s ease-in-out infinite;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation
+}
+.kw .cloud-float:before{
+ content:"";position:absolute;width:100%;height:100%;border-radius:50%;
+ background:radial-gradient(circle,#fffffff0 0%,#ffffff50 35%,transparent 72%);
+ opacity:.32;pointer-events:none
+}
+.kw .cloud-float svg{display:block;width:95%;height:95%;overflow:visible}
+.kw .cloud-float .cloud-body{fill:#fdf5ff48;stroke:#fefcffc9;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.kw .cloud-float .cloud-rim{fill:none;stroke:#f6caff78;stroke-width:3;filter:drop-shadow(0 0 5px #fff)}
+.kw .cloud-float .cloud-star{fill:#fffefa;filter:drop-shadow(0 0 4px #fff)}
+.kw .cloud-float:hover,.kw .cloud-float:focus-visible{opacity:1;filter:drop-shadow(0 0 10px white) drop-shadow(0 0 13px #f9b6ff)}
+.kw .cloud-float:focus-visible{outline:3px solid #fff;outline-offset:4px}
+@keyframes cloud-portal-drift{0%,100%{transform:translate3d(0,1px,0)}50%{transform:translate3d(-3px,-7px,0)}}
+@media(max-width:520px){.kw .cloud-float{right:8%;top:8%;width:48px;height:48px}}
+@media(prefers-reduced-motion:reduce){.kw .cloud-float{animation:none}}
+#cloud-studio-dialog{
+ position:fixed;inset:0;width:min(1040px,calc(100vw - 16px));
+ max-width:none;height:min(820px,calc(100dvh - 16px));max-height:none;
+ margin:auto;padding:0;overflow:hidden;box-sizing:border-box;
+ border:1px solid #f8ddff;border-radius:23px;
+ background:linear-gradient(155deg,#fff1fb,#ecdffd 60%,#e9e2ff);
+ box-shadow:0 22px 85px #030014bc,0 0 75px #d39af86c;
+ color:#74578c;font:14px/1.4 ui-rounded,"Trebuchet MS",system-ui,sans-serif;
+ z-index:999999
+}
+#cloud-studio-dialog::backdrop{background:#060317cf;backdrop-filter:blur(9px)}
+#cloud-studio-dialog *{box-sizing:border-box}
+#cloud-studio-dialog .cloud-panel{display:flex;flex-direction:column;height:100%;min-height:0}
+#cloud-studio-dialog .cloud-head{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ padding:12px clamp(12px,2.4vw,24px);background:linear-gradient(90deg,#fff8fdee,#f4dffaee);
+ border-bottom:1px solid #e5c9f5;flex:0 0 auto
+}
+#cloud-studio-dialog .cloud-brand{min-width:0}
+#cloud-studio-dialog h2{margin:0;color:#b67acb;font-weight:900;font-size:clamp(21px,3vw,30px);line-height:1.05;letter-spacing:.02em;text-shadow:0 0 10px #fff,0 0 10px #ffb6ed}
+#cloud-studio-dialog .cloud-meta{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#9a83bb;margin:0 0 3px}
+#cloud-studio-dialog button{font:inherit;cursor:pointer}
+#cloud-studio-dialog .cloud-close{border:1px solid #e1c7ec;border-radius:100px;background:#fffaffd9;padding:9px 13px;color:#785d91;font-weight:800;min-width:44px;min-height:42px}
+#cloud-studio-dialog .cloud-close:focus-visible,#cloud-studio-dialog .cloud-controls button:focus-visible{outline:3px solid #9163d0;outline-offset:2px}
+#cloud-studio-dialog .cloud-workspace{flex:1;display:flex;min-height:0;flex-direction:column;padding:clamp(7px,1.5vw,13px);gap:9px}
+#cloud-studio-dialog .cloud-canvas-frame{flex:1;min-height:120px;position:relative;overflow:hidden;border:6px solid #ffffffc9;border-radius:23px;box-shadow:0 0 0 1px #edbceb,0 6px 27px #bf9bd63d;background:linear-gradient(150deg,#9dc6fb,#ffe9ed)}
+#cloud-studio-dialog .cloud-canvas-frame canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#cloud-studio-dialog #cloud-ink-canvas{touch-action:none;cursor:crosshair}
+#cloud-studio-dialog .cloud-controls{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;flex:0 0 auto}
+#cloud-studio-dialog .cloud-controls button{
+ border:1px solid #e0c8ed;border-radius:18px;background:#fffafb;
+ padding:9px 11px;color:#815c9d;font-weight:800;font-size:12px;white-space:nowrap;min-height:38px
+}
+#cloud-studio-dialog .cloud-controls button[aria-pressed="true"]{background:#f9caee;border-color:#e89ce0;box-shadow:inset 0 0 0 1px #fff}
+#cloud-studio-dialog .cloud-controls button[data-cd-color]{width:32px;height:32px;min-width:32px;min-height:32px;padding:0;border:2px solid white;border-radius:50%;box-shadow:0 0 0 1px #b9a0d2}
+#cloud-studio-dialog .cloud-controls button[data-cd-color][aria-pressed="true"]{box-shadow:0 0 0 3px #ab81ca}
+#cloud-studio-dialog .cloud-controls button.cloud-save{background:linear-gradient(125deg,#f8c5ed,#d5b4fb);border-color:#dbacec}
+#cloud-studio-dialog .cloud-hint{margin:0;text-align:center;color:#9a83ae;font-size:10px;line-height:1.4;flex:0 0 auto}
+#cloud-studio-dialog .cloud-divider{height:20px;width:1px;background:#e5c6e8;margin:0 2px}
+@media(max-width:620px){
+ #cloud-studio-dialog{width:calc(100vw - 10px);height:calc(100dvh - 10px);border-radius:15px}
+ #cloud-studio-dialog .cloud-head{padding:11px 12px}
+ #cloud-studio-dialog .cloud-canvas-frame{border-width:3px;border-radius:14px}
+ #cloud-studio-dialog .cloud-controls{gap:5px}
+ #cloud-studio-dialog .cloud-controls button{min-height:37px;padding:7px 8px;font-size:11px}
+ #cloud-studio-dialog .cloud-workspace{padding:6px;gap:6px}
+}
+@media(prefers-reduced-motion:reduce){#cloud-studio-dialog::backdrop{backdrop-filter:none}}
