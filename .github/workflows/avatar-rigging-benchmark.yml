@@ -43,4 +43,5 @@ jobs:
         run: bash benchmarks/avatar-rigging/run.sh "${{ matrix.method }}"
       - name: Record method name
         if: always()
-        run: echo "Method: ${{ matrix.method }}" >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo "Method: ${{ matrix.method }}" >> "$GITHUB_STEP_SUMMARY"
