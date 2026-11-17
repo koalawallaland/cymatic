@@ -159,7 +159,7 @@ async function fetchSnapshots(){
  }else if(!state.tle.length){state.tle=[];status("satelliteStatus","Satellites","No elements yet · awaiting scheduled sync")}
  const group=flights.status==="fulfilled" ? flights.value?.locations?.[state.site]:null;
  if(group?.ac && Array.isArray(group.ac)){
-   state.flightFeed=group;state.flightMeta={source:"ADS-B.lol snapshot",fetchedAt:group.fetchedAt};
+   state.flightFeed=group;state.flightMeta={source:(group.source||"ADS-B")+" snapshot",fetchedAt:group.fetchedAt};
  }else{state.flightFeed=null;state.flightMeta=null}
  return {satOk:state.tle.length>0,flightOk:!!state.flightFeed};
 }
