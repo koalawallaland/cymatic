@@ -117,5 +117,6 @@ function open(){scrollBefore=document.body.style.overflow;if(!initialized){rende
 dialog.querySelector("[data-cd-close]").addEventListener("click",close);
 dialog.addEventListener("close",finish);dialog.addEventListener("click",e=>{if(e.target===dialog)close()});
 trigger.addEventListener("click",open);
+if(location.hash==="#cloud"){if(document.readyState==="complete")open();else window.addEventListener("load",open,{once:true})}
 window.addEventListener("pagehide",()=>{if(photoUrl)URL.revokeObjectURL(photoUrl)});
 })();
