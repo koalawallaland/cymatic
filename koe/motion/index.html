@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Motion Room · Cymatic Studio</title>
+<style>
+:root{font-family:ui-monospace,Menlo,Consolas,monospace;color:#f7e3f0;color-scheme:dark;background:#100d18}*{box-sizing:border-box}body{margin:0;padding:clamp(14px,4vw,30px);background:radial-gradient(ellipse at top,#302039,#100d18 70%);min-height:100vh}main{max-width:980px;margin:auto}h1{margin:20px 0 8px;font-size:clamp(26px,5vw,44px)}h2{font-size:16px;margin:0 0 12px}p{line-height:1.55}.eyebrow,.muted{color:#c7afc4;font-size:12px}.eyebrow{letter-spacing:.17em}a{color:#f9bbdf}.card{padding:20px;border:1px solid #795b7b;background:#211728;border-radius:20px}.stage{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:17px 0}.screen{position:relative;min-height:340px;overflow:hidden;border-radius:17px;border:1px solid #866389;background:radial-gradient(ellipse,#463050,#17111e)}video{width:100%;height:100%;object-fit:contain;position:absolute;inset:0;background:#0b0810}.screen .empty{height:100%;display:grid;place-items:center;text-align:center;padding:30px;color:#b99cb2;font-size:13px}.puppet{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden}.avatar{position:absolute;left:50%;top:57%;height:min(92%,410px);width:100%;transform:translate(-50%,-50%);transform-origin:50% 65%;will-change:transform}.avatar img{display:block;position:absolute;width:100%;height:100%;object-fit:contain}.avatar .closed{opacity:0}.screen-label{position:absolute;left:12px;top:12px;background:#140e1cd9;border:1px solid #7e647a;padding:5px 9px;border-radius:8px;font-size:10px;letter-spacing:.08em}.fields{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;align-items:end}.field label{display:block;margin-bottom:7px;font-size:12px;color:#e2c8d9}select,input[type=file],button{font:inherit}input[type=file]{display:block;width:100%;color:#ead6e5;font-size:12px}input::file-selector-button{background:#59405c;border:1px solid #ad89aa;color:#fff;padding:9px;border-radius:9px;margin-right:9px}select{background:#38283d;border:1px solid #957491;color:#f8e8f5;border-radius:8px;padding:9px;width:100%}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:17px}button{background:#9c668f;border:1px solid #dab1d1;border-radius:10px;color:white;padding:11px 16px;cursor:pointer;font-size:13px}button.secondary{background:#3b2a40}button:disabled{opacity:.42;cursor:not-allowed}progress{width:100%;height:10px;margin:16px 0 6px;accent-color:#d596c5}.data{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}.metric{background:#302139;border-radius:12px;padding:12px;min-width:0}.metric strong{display:block;font-size:18px;margin-bottom:3px}.metric span{font-size:10px;color:#c8a9c0}input[type=range]{width:100%;accent-color:#d596c5}.smallnote{font-size:12px;color:#bfa4b9;line-height:1.6}.privacy{color:#a9eddc}.failed{color:#ffc3c3}.good{color:#a9eddc}footer{padding:26px 0;font-size:12px;color:#ba9eae}@media(max-width:660px){.stage{grid-template-columns:1fr}.screen{height:340px;min-height:0}.fields{grid-template-columns:1fr 1fr}.field:first-child{grid-column:span 2}.data{grid-template-columns:1fr 1fr}}
+</style></head>
+<body><main>
+<div class="eyebrow">CYMATIC STUDIO / EXPERIMENTAL</div><h1>motion room <span aria-hidden="true">✧</span></h1>
+<p>Extract movements from a recorded video. <strong>No voice, no microphone, no audio processing.</strong> The video stays in your browser; only motion parameters can be downloaded.</p>
+<div class="card">
+<div class="fields">
+<div class="field"><label for="clip">Choose video (processed locally)</label><input id="clip" type="file" accept="video/*"></div>
+<div class="field"><label for="length">Process</label><select id="length"><option value="15">First 15 seconds</option><option value="30" selected>First 30 seconds</option><option value="60">First 60 seconds</option><option value="all">Entire clip</option></select></div>
+<div class="field"><label for="fps">Sampling</label><select id="fps"><option value="6" selected>6 frames/sec</option><option value="12">12 frames/sec</option></select></div>
+</div>
+<div class="stage">
+<div class="screen"><video id="video" playsinline muted preload="metadata" aria-label="Selected local video frame"></video><div class="empty" id="empty">Choose a clip to preview its frames. Audio is always muted.</div><span class="screen-label">SOURCE · SILENT</span></div>
+<div class="screen"><div class="puppet"><div class="avatar" id="avatar"><img src="../art/singer-open.png" alt="Cymatic avatar movement preview"><img class="closed" id="closed" src="../art/singer.png" alt="" aria-hidden="true"></div></div><span class="screen-label">AVATAR · MOTION TEST</span></div>
+</div>
+<div class="actions"><button id="extract" disabled>Extract movement</button><button class="secondary" id="replay" disabled>Replay avatar motion</button><button class="secondary" id="download" disabled>Download motion JSON</button></div>
+<progress id="progress" max="100" value="0" aria-label="Extraction progress"></progress>
+<p id="status" role="status" class="muted">Nothing loaded yet. The model is downloaded when you press Extract.</p>
+<div class="data"><div class="metric"><strong id="frames">0</strong><span>KEYFRAMES</span></div><div class="metric"><strong id="head">—</strong><span>HEAD TURN</span></div><div class="metric"><strong id="shoulders">—</strong><span>SHOULDER TILT</span></div><div class="metric"><strong id="blinks">—</strong><span>EYE BLINK</span></div></div>
+<div style="margin-top:14px"><label class="muted" for="timeline">Scrub captured movement</label><input id="timeline" type="range" min="0" max="0" step="1" value="0" disabled></div>
+</div>
+<p class="smallnote privacy">Privacy: video stays in this browser tab. Only the MediaPipe software and model files are fetched from external servers. No frames, recordings, audio, or biometric landmark meshes are uploaded or committed to GitHub. Export includes simplified motion coefficients, not the original footage.</p>
+<p class="smallnote">This is an initial tracking and motion-data preview using your existing flattened avatar artwork. It is <em>not</em> a finished Live2D rig; true independent eye, hair, body and wing deformation needs a layered Cubism model. The body tracker can only recover parts visible in the footage. Detection and motion estimates are approximate.</p>
+<footer><a href="../">← KOE pocket</a></footer>
+<script type="module">
+import {FilesetResolver,FaceLandmarker,PoseLandmarker} from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/vision_bundle.mjs';
+const $=s=>document.querySelector(s),video=$('#video'),file=$('#clip'),button=$('#extract'),status=$('#status'),progress=$('#progress'),avatar=$('#avatar'),closed=$('#closed');
+const WASM='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm';
+const FACE='https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
+const POSE='https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
+let url=null,face=null,pose=null,records=[],timer=0,currentlyProcessing=false;
+function say(message,kind=''){status.textContent=message;status.className=kind||'muted'}
+function clamp(v,a=-1,b=1){return Math.max(a,Math.min(b,Number.isFinite(v)?v:0))}
+function blend(result,name){const cats=result?.faceBlendshapes?.[0]?.categories||[];return cats.find(c=>c.categoryName===name)?.score||0}
+function posePoint(pts,i){const p=pts?.[i];return p&&(p.visibility===undefined||p.visibility>.35)?p:null}
+function extractFrame(faceResult,poseResult,time){
+ const f=faceResult?.faceLandmarks?.[0],p=poseResult?.landmarks?.[0];
+ let yaw=0,pitch=0,roll=0,blink=0,smile=0;
+ if(f){const a=f[33],b=f[263],nose=f[1],chin=f[152],cx=(a.x+b.x)/2,cy=(a.y+b.y)/2,dist=Math.max(.01,Math.hypot(a.x-b.x,a.y-b.y));
+  yaw=clamp(((nose.x-cx)/dist)*1.7);roll=clamp(Math.atan2(b.y-a.y,b.x-a.x)*2.4);pitch=clamp((nose.y-cy)/Math.max(.01,chin.y-cy)*4-1.7);
+  blink=clamp((blend(faceResult,'eyeBlinkLeft')+blend(faceResult,'eyeBlinkRight'))/2,0,1);
+  smile=clamp((blend(faceResult,'mouthSmileLeft')+blend(faceResult,'mouthSmileRight'))/2,0,1);
+ }
+ let shoulderTilt=0,bodyLean=0,leftArm=null,rightArm=null;
+ if(p){const l=posePoint(p,11),r=posePoint(p,12),wl=posePoint(p,15),wr=posePoint(p,16);
+  if(l&&r){shoulderTilt=clamp((r.y-l.y)*4);bodyLean=clamp(((l.x+r.x)/2-.5)*2.4);}
+  if(l&&wl)leftArm=clamp((l.y-wl.y)*2.5);if(r&&wr)rightArm=clamp((r.y-wr.y)*2.5);
+ }
+ return {t:+time.toFixed(3),faceFound:!!f,poseFound:!!p,head:{yaw:+yaw.toFixed(3),pitch:+pitch.toFixed(3),roll:+roll.toFixed(3)},eyes:{blink:+blink.toFixed(3)},expression:{smile:+smile.toFixed(3)},body:{lean:+bodyLean.toFixed(3),shoulderTilt:+shoulderTilt.toFixed(3),leftArm:leftArm===null?null:+leftArm.toFixed(3),rightArm:rightArm===null?null:+rightArm.toFixed(3)}};
+}
+function paint(data){if(!data)return;avatar.style.transform='translate(-50%,-50%) rotate('+(-data.head.roll*12-data.body.shoulderTilt*4)+'deg) rotateY('+(data.head.yaw*16)+'deg) rotateX('+(-data.head.pitch*10)+'deg) translateX('+(data.body.lean*15)+'px)';closed.style.opacity=data.eyes.blink;$('#head').textContent=Math.round(data.head.yaw*100)+'%';$('#shoulders').textContent=Math.round(data.body.shoulderTilt*100)+'%';$('#blinks').textContent=Math.round(data.eyes.blink*100)+'%'}
+function clearMotion(){records=[];$('#frames').textContent='0';progress.value=0;$('#timeline').disabled=true;$('#download').disabled=true;$('#replay').disabled=true;clearTimeout(timer)}
+file.addEventListener('change',()=>{if(currentlyProcessing)return;clearMotion();if(url)URL.revokeObjectURL(url);const f=file.files?.[0];if(!f){url=null;button.disabled=true;return;}if(!f.type.startsWith('video/')){say('Choose a video file.','failed');button.disabled=true;return;}url=URL.createObjectURL(f);video.pause();video.muted=true;video.defaultMuted=true;video.volume=0;video.src=url;video.load();$('#empty').hidden=true;button.disabled=true;say('Reading local clip metadata…')});
+video.addEventListener('loadedmetadata',()=>{button.disabled=!Number.isFinite(video.duration)||!video.duration;say('Ready · '+video.duration.toFixed(1)+' seconds. All audio ignored.');});
+video.addEventListener('error',()=>{say('Cannot decode this video in the browser. Try an H.264 MP4.','failed');button.disabled=true});
+async function loadModels(){if(face&&pose)return;say('Loading movement models (downloaded once per session)…');const wasm=await FilesetResolver.forVisionTasks(WASM);
+ async function create(Ctor,asset,extra){for(const delegate of ['GPU','CPU']){try{return await Ctor.createFromOptions(wasm,{baseOptions:{modelAssetPath:asset,delegate},runningMode:'VIDEO',...extra})}catch(err){if(delegate==='CPU')throw err}}}
+ face=await create(FaceLandmarker,FACE,{numFaces:1,outputFaceBlendshapes:true});pose=await create(PoseLandmarker,POSE,{numPoses:1});}
+function seek(time){return new Promise((resolve,reject)=>{const target=Math.min(Math.max(0,time),Math.max(0,video.duration-.03));if(Math.abs(video.currentTime-target)<.002){if(video.readyState>=2)return resolve();video.addEventListener('loadeddata',resolve,{once:true});return;}const timer=setTimeout(()=>{cleanup();reject(Error('Video seek timed out'))},10000);function cleanup(){clearTimeout(timer);video.removeEventListener('seeked',done);video.removeEventListener('error',bad)}function done(){cleanup();resolve()}function bad(){cleanup();reject(Error('Video seek failed'))}video.addEventListener('seeked',done);video.addEventListener('error',bad);video.currentTime=target})}
+button.addEventListener('click',async()=>{if(currentlyProcessing||!video.duration)return;currentlyProcessing=true;button.disabled=true;file.disabled=true;$('#replay').disabled=true;clearMotion();try{
+ await loadModels();video.pause();video.muted=true;video.volume=0;const limit=$('#length').value;const end=limit==='all'?video.duration:Math.min(video.duration,Number(limit));const fps=Number($('#fps').value);const count=Math.max(1,Math.ceil(end*fps));
+ for(let i=0;i<count;i++){const t=Math.min(i/fps,video.duration-.05);await seek(t);const timestamp=i*1000/fps+1;const fr=face.detectForVideo(video,timestamp);const pr=pose.detectForVideo(video,timestamp);records.push(extractFrame(fr,pr,t));progress.value=Math.round((i+1)/count*100);if(i%6===0){say('Extracting silent movement · '+(i+1)+' / '+count);await new Promise(r=>setTimeout(r,0))}}
+ $('#frames').textContent=String(records.length);$('#timeline').max=String(records.length-1);$('#timeline').disabled=false;$('#download').disabled=false;$('#replay').disabled=false;paint(records[0]);say('Done · '+records.length+' movement keyframes. Audio was not accessed.','good');
+ }catch(e){say('Could not extract movement: '+e.message,'failed')}finally{file.disabled=false;button.disabled=false;currentlyProcessing=false}});
+$('#timeline').addEventListener('input',e=>{clearTimeout(timer);paint(records[+e.target.value])});
+$('#replay').addEventListener('click',()=>{if(!records.length)return;clearTimeout(timer);let i=0;const go=()=>{if(i>=records.length){say('Replay complete.','good');return}$('#timeline').value=String(i);paint(records[i]);i++;timer=setTimeout(go,1000/Number($('#fps').value))};say('Playing extracted movement (silent)…');go()});
+$('#download').addEventListener('click',()=>{if(!records.length)return;const out={format:'cymatic-motion-v1',mode:'video-only-no-audio',samplingFps:Number($('#fps').value),durationSeconds:records.at(-1).t,notes:'Normalized estimated movements only. No source video, audio, full landmark mesh, or images.',frames:records};const blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'}),a=document.createElement('a');const link=URL.createObjectURL(blob);a.href=link;a.download='cymatic-movement-only.json';a.click();setTimeout(()=>URL.revokeObjectURL(link),1000)});
+window.addEventListener('pagehide',()=>{clearTimeout(timer);if(url)URL.revokeObjectURL(url)});
+</script></main></body></html>
