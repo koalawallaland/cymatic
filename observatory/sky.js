@@ -356,10 +356,16 @@ async function boot(){
    import("https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/+esm"),
    import("https://cdn.jsdelivr.net/npm/satellite.js@5.0.0/+esm")
  ]);
- if(deps[0].status==="fulfilled")state.astronomyModule=deps[0].value;
- else status("planetStatus","Planets","Calculation library unavailable (network)");
- if(deps[1].status==="fulfilled")state.satelliteModule=deps[1].value;
- else status("satelliteStatus","Satellites","Prediction library unavailable (network)");
+ if(deps[0].status==="fulfilled") {
+   const pkg=deps[0].value;
+   state.astronomyModule=pkg.Equator?pkg:(pkg.default?.Equator?pkg.default:null);
+ }
+ if(!state.astronomyModule)status("planetStatus","Planets","Calculation library unavailable (network)");
+ if(deps[1].status==="fulfilled"){
+   const pkg=deps[1].value;
+   state.satelliteModule=pkg.twoline2satrec?pkg:(pkg.default?.twoline2satrec?pkg.default:null);
+ }
+ if(!state.satelliteModule)status("satelliteStatus","Satellites","Prediction library unavailable (network)");
  await refresh(true);updatePositions();
  if(!state.astronomyModule)status("planetStatus","Planets","Calculation module blocked");
  if(!state.satelliteModule)status("satelliteStatus","Satellites","Prediction module blocked");
