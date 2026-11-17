@@ -211,9 +211,12 @@
     <span class="mp-mirror-frame" aria-hidden="true"></span>
     <span class="mp-mirror-glass" aria-hidden="true">
       <img class="mp-mirror-koala" src="koe/art/koala-noise.png" alt="" loading="lazy" width="900" height="660">
-      <span class="mp-mirror-singer">
-        <img src="koe/art/singer-open.png" alt="" loading="lazy" width="900" height="660">
-        <img class="mp-mirror-blink" src="koe/art/singer.png" alt="" loading="lazy" width="900" height="660">
+      <span class="mp-mirror-singer mp-mirror-singer--loop">
+        <picture>
+          <source media="(prefers-reduced-motion: reduce)" srcset="koe/art/singer-open.png">
+          <source type="image/webp" srcset="koe/art/singer-mirror-smooth.webp">
+          <img class="mp-mirror-motion" src="koe/art/singer-open.png" alt="" loading="eager" decoding="async" width="412" height="412">
+        </picture>
       </span>
     </span>
   </button>
