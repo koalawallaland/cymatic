@@ -169,18 +169,53 @@
     }
   });
 
+  function closeRates(a, b) {
+    return a !== null && b !== null && Math.abs(a - b) <= Math.max(.14, a * .07);
+  }
+
+  function lockRepeat(session, estimate, time) {
+    if (closeRates(session.hz, estimate)) {
+      session.hz += (estimate - session.hz) * .2;
+      session.lockUntil = time + 1600;
+      session.candidate = null;
+    } else if (closeRates(session.candidate, estimate)) {
+      session.hz = (session.candidate + estimate) / 2;
+      session.lockUntil = time + 1600;
+      session.candidate = null;
+    } else {
+      session.candidate = estimate;
+      if (time >= session.lockUntil) session.hz = null;
+    }
+  }
+
+  function resetField(session) {
+    session.samples.length = 0;
+    session.hz = null;
+    session.candidate = null;
+    session.baseline = undefined;
+    session.gearHeading = undefined;
+    session.nextEstimate = -Infinity;
+    session.lockUntil = -Infinity;
+  }
+
   function recordStrength(session, strength, time) {
     const previous = session.samples.at(-1);
     if (previous && time <= previous.time) return;
-    if (previous && time - previous.time > 300) {
-      session.samples.length = 0;
-      session.hz = null;
-    }
+    if (previous && time - previous.time > 300) resetField(session);
     session.samples.push({ time, strength });
     while (session.samples[0].time < time - 5600) session.samples.shift();
     if (time >= session.nextEstimate) {
-      session.hz = repeatRate(session.samples);
+      lockRepeat(session, repeatRate(session.samples), time);
       session.nextEstimate = time + 500;
+      clearTimeout(session.timer);
+      session.timer = setTimeout(() => {
+        if (run !== session) return;
+        resetField(session);
+        dial.hidden = true;
+        value.textContent = "—";
+        rate.textContent = "Waiting for a reading";
+        updateTone(session);
+      }, 1700);
     }
   }
 
@@ -196,7 +231,7 @@
       repeat.hidden = compass;
       pitchLabel.textContent = compass ? "Pitch mapped from heading" : "Audible octave";
       status.textContent = compass
-        ? "Compass active. Turn your device to roll the gear."
+        ? "Compass locked. Turn your device to roll the gear."
         : "Magnetometer active. Nearby field changes move the gear.";
     }
 
@@ -231,7 +266,9 @@
       ? `${Math.round(heading) % 360}°`
       : `${strength.toFixed(1)} µT`;
     if (source === "field") {
-      rate.textContent = session.hz ? `${session.hz.toFixed(2)} Hz` : "No stable repeat";
+      rate.textContent = session.hz !== null
+        ? `${session.hz.toFixed(2)} Hz · Locked`
+        : session.candidate !== null ? "Locking on…" : "Looking for a repeat";
     }
     updateTone(session);
   }
@@ -256,7 +293,7 @@
       }
     }
     if (run !== session) return;
-    status.textContent = "Waiting for a compass heading…";
+    status.textContent = "Looking for the compass. Turn your device slightly.";
     const headingReading = (event) => {
       const direct = event.webkitCompassHeading;
       if (Number.isFinite(direct) && direct >= 0 && direct <= 360 && !(event.webkitCompassAccuracy < 0)) {
@@ -269,8 +306,8 @@
     window.addEventListener("deviceorientation", headingReading, options);
     window.addEventListener("deviceorientationabsolute", headingReading, options);
     session.timer = setTimeout(() => {
-      if (run === session && !session.source) stop("No compass reading arrived. Try a phone browser tab.");
-    }, 3200);
+      if (run === session && !session.source) stop("No compass reading arrived. Try opening the desk in your phone’s browser.");
+    }, 5200);
   }
 
   function startField(session) {
@@ -326,6 +363,8 @@
       samples: [],
       source: null,
       hz: null,
+      candidate: null,
+      lockUntil: -Infinity,
       nextEstimate: -Infinity,
       nextPaint: -Infinity,
     };

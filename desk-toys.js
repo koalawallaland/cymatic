@@ -506,20 +506,40 @@
     return Math.hypot(x, y) < rect.width * .085 ? null : Math.atan2(y, x);
   }
 
+  function shortestTurn(radians) {
+    return Math.atan2(Math.sin(radians), Math.cos(radians));
+  }
+
+  function engageGear(contact) {
+    // Pick up the gear at the touch bearing without inking the jump.
+    angle += shortestTurn(contact + Math.PI / 2 - angle);
+    renderGuide();
+    paper.classList.add("is-dragging");
+    traceStatus.textContent = "Gear locked. Drag to draw.";
+  }
+
   paper.addEventListener("pointerdown", (event) => {
     if (event.button !== 0 || pointer !== null) return;
     stopTrace();
-    pointer = { id: event.pointerId, angle: pointerAngle(event), moved: false };
+    const contact = pointerAngle(event);
+    pointer = { id: event.pointerId, angle: contact, engaged: contact !== null, moved: false };
     paper.setPointerCapture(event.pointerId);
-    paper.classList.add("is-dragging");
+    if (pointer.engaged) engageGear(contact);
   });
   paper.addEventListener("pointermove", (event) => {
     if (pointer?.id !== event.pointerId) return;
     const current = pointerAngle(event);
     const previous = pointer.angle;
     pointer.angle = current;
-    if (previous === null || current === null) return;
-    const delta = Math.atan2(Math.sin(current - previous), Math.cos(current - previous));
+    if (current === null) return;
+    if (!pointer.engaged) {
+      pointer.engaged = true;
+      engageGear(current);
+      return;
+    }
+    // Near the center a bearing is ambiguous. Resume from the next valid sample.
+    if (previous === null) return;
+    const delta = shortestTurn(current - previous);
     if (delta === 0) return;
     drawTo(angle + delta);
     pointer.moved = true;
@@ -527,7 +547,7 @@
 
   function releasePointer(event) {
     if (pointer?.id !== event.pointerId) return;
-    if (pointer.moved) traceStatus.textContent = "Drawing updated.";
+    if (pointer.engaged) traceStatus.textContent = pointer.moved ? "Drawing updated." : "Gear positioned.";
     pointer = null;
     paper.classList.remove("is-dragging");
   }
