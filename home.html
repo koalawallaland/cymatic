@@ -194,7 +194,44 @@
     </span>
   </button>
   <p class="mirror-status" role="status"></p>
+  <div class="mp-heart-controls" aria-label="Mirror heartbeat effects">
+    <label><input type="checkbox" id="mp-heart-toggle" checked> My ECG rhythm · 45 BPM (2024)</label>
+    <label><input type="checkbox" id="mp-earth-toggle" checked> Earth-love heart · symbolic</label>
+  </div>
+  <div class="mp-field-room" id="koala-field-room">
+    <div class="mp-field-heading"><span>🐨 Koala Field Lab · movement + particles</span><button type="button" id="mp-field-toggle" aria-expanded="false" aria-controls="mp-field-embed">Open lab</button></div>
+    <div id="mp-field-embed" hidden><iframe title="Interactive Koala Field Lab" loading="lazy" data-src="koe/field/" allow="autoplay" referrerpolicy="same-origin"></iframe></div>
+  </div>
 </section>
+<style>
+#shadow-oracle-mirror .mp-mirror-glass{position:relative}
+.mp-ecg-heart,.mp-earth-heart{position:absolute;z-index:8;pointer-events:none;display:grid;place-items:center;filter:drop-shadow(0 0 7px #ff94c9);transform-origin:center}
+.mp-ecg-heart{left:49%;top:62%;width:27px;height:27px;color:#ff8cbd;animation:mp-ecg-beat 1.333333s infinite}
+.mp-earth-heart{left:50%;top:6%;width:34px;height:34px;color:#a5f7d9;animation:mp-earth-beat 1.7s infinite}
+.mp-earth-heart svg,.mp-ecg-heart svg{width:100%;height:100%;overflow:visible}
+.mp-earth-heart:after{content:"";position:absolute;inset:-7px;border:1px solid #b6e9de;border-radius:50%;opacity:.65;animation:mp-earth-halo 1.7s infinite}
+@keyframes mp-ecg-beat{0%,25%,100%{transform:translate(-50%,-50%) scale(1)}7%{transform:translate(-50%,-50%) scale(1.25)}13%{transform:translate(-50%,-50%) scale(.94)}19%{transform:translate(-50%,-50%) scale(1.12)}}
+@keyframes mp-earth-beat{0%,100%{transform:translate(-50%,-50%) scale(1)}15%{transform:translate(-50%,-50%) scale(1.18)}32%{transform:translate(-50%,-50%) scale(1.04)}}
+@keyframes mp-earth-halo{0%{transform:scale(.7);opacity:.7}100%{transform:scale(1.6);opacity:0}}
+.mp-heart-controls{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin:12px auto;color:#e6c9dd;font:12px ui-monospace,monospace}
+.mp-heart-controls label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.mp-field-room{width:min(100%,550px);margin:20px auto 0;border:1px solid #9b6c96;border-radius:18px;background:#211728;overflow:hidden;color:#f3ddec}
+.mp-field-heading{padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;font:13px ui-monospace,monospace}
+.mp-field-heading button{background:#684366;color:#fff;border:1px solid #bd8bb2;border-radius:9px;padding:8px 12px;cursor:pointer}
+#mp-field-embed iframe{display:block;width:100%;height:700px;border:0;background:#130e1a}
+@media(max-width:600px){#mp-field-embed iframe{height:780px}}
+@media(prefers-reduced-motion:reduce){.mp-ecg-heart,.mp-earth-heart,.mp-earth-heart:after{animation:none!important}}
+</style>
+<script>
+(()=>{const mirror=document.querySelector('#shadow-oracle-mirror .mp-mirror-glass');if(!mirror||mirror.querySelector('.mp-earth-heart'))return;
+const heart='<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 28C11 24 3 18 3 11a7 7 0 0 1 13-3 7 7 0 0 1 13 3c0 7-8 13-13 17Z" fill="currentColor" stroke="#fff5" stroke-width="1.3"/></svg>';
+const ecg=document.createElement('span');ecg.className='mp-ecg-heart';ecg.innerHTML=heart;ecg.setAttribute('aria-hidden','true');
+const earth=document.createElement('span');earth.className='mp-earth-heart';earth.innerHTML=heart;earth.setAttribute('aria-hidden','true');mirror.append(ecg,earth);
+document.getElementById('mp-heart-toggle').addEventListener('change',e=>ecg.hidden=!e.target.checked);
+document.getElementById('mp-earth-toggle').addEventListener('change',e=>earth.hidden=!e.target.checked);
+const btn=document.getElementById('mp-field-toggle'),wrap=document.getElementById('mp-field-embed'),frame=wrap.querySelector('iframe');btn.addEventListener('click',()=>{let open=wrap.hidden;wrap.hidden=!open;btn.setAttribute('aria-expanded',String(open));btn.textContent=open?'Close lab':'Open lab';if(open&&!frame.src)frame.src=frame.dataset.src});
+})();
+</script>
 <script type="module">
   const practice = document.getElementById('middle-pillar');
   const steps = [...practice.querySelectorAll('.mp-steps li'), practice.querySelector('.mp-close')];
