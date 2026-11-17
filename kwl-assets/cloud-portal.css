@@ -1,8 +1,8 @@
 
 /* Cloud portal, self-hosted in-desk preview. Namespaced to avoid desk regressions. */
-.kw[data-astro-cid-ussyln6m]{position:relative}
-.kw .cloud-float{
-  position:absolute;z-index:4;right:11%;top:10%;
+.stage[data-astro-cid-ct6kdfr7]{position:relative}
+.stage .cloud-float{
+  position:absolute;z-index:18;right:12%;top:11%;
   display:grid;place-items:center;
   width:clamp(46px,7.5vw,70px);height:clamp(45px,7vw,66px);
   padding:0;border:0;border-radius:50%;background:transparent;
@@ -11,20 +11,20 @@
   animation:cloud-portal-drift 6.2s ease-in-out infinite;
   -webkit-tap-highlight-color:transparent;touch-action:manipulation
 }
-.kw .cloud-float:before{
+.stage .cloud-float:before{
  content:"";position:absolute;width:100%;height:100%;border-radius:50%;
  background:radial-gradient(circle,#fffffff0 0%,#ffffff50 35%,transparent 72%);
  opacity:.32;pointer-events:none
 }
-.kw .cloud-float svg{display:block;width:95%;height:95%;overflow:visible}
-.kw .cloud-float .cloud-body{fill:#fdf5ff48;stroke:#fefcffc9;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.kw .cloud-float .cloud-rim{fill:none;stroke:#f6caff78;stroke-width:3;filter:drop-shadow(0 0 5px #fff)}
-.kw .cloud-float .cloud-star{fill:#fffefa;filter:drop-shadow(0 0 4px #fff)}
-.kw .cloud-float:hover,.kw .cloud-float:focus-visible{opacity:1;filter:drop-shadow(0 0 10px white) drop-shadow(0 0 13px #f9b6ff)}
-.kw .cloud-float:focus-visible{outline:3px solid #fff;outline-offset:4px}
+.stage .cloud-float svg{display:block;width:95%;height:95%;overflow:visible}
+.stage .cloud-float .cloud-body{fill:#fdf5ff48;stroke:#fefcffc9;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.stage .cloud-float .cloud-rim{fill:none;stroke:#f6caff78;stroke-width:3;filter:drop-shadow(0 0 5px #fff)}
+.stage .cloud-float .cloud-star{fill:#fffefa;filter:drop-shadow(0 0 4px #fff)}
+.stage .cloud-float:hover,.stage .cloud-float:focus-visible{opacity:1;filter:drop-shadow(0 0 10px white) drop-shadow(0 0 13px #f9b6ff)}
+.stage .cloud-float:focus-visible{outline:3px solid #fff;outline-offset:4px}
 @keyframes cloud-portal-drift{0%,100%{transform:translate3d(0,1px,0)}50%{transform:translate3d(-3px,-7px,0)}}
-@media(max-width:520px){.kw .cloud-float{right:8%;top:8%;width:48px;height:48px}}
-@media(prefers-reduced-motion:reduce){.kw .cloud-float{animation:none}}
+@media(max-width:520px){.stage .cloud-float{right:12%;top:10%;width:46px;height:46px}}
+@media(prefers-reduced-motion:reduce){.stage .cloud-float{animation:none}}
 #cloud-studio-dialog{
  position:fixed;inset:0;width:min(1040px,calc(100vw - 16px));
  max-width:none;height:min(820px,calc(100dvh - 16px));max-height:none;
