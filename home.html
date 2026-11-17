@@ -195,11 +195,11 @@
   </button>
   <p class="mirror-status" role="status"></p>
   <div class="mp-heart-controls" aria-label="Mirror heartbeat effects">
-    <label><input type="checkbox" id="mp-heart-toggle" checked> My ECG rhythm · 45 BPM (2024)</label>
+    <label><input type="checkbox" id="mp-heart-toggle" checked> ECG-inspired heartbeat · 45 BPM (2024)</label>
     <label><input type="checkbox" id="mp-earth-toggle" checked> Earth-love heart · symbolic</label>
   </div>
   <div class="mp-field-room" id="koala-field-room">
-    <div class="mp-field-heading"><span>🐨 Koala Field Lab · movement + particles</span><button type="button" id="mp-field-toggle" aria-expanded="false" aria-controls="mp-field-embed">Open lab</button></div>
+    <div class="mp-field-heading"><span>🐨 Koala Field Lab · movement + particles</span><div class="mp-field-actions"><a href="koe/field/" target="_blank" rel="noopener">Full-page lab ↗</a><button type="button" id="mp-field-toggle" aria-expanded="false" aria-controls="mp-field-embed">Open lab</button></div></div>
     <div id="mp-field-embed" hidden><iframe title="Interactive Koala Field Lab" loading="lazy" data-src="koe/field/" allow="autoplay" referrerpolicy="same-origin"></iframe></div>
   </div>
 </section>
@@ -218,9 +218,9 @@
 .mp-heart-controls label{display:flex;gap:6px;align-items:center;cursor:pointer}
 .mp-field-room{width:min(100%,550px);margin:20px auto 0;border:1px solid #9b6c96;border-radius:18px;background:#211728;overflow:hidden;color:#f3ddec}
 .mp-field-heading{padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;font:13px ui-monospace,monospace}
-.mp-field-heading button{background:#684366;color:#fff;border:1px solid #bd8bb2;border-radius:9px;padding:8px 12px;cursor:pointer}
+.mp-field-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:10px}.mp-field-heading a{color:#f4c9ee;text-underline-offset:3px}.mp-field-heading button{background:#684366;color:#fff;border:1px solid #bd8bb2;border-radius:9px;padding:8px 12px;cursor:pointer}
 #mp-field-embed iframe{display:block;width:100%;height:700px;border:0;background:#130e1a}
-@media(max-width:600px){#mp-field-embed iframe{height:780px}}
+@media(max-width:600px){.mp-field-heading{flex-wrap:wrap}#mp-field-embed iframe{height:780px}}
 @media(prefers-reduced-motion:reduce){.mp-ecg-heart,.mp-earth-heart,.mp-earth-heart:after{animation:none!important}}
 </style>
 <script>
