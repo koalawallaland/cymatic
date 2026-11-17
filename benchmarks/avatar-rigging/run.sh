@@ -60,7 +60,7 @@ kit)
   echo "PASS: original geometric sample exported; user avatar requires segmentation+layer repair"
   ;;
 cubism)
-  fetch cubism nana7chi/CubismExternalEditMCP 3b84d07
+  fetch cubism nana7chi/CubismExternalEditMCP 863ebc87d0feafd841cf3877b16f0311047b9448
   cd "$OUT/cubism"
   python -m compileall -q .
   echo "CODE CHECK: Python modules compile"
