@@ -577,6 +577,117 @@
     trace.focus({ preventScroll: true });
   });
 
+
+  // Geometric study presets: each component is its own automatically colored layer.
+  const studies = [
+    ["Seed of Life", "seed"], ["Flower of Life", "flower"],
+    ["Metatron's Cube", "metatron"], ["Sri Yantra", "yantra"],
+    ["Golden Spiral", "spiral"], ["Vesica Piscis", "vesica"],
+    ["Torus", "torus"], ["Merkaba", "merkaba"],
+    ["Triquetra", "triquetra"], ["Vector Equilibrium", "vector"],
+    ["Circle Grid", "grid"], ["Nested Geometry", "nested"]
+  ];
+  const palette = ["#ff6aa9","#69d9f8","#f7c56c","#a78bfa","#83e6ac","#ff9479","#c4b5fd","#72d6ca","#f7a5d4","#e2db87"];
+  const toolsPanel = spiro.querySelector(".dt-spiro-tools");
+  const presetPanel = document.createElement("div");
+  presetPanel.className = "dt-field dt-sacred-presets";
+  presetPanel.style.cssText = "display:grid;gap:8px;margin:10px 0";
+  const presetLabel = document.createElement("label");
+  presetLabel.textContent = "Sacred geometry study";
+  const presetSelect = document.createElement("select");
+  presetSelect.setAttribute("aria-label","Choose geometric study");
+  presetSelect.innerHTML = '<option value="">Freehand Spirograph</option>' + studies.map(([name,id]) => '<option value="'+id+'">'+name+'</option>').join("");
+  const layerButton = document.createElement("button");
+  layerButton.type = "button";
+  layerButton.className = "dt-button";
+  layerButton.textContent = "Add colored study";
+  const colorNote = document.createElement("small");
+  colorNote.textContent = "Each added geometric layer gets a different rainbow ink automatically.";
+  presetPanel.append(presetLabel,presetSelect,layerButton,colorNote);
+  toolsPanel.insertBefore(presetPanel, toolsPanel.firstChild);
+  let layerCount = 0;
+  function strokeLayer(draw) {
+    ink.save();
+    ink.strokeStyle = palette[layerCount++ % palette.length];
+    ink.lineWidth = 1.75;
+    ink.lineCap = "round";
+    ink.lineJoin = "round";
+    ink.beginPath();
+    draw();
+    ink.stroke();
+    ink.restore();
+  }
+  const point = (x,y) => [center+x,center+y];
+  function line(x1,y1,x2,y2) { ink.moveTo(...point(x1,y1)); ink.lineTo(...point(x2,y2)); }
+  function circle(x,y,r) { ink.moveTo(center+x+r,center+y); ink.arc(center+x,center+y,r,0,turn); }
+  function polygon(n,r,rotation=-Math.PI/2,cx=0,cy=0) {
+    const pts=Array.from({length:n},(_,i)=>[cx+r*Math.cos(rotation+i*turn/n),cy+r*Math.sin(rotation+i*turn/n)]);
+    pts.forEach((p,i)=>line(...p,...pts[(i+1)%n]));
+    return pts;
+  }
+  function seed(scale=100,outer=false) {
+    const positions=[[0,0],...Array.from({length:6},(_,i)=>[scale*Math.cos(i*turn/6),scale*Math.sin(i*turn/6)])];
+    positions.forEach(([x,y])=>strokeLayer(()=>circle(x,y,scale)));
+    if(outer) strokeLayer(()=>circle(0,0,scale*2));
+  }
+  function drawStudy(id) {
+    stopTrace();
+    const R=178;
+    if(id==="seed") seed(91,true);
+    if(id==="flower" || id==="grid") {
+      const s=id==="flower"?62:51;
+      for(let q=-3;q<=3;q++) for(let r=-3;r<=3;r++) {
+        const x=s*(q+r/2),y=s*Math.sqrt(3)*r/2;
+        if(Math.hypot(x,y)<200) strokeLayer(()=>circle(x,y,s));
+      }
+      strokeLayer(()=>circle(0,0,226));
+    }
+    if(id==="vesica") {strokeLayer(()=>circle(-78,0,137));strokeLayer(()=>circle(78,0,137));}
+    if(id==="metatron") {
+      const pts=[[0,0],...Array.from({length:6},(_,i)=>[85*Math.cos(i*turn/6),85*Math.sin(i*turn/6)]),...Array.from({length:6},(_,i)=>[170*Math.cos(i*turn/6),170*Math.sin(i*turn/6)])];
+      pts.forEach(([x,y])=>strokeLayer(()=>circle(x,y,34)));
+      for(let i=0;i<pts.length;i++) strokeLayer(()=>{for(let j=i+1;j<pts.length;j++)line(...pts[i],...pts[j]);});
+    }
+    if(id==="merkaba") {
+      strokeLayer(()=>polygon(3,R,-Math.PI/2));
+      strokeLayer(()=>polygon(3,R,Math.PI/2));
+      strokeLayer(()=>polygon(6,R*.86));
+      strokeLayer(()=>polygon(3,R*.62,-Math.PI/2));
+      strokeLayer(()=>polygon(3,R*.62,Math.PI/2));
+    }
+    if(id==="yantra") {
+      for(let i=0;i<9;i++) strokeLayer(()=>polygon(3,175-i*15,i%2?Math.PI/2:-Math.PI/2));
+      strokeLayer(()=>circle(0,0,14));
+      strokeLayer(()=>circle(0,0,196));
+    }
+    if(id==="spiral") {
+      const phi=(1+Math.sqrt(5))/2;
+      strokeLayer(()=>{for(let t=0;t<6*Math.PI;t+=.018){let r=3*Math.pow(phi,t/(Math.PI/2));if(r>230)break;let x=r*Math.cos(t),y=r*Math.sin(t);if(t===0)ink.moveTo(...point(x,y));else ink.lineTo(...point(x,y));}});
+      for(let i=0;i<7;i++)strokeLayer(()=>circle(0,0,7*Math.pow(phi,i)));
+    }
+    if(id==="torus") {
+      for(let i=0;i<20;i++)strokeLayer(()=>{ink.save();ink.translate(center,center);ink.rotate(i*Math.PI/20);ink.ellipse(0,0,190,62,0,0,turn);ink.restore();});
+      strokeLayer(()=>circle(0,0,190));
+    }
+    if(id==="triquetra") {
+      for(let i=0;i<3;i++)strokeLayer(()=>{const a=i*turn/3-Math.PI/2;ink.arc(center+90*Math.cos(a),center+90*Math.sin(a),145,a+.45,a+Math.PI*1.62);});
+      strokeLayer(()=>circle(0,0,193));
+    }
+    if(id==="vector") {
+      const a=polygon(6,175);
+      const b=Array.from({length:6},(_,i)=>[115*Math.cos(i*turn/6),115*Math.sin(i*turn/6)]);
+      strokeLayer(()=>{b.forEach((p,i)=>line(...p,...b[(i+1)%6]));});
+      for(let i=0;i<6;i++)strokeLayer(()=>{line(...a[i],...a[(i+2)%6]);line(...a[i],...a[(i+3)%6]);});
+    }
+    if(id==="nested") {
+      for(let i=0;i<7;i++)strokeLayer(()=>polygon(i%2?6:3,195-i*25,i%2?0:-Math.PI/2));
+      seed(42);
+    }
+    clear.disabled=false;
+    traceStatus.textContent="Added "+studies.find(x=>x[1]===id)[0]+" in separate rainbow-colored layers.";
+  }
+  layerButton.addEventListener("click",()=>{if(presetSelect.value)drawStudy(presetSelect.value);else traceStatus.textContent="Choose a geometric study first.";});
+
   spiro.addEventListener("close", () => {
     stopTrace();
     if (pointer !== null) {
