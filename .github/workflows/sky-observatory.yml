@@ -1,6 +1,12 @@
 name: Sky observatory public data refresh
 
 on:
+  push:
+    paths:
+      - 'observatory/sky.js'
+      - 'observatory/index.html'
+      - 'observatory/update_feeds.py'
+      - '.github/workflows/sky-observatory.yml'
   workflow_dispatch:
   schedule:
     - cron: '*/15 * * * *'
