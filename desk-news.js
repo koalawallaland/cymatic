@@ -3,7 +3,7 @@ const panel = document.querySelector('#desk-news');
 const status = panel.querySelector('[data-news-status]');
 const list = panel.querySelector('[data-news-items]');
 const motion = matchMedia('(prefers-reduced-motion: reduce)');
-const stories = [
+const featuredCyber = { title: 'Google reports autonomous AI-driven exploitation framework exploit_agent', url: 'https://cyberscoop.com/google-fully-automated-ai-cyberattack/', date: '2026-11-16', source: 'CyberScoop / Google Threat Intelligence' };\nconst stories = [
   {
     label: 'Aviation',
     short: 'FAA ground stop updates',
@@ -16,8 +16,8 @@ const stories = [
   },
   {
     label: 'Cybersecurity',
-    short: 'Cybersecurity updates',
-    match: /cyber.?attack|ransomware|cybersecurity|data breach|government portal|cryptocurrency stolen|stolen.{0,35}cryptocurrency/i,
+    short: 'AI cyberattacks: autonomous exploit agents',
+    match: /cyber.?attack|ransomware|cybersecurity|data breach|government portal|cryptocurrency stolen|stolen.{0,35}cryptocurrency|exploit.agent|autonomous.{0,35}(hack|exploit)|AI.{0,25}(hack|attack)/i,
   },
 ];
 const feeds = [
@@ -26,7 +26,7 @@ const feeds = [
   'https://abcnews.com/abcnews/technologyheadlines',
 ];
 const freshFor = 48 * 60 * 60 * 1000;
-let headlines = ['FAA ground stop', 'New Orleans tanker collision', 'Cybersecurity'];
+let headlines = ['AI CYBERATTACKS · Google reports autonomous exploit agent', 'FAA ground stop', 'New Orleans tanker collision'];
 let current = 0;
 let timer;
 let lastSuccess = 0;
@@ -68,7 +68,7 @@ async function refresh() {
     status.textContent = lastSuccess ? 'Refresh unavailable. Showing the last retrieved headlines.' :
       'Automatic refresh unavailable. Open a source below for the latest coverage.';
     if (!lastSuccess || Date.now() - lastSuccess > freshFor) {
-      headlines = ['Open news for updates'];
+      headlines = ['AI CYBERATTACKS · Google reports autonomous exploit agent'];
       updateRotation();
     }
     return;
@@ -93,13 +93,13 @@ async function refresh() {
     row.append(`${label} · `, anchor, ' — ', date);
     return row;
   });
-  list.replaceChildren(...rows);
+  const featured = document.createElement('li');\n  const featureLink = document.createElement('a');\n  featureLink.href = featuredCyber.url;\n  featureLink.textContent = featuredCyber.title;\n  featured.append('AI cyberattacks · Nov 16 · ', featureLink, ' — reported by ', featuredCyber.source, ' (verified report; not a live incident alert)');\n  list.replaceChildren(featured, ...rows);
   lastSuccess = Date.now();
   const time = new Date(lastSuccess).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   status.textContent = matches.length
     ? `ABC News feeds checked at ${time}. ${working.length < feeds.length ? 'Some feeds unavailable.' : 'Refreshes every 2 minutes.'}`
     : `No matching recent headlines at ${time}. Source links are below.`;
-  headlines = matches.length ? matches.map(story => story.short) : ['Open news for updates'];
+  headlines = ['AI CYBERATTACKS · Google reports autonomous exploit agent', ...matches.map(story => story.short)];
   updateRotation();
 }
 
