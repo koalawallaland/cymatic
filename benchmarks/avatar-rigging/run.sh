@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+export JAVA_TOOL_OPTIONS="-Djava.awt.headless=true"
 # All tests use public, already-repository-hosted avatar artwork.
 # No image/audio upload, no microphone, no modification to production site.
 MODE="${1:?Specify mesh, still, psd, kit, cubism}"
