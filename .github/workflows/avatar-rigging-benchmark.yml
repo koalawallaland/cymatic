@@ -1,5 +1,11 @@
 name: Avatar rigging pipeline smoke tests
 on:
+  push:
+    branches:
+      - experiment/rigging-method-benchmark
+    paths:
+      - 'benchmarks/avatar-rigging/**'
+      - '.github/workflows/avatar-rigging-benchmark.yml'
   pull_request:
     paths:
       - 'benchmarks/avatar-rigging/**'
