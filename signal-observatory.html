@@ -6,6 +6,15 @@
 <div id="cities" class="grid"></div><p id="status" role="status" class="muted">Loading USGS feed…</p>
 <section class="panel"><h2>Regional earthquake observations <span class="tag">USGS · refreshed every 60 s</span></h2><div id="events"></div><small>Earthquake magnitudes are not acoustic decibels or measured city resonance. Distance is approximate. Events do not imply felt shaking.</small></section>
 <section class="panel" style="margin-top:14px"><h2>Citywide acoustic measurements <span class="tag">station feeds only</span></h2><p>No verified public live acoustic spectrum feed is connected for these four cities. No microphones, browser permissions, or visitor audio collection are used. Sound level (dB SPL) and frequency (Hz) will appear only when a real calibrated monitoring station provides them.</p><p id="acoustic-status" class="muted">Beverly Hills · Helendale · Wrightwood · San Diego: acoustic sensor feeds unavailable</p></section>
+<section class="panel" style="margin-top:14px"><h2>Seismic waveform laboratory <span class="tag">measured samples only</span></h2>
+<p class="muted">Process station samples with a Hann-window FFT. Connect a permitted station stream using WebSocket JSON messages containing <code>{"sample_rate":100,"samples":[...]}</code>, optionally <code>station</code> and <code>timestamp</code>. No user microphone.</p>
+<div class="row"><label>Station feed URL <input id="waveurl" type="url" placeholder="wss://authorized-station-feed"></label><button id="waveconnect">Connect</button><button id="wavedisconnect" disabled>Disconnect</button></div>
+<div class="row"><label>Or import recorded station CSV <input id="wavefile" type="file" accept=".csv,.txt,text/csv"></label><label>CSV sample rate (Hz) <input id="waverate" type="number" min="1" max="2000" value="100" style="width:90px"></label></div>
+<p id="wavestatus" role="status" class="muted">No waveform feed connected</p>
+<div class="grid"><div><small>Dominant frequency</small><p class="number" id="wavepeak">— Hz</p></div><div><small>RMS amplitude (raw units)</small><p class="number" id="waverms">—</p></div><div><small>Signal source</small><p id="wavesource">—</p></div></div>
+<canvas id="wavecanvas" width="900" height="220" aria-label="Measured station frequency spectrum"></canvas>
+<small>FFT uses 4096 samples (or largest power of two available), mean removal and Hann window. Raw amplitude depends on instrument calibration; no ground-velocity units are inferred. File import is archival, not live. Stream timestamps and sample rates are source-provided.</small>
+</section>
 <section class="panel" style="margin-top:14px"><h2>Collective signal layers</h2><ul><li>Seismic: <a href="https://service.scedc.caltech.edu/">SCEDC station and waveform archive</a> · delayed archival data, not continuous live polling</li><li>Air traffic: <a href="https://opensky-network.org/api/">OpenSky state vectors</a> · aircraft position only, not sound pressure</li><li>Schumann: no validated live regional electromagnetic feed connected</li><li>Cross-city correlation: pending timestamp-aligned measured feeds</li></ul><p class="muted">USGS earthquake events are live-updating catalog information, not a measurement of city resonance or acoustic frequencies. Do not infer acoustic weapons from a single event.</p></section>
 <footer>Source: <a href="https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php">USGS GeoJSON</a>. Collective public data only. No user microphone or personal audio collection. Never interpret a single peak or earthquake as proof of a directed acoustic device.</footer>
 <script>
@@ -16,4 +25,34 @@ function near(p){return events.map(e=>({...e,km:dist(p.lat,p.lon,e.geometry.coor
 function draw(){ $('cities').innerHTML='';places.forEach((p,i)=>{let n=near(p),b=document.createElement('button');b.className='panel'+(i===selected?' active':'');b.style.textAlign='left';b.innerHTML='<strong>'+p.name+'</strong><p class="number">'+n.length+' events</p><small>Within 100 km · past 24 h<br>Frequency: awaiting station waveform<br>Noise: no public feed</small>';b.onclick=()=>{selected=i;draw()};$('cities').append(b)});const p=places[selected],n=near(p);$('events').replaceChildren();const h=document.createElement('h3');h.textContent=p.name+' · '+n.length+' events within 100 km';$('events').append(h);if(!n.length){const t=document.createElement('p');t.textContent='No reported events in this radius and window.';$('events').append(t)}n.slice(0,12).forEach(e=>{const t=document.createElement('p');t.textContent='M '+(e.properties.mag??'?')+' · '+Math.round(e.km)+' km · '+new Date(e.properties.time).toLocaleString()+' · '+(e.properties.place||'Unspecified location');$('events').append(t)})}
 async function load(){try{let r=await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);let d=await r.json();events=d.features||[];draw();$('status').textContent='USGS updated '+new Date(d.metadata.generated).toLocaleString()+' · '+events.length+' catalog events';}catch(e){$('status').textContent='USGS unavailable: '+e.message+' · no readings displayed';}}
 load();setInterval(load,60000);
+
+let waveSocket=null, waveSamples=[], waveRate=0, waveLast=0;
+function fftPower(samples,rate){
+ const n=Math.min(4096,2**Math.floor(Math.log2(samples.length)));if(n<64||!(rate>0))throw Error('At least 64 samples and valid sample rate required');
+ const v=samples.slice(-n),mean=v.reduce((a,b)=>a+b,0)/n;
+ const re=new Float64Array(n),im=new Float64Array(n);let rms=0;
+ for(let i=0;i<n;i++){const x=v[i]-mean;rms+=x*x;re[i]=x*(.5-.5*Math.cos(2*Math.PI*i/(n-1)))}
+ for(let i=1,j=0;i<n;i++){let bit=n>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;if(i<j){[re[i],re[j]]=[re[j],re[i]];[im[i],im[j]]=[im[j],im[i]]}}
+ for(let len=2;len<=n;len*=2){const a=-2*Math.PI/len,wr=Math.cos(a),wi=Math.sin(a);for(let i=0;i<n;i+=len){let cr=1,ci=0;for(let j=0;j<len/2;j++){const u=i+j,v=i+j+len/2,tr=cr*re[v]-ci*im[v],ti=cr*im[v]+ci*re[v];re[v]=re[u]-tr;im[v]=im[u]-ti;re[u]+=tr;im[u]+=ti;const nr=cr*wr-ci*wi;ci=cr*wi+ci*wr;cr=nr}}}
+ const power=Array.from({length:n/2},(_,i)=>re[i]*re[i]+im[i]*im[i]);let peak=1;for(let i=2;i<power.length;i++)if(power[i]>power[peak])peak=i;
+ return {power,peakHz:peak*rate/n,rms:Math.sqrt(rms/n),rate,n};
+}
+function renderWave(samples,rate,source,live){
+ const result=fftPower(samples,rate);$('wavepeak').textContent=result.peakHz.toFixed(3)+' Hz';$('waverms').textContent=result.rms.toExponential(3);$('wavesource').textContent=source;
+ const c=$('wavecanvas'),g=c.getContext('2d');g.fillStyle='#100e1c';g.fillRect(0,0,c.width,c.height);
+ const p=result.power,max=Math.max(...p,1e-20);g.fillStyle='#9fffd4';
+ for(let x=0;x<c.width;x++){const a=Math.max(1,Math.floor(x*p.length/c.width)),b=Math.max(a+1,Math.floor((x+1)*p.length/c.width));let power=0;for(let k=a;k<Math.min(b,p.length);k++)power=Math.max(power,p[k]);const h=Math.max(0,Math.min(c.height,10*Math.log10(1+power/max*1e6)*3.4));g.fillRect(x,c.height-h,1,h)}
+ $('wavestatus').textContent=(live?'LIVE STREAM':'IMPORTED RECORDING')+' · '+new Date().toLocaleTimeString()+' · '+result.n+' samples · '+result.rate+' samples/s';
+}
+$('waveconnect').onclick=()=>{
+ try{const url=$('waveurl').value.trim();if(!/^wss:\/\//i.test(url))throw Error('Use an authorized wss:// stream');waveSocket=new WebSocket(url);waveSamples=[];waveRate=0;
+ $('wavestatus').textContent='Connecting…';$('waveconnect').disabled=true;$('wavedisconnect').disabled=false;
+ waveSocket.onopen=()=>$('wavestatus').textContent='Connected · waiting for station samples';
+ waveSocket.onmessage=e=>{try{const msg=JSON.parse(e.data);const arr=msg.samples;if(!Array.isArray(arr)||!arr.length||arr.length>100000||!arr.every(Number.isFinite))return;const rate=Number(msg.sample_rate);if(!Number.isFinite(rate)||rate<1||rate>2000)return;if(waveRate&&waveRate!==rate)waveSamples=[];waveRate=rate;waveSamples.push(...arr);if(waveSamples.length>8192)waveSamples=waveSamples.slice(-8192);if(waveSamples.length>=64&&Date.now()-waveLast>500){waveLast=Date.now();renderWave(waveSamples,rate,String(msg.station||'unlabeled station'),true)}}catch(err){$('wavestatus').textContent='Stream parsing error: '+err.message}};
+ waveSocket.onerror=()=>$('wavestatus').textContent='Stream error · check endpoint and permissions';
+ waveSocket.onclose=()=>{waveSocket=null;$('waveconnect').disabled=false;$('wavedisconnect').disabled=true;$('wavestatus').textContent='Station stream disconnected'};
+ }catch(e){$('wavestatus').textContent=e.message}
+};
+$('wavedisconnect').onclick=()=>waveSocket?.close();
+$('wavefile').onchange=async e=>{try{const file=e.target.files?.[0];if(!file)return;if(file.size>3e6)throw Error('CSV exceeds 3 MB');const rate=Number($('waverate').value);if(!Number.isFinite(rate)||rate<1||rate>2000)throw Error('Invalid sample rate');const lines=(await file.text()).split(/\r?\n/);const samples=[];for(const line of lines){const fields=line.trim().split(/[;,\t]/);const v=Number(fields[fields.length-1]);if(fields[fields.length-1].trim()!==''&&Number.isFinite(v))samples.push(v)}if(samples.length<64)throw Error('CSV needs 64+ numeric samples in last column');renderWave(samples,rate,file.name,false)}catch(err){$('wavestatus').textContent='Import error: '+err.message}};
 </script></body></html>
