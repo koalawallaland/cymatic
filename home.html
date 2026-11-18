@@ -31,6 +31,19 @@
   #middle-pillar .mp-source { font-size: .85em; }
   #middle-pillar a { color: #f5c8ff; text-decoration: underline; }
   #middle-pillar [hidden] { display: none !important; }
+  #middle-pillar .mirror-caption {
+    width: min(100%, 30rem); margin: .35rem auto 1.5rem; padding: 0 .25rem;
+    color: #f4d7ff; text-align: center; text-shadow: 0 0 .6rem #db9def55;
+  }
+  #middle-pillar .mirror-caption p { margin: .35rem 0; }
+  #middle-pillar .mirror-caption-title {
+    font-size: clamp(1rem, 3.6vw, 1.25rem); line-height: 1.6; letter-spacing: .06em;
+  }
+  #middle-pillar .mirror-caption-script {
+    font-size: clamp(1rem, 3.2vw, 1.1rem); line-height: 1.8;
+  }
+  #middle-pillar .mirror-caption-script span { display: inline-block; }
+  #middle-pillar .mirror-caption-face { font-size: 1.15rem; line-height: 1.6; }
 </style>
 <style>
   [data-stage] > .m-up { left: 16% !important; top: 19% !important; width: 22%; }
@@ -242,6 +255,11 @@
       </span>
     </span>
   </button>
+  <div class="mirror-caption" id="mirror-art-caption">
+    <p class="mirror-caption-title">𝕋ℍ𝕀𝕊 𝕀𝕊 ℕ𝕆𝕋 𝔸ℝ𝕋</p>
+    <p class="mirror-caption-script"><span>𝓣𝓗𝓘𝓢 𝓘𝓢 𝓝𝓞𝓣 𝓐𝓡𝓣</span> <span>/ 𝓣𝓱𝓲𝓼 𝓲𝓼 𝓷𝓸𝓽 𝓪𝓻𝓽</span></p>
+    <p class="mirror-caption-face">૮꒰ ⸝⸝•̀ ⤙ •́⸝⸝ ꒱ა 🖼️</p>
+  </div>
   <p class="mirror-status" role="status"></p>
 </section>
 <script type="module">
