@@ -55,6 +55,9 @@ for(const x of [-35,-24]){B(x,.35,9,4,.7,2,this.pink,true);B(x,.9,9.8,4,1, .3,th
 // Tokyo lounge: gallery plinths, glazing and distinct skyline silhouettes.
 for(let i=0;i<3;i++){B(-15+i*15,.4,-37,2,.8,2,this.cream,true);const art=new THREE.Mesh(new THREE.TorusKnotGeometry(.65,.13,72,10),this.metal);art.position.set(-15+i*15,1.8,-37);scene.add(art)}
 B(0,3,-56.8,46,6,.1,glass);
+// Observatory portal: a compact brass-and-iridescent telescope beside the night-gallery window.
+this.telescope=this.makeTelescope(9,-53.1);
+
 this.sign('MORI / NIGHT GALLERY',0,5.2,-27,Math.PI,8);
 const skyline=mat('#272938');for(let i=0;i<22;i++){const h=6+(i*7%17);B(-65+i*6,h/2,-86-(i%3)*9,4,h,4,skyline)}
 const towerMat=mat('#ba7d88');for(const side of [-1,1]){const beam=B(-12+side*2.5,13,-74,.55,26,.55,towerMat);beam.rotation.z=side*.16}
@@ -64,6 +67,69 @@ B(13,18,-79,1,36,1,this.metal);B(13,30,-79,5,1.2,5,this.cream);B(13,34,-79,3,.6,
 this.sign('TOKYO TOWER',-12,4,-59,0,5);this.sign('TOKYO SKYTREE',13,4,-59,0,5);
 // Optional abstract body-wall nightmare geometry, hidden until chosen.
 for(let i=0;i<18;i++){const head=new THREE.Mesh(new THREE.SphereGeometry(.35,12,10),this.pink);head.scale.set(1,1.5,.5);head.position.set(41.7,.8+(i%3)*.95,-9+Math.floor(i/3)*4.5);head.visible=false;scene.add(head);this.nightmares.push(head)}
+}
+makeTelescope(x,z){
+  const group=new THREE.Group();
+  group.name="Listening Sky Telescope";
+  group.position.set(x,0,z);
+  group.userData.href="../observatory/index.html";
+  const brass=new THREE.MeshStandardMaterial({color:"#be9b63",metalness:.9,roughness:.24});
+  const purple=new THREE.MeshStandardMaterial({color:"#44364f",metalness:.67,roughness:.19});
+  const glass=new THREE.MeshPhysicalMaterial({color:"#b8d9ed",metalness:.13,roughness:.06,transparent:true,opacity:.7,side:THREE.DoubleSide});
+  const glow=new THREE.MeshStandardMaterial({color:"#b1f4e4",emissive:"#69b8a7",emissiveIntensity:.6,metalness:.3,roughness:.22});
+  const tube=new THREE.Group();
+  tube.position.set(0,1.63,0);
+  tube.rotation.x=-.18;
+  group.add(tube);
+  // Telescope aims through the lounge's south-facing panoramic glass.
+  const main=new THREE.Mesh(new THREE.CylinderGeometry(.205,.245,1.96,20),purple);
+  main.rotation.x=Math.PI/2;
+  main.position.z=-.19;
+  tube.add(main);
+  const ring=(zPos,radius,depth,material)=>{
+    const m=new THREE.Mesh(new THREE.CylinderGeometry(radius,radius,depth,24),material);
+    m.rotation.x=Math.PI/2;
+    m.position.z=zPos;
+    tube.add(m);
+    return m;
+  };
+  ring(-1.18,.27,.16,brass);
+  ring(-1.28,.23,.035,glass);
+  ring(-.85,.244,.035,glow);
+  ring(.77,.23,.1,brass);
+  ring(.93,.105,.27,purple);
+  ring(1.06,.145,.07,brass);
+  const focus=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,.17,12),brass);
+  focus.rotation.z=Math.PI/2;
+  focus.position.set(.24,.08,.38);
+  tube.add(focus);
+  const mount=new THREE.Mesh(new THREE.SphereGeometry(.19,16,12),brass);
+  mount.position.set(0,1.55,0);
+  group.add(mount);
+  const pole=(from,to,radius,material)=>{
+    const a=new THREE.Vector3(...from),b=new THREE.Vector3(...to);
+    const v=b.clone().sub(a);
+    const mesh=new THREE.Mesh(new THREE.CylinderGeometry(radius,radius*.84,v.length(),10),material);
+    mesh.position.copy(a.clone().add(b).multiplyScalar(.5));
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),v.normalize());
+    group.add(mesh);
+  };
+  pole([0,1.52,0],[0,1.15,0],.12,brass);
+  for(let i=0;i<3;i++){
+    const angle=i*Math.PI*2/3+Math.PI/6;
+    pole([0,1.18,0],[Math.sin(angle)*.67,.08,Math.cos(angle)*.67],.052,brass);
+  }
+  const collar=new THREE.Mesh(new THREE.TorusGeometry(.19,.035,8,20),glow);
+  collar.position.set(0,1.33,0);
+  collar.rotation.x=Math.PI/2;
+  group.add(collar);
+  // Large invisible pick volume makes gaze/tap targeting forgiving.
+  const hit=new THREE.Mesh(new THREE.BoxGeometry(.95,1.7,2.8),new THREE.MeshBasicMaterial({visible:false}));
+  hit.position.set(0,1.68,0);
+  hit.name="Observatory telescope interaction";
+  group.add(hit);
+  this.scene.add(group);
+  return group;
 }
 sign(text,x,y,z,rotation,width){const c=document.createElement('canvas');c.width=1024;c.height=128;const g=c.getContext('2d');g.fillStyle='#2a2530';g.fillRect(0,0,1024,128);g.fillStyle='#d3dda7';g.font='42px sans-serif';g.textAlign='center';g.fillText(text,512,80);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const m=new THREE.Mesh(new THREE.PlaneGeometry(width,width/8),new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}));m.position.set(x,y,z);m.rotation.y=rotation;this.scene.add(m)}
 plant(x,z){this.box(x,.4,z,.85,.8,.85,this.walnut,true);const leaf=new THREE.Mesh(new THREE.SphereGeometry(.75,10,8),this.chartreuse);leaf.scale.set(.7,1.5,.7);leaf.position.set(x,1.6,z);this.scene.add(leaf)}
