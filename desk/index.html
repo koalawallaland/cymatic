@@ -173,6 +173,11 @@
   footer { text-align: center; color: var(--muted); font-size: 12px; letter-spacing: .16em; padding: 40px 16px; }
   .notes { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
   .notes li { padding: 14px; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; font-size: 13px; }
+
+  .beatrizz-hot .beatrizz-lift { transition: filter .2s; }
+  .beatrizz-hot:hover .beatrizz-lift { filter: brightness(1.2); }
+  .beatrizz-hot:focus-visible .beatrizz-focus { stroke: #fff1fb; stroke-width: 3; }
+  @media (prefers-reduced-motion: reduce) { .beatrizz-hot .beatrizz-lift { transition: none; } }
 </style>
 </head>
 <body>
@@ -349,23 +354,23 @@
           <g class="tag"><rect x="583" y="436" width="120" height="30" rx="15"/><text x="643" y="456" text-anchor="middle">LIVE ♪</text></g>
         </g>
 
-        <!-- Beatrizz: glossy black White Koala field notes -->
-        <a class="hot" href="../beatrizz/index.html" aria-label="Open Beatrizz White Koala field notes">
-          <title>Beatrizz · White Koala field notes</title>
-          <g class="lift" transform="translate(448 474) rotate(-9 0 0)">
-            <rect x="-1" y="0" width="83" height="102" rx="6" fill="#08080c" stroke="#9b8bad" stroke-width="1.3"/>
-            <rect x="5" y="5" width="72" height="92" rx="4" fill="#111016" stroke="#4a4257"/>
-            <path d="M11 7L35 7L13 95L9 95Z" fill="#fff" opacity=".13"/>
-            <path d="M7 8V94" stroke="#c3a3dc" stroke-width="2"/>
-            <text x="42" y="43" fill="#dfc9ed" font-family="Georgia,serif" font-size="14" font-style="italic" text-anchor="middle">Beatrizz</text>
-            <text x="42" y="56" fill="#bdb2c8" font-size="5.5" letter-spacing="1.1" text-anchor="middle">FIELD NOTES</text>
-            <g transform="translate(27 60) scale(.14)">
-              <circle cx="156" cy="70" r="28" fill="#c8b4a8"/><circle cx="256" cy="70" r="28" fill="#c8b4a8"/><circle cx="158" cy="72" r="17" fill="#f5e3cf"/><circle cx="254" cy="72" r="17" fill="#f5e3cf"/>
-              <ellipse cx="206" cy="100" rx="52" ry="46" fill="#c8b4a8"/><path fill="#e8d8c9" d="M182 62C186 44 206 40 214 52C220 40 238 44 236 60C228 54 220 58 214 66C206 56 192 56 182 62Z"/>
-              <g fill="none" stroke="#3e332c" stroke-width="2.6" stroke-linecap="round"><path d="M180 96Q188 89 196 96"/><path d="M216 96Q224 89 232 96"/></g><ellipse cx="206" cy="108" rx="13" ry="11" fill="#503e33"/><path d="M199 128Q206 133 213 128Q206 131 199 128Z" fill="#bc4254"/><g transform="translate(248 46) rotate(18)"><path d="M0 0l-10-6v12zM0 0l10-6v12z" fill="#dd9e9e"/><circle r="3" fill="#da949f"/></g>
+        <!-- Beatrizz: fixed placement outside the hoverable cover. Exact KOE image, silver finish only. -->
+        <g transform="translate(10 477) rotate(-6 0 0)">
+          <a class="hot beatrizz-hot" href="../beatrizz/index.html" aria-label="Open Beatrizz, White Koala field notes">
+            <title>Beatrizz · White Koala field notes</title>
+            <rect x="-24" y="-18" width="128" height="134" fill="transparent"/>
+            <g class="beatrizz-lift">
+              <rect class="beatrizz-focus" x="-5" y="-4" width="90" height="110" rx="7" fill="none"/>
+              <rect x="-1" y="0" width="83" height="102" rx="6" fill="#08080c" stroke="#b5a6c4" stroke-width="1.3"/>
+              <rect x="5" y="5" width="72" height="92" rx="4" fill="#15131c" stroke="#4a4257"/>
+              <path d="M11 7L35 7L13 95L9 95Z" fill="#fff" opacity=".14"/>
+              <path d="M7 8V94" stroke="#c3a3dc" stroke-width="2"/>
+              <text x="42" y="35" fill="#f0e7f5" font-family="Georgia,serif" font-size="14" font-style="italic" text-anchor="middle">Beatrizz</text>
+              <text x="42" y="47" fill="#c9bfd4" font-size="5.5" letter-spacing="1.1" text-anchor="middle">FIELD NOTES</text>
+              <image href="../koe/art/koala-noise.png" x="22" y="57" width="40" height="31" preserveAspectRatio="xMidYMid meet" style="filter:grayscale(1) brightness(1.25)"/>
             </g>
-          </g>
-        </a>
+          </a>
+        </g>
 
         <!-- mug → café -->
         <a class="hot" href="#cafe" aria-label="Mug: café notes">
