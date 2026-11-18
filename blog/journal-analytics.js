@@ -7,7 +7,8 @@
   const slug = script?.dataset?.journalTrack;
   const keys = {
     index: "koalawallaland_cymatic_journal_index_20261108_v1",
-    aluminum: "koalawallaland_cymatic_aluminum_ghosts_visits_20261108_a71c"
+    aluminum: "koalawallaland_cymatic_aluminum_ghosts_visits_20261108_a71c",
+    pusheen: "koalawallaland_cymatic_pusheen_daisies_visits_20261118_v1"
   };
   const key = keys[slug];
   if (!key || location.hostname !== "koalawallaland.github.io") return;
