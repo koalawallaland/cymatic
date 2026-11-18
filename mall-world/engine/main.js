@@ -20,6 +20,28 @@ $('destination').onchange=()=>travel($('destination').value);
 const room=()=>player.pos.z< -24?'tokyo':player.pos.x>16?'toilets':player.pos.x< -16?'hotel':'atrium';
 const resonance=mountResonance({pause,enter,travel,room,unlockStall:()=>world.unlockResonanceStall()});
 const shift = mountLateShift({ scene, room, travel });
+// Only the local physical telescope (not the entire gallery) opens the observatory.
+const scopeLink=$('scopeLink');
+const scopeDistance=()=>Math.hypot(player.pos.x-world.telescope.position.x,player.pos.z-world.telescope.position.z);
+const scopeNear=()=>active&&scopeDistance()<4.7&&room()==='tokyo';
+function openObservatory(){window.location.assign('../observatory/index.html')}
+const scopeRay=new THREE.Raycaster();
+renderer.domElement.addEventListener('click',event=>{
+  if(!scopeNear())return;
+  const pointer=document.pointerLockElement===renderer.domElement
+    ?new THREE.Vector2(0,0)
+    :new THREE.Vector2(event.clientX/innerWidth*2-1,1-event.clientY/innerHeight*2);
+  scopeRay.setFromCamera(pointer,camera);
+  if(scopeRay.intersectObject(world.telescope,true).length)openObservatory();
+});
+document.addEventListener('keydown',event=>{
+  if(event.code==='KeyE'&&!event.repeat&&scopeNear()&&
+     !event.target.closest?.('input,select,textarea,button,a')){
+    event.preventDefault();
+    openObservatory();
+  }
+});
+
 document.addEventListener('keydown', event => {
   if (event.code !== 'KeyQ' || event.repeat || $('shift-toggle').hidden) return;
   if (event.target.closest('input,select,textarea,button,a')) return;
@@ -38,6 +60,7 @@ addEventListener('blur',()=>{release();looking=null});document.addEventListener(
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 const clock=new THREE.Clock();let lastZone='';
 let frame=0;function animate(){frame=requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.05);if(active){player.update(dt);world.updateFlicker(clock.elapsedTime)}else{camera.position.copy(player.pos);camera.rotation.set(player.pitch,player.yaw,0)}
+scopeLink.hidden=!scopeNear();
 light.position.copy(camera.position);let zone=player.pos.z< -24?'TOKYO / NIGHT GALLERY':player.pos.x>16?'TOILET WORLD':player.pos.x< -16?'HOTEL LOBBY':'THE ATRIUM';if(zone!==lastZone){$('zone').textContent=zone;lastZone=zone}resonance.update(active);shift.update(active,dt);renderer.render(scene,camera)}animate();
 $('enter').disabled=false;$('introText').textContent=mobile?'Left thumb to walk. Drag the right side to look. Tap Shift phone for jobs.':'WASD to walk. Mouse to look. Q opens the Shift phone. Escape pauses and releases the mouse.';
 
