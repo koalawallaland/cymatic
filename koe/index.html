@@ -166,7 +166,7 @@ main:not([data-koemode="lyric"]) .only-lyric,main:not([data-koevoice="koala"]) .
     <p id="easy-status" role="status"></p>
   </section>
 
-  <details class="full-koe" data-panel="play"><summary>Full stylophone</summary>
+  <details class="full-koe" data-panel="play" open><summary>Full stylophone</summary>
   <div class="stagewrap">
     <button class="startcover" type="button" data-start><span>▶ power on</span></button>
     <div class="koe" id="koe">
@@ -451,7 +451,10 @@ function glottalWave(c) {
   return c.createPeriodicWave(re, im);
 }
 function start() {
-  if (started) return started;
+  if (started) {
+    if (S.power && ctx.state !== 'running') return ctx.resume();
+    return started;
+  }
   started = (async () => {
     ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
     osc = ctx.createOscillator(); osc.setPeriodicWave(glottalWave(ctx)); osc.frequency.value = 262;
@@ -606,7 +609,6 @@ function countUse() {
   fetch('https://countapi.mileshilliard.com/api/v1/hit/koalawallaland_cymatic_koe_plays_20261109_v1', { credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store' }).catch(() => {});
 }
 function noteOn(note, legato) { countUse(); if (!legato && downKeys.length) googly.kick(0.6);
-  if (!S.power) { start().then(() => noteOn(note, false)); return; }
   const n = note + S.oct * 12;
   if (noiseOn()) { kn.on(n, legato); kn.growl(S.vib); S.note = note; koe.classList.add('singing'); keyHot(note); noiseSeg(n > 70 ? 4 : 0); if (nRec) nMark('kn', n); return; }
   const key = syllableFor(n);
@@ -625,7 +627,7 @@ function noteOn(note, legato) { countUse(); if (!legato && downKeys.length) goog
   keyHot(note);
   if (nRec) nMark('kv', n);
 }
-function noteOff() { phraseCapture.release(); if (nRec) nUnmark(); S.note = null; stopSinging(); document.getElementById('koe').classList.remove('singing'); keyHot(null); releasePracticeNote(); }
+function noteOff() { manualNoteTicket++; phraseCapture.release(); if (nRec) nUnmark(); S.note = null; stopSinging(); document.getElementById('koe').classList.remove('singing'); keyHot(null); releasePracticeNote(); }
 
 // ---------- UI ----------
 const koe = document.getElementById('koe');
@@ -843,11 +845,11 @@ svgK.addEventListener('focusout', stopFocusedNote);
 function playNoteTap(note) {
   stopFocusedNote();
   const ticket = ++keyTicket;
-  (S.power ? Promise.resolve() : start()).then(() => {
+  start().then(() => {
     if (ticket !== keyTicket) return;
     focusedHold = note;
-    easyStatus.textContent = 'Played ' + noteName(note + S.oct * 12);
     playManualNote(note, false);
+    easyStatus.textContent = 'Played ' + noteName(note + S.oct * 12);
     setTimeout(() => { if (ticket === keyTicket) stopFocusedNote(); }, 300);
   }).catch(() => { easyStatus.textContent = 'Sound could not start. Tap a note to try again.'; });
 }
@@ -1172,7 +1174,17 @@ function showPracticeNote() {
   phraseStatus.textContent = `Play ${noteName(note.key + note.octave * 12)} · ${phraseStep + 1} of ${printedNotes.length}`;
 }
 
+let manualNoteTicket = 0;
 function playManualNote(key, legato) {
+  if (!S.power || ctx.state !== 'running') {
+    const ticket = ++manualNoteTicket;
+    start().then(() => {
+      if (ticket === manualNoteTicket && ctx?.state === 'running') playManualNote(key, false);
+    }).catch(() => {
+      if (ticket === manualNoteTicket) easyStatus.textContent = 'Sound could not start. Play a note to try again.';
+    });
+    return;
+  }
   if (phraseMode === 'play') { stopPhrase(); legato = false; }
   if (!phraseMode) phraseCapture.press(key, S.oct);
   const expected = printedNotes[phraseStep];
