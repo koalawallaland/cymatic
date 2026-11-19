@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HHKB Mod Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* One committed world: a dark void with pearl type and an iridescent pink / lilac / ice trio.
+     Layout: 3D stage on top (left on wide screens), one tabbed bench underneath (right). */
+  color-scheme:dark;
+  --void:#0b0a14; --panel:#14122a; --raise:#1d1a3a; --line:#302b5c;
+  --pearl:#eeebff; --mute:#a29dcc;
+  --pink:#ff5fc8; --lilac:#b79bff; --ice:#7fe9ff;
+  --holo:linear-gradient(100deg,var(--pink),var(--lilac) 45%,var(--ice));
+  --display:"Syncopate","Arial Black",sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--void);color:var(--pearl);font:500 14px/1.45 var(--body);display:flex;flex-direction:column;overflow:hidden}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--ice);outline-offset:2px}
+
+#stage{position:relative;flex:0 0 46%;min-height:250px;background:
+  radial-gradient(60% 55% at 30% 20%,rgba(183,155,255,.22),transparent 70%),
+  radial-gradient(50% 50% at 80% 75%,rgba(255,95,200,.16),transparent 70%),
+  radial-gradient(40% 40% at 70% 15%,rgba(127,233,255,.12),transparent 70%),var(--void)}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#brand{position:absolute;left:12px;top:10px;display:grid;gap:7px}
+#brand h1{margin:2px 0 0 4px;font:700 12px/1 var(--display);letter-spacing:.14em;background:var(--holo);-webkit-background-clip:text;background-clip:text;color:transparent;pointer-events:none}
+#boards{display:flex;padding:3px;border-radius:17px;border:1px solid var(--line);background:rgba(20,18,42,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#boards button{height:28px;padding:0 12px;border:0;border-radius:14px;background:none;font-size:12px;font-weight:700;color:var(--mute)}
+#boards button[aria-pressed="true"]{background:var(--holo);color:#140b2a}
+#tools{position:absolute;right:12px;top:10px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:50%}
+.tool{height:34px;padding:0 11px;border-radius:17px;border:1px solid var(--line);background:rgba(20,18,42,.78);font-size:12px;font-weight:700;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.tool[aria-pressed="true"]{border-color:transparent;background:var(--holo);color:#140b2a}
+#paintbar{position:absolute;left:12px;right:12px;bottom:62px;display:none;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 10px;border-radius:14px;border:1px solid var(--line);background:rgba(20,18,42,.86);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#paintbar.on{display:flex}
+#paintbar span{font-size:11px;color:var(--mute)}
+.sw{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.25);padding:0}
+.sw[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 2px var(--pink)}
+#paintClear{margin-left:auto;border:0;background:none;color:var(--ice);font-size:12px;font-weight:700;padding:4px}
+#explode{position:absolute;left:12px;right:12px;bottom:10px;display:flex;align-items:center;gap:10px;padding:6px 12px 6px 6px;border-radius:22px;border:1px solid var(--line);background:rgba(20,18,42,.86);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#play{flex:none;width:32px;height:32px;border-radius:50%;border:0;background:var(--holo);color:#140b2a;font-weight:700;font-size:12px}
+#explode label{font:700 9px/1 var(--display);letter-spacing:.12em;color:var(--mute)}
+#ex{flex:1;min-width:0;accent-color:var(--pink);height:28px}
+#hint{position:absolute;left:0;right:0;bottom:60px;text-align:center;font-size:11px;color:var(--mute);pointer-events:none;transition:opacity .6s}
+#nogl{position:absolute;inset:0;display:none;align-items:center;justify-content:center;padding:24px;text-align:center;color:var(--mute)}
+
+#bench{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--panel);border-top:1px solid var(--line)}
+#tabs{display:flex;gap:4px;padding:8px 12px 0}
+.tab{flex:1;height:38px;border:0;border-radius:10px 10px 0 0;background:none;color:var(--mute);font:700 9px/1 var(--display);letter-spacing:.08em}
+.tab[aria-selected="true"]{background:var(--raise);color:var(--pearl);box-shadow:inset 0 2px 0 var(--pink)}
+.pane{flex:1;min-height:0;overflow-y:auto;padding:14px 16px 28px;background:var(--raise);display:none;flex-direction:column;gap:14px}
+.pane.on{display:flex}
+
+.layer{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;padding:9px 10px;border-radius:12px;border:1px solid var(--line);background:var(--panel)}
+.layer i{width:28px;height:28px;border-radius:8px;border:1px solid rgba(255,255,255,.18)}
+.layer b{display:block;font-size:13px}
+.layer small{display:block;font-size:11px;color:var(--mute)}
+.layer em{font:700 9px/1 var(--display);font-style:normal;letter-spacing:.08em;color:var(--mute)}
+.layer[aria-pressed="true"]{border-color:var(--pink);background:#241d48}
+.layer[aria-pressed="true"] em{color:var(--pink)}
+#layerlist{display:flex;flex-direction:column;gap:6px}
+#detail,.card,.step{display:grid;gap:10px;padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--panel)}
+h2{margin:0;font:700 10px/1.3 var(--display);letter-spacing:.1em;color:var(--lilac)}
+#detail p,.step p,.card p{margin:0;font-size:13px;max-width:62ch}
+figure{margin:0}
+figure img{display:block;width:100%;max-width:100%;border-radius:10px;border:1px solid var(--line)}
+figcaption{margin-top:5px;font-size:11px;color:var(--mute)}
+
+.grp{display:grid;gap:8px}
+.grp p{margin:0;font-size:12px;color:var(--mute);max-width:62ch}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{min-height:36px;padding:6px 12px;border-radius:18px;border:1px solid var(--line);background:var(--panel);font-size:12px;font-weight:700;display:flex;align-items:center;gap:7px}
+.opt u{width:14px;height:14px;border-radius:50%;border:1px solid rgba(255,255,255,.3);text-decoration:none;flex:none}
+.opt[aria-pressed="true"]{border-color:transparent;background:var(--holo);color:#140b2a}
+
+.pillrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{padding:5px 12px;border-radius:14px;font:700 10px/1 var(--display);letter-spacing:.08em;background:var(--holo);color:#140b2a}
+.pillrow span:not(.pill){font-size:12px;color:var(--mute);flex:1 1 200px}
+.meter{display:grid;grid-template-columns:64px 1fr 34px;gap:10px;align-items:center;font-size:12px}
+.meter div{height:8px;border-radius:4px;background:var(--void);overflow:hidden}
+.meter div i{display:block;height:100%;border-radius:4px;background:var(--holo);transition:width .35s}
+.meter span:last-child{text-align:right;color:var(--mute);font-variant-numeric:tabular-nums}
+#curve{width:100%;height:auto;display:block}
+#sheet{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:13px}
+#sheet li{display:grid;grid-template-columns:104px 1fr;gap:10px;padding-bottom:6px;border-bottom:1px dashed var(--line)}
+#sheet li span:first-child{color:var(--mute);font-size:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{min-height:40px;padding:0 16px;border-radius:20px;border:1px solid var(--line);background:var(--raise);font-weight:700;font-size:13px}
+.btn.go{border:0;background:var(--holo);color:#140b2a}
+#copied{font-size:12px;color:var(--ice);align-self:center}
+.step header{display:flex;align-items:baseline;gap:10px}
+.step header b{font:700 11px/1 var(--display);color:var(--pink);font-variant-numeric:tabular-nums}
+.step header span{font-weight:700;font-size:14px}
+.step[aria-current="step"]{border-color:var(--pink);background:#241d48}
+.step .btn{justify-self:start;min-height:34px;font-size:12px}
+#cctv{position:relative;aspect-ratio:16/9;border-radius:18px;overflow:hidden;background:#050806;border:6px solid #1a1a22;box-shadow:inset 0 0 0 2px #000,0 0 0 1px var(--line)}
+#cctv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(.9) contrast(1.35) brightness(.85) sepia(.35) hue-rotate(55deg) blur(.4px)}
+#cctv::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,transparent 1px 3px),radial-gradient(120% 90% at 50% 50%,transparent 55%,rgba(0,0,0,.75))}
+#cctv::after{content:"";position:absolute;left:0;right:0;height:22%;top:-25%;z-index:1;pointer-events:none;background:linear-gradient(transparent,rgba(190,255,210,.09),transparent);animation:roll 5.5s linear infinite}
+@keyframes roll{to{top:105%}}
+@keyframes blink{50%{opacity:.15}}
+#cctv .osd{position:absolute;z-index:2;font:700 11px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.08em;color:#d6ffe0;text-shadow:0 0 6px rgba(120,255,160,.8)}
+#camLabel{left:12px;top:10px}#camRec{right:12px;top:10px}#camRec i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff3b3b;margin-right:6px;animation:blink 1.2s steps(1) infinite}
+#camTime{left:12px;bottom:10px;font-variant-numeric:tabular-nums}#camNote{right:12px;bottom:10px}
+#noSig{position:absolute;inset:0;z-index:1;display:none;place-items:center;text-align:center;padding:16px;background:repeating-linear-gradient(90deg,#111 0 3px,#1c1c1c 3px 5px);color:#d6ffe0;font:700 13px/1.5 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.1em}
+#cctv.nosig #noSig{display:grid}#cctv.nosig video,#cctv.nosig #camRec{display:none}
+#cams{display:flex;gap:6px;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){#cctv::after,#camRec i{animation:none}}
+
+@media (min-width:900px){
+  body{flex-direction:row}
+  #stage{flex:1;min-height:0}
+  #bench{flex:0 0 430px;border-top:0;border-left:1px solid var(--line)}
+  #brand h1{font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<section id="stage" aria-label="3D keyboard">
+  <canvas id="gl"></canvas>
+  <div id="nogl">This device could not start WebGL, so the 3D board can’t draw. The mods and build sheet below still work.</div>
+  <div id="brand"><h1>MOD LAB</h1><div id="boards" role="group" aria-label="Keyboard"></div></div>
+  <div id="tools">
+    <button class="tool" id="paintBtn" aria-pressed="false">Paint</button>
+    <button class="tool" id="soundBtn" aria-pressed="true">Sound</button>
+    <button class="tool" id="viewBtn">Reset</button>
+  </div>
+  <div id="hint">Drag to orbit · tap a key · tap a part to isolate it</div>
+  <div id="paintbar"><span>Tap keys to paint</span><span id="swatches" class="row"></span><input type="color" id="paintPick" value="#ff5fc8" aria-label="Custom paint colour" style="width:30px;height:30px;padding:0;border:0;background:none"><button id="paintClear">Clear paint</button></div>
+  <div id="explode">
+    <button id="play" aria-label="Play the explode animation">▶</button>
+    <label for="ex">EXPLODE</label>
+    <input type="range" id="ex" min="0" max="100" value="55">
+  </div>
+</section>
+
+<section id="bench">
+  <div id="tabs" role="tablist">
+    <button class="tab" role="tab" data-t="layers" aria-selected="true">Layers</button>
+    <button class="tab" role="tab" data-t="mods" aria-selected="false">Mods</button>
+    <button class="tab" role="tab" data-t="guide" aria-selected="false" id="guideTab">Silence</button>
+    <button class="tab" role="tab" data-t="build" aria-selected="false">Build</button>
+  </div>
+  <div class="pane on" id="p-layers"><div id="layerlist"></div><div id="detail"></div></div>
+  <div class="pane" id="p-mods"></div>
+  <div class="pane" id="p-guide">
+    <div class="card">
+      <h2>BENCH CAM</h2>
+      <div id="cctv"><video id="cctvVid" muted loop playsinline preload="metadata"></video>
+        <div id="noSig">NO SIGNAL<br>SLIDER LUBE FEED NOT CONNECTED</div>
+        <span class="osd" id="camLabel"></span><span class="osd" id="camRec"><i></i>REC</span><span class="osd" id="camTime"></span><span class="osd" id="camNote">YOUR FOOTAGE</span></div>
+      <div id="cams"></div>
+    </div>
+    <div id="guideBody" style="display:contents"></div>
+  </div>
+  <div class="pane" id="p-build">
+    <div class="card"><h2>TEARDOWN DEPTH</h2><div id="depth" class="pillrow"></div></div>
+    <div class="card">
+      <h2>FEEL</h2>
+      <div class="meter"><span>Weight</span><div><i id="m-w"></i></div><span id="v-w"></span></div>
+      <div class="meter"><span>Thock</span><div><i id="m-t"></i></div><span id="v-t"></span></div>
+      <div class="meter"><span>Quiet</span><div><i id="m-q"></i></div><span id="v-q"></span></div>
+      <svg id="curve" viewBox="0 0 320 150" role="img" aria-label="Illustrative force curve"></svg>
+    </div>
+    <div class="card">
+      <h2>BUILD SHEET</h2>
+      <ul id="sheet"></ul>
+      <div class="row"><button class="btn go" id="copy">Copy build</button><button class="btn" id="reset">Back to stock</button><span id="copied" role="status"></span></div>
+    </div>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const L=s=>s.split("").map(c=>[c,1,"Key"+c]);
+function makeKeys(rows,W,acc,modset){const out=[],R=rows.length;rows.forEach((row,r)=>{let x=-W/2;row.forEach(([label,w,code])=>{if(label!==null)out.push({label,w,code,r,x:x+w/2,z:r-(R-1)/2,kind:acc.includes(label)?"acc":(w>1||modset.includes(label))?"mod":"alpha",press:0,vel:0});x+=w;});});return out;}
+const NUMS="1234567890".split("").map(c=>[c,1,"Digit"+c]);
+
+/* ================= board definitions ================= */
+const BOARDS={};
+
+/* ---------- HHKB (Topre) ---------- */
+BOARDS.hhkb={
+ name:"HHKB",W:15,R:5,focus:"sliders",alias:{CapsLock:"ControlLeft"},
+ keys:makeKeys([
+  [["Esc",1,"Escape"],...NUMS,["-",1,"Minus"],["=",1,"Equal"],["\\",1,"Backslash"],["`",1,"Backquote"]],
+  [["Tab",1.5,"Tab"],...L("QWERTYUIOP"),["[",1,"BracketLeft"],["]",1,"BracketRight"],["Delete",1.5,"Backspace"]],
+  [["Control",1.75,"ControlLeft"],...L("ASDFGHJKL"),[";",1,"Semicolon"],["'",1,"Quote"],["Return",2.25,"Enter"]],
+  [["Shift",2.25,"ShiftLeft"],...L("ZXCVBNM"),[",",1,"Comma"],[".",1,"Period"],["/",1,"Slash"],["Shift",1.75,"ShiftRight"],["Fn",1,""]],
+  [[null,1.5,""],["Alt",1,"AltLeft"],["◇",1.5,"MetaLeft"],["",6,"Space"],["◇",1.5,"MetaRight"],["Alt",1,"AltRight"]]
+ ],15,["Esc","Return"],["Fn","Alt"]),
+ capsets:{
+  classic:{name:"Classic white",alpha:"#e9e6dc",mod:"#e9e6dc",acc:"#e9e6dc",leg:"#2b2b33",metal:0,rough:.62},
+  retro:{name:"Two-tone beige",alpha:"#e7e2d4",mod:"#a6a39b",acc:"#a6a39b",leg:"#2f2f36",metal:0,rough:.62},
+  charcoal:{name:"Charcoal",alpha:"#3a3a40",mod:"#3a3a40",acc:"#3a3a40",leg:"#0f0f12",metal:0,rough:.55},
+  mahou:{name:"Magical girl",alpha:"#ffe3f3",mod:"#ff8fd0",acc:"#ffd96b",leg:"#7a3cff",metal:0,rough:.45},
+  y3k:{name:"Y3K chrome",alpha:"#e3e6ff",mod:"#b9a8ff",acc:"#7fe9ff",leg:"#1a1440",metal:.95,rough:.2}
+ },
+ cases:{
+  white:{name:"White",c:"#e8e5db",metal:0,rough:.6,op:1},
+  charcoal:{name:"Charcoal",c:"#2e2e34",metal:0,rough:.5,op:1},
+  snow:{name:"Snow",c:"#f8f8fb",metal:0,rough:.5,op:1},
+  smoke:{name:"Clear smoke",c:"#9aa0d0",metal:0,rough:.15,op:.38},
+  holo:{name:"Holo chrome",c:"#e6d9ff",metal:1,rough:.12,op:1}
+ },
+ domes:{
+  d30:{name:"30 g",c:"#b9bcd0",g:30,note:"Light donor domes. Fast, easy to bottom out."},
+  d45:{name:"45 g stock",c:"#77788c",g:45,note:"What the board ships with."},
+  d55:{name:"55 g",c:"#55566a",g:55,note:"Heavier donor domes with a firmer bump."},
+  bke:{name:"BKE Redux heavy",c:"#9fd8ff",g:62,note:"Aftermarket domes with a sharper, taller tactile bump."}
+ },
+ stock:{caps:"classic",legends:"on",case:"white",sliders:"topre",rings:"off",lube:"off",domes:"d45",foam:"off",ctrl:"stock"},
+ depths:[["STOCK","Nothing to open yet."],["CAPS ONLY","Keycap puller. No screws."],["CASE OPEN","Back case screws out, then unplug the controller ribbon before the halves separate. No soldering."],["PCB OFF","Case open, ribbon unplugged, then every arrowed PCB screw. Keep the board face up so the springs stay put. No soldering at any depth on this board."]],
+ layers:[
+  {id:"caps",name:"Keycaps",sub:"60 keys, HHKB layout",y:.66,ex:7.2,sw:"#e9e6dc",img:"img/caps.jpg",cap:"Your pulled caps. The round socket underneath is the Topre mount.",txt:"PBT caps that press onto the round slider stem. Swap the colourway, go blank, or paint keys one by one. No tools past a keycap puller."},
+  {id:"sliders",name:"Sliders and rings",sub:"Where the silencing happens",y:.40,ex:5.4,sw:"#c9c4e8",img:"",cap:"",txt:"Each slider rides in a housing clipped into the top case. A silencing ring sits on the slider's flange and cushions it against the housing on the way back up. That upstroke clack is most of the noise a Topre board makes."},
+  {id:"top",name:"Top case and housings",sub:"Case shell with the plate built in",y:.22,ex:3.7,sw:"#e8e5db",img:"img/case.jpg",cap:"Your black shell opened beside its plate assembly.",txt:"On an HHKB the plate is part of the top case. The housings snap into it from above and the PCB screws into it from below."},
+  {id:"domes",name:"Rubber domes",sub:"Weight and tactility live here",y:.10,ex:2.4,sw:"#77788c",img:"img/domes.jpg",cap:"Dome sheets from your teardown, sitting on the PCB.",txt:"The dome gives the bump and the return force. Domes sit loose once the PCB is off, so lift the board slowly."},
+  {id:"springs",name:"Conical springs",sub:"The capacitive sensor's moving half",y:.05,ex:1.2,sw:"#d8b25a",img:"",cap:"",txt:"A tiny cone spring under each dome compresses toward the pad and changes its capacitance. They scatter easily. Count 60 before closing up."},
+  {id:"pcb",name:"Capacitive PCB",sub:"Pads, no contacts, no solder joints to touch",y:0,ex:0,sw:"#1f7a3a",img:"img/arrow.jpg",cap:"White arrows on your PCB mark every screw that has to come out.",txt:"Each key is a split circular pad. Nothing is soldered to a switch, the controller reads how close the spring is. That is why this whole board comes apart with one screwdriver."},
+  {id:"bottom",name:"Bottom case and controller",sub:"Controller, port, optional foam",y:-.25,ex:-2.1,sw:"#cfccc2",img:"img/bt.jpg",cap:"The Bluetooth daughterboard on your white board.",txt:"The controller lives in the bottom shell and connects to the PCB by a ribbon. Unplug it before separating the halves. Foam and controller swaps happen here."}
+ ],
+ guide:{title:"SILENCING AN HHKB",lead:"Seven steps, one small Phillips screwdriver and a keycap puller. The switches are not soldered, so nothing here needs an iron.",steps:[
+  {t:"Pull the keycaps",txt:"Pull all 60 straight up and keep them in a tray. The stabilised keys (space, shift, return) come off with a little extra wiggle.",img:"img/caps.jpg",cap:"Your caps in the tray, PCB already out.",ex:.45,iso:"caps"},
+  {t:"Open the case",txt:"Take out the screws along the back edge and lift the top half away from the bottom shell. Go slowly, the two halves are still tethered.",img:"img/case.jpg",cap:"Your case halves side by side.",ex:.5,iso:"bottom",cam:0},
+  {t:"Unplug the controller ribbon",txt:"Pull the ribbon connector straight out of its socket by the plug, never by the wires. Now the plate assembly is free.",img:"img/pcbback.jpg",cap:"The ribbon on the back of your PCB.",ex:.6,iso:"pcb",cam:1},
+  {t:"Remove every arrowed screw",txt:"The PCB is held to the plate by a field of small screws, each marked with a white arrow. Park them in a dish so none go missing.",img:"img/dish.jpg",cap:"Your screws collecting in the dish as the PCB comes free.",ex:.6,iso:"pcb",cam:2},
+  {t:"Lift the PCB off",txt:"Lift it straight up and keep it level. The domes and cone springs are only resting in place. Set the domes aside in order.",img:"img/domes.jpg",cap:"Your dome sheets on the PCB.",ex:.8,iso:"domes"},
+  {t:"Ring every slider",txt:"With the plate face down, lift each slider out of its housing, slip a ring over it so it seats on the flange, and drop it back in. This is a good moment to add a thin film of lube to the slider rails.",img:"",cap:"",ex:.85,iso:"sliders",set:{rings:"on"},cam:3},
+  {t:"Close it back up",txt:"Springs and domes seated, PCB down, screws in snug but not tight, working outward from the middle. Ribbon in, case shut, caps on. Test every key before the last screw.",img:"img/screws.jpg",cap:"Your PCB screws going back in.",ex:0,iso:null,cam:2}
+ ]},
+ feel(m){const g=this.domes[m.domes].g;return {g,weight:Math.min(1,g/70),
+   thock:Math.min(1,.35+(m.foam==="on"?.22:0)+(m.lube==="on"?.15:0)+(g-30)/160+(this.cases[m.case].metal?-.08:0)),
+   quiet:Math.min(1,.2+(m.rings==="on"?.45:0)+(m.lube==="on"?.12:0)+(m.foam==="on"?.18:0)),up:m.rings==="on"?.2:1,tick:0};},
+ curve(m){const tr=m.rings==="on"?3.7:4,pk=this.domes[m.domes].g,sh=m.domes==="bke"?.52:.62,p=[];
+   for(let i=0;i<=60;i++){const mm=tr*i/60;let g=mm<1?pk*Math.sin(mm*Math.PI/2):pk*(sh+(1-sh)*Math.cos((mm-1)/(tr-1.25)*Math.PI/2));if(mm>tr-.25)g=Math.max(g,pk*sh+(mm-(tr-.25))/.25*(78-pk*sh));p.push([mm,g]);}
+   return {p,tr,mx:1,my:pk,label:pk+" g bump"};}
+};
+BOARDS.hhkb.mods=[
+ {id:"rings",title:"SILENCING RINGS",layer:"sliders",depth:3,note:"A soft ring on each slider cushions the upstroke. Travel gets slightly shorter. See the Silence tab for the full process.",opts:[["off","None"],["on","Fitted"]]},
+ {id:"lube",title:"LUBE",layer:"sliders",depth:3,note:"A thin film on the slider rails and housing walls smooths scratch and deepens the sound.",opts:[["off","Dry"],["on","Lubed"]]},
+ {id:"domes",title:"DOMES",layer:"domes",depth:3,opts:Object.entries(BOARDS.hhkb.domes).map(([k,v])=>[k,v.name,v.c])},
+ {id:"sliders",title:"SLIDERS",layer:"sliders",depth:3,note:"MX-compatible sliders let the board take Cherry MX keycaps, artisans included.",opts:[["topre","Topre stock"],["mx","MX-compatible"]]},
+ {id:"caps",title:"KEYCAP COLOURWAY",layer:"caps",depth:1,note:"Paint single keys with the Paint button on the stage.",opts:Object.entries(BOARDS.hhkb.capsets).map(([k,v])=>[k,v.name,v.mod])},
+ {id:"legends",title:"LEGENDS",layer:"caps",depth:1,opts:[["on","Printed"],["off","Blank"]]},
+ {id:"case",title:"CASE",layer:"top",depth:2,opts:Object.entries(BOARDS.hhkb.cases).map(([k,v])=>[k,v.name,v.c])},
+ {id:"foam",title:"CASE FOAM",layer:"bottom",depth:2,note:"A cut sheet in the bottom case soaks up hollow echo.",opts:[["off","Empty"],["on","Foam"]]},
+ {id:"ctrl",title:"CONTROLLER",layer:"bottom",depth:2,note:"Controllers differ between HHKB generations. Match a replacement to your exact model.",opts:[["stock","Stock"],["usbc","Alt controller, USB-C"],["bt","Alt controller, Bluetooth"]]}
+];
+
+/* ---------- Pink 75 (MX, knob) ---------- */
+const FK=[];for(let i=1;i<=12;i++)FK.push(["F"+i,1,"F"+i]);
+BOARDS.pink={
+ name:"Pink 75",W:16,R:6,focus:"switches",alias:{},
+ keys:makeKeys([
+  [["Esc",1,"Escape"],...FK,["PrtSc",1,"PrintScreen"],["Del",1,"Delete"],[null,1,""]],
+  [["`",1,"Backquote"],...NUMS,["-",1,"Minus"],["=",1,"Equal"],["Backspace",2,"Backspace"],["Home",1,"Home"]],
+  [["Tab",1.5,"Tab"],...L("QWERTYUIOP"),["[",1,"BracketLeft"],["]",1,"BracketRight"],["\\",1.5,"Backslash"],["PgUp",1,"PageUp"]],
+  [["Caps",1.75,"CapsLock"],...L("ASDFGHJKL"),[";",1,"Semicolon"],["'",1,"Quote"],["Enter",2.25,"Enter"],["PgDn",1,"PageDown"]],
+  [["Shift",2.25,"ShiftLeft"],...L("ZXCVBNM"),[",",1,"Comma"],[".",1,"Period"],["/",1,"Slash"],["Shift",1.75,"ShiftRight"],["↑",1,"ArrowUp"],["End",1,"End"]],
+  [["Ctrl",1.25,"ControlLeft"],["Win",1.25,"MetaLeft"],["Alt",1.25,"AltLeft"],["",6.25,"Space"],["Alt",1,"AltRight"],["Fn",1,""],["Ctrl",1,"ControlRight"],["←",1,"ArrowLeft"],["↓",1,"ArrowDown"],["→",1,"ArrowRight"]]
+ ],16,["Esc","Enter","↑","←","↓","→"],["Fn","Alt","Ctrl","Home","End","PgUp","PgDn","Del","PrtSc"]),
+ capsets:{
+  sakura:{name:"Hot pink",alpha:"#ff3d9a",mod:"#d4146f",acc:"#fff3fa",leg:"#ffffff",metal:0,rough:.45},
+  milk:{name:"Strawberry milk",alpha:"#fff6fb",mod:"#ffc4e3",acc:"#ff5fc8",leg:"#c2187a",metal:0,rough:.5},
+  mahou:{name:"Magical girl",alpha:"#ffe3f3",mod:"#b79bff",acc:"#ffd96b",leg:"#7a3cff",metal:0,rough:.45},
+  y3k:{name:"Y3K chrome",alpha:"#e3e6ff",mod:"#b9a8ff",acc:"#7fe9ff",leg:"#1a1440",metal:.95,rough:.2},
+  noir:{name:"Noir pink",alpha:"#26262c",mod:"#3a3a44",acc:"#ff5fc8",leg:"#ff9fd8",metal:0,rough:.5}
+ },
+ cases:{
+  berry:{name:"Berry",c:"#a80f5a",metal:.1,rough:.35,op:1},
+  jelly:{name:"Clear pink",c:"#ff8fd0",metal:0,rough:.12,op:.42},
+  smoke:{name:"Clear smoke",c:"#9aa0d0",metal:0,rough:.15,op:.38},
+  holo:{name:"Holo chrome",c:"#f3d9ff",metal:1,rough:.12,op:1},
+  white:{name:"White",c:"#f4f1f6",metal:0,rough:.5,op:1}
+ },
+ switches:{
+  linear:{name:"Linear",c:"#e5484d",g:45,note:"Smooth all the way down, no bump."},
+  tactile:{name:"Tactile",c:"#8a5a3c",g:55,note:"A rounded bump partway down."},
+  clicky:{name:"Clicky",c:"#3b82f6",g:60,note:"A bump plus an audible click on every press."},
+  silent:{name:"Silent linear",c:"#ff9fd0",g:42,note:"Linear with rubber dampers built into the stem."}
+ },
+ plates:{alu:{name:"Aluminium",c:"#c9ccd6",metal:.9,rough:.35},pc:{name:"Polycarbonate",c:"#e9e6f5",metal:0,rough:.2},brass:{name:"Brass",c:"#d9a441",metal:1,rough:.3},fr4:{name:"FR4",c:"#2a2a33",metal:0,rough:.7}},
+ glows:{pink:{name:"Pink",c:"#ff5fc8"},ice:{name:"Ice",c:"#7fe9ff"},lilac:{name:"Lilac",c:"#b79bff"},off:{name:"Off",c:"#222230"}},
+ stock:{caps:"sakura",legends:"on",case:"berry",sw:"linear",lube:"off",plate:"alu",foam:"on",glow:"pink",pcb:"hot"},
+ depths:[["STOCK","Nothing to open yet."],["CAPS ONLY","Keycap puller. No screws."],["SWITCHES OUT","Keycap puller, then a switch puller. Hot-swap sockets, so no soldering."],["CASE OPEN","Switches out, case screws out, unplug the daughterboard cable, then lift the plate and PCB stack."],["DESOLDER","Soldered PCB: every switch has two joints to desolder before it comes out. Iron and solder sucker needed."]],
+ layers:[
+  {id:"caps",name:"Keycaps and knob",sub:"82 keys plus a rotary knob",y:.5,ex:6.6,sw:"#ff3d9a",txt:"MX-mount caps with a cross socket underneath. The knob pulls straight off its encoder shaft."},
+  {id:"switches",name:"Switches",sub:"Housing, stem, spring",y:.2,ex:4.6,sw:"#e5484d",txt:"Each switch clips into the plate and its two pins reach the PCB. On hot-swap sockets they pull out by hand. On a soldered PCB each one has to be desoldered."},
+  {id:"plate",name:"Plate",sub:"Holds the switches square",y:.12,ex:3.1,sw:"#c9ccd6",txt:"The plate material shapes the sound and the flex. Aluminium is crisp, polycarbonate is soft and deep, brass is bright and stiff."},
+  {id:"foam",name:"Plate foam",sub:"Between plate and PCB",y:.02,ex:2,sw:"#3b3550",txt:"A die-cut sheet that fills the gap between plate and PCB and takes the hollow ring out of each keystroke."},
+  {id:"pcb",name:"Circuit board",sub:"Sockets, LEDs, controller",y:-.1,ex:.8,sw:"#3a1d7a",txt:"The PCB carries the hot-swap sockets, the RGB LEDs and the controller. The underglow lights the case from here."},
+  {id:"case",name:"Case",sub:"Tray, weight and port",y:-.55,ex:-1.2,sw:"#a80f5a",txt:"The shell everything sits in. Clear cases let the underglow through, metal ones add weight and a lower pitch."}
+ ],
+ feel(m){const s=this.switches[m.sw],g=s.g;return {g,weight:Math.min(1,g/70),
+   thock:Math.min(1,.3+(m.foam==="on"?.2:0)+(m.lube==="on"?.15:0)+({alu:0,pc:.18,brass:-.06,fr4:.08})[m.plate]+(this.cases[m.case].metal>.5?.06:0)),
+   quiet:Math.max(.05,Math.min(1,.15+(m.sw==="silent"?.45:0)+(m.sw==="clicky"?-.1:0)+(m.foam==="on"?.15:0)+(m.lube==="on"?.1:0))),up:m.sw==="silent"?.25:.8,tick:m.sw==="clicky"?1:0};},
+ curve(m){const g=this.switches[m.sw].g,p=[],bump=m.sw==="tactile"?16:m.sw==="clicky"?20:0,bc=m.sw==="clicky"?1.6:1.3;
+   for(let i=0;i<=60;i++){const mm=4*i/60;let f=g*(.62+.19*mm)+bump*Math.exp(-Math.pow((mm-bc)/.38,2));if(mm>3.8)f+= (mm-3.8)/.2*(80-f);p.push([mm,f]);}
+   return {p,tr:4,mx:2,my:g*(.62+.38)+bump*Math.exp(-Math.pow((2-bc)/.38,2)),label:g+" g at actuation"};}
+};
+BOARDS.pink.mods=[
+ {id:"caps",title:"KEYCAP COLOURWAY",layer:"caps",depth:1,note:"Paint single keys with the Paint button on the stage.",opts:Object.entries(BOARDS.pink.capsets).map(([k,v])=>[k,v.name,v.mod])},
+ {id:"legends",title:"LEGENDS",layer:"caps",depth:1,opts:[["on","Printed"],["off","Blank"]]},
+ {id:"case",title:"CASE",layer:"case",depth:3,opts:Object.entries(BOARDS.pink.cases).map(([k,v])=>[k,v.name,v.c])},
+ {id:"sw",title:"SWITCHES",layer:"switches",depth:2,opts:Object.entries(BOARDS.pink.switches).map(([k,v])=>[k,v.name,v.c])},
+ {id:"lube",title:"SWITCH LUBE",layer:"switches",depth:2,note:"Each switch is opened and its stem and spring lubed by hand.",opts:[["off","Dry"],["on","Lubed"]]},
+ {id:"plate",title:"PLATE",layer:"plate",depth:3,opts:Object.entries(BOARDS.pink.plates).map(([k,v])=>[k,v.name,v.c])},
+ {id:"foam",title:"PLATE FOAM",layer:"foam",depth:3,opts:[["on","Foam"],["off","None"]]},
+ {id:"glow",title:"UNDERGLOW",layer:"pcb",depth:0,note:"Set from the keyboard's firmware, no tools.",opts:Object.entries(BOARDS.pink.glows).map(([k,v])=>[k,v.name,v.c])},
+ {id:"pcb",title:"BOARD TYPE",layer:"pcb",depth:0,note:"This changes how deep switch work goes. Hot-swap needs no soldering. A soldered board needs an iron for anything at switch level or below.",opts:[["hot","Hot-swap"],["sol","Soldered"]]}
+];
+const PAINTS=["#ff5fc8","#b79bff","#7fe9ff","#ffd96b","#7dffb0","#ff6b6b","#f4f4f8","#26262c"];
+
+/* ================= state ================= */
+let S={board:"hhkb",ex:.55,sound:true,b:{}};
+Object.keys(BOARDS).forEach(k=>{S.b[k]={mods:Object.assign({},BOARDS[k].stock),paint:{}};});
+try{const j=JSON.parse(localStorage.getItem("mod-lab-2"));if(j&&j.b){if(BOARDS[j.board])S.board=j.board;if(typeof j.ex==="number")S.ex=j.ex;S.sound=j.sound!==false;
+  Object.keys(BOARDS).forEach(k=>{if(j.b[k]){S.b[k].mods=Object.assign({},BOARDS[k].stock,j.b[k].mods);S.b[k].paint=j.b[k].paint||{};}});}}catch(e){}
+const save=()=>{try{localStorage.setItem("mod-lab-2",JSON.stringify(S));}catch(e){}};
+const B=()=>BOARDS[S.board],st=()=>S.b[S.board];
+let isolated=null,paintMode=false,paintColor=PAINTS[0],guideStep=-1,playing=false;
+
+/* ================= three ================= */
+let T=null;
+const std=o=>new THREE.MeshStandardMaterial(Object.assign({side:THREE.DoubleSide},o));
+function inst(keys,geo,mat,y,dx,dz){const m=new THREE.InstancedMesh(geo,mat,keys.length),M=new THREE.Matrix4();keys.forEach((k,i)=>{M.identity();M.setPosition(k.x+(dx||0),y,k.z+(dz||0));m.setMatrixAt(i,M);});m.instanceMatrix.needsUpdate=true;return m;}
+function box(g,w,h,d,x,y,z,mat){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);g.add(m);return m;}
+function ctex(w,h,draw){const c=document.createElement("canvas");c.width=w;c.height=h;draw(c.getContext("2d"));const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t;}
+function frustum(bw,bd,tw,td,h,sz){
+  const b=[[-bw/2,0,-bd/2],[bw/2,0,-bd/2],[bw/2,0,bd/2],[-bw/2,0,bd/2]],t=[[-tw/2,h,-td/2+sz],[tw/2,h,-td/2+sz],[tw/2,h,td/2+sz],[-tw/2,h,td/2+sz]];
+  const q=[[t[0],t[1],t[2],t[3]],[b[0],b[1],t[1],t[0]],[b[1],b[2],t[2],t[1]],[b[2],b[3],t[3],t[2]],[b[3],b[0],t[0],t[3]]],p=[];
+  q.forEach(([a,b2,c,d])=>p.push(...a,...b2,...c,...a,...c,...d));
+  const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(p,3));g.computeVertexNormals();return g;}
+function addCaps(g,keys){
+  const geo={},caps=[],legends=[];
+  keys.forEach((k,i)=>{const tw=k.w-.34,td=.64;
+    const cap=new THREE.Mesh(geo[k.w]||(geo[k.w]=frustum(k.w-.06,.94,tw,td,.42,-.05)),std({color:"#fff"}));cap.position.set(k.x,0,k.z);cap.userData.key=i;
+    const cv=document.createElement("canvas");cv.width=Math.round(128*tw/td);cv.height=128;const tex=new THREE.CanvasTexture(cv);tex.encoding=THREE.sRGBEncoding;
+    const leg=new THREE.Mesh(new THREE.PlaneGeometry(tw,td),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false}));
+    leg.rotation.x=-Math.PI/2;leg.position.set(0,.424,-.05);leg.raycast=()=>{};cap.add(leg);g.add(cap);caps.push(cap);legends.push({cv,tex});k.press=0;k.vel=0;});
+  return {caps,legends};}
+function plateTex(keys,W,D){const ps=1024/W;return ctex(1024,Math.round(D*ps),c=>{c.fillStyle="#fff";c.fillRect(0,0,1024,D*ps);c.fillStyle="#0c0c12";keys.forEach(k=>c.fillRect((k.x+W/2)*ps-.36*ps,(k.z+D/2)*ps-.36*ps,.72*ps,.72*ps));});}
+
+BOARDS.hhkb.build=function(G,keys,aniso){
+  const h=addCaps(G.caps,keys);
+  h.mSl=std({color:"#cfcbe6",roughness:.5});h.mStem=std({color:"#b9b4dc",roughness:.5});
+  const mRing=std({color:"#ff5fc8",roughness:.8,emissive:"#ff2fb0",emissiveIntensity:.7}),mMx=std({color:"#ff8fd0",roughness:.5});
+  G.sliders.add(inst(keys,new THREE.CylinderGeometry(.3,.3,.26,20),h.mSl,0));
+  h.stem=inst(keys,new THREE.CylinderGeometry(.17,.17,.16,16,1,true),h.mStem,.2);
+  h.mxA=inst(keys,new THREE.BoxGeometry(.3,.18,.09),mMx,.21);h.mxB=inst(keys,new THREE.BoxGeometry(.09,.18,.3),mMx,.21);
+  const rg=new THREE.TorusGeometry(.31,.05,8,20);rg.rotateX(Math.PI/2);h.rings=inst(keys,rg,mRing,-.1);
+  G.sliders.add(h.stem,h.mxA,h.mxB,h.rings);
+  h.mCase=std({color:"#fff"});h.caseMats=[h.mCase];
+  [[.45,6.1,-7.775,-.2],[.45,6.1,7.775,-.2],[15.1,.3,0,2.7],[15.1,.7,0,-2.9]].forEach(([w,d,x,z])=>box(G.top,w,.6,d,x,.2,z,h.mCase));
+  box(G.top,15.1,.05,5.1,0,0,0,std({map:plateTex(keys,15.1,5.1),color:"#34343e",roughness:.7}));
+  const hg=new THREE.CylinderGeometry(.54,.54,.24,4,1,true);hg.rotateY(Math.PI/4);G.top.add(inst(keys,hg,std({color:"#3a3a46",roughness:.6}),.14));
+  h.mDome=std({color:"#77788c",roughness:.85});
+  G.domes.add(inst(keys,new THREE.LatheGeometry([[.43,0],[.41,.03],[.24,.25],[.17,.3],[.08,.3],[.08,.2]].map(p=>new THREE.Vector2(p[0],p[1])),24),h.mDome,.01));
+  box(G.domes,15,.02,5,0,0,0,h.mDome);
+  class Helix extends THREE.Curve{getPoint(t,o){o=o||new THREE.Vector3();const a=t*Math.PI*7,r=.27-.17*t;return o.set(Math.cos(a)*r,t*.2,Math.sin(a)*r);}}
+  G.springs.add(inst(keys,new THREE.TubeGeometry(new Helix(),44,.014,4),std({color:"#e2bd62",metalness:.9,roughness:.3}),0));
+  const s=2048/15.2,px=x=>(x+7.6)*s,pz=z=>(z+2.6)*s;
+  const pcbT=ctex(2048,700,c=>{c.fillStyle="#1d7a3c";c.fillRect(0,0,2048,700);
+    c.strokeStyle="#176a33";c.lineWidth=5;keys.forEach((k,i)=>{c.beginPath();c.moveTo(px(k.x),pz(k.z));c.lineTo(px(k.x)+s*.5,pz(k.z)+s*.5);c.lineTo(px(keys[(i+1)%keys.length].x),pz(k.z)+s*.5);c.stroke();});
+    c.font="bold 20px monospace";c.textAlign="center";
+    keys.forEach((k,i)=>{const x=px(k.x),y=pz(k.z);c.fillStyle="#0f4f26";c.beginPath();c.arc(x,y,s*.34,0,7);c.fill();c.strokeStyle="#1d7a3c";c.lineWidth=4;c.beginPath();c.moveTo(x-s*.3,y+s*.16);c.lineTo(x+s*.3,y-s*.16);c.stroke();
+      c.fillStyle="#d79a55";[-1,1].forEach(d=>{c.beginPath();c.arc(x+d*9,y+d*3,6,0,7);c.fill();});c.fillStyle="#d9f5df";c.fillText(String(i+1),x-s*.2,y-s*.14);});
+    [[-6,-1.5],[-2,-1.5],[2,-1.5],[6,-1.5],[-4.2,-.5],[0,-.5],[4.3,-.5],[-6.3,.5],[-2.1,.5],[2,.5],[5.9,.5],[-5.4,1.5],[.4,1.5],[5.2,1.5]].forEach(([x,z])=>{const X=px(x),Y=pz(z);c.fillStyle="#04140a";c.beginPath();c.arc(X,Y,9,0,7);c.fill();c.strokeStyle="#fff";c.fillStyle="#fff";c.lineWidth=5;c.beginPath();c.moveTo(X-38,Y-26);c.lineTo(X-16,Y-11);c.stroke();c.beginPath();c.moveTo(X-12,Y-8);c.lineTo(X-28,Y-10);c.lineTo(X-19,Y-23);c.fill();});
+    c.fillStyle="#e9fbe9";c.textAlign="left";c.font="bold 26px monospace";c.fillText("CAPACITIVE PCB  60 PADS  NO SOLDER",px(-7.3),pz(2.45));});
+  pcbT.anisotropy=aniso;
+  const gs=std({color:"#17642f",roughness:.6});box(G.pcb,15.2,.08,5.2,0,-.04,0,[gs,gs,std({map:pcbT,roughness:.55}),gs,gs,gs]);
+  h.mCaseB=std({color:"#fff"});h.caseMats.push(h.mCaseB);
+  box(G.bottom,16,.1,6.1,0,-.4,-.2,h.mCaseB);
+  [[.3,6.1,-7.85,-.2],[.3,6.1,7.85,-.2],[15.4,.25,0,2.725],[15.4,.3,0,-3.1]].forEach(([w,d,x,z])=>box(G.bottom,w,.75,d,x,-.025,z,h.mCaseB));
+  h.mCtrl=std({color:"#1d7a3c",roughness:.5});const mPort=std({color:"#c9ccd6",metalness:.9,roughness:.25});
+  box(G.bottom,4.4,.06,1.3,-4.4,-.3,-2.15,h.mCtrl);box(G.bottom,.6,.08,.6,-4.2,-.24,-2.1,std({color:"#15151b",roughness:.4}));
+  h.port=box(G.bottom,.8,.32,.7,-5.6,-.14,-3.05,mPort);h.radio=box(G.bottom,1,.1,.7,-3,-.23,-2.2,mPort);
+  h.batt=new THREE.Mesh(new THREE.CylinderGeometry(.24,.24,2.6,16),std({color:"#7fe9ff",metalness:.6,roughness:.3}));h.batt.rotation.z=Math.PI/2;h.batt.position.set(3.4,-.1,-2.3);G.bottom.add(h.batt);
+  box(G.bottom,1.1,.03,1,-3.2,-.26,-1.2,std({color:"#e9e6f5",roughness:.8}));
+  h.foam=box(G.bottom,15,.16,3.6,0,-.27,.75,std({color:"#3b3550",roughness:1}));
+  return h;
+};
+BOARDS.hhkb.apply=function(h,m){
+  const mx=m.sliders==="mx";h.mxA.visible=h.mxB.visible=mx;h.stem.visible=!mx;
+  h.mSl.color.set(mx?"#ffd0ec":"#cfcbe6");h.mSl.roughness=m.lube==="on"?.18:.55;h.mStem.roughness=m.lube==="on"?.18:.5;
+  h.rings.visible=m.rings==="on";h.mDome.color.set(this.domes[m.domes].c);h.foam.visible=m.foam==="on";
+  h.mCtrl.color.set(m.ctrl==="stock"?"#1d7a3c":"#3a1d7a");h.port.scale.set(m.ctrl==="stock"?1:.75,m.ctrl==="stock"?1:.55,1);h.radio.visible=h.batt.visible=m.ctrl==="bt";
+};
+BOARDS.hhkb.tick=function(){};
+
+BOARDS.pink.build=function(G,keys,aniso){
+  const h=addCaps(G.caps,keys);
+  h.mKnob=std({color:"#ffd0ec",metalness:.9,roughness:.2});
+  h.knob=new THREE.Group();const kb=new THREE.Mesh(new THREE.CylinderGeometry(.42,.44,.5,28),h.mKnob);kb.position.y=.25;h.knob.add(kb);
+  const mark=new THREE.Mesh(new THREE.BoxGeometry(.06,.02,.3),std({color:"#140b2a"}));mark.position.set(0,.51,-.22);h.knob.add(mark);
+  h.knob.position.set(7.5,0,-2.5);G.caps.add(h.knob);
+  h.mTop=std({color:"#f1eefc",roughness:.25,transparent:true,opacity:.6});h.mTop.userData.base=.6;
+  h.mStem=std({color:"#e5484d",roughness:.4});
+  G.switches.add(inst(keys,new THREE.BoxGeometry(.8,.3,.8),std({color:"#24242c",roughness:.6}),-.12));
+  G.switches.add(inst(keys,frustum(.78,.78,.56,.56,.24,0),h.mTop,.03));
+  G.switches.add(inst(keys,new THREE.BoxGeometry(.3,.2,.1),h.mStem,.36),inst(keys,new THREE.BoxGeometry(.1,.2,.3),h.mStem,.36));
+  h.mPlate=std({map:plateTex(keys,16.1,6.1),color:"#fff"});box(G.plate,16.1,.06,6.1,0,0,0,h.mPlate);
+  h.foam=box(G.foam,15.9,.08,5.9,0,0,0,std({map:plateTex(keys,15.9,5.9),color:"#544a78",roughness:1}));
+  const s=2048/16.2,px=x=>(x+8.1)*s,pz=z=>(z+3.1)*s;
+  const pcbT=ctex(2048,Math.round(6.2*s),c=>{c.fillStyle="#22123f";c.fillRect(0,0,2048,6.2*s);
+    c.strokeStyle="#6a4ad0";c.lineWidth=3;keys.forEach((k,i)=>{c.beginPath();c.moveTo(px(k.x),pz(k.z)+s*.3);c.lineTo(px(keys[(i+1)%keys.length].x),pz(k.z)+s*.3);c.stroke();});
+    keys.forEach(k=>{const x=px(k.x),y=pz(k.z);c.fillStyle="#8d93a6";c.fillRect(x-s*.3,y-s*.3,s*.5,s*.22);c.fillStyle="#d79a55";c.beginPath();c.arc(x-s*.24,y-s*.05,6,0,7);c.arc(x+s*.16,y-s*.19,6,0,7);c.fill();
+      c.fillStyle="#0c0816";c.beginPath();c.arc(x,y+s*.02,s*.1,0,7);c.fill();c.fillStyle="#fff";c.fillRect(x-s*.08,y+s*.2,s*.16,s*.1);});
+    c.fillStyle="#d9c9ff";c.font="bold 26px monospace";c.fillText("75 HOT-SWAP  RGB  82 SOCKETS",px(-7.8),pz(2.95));});
+  pcbT.anisotropy=aniso;
+  const gs=std({color:"#1a0e30",roughness:.6});box(G.pcb,16.2,.08,6.2,0,-.04,0,[gs,gs,std({map:pcbT,roughness:.5}),gs,gs,gs]);
+  h.mGlow=new THREE.MeshBasicMaterial({color:"#ff5fc8"});
+  [[16,.12,0,3],[16,.12,0,-3],[.12,6,7.95,0],[.12,6,-7.95,0]].forEach(([w,d,x,z])=>box(G.pcb,w,.06,d,x,-.14,z,h.mGlow));
+  h.light=new THREE.PointLight("#ff5fc8",1.4,14);h.light.position.set(0,-.35,0);G.pcb.add(h.light);
+  h.mCase=std({color:"#d81b7a"});h.caseMats=[h.mCase];
+  box(G.case,17.1,.14,7.1,0,-.1,0,h.mCase);
+  [[.4,7.1,-8.35,0],[.4,7.1,8.35,0],[16.3,.4,0,3.35],[16.3,.4,0,-3.35]].forEach(([w,d,x,z])=>box(G.case,w,1.05,d,x,.45,z,h.mCase));
+  box(G.case,5,.1,2,0,-.02,0,std({color:"#d9a441",metalness:1,roughness:.3}));
+  box(G.case,.8,.3,.3,-5.5,.4,-3.55,std({color:"#c9ccd6",metalness:.9,roughness:.25}));
+  return h;
+};
+BOARDS.pink.apply=function(h,m){
+  const s=this.switches[m.sw];h.mStem.color.set(s.c);h.mStem.roughness=m.lube==="on"?.12:.45;
+  const p=this.plates[m.plate];h.mPlate.color.set(p.c);h.mPlate.metalness=p.metal;h.mPlate.roughness=p.rough;
+  h.foam.visible=m.foam==="on";
+  const g=this.glows[m.glow];h.mGlow.color.set(g.c);h.light.color.set(g.c);h.glowOn=m.glow!=="off";
+  h.mKnob.color.set(this.capsets[m.caps].acc);
+};
+BOARDS.pink.tick=function(h,t,e,ke){
+  h.knob.position.y=.02+ke*1.6;h.knob.rotation.y=t/1400+ke*9;
+  h.light.intensity=h.glowOn?1.2+.6*Math.sin(t/420)+T.pulse*2.5:0;
+};
+
+function initGL(){
+  const canvas=$("gl");let renderer;
+  try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});}catch(e){$("nogl").style.display="flex";return;}
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.outputEncoding=THREE.sRGBEncoding;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(32,1,.1,300);
+  const envS=new THREE.Scene();envS.background=new THREE.Color("#141126");
+  [["#ff5fc8",-14,6,-6],["#7fe9ff",14,8,4],["#b79bff",0,16,0],["#ffffff",4,10,-14],["#ffd96b",-8,3,14]].forEach(([c,x,y,z])=>{const m=new THREE.Mesh(new THREE.BoxGeometry(9,9,9),new THREE.MeshBasicMaterial({color:c}));m.position.set(x,y,z);envS.add(m);});
+  const pm=new THREE.PMREMGenerator(renderer);scene.environment=pm.fromScene(envS,.035).texture;pm.dispose();
+  scene.add(new THREE.HemisphereLight("#ffffff","#3a2a6a",.75));
+  const sun=new THREE.DirectionalLight("#ffffff",.85);sun.position.set(-6,14,9);scene.add(sun);
+  const rim=new THREE.DirectionalLight("#ff9be0",.35);rim.position.set(9,4,-10);scene.add(rim);
+  const gt=ctex(256,256,c=>{const gr=c.createRadialGradient(128,128,10,128,128,128);gr.addColorStop(0,"rgba(183,155,255,.55)");gr.addColorStop(.5,"rgba(255,95,200,.16)");gr.addColorStop(1,"rgba(0,0,0,0)");c.fillStyle=gr;c.fillRect(0,0,256,256);});
+  const glow=new THREE.Mesh(new THREE.PlaneGeometry(32,18),new THREE.MeshBasicMaterial({map:gt,transparent:true,depthWrite:false}));glow.rotation.x=-Math.PI/2;glow.raycast=()=>{};scene.add(glow);
+  T={renderer,scene,camera,glow,root:null,G:{},h:null,cam:{th:-.5,ph:1.02,r:30,zoom:1,ty:0},exNow:S.ex,knobE:S.ex,idle:true,pulse:0};
+  loadBoard();requestAnimationFrame(loop);
+}
+function loadBoard(){
+  if(!T)return;
+  if(T.root){T.scene.remove(T.root);T.root.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{if(m.map)m.map.dispose();m.dispose();});});}
+  const b=B();T.root=new THREE.Group();T.scene.add(T.root);T.G={};
+  b.layers.forEach(l=>{const g=new THREE.Group();g.userData.layer=l.id;T.root.add(g);T.G[l.id]=g;});
+  T.h=b.build(T.G,b.keys,T.renderer.capabilities.getMaxAnisotropy());
+  resize();
+}
+function drawLegend(i,color,show){
+  const Lg=T.h.legends[i],k=B().keys[i],c=Lg.cv.getContext("2d");c.clearRect(0,0,Lg.cv.width,Lg.cv.height);
+  if(show&&k.label){c.fillStyle=color;c.textBaseline="top";const big=k.label.length===1;c.font=(big?"700 58px ":k.label.length>6?"700 26px ":"700 32px ")+"Manrope,Arial,sans-serif";c.fillText(k.label,12,big?10:14);}
+  Lg.tex.needsUpdate=true;
+}
+function applyMods(){
+  renderBench();save();
+  if(!T||!T.h)return;
+  const b=B(),m=st().mods,paint=st().paint,cs=b.capsets[m.caps],hsl={h:0,s:0,l:0};
+  T.h.caps.forEach((cap,i)=>{const k=b.keys[i],p=paint[i];cap.material.color.set(p||cs[k.kind]);cap.material.metalness=cs.metal;cap.material.roughness=cs.rough;
+    drawLegend(i,p?(new THREE.Color(p).getHSL(hsl).l>.55?"#1a1440":"#ffffff"):(k.kind==="acc"&&cs.acc!==cs.alpha&&new THREE.Color(cs.acc).getHSL(hsl).l>.7?"#c2187a":cs.leg),m.legends==="on");});
+  const ca=b.cases[m.case];T.h.caseMats.forEach(mt=>{mt.color.set(ca.c);mt.metalness=ca.metal;mt.roughness=ca.rough;mt.userData.base=ca.op;});
+  b.apply(T.h,m);ghost();
+}
+function ghost(){
+  if(!T)return;
+  B().layers.forEach(l=>{const dim=isolated&&isolated!==l.id;T.G[l.id].traverse(o=>{if(!o.material)return;(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{
+    const base=m.userData.base===undefined?1:m.userData.base,basic=m.type==="MeshBasicMaterial"&&m.map;
+    m.opacity=dim?.07:base;m.transparent=!!basic||dim||base<1;if(!basic)m.depthWrite=!dim&&base===1;m.needsUpdate=true;});});});
+}
+function resize(){
+  if(!T)return;const el=$("stage"),w=el.clientWidth,h=el.clientHeight;if(!w||!h)return;
+  T.renderer.setSize(w,h,false);T.camera.aspect=w/h;T.camera.updateProjectionMatrix();
+  const vf=THREE.MathUtils.degToRad(T.camera.fov)/2,half=B().W/2+2.1;
+  T.cam.r=Math.max(half/(Math.tan(vf)*T.camera.aspect),8/Math.tan(vf))*1.02;
+}
+let last=0;
+function loop(t){
+  requestAnimationFrame(loop);
+  const dt=Math.min(.05,(t-last)/1000||0);last=t;const b=B();
+  T.exNow+=(S.ex-T.exNow)*Math.min(1,dt*9);T.knobE+=(S.ex-T.knobE)*Math.min(1,dt*(S.ex<T.knobE?2.2:5));T.pulse*=Math.pow(.02,dt);
+  const e=T.exNow;
+  b.layers.forEach(l=>{T.G[l.id].position.y=l.y+l.ex*e;});
+  T.glow.position.y=-.95-2.3*e;
+  b.keys.forEach((k,i)=>{if(k.press>0||k.vel!==0){k.press+=k.vel*dt;if(k.press>=1){k.press=1;k.vel=-9;}if(k.press<=0){k.press=0;k.vel=0;}T.h.caps[i].position.y=-.2*k.press;}});
+  b.tick(T.h,t,e,T.knobE);
+  const cm=T.cam;if(T.idle&&!matchMedia("(prefers-reduced-motion: reduce)").matches)cm.th=-.5+Math.sin(t/2600)*.22;
+  const focus=isolated?b.layers.find(l=>l.id===isolated):null;
+  const ty=focus?focus.y+focus.ex*e:2.6*e;cm.ty+=(ty-cm.ty)*Math.min(1,dt*6);
+  const r=cm.r*cm.zoom*(1+.5*e)*(focus?.86:1);
+  T.camera.position.set(r*Math.sin(cm.ph)*Math.sin(cm.th),cm.ty+r*Math.cos(cm.ph),r*Math.sin(cm.ph)*Math.cos(cm.th));
+  T.camera.lookAt(0,cm.ty,0);
+  T.renderer.render(T.scene,T.camera);
+}
+
+/* ================= sound ================= */
+let AC=null,noiseBuf=null;
+function click(up,gain){
+  if(!S.sound)return;
+  try{
+    if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();noiseBuf=AC.createBuffer(1,AC.sampleRate*.12,AC.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}
+    if(AC.state==="suspended")AC.resume();
+    const f=B().feel(st().mods),t=AC.currentTime+(up?.085:0),vol=(gain||1)*(up?.3*f.up:.55)*(1-.45*f.quiet)*(.92+Math.random()*.16);
+    const n=AC.createBufferSource();n.buffer=noiseBuf;
+    const bp=AC.createBiquadFilter();bp.type="bandpass";bp.frequency.value=(up?2600:1700)*(1-.5*f.thock)*(.95+Math.random()*.1);bp.Q.value=1.4;
+    const lp=AC.createBiquadFilter();lp.type="lowpass";lp.frequency.value=6500-4300*f.quiet;
+    const gn=AC.createGain();gn.gain.setValueAtTime(vol,t);gn.gain.exponentialRampToValueAtTime(.001,t+.05+.04*f.thock);
+    n.connect(bp);bp.connect(lp);lp.connect(gn);gn.connect(AC.destination);n.start(t);n.stop(t+.12);
+    if(!up){const o=AC.createOscillator(),og=AC.createGain();o.type="sine";o.frequency.setValueAtTime(190-70*f.thock,t);o.frequency.exponentialRampToValueAtTime(70,t+.07);og.gain.setValueAtTime(.5*f.thock*(gain||1),t);og.gain.exponentialRampToValueAtTime(.001,t+.09);o.connect(og);og.connect(AC.destination);o.start(t);o.stop(t+.1);
+      if(f.tick){const c=AC.createOscillator(),cg=AC.createGain();c.type="square";c.frequency.value=4200;cg.gain.setValueAtTime(.12*(gain||1),t+.012);cg.gain.exponentialRampToValueAtTime(.001,t+.03);c.connect(cg);cg.connect(AC.destination);c.start(t+.012);c.stop(t+.035);}}
+  }catch(e){}
+}
+function pressKey(i,gain){
+  const k=B().keys[i];if(!k)return;
+  if(paintMode&&!gain){st().paint[i]=paintColor;applyMods();return;}
+  if(k.vel>0)return;k.vel=16;click(false,gain);click(true,gain);
+}
+function setEx(v){S.ex=v;$("ex").value=Math.round(v*100);}
+function play(){
+  if(playing)return;playing=true;if(T)T.pulse=1;
+  const b=B(),out=S.ex<.5,from=S.ex,t0=performance.now();
+  if(out)b.keys.forEach((k,i)=>setTimeout(()=>{if(playing)pressKey(i,.45);},(k.x+b.W/2)/b.W*620+k.r*18));
+  const delay=out?850:0,dur=out?2400:1700;
+  (function step(t){if(!playing)return;const p=Math.min(1,(t-t0-delay)/dur);
+    if(p>0){const e=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;setEx(out?from+(1-from)*e:from*(1-e));}
+    if(p<1)requestAnimationFrame(step);else{playing=false;save();if(!out){setTimeout(()=>{if(T)T.pulse=1;pressKey(b.keys.findIndex(k=>k.code==="Space"),.9);},700);}}})(t0);
+}
+
+/* ================= pointer ================= */
+function initPointer(){
+  const el=$("gl"),pts=new Map();let moved=0,pinch=0;const ray=new THREE.Raycaster(),v=new THREE.Vector2();
+  el.addEventListener("pointerdown",e=>{el.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;if(pts.size===2){const a=[...pts.values()];pinch=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);}});
+  el.addEventListener("pointermove",e=>{const p=pts.get(e.pointerId);if(!p)return;const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
+    if(pts.size===1){moved+=Math.abs(dx)+Math.abs(dy);if(moved>6){T.idle=false;T.cam.th-=dx*.008;T.cam.ph=Math.max(.15,Math.min(2.6,T.cam.ph-dy*.006));}}
+    else if(pts.size===2){moved=99;const a=[...pts.values()],d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(pinch)T.cam.zoom=Math.max(.45,Math.min(1.8,T.cam.zoom*pinch/d));pinch=d;}});
+  const up=e=>{if(!pts.has(e.pointerId))return;pts.delete(e.pointerId);
+    if(moved<=6&&e.type==="pointerup"){const r=el.getBoundingClientRect();v.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(v,T.camera);
+      const groups=B().layers.filter(l=>!isolated||isolated===l.id).map(l=>T.G[l.id]);
+      const hit=ray.intersectObjects(groups,true).find(h=>{let o=h.object;while(o){if(!o.visible)return false;o=o.parent;}return true;});
+      $("hint").style.opacity=0;
+      if(!hit){if(isolated)setIso(null);return;}
+      if(hit.object.userData.key!==undefined&&(paintMode||!isolated||isolated==="caps")){pressKey(hit.object.userData.key);return;}
+      let o=hit.object;while(o&&!o.userData.layer)o=o.parent;if(o)setIso(isolated===o.userData.layer?null:o.userData.layer);}};
+  el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up);
+  el.addEventListener("wheel",e=>{e.preventDefault();T.cam.zoom=Math.max(.45,Math.min(1.8,T.cam.zoom*(1+e.deltaY*.001)));},{passive:false});
+  window.addEventListener("resize",resize);if(window.ResizeObserver)new ResizeObserver(resize).observe($("stage"));
+}
+window.addEventListener("keydown",e=>{if(e.repeat||e.ctrlKey&&e.code!=="ControlLeft"&&e.code!=="ControlRight"||e.metaKey&&e.code!=="MetaLeft"&&e.code!=="MetaRight")return;const tg=e.target.tagName;if(tg==="INPUT"||tg==="BUTTON"||tg==="TEXTAREA"||e.code==="Tab"||/^F\d/.test(e.code))return;
+  const b=B(),code=b.alias[e.code]||e.code,i=b.keys.findIndex(k=>k.code&&k.code===code);if(i<0)return;if(e.code==="Space"||e.code==="Quote"||e.code==="Slash")e.preventDefault();if(!paintMode)pressKey(i);});
+
+/* ================= bench UI ================= */
+function setIso(id){isolated=id;ghost();renderLayers();}
+function showTab(t){document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===t));document.querySelectorAll(".pane").forEach(p=>p.classList.toggle("on",p.id==="p-"+t));}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+const cap1=s=>s.charAt(0)+s.slice(1).toLowerCase();
+function renderLayers(){
+  const b=B();
+  $("layerlist").innerHTML=b.layers.map((l,i)=>`<button class="layer" data-l="${l.id}" aria-pressed="${isolated===l.id}"><i style="background:${l.sw}"></i><span><b>${esc(l.name)}</b><small>${esc(l.sub)}</small></span><em>${isolated===l.id?"ISOLATED":"L"+(i+1)}</em></button>`).join("");
+  const l=b.layers.find(x=>x.id===(isolated||b.focus)),mods=b.mods.filter(m=>m.layer===l.id).map(m=>m.title.toLowerCase()).join(", ");
+  $("detail").innerHTML=`<h2>${esc(l.name.toUpperCase())}</h2><p>${esc(l.txt)}</p>`+(mods?`<p style="color:var(--mute);font-size:12px">Mods on this layer: ${esc(mods)}.</p>`:"")+(l.img?`<figure><img src="${l.img}" alt="${esc(l.cap)}" loading="lazy"><figcaption>From your teardown. ${esc(l.cap)}</figcaption></figure>`:"");
+}
+function renderMods(){
+  const b=B(),m=st().mods,notes={domes:b.domes,sw:b.switches};
+  $("p-mods").innerHTML=b.mods.map(d=>`<div class="grp"><h2>${d.title}</h2><div class="opts">${d.opts.map(o=>`<button class="opt" data-m="${d.id}" data-v="${o[0]}" aria-pressed="${m[d.id]===o[0]}">${o[2]?`<u style="background:${o[2]}"></u>`:""}${esc(o[1])}</button>`).join("")}</div>${notes[d.id]?`<p>${esc(notes[d.id][m[d.id]].note)}</p>`:d.note?`<p>${esc(d.note)}</p>`:""}</div>`).join("");
+}
+function renderGuide(){
+  const g=B().guide;$("guideTab").hidden=!g;if(!g){$("guideBody").innerHTML="";return;}
+  $("guideBody").innerHTML=`<div class="card"><h2>${g.title}</h2><div class="pillrow"><span class="pill">NO SOLDERING</span><span>${esc(g.lead)}</span></div></div>`+
+   g.steps.map((s,i)=>`<div class="step"${guideStep===i?' aria-current="step"':""}><header><b>${String(i+1).padStart(2,"0")}</b><span>${esc(s.t)}</span></header><p>${esc(s.txt)}</p>${s.img?`<figure><img src="${s.img}" alt="${esc(s.cap)}" loading="lazy"><figcaption>${esc(s.cap)}</figcaption></figure>`:""}<button class="btn" data-step="${i}">Show this step in 3D</button></div>`).join("");
+}
+function buildLines(){
+  const b=B(),m=st().mods,out=[],sol=m.pcb==="sol";
+  b.mods.forEach(d=>{const v=m[d.id],o=d.opts.find(x=>x[0]===v);if(v!==b.stock[d.id])out.push([d.title,o[1],sol&&d.depth>=2?4:d.depth]);});
+  const n=Object.keys(st().paint).length;if(n)out.push(["PAINTED KEYS",n+(n===1?" key":" keys"),1]);return out;
+}
+function renderBuild(){
+  const b=B(),lines=buildLines(),d=lines.reduce((a,l)=>Math.max(a,l[2]),0),f=b.feel(st().mods),D=b.depths[d];
+  $("depth").innerHTML=`<span class="pill">${D[0]}</span><span>${D[1]}</span>`;
+  [["w",f.weight,f.g+" g"],["t",f.thock,Math.round(f.thock*100)],["q",f.quiet,Math.round(f.quiet*100)]].forEach(([k,v,t])=>{$("m-"+k).style.width=Math.round(v*100)+"%";$("v-"+k).textContent=t;});
+  $("sheet").innerHTML=lines.length?lines.map(l=>`<li><span>${esc(cap1(l[0]))}</span><span>${esc(l[1])}</span></li>`).join(""):`<li><span>Build</span><span>Stock ${esc(b.name)}. Pick mods in the Mods tab.</span></li>`;
+  const cv=b.curve(st().mods),X=mm=>36+mm*68,Y=g=>122-Math.max(0,Math.min(82,g))*1.35,pts=cv.p.map(([mm,g])=>X(mm).toFixed(1)+","+Y(g).toFixed(1)).join(" ");
+  $("curve").innerHTML=`<defs><linearGradient id="hg" x1="0" x2="1"><stop offset="0" stop-color="#ff5fc8"/><stop offset=".5" stop-color="#b79bff"/><stop offset="1" stop-color="#7fe9ff"/></linearGradient></defs>`+
+   [0,20,40,60,80].map(g=>`<line x1="36" x2="308" y1="${Y(g)}" y2="${Y(g)}" stroke="#302b5c" stroke-width="1"/><text x="30" y="${Y(g)+3}" text-anchor="end" font-size="9" fill="#a29dcc">${g}</text>`).join("")+
+   [0,1,2,3,4].map(mm=>`<text x="${X(mm)}" y="138" text-anchor="middle" font-size="9" fill="#a29dcc">${mm}</text>`).join("")+
+   `<text x="308" y="149" text-anchor="end" font-size="9" fill="#a29dcc">travel, mm</text><text x="36" y="9" font-size="9" fill="#a29dcc">force, g (illustrative shape)</text>`+
+   `<polygon points="36,122 ${pts} ${X(cv.tr).toFixed(1)},122" fill="url(#hg)" opacity=".16"/><polyline points="${pts}" fill="none" stroke="url(#hg)" stroke-width="2.5" stroke-linejoin="round"/>`+
+   `<circle cx="${X(cv.mx)}" cy="${Y(cv.my)}" r="4" fill="#eeebff"/><text x="${X(cv.mx)+8}" y="${Y(cv.my)-7}" font-size="10" font-weight="700" fill="#eeebff">${cv.label}</text>`;
+}
+function renderBoards(){$("boards").innerHTML=Object.entries(BOARDS).map(([k,b])=>`<button data-b="${k}" aria-pressed="${S.board===k}">${esc(b.name)}</button>`).join("");}
+function renderBench(){renderBoards();renderLayers();renderMods();renderGuide();renderBuild();}
+function buildText(){
+  const b=B(),lines=buildLines(),f=b.feel(st().mods);
+  return b.name+" build\n"+(lines.length?lines.map(l=>"- "+cap1(l[0])+": "+l[1]).join("\n"):"- Stock")+"\nTeardown: "+cap1(b.depths[lines.reduce((a,l)=>Math.max(a,l[2]),0)][0])+"\nFeel: "+f.g+" g, thock "+Math.round(f.thock*100)+", quiet "+Math.round(f.quiet*100);
+}
+const CAMS=[{n:"CAM 01",t:"CASE OPEN",src:"vid/case.mp4"},{n:"CAM 02",t:"RIBBON",src:"vid/ribbon.mp4"},{n:"CAM 03",t:"PCB SCREWS",src:"vid/screws.mp4"},{n:"CAM 04",t:"SLIDER LUBE",src:""}];
+function setCam(i){const c=CAMS[i],v=$("cctvVid");$("cctv").classList.toggle("nosig",!c.src);$("camLabel").textContent=c.n+"  "+c.t;
+  if(c.src){if(v.getAttribute("src")!==c.src)v.src=c.src;v.muted=true;const p=v.play();if(p&&p.catch)p.catch(()=>{});}else{v.pause();}
+  $("cams").innerHTML=CAMS.map((x,j)=>`<button class="opt" data-cam="${j}" aria-pressed="${j===i}">${x.n}</button>`).join("");}
+function initUI(){
+  $("cams").addEventListener("click",e=>{const b=e.target.closest("[data-cam]");if(b)setCam(+b.dataset.cam);});
+  $("cctvVid").addEventListener("timeupdate",e=>{const t=e.target.currentTime;$("camTime").textContent="T+00:"+String(Math.floor(t)).padStart(2,"0")+"."+Math.floor(t%1*10);});
+  setCam(2);
+  document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.t)));
+  $("boards").addEventListener("click",e=>{const b=e.target.closest("button");if(!b||b.dataset.b===S.board)return;playing=false;S.board=b.dataset.b;isolated=null;guideStep=-1;
+    if(!B().guide&&$("guideTab").getAttribute("aria-selected")==="true")showTab("layers");loadBoard();applyMods();});
+  $("layerlist").addEventListener("click",e=>{const b=e.target.closest(".layer");if(b){setIso(isolated===b.dataset.l?null:b.dataset.l);if(isolated&&S.ex<.25)setEx(.55);}});
+  $("p-mods").addEventListener("click",e=>{const b=e.target.closest(".opt");if(!b)return;st().mods[b.dataset.m]=b.dataset.v;if(b.dataset.m==="caps")st().paint={};applyMods();});
+  $("p-guide").addEventListener("click",e=>{const b=e.target.closest("[data-step]");if(!b)return;const i=+b.dataset.step,s=B().guide.steps[i];guideStep=i;playing=false;
+    if(s.cam!==undefined)setCam(s.cam);if(s.set)Object.assign(st().mods,s.set);setEx(s.ex);isolated=s.iso;applyMods();if(T){T.idle=false;T.pulse=1;}});
+  $("ex").value=Math.round(S.ex*100);
+  $("ex").addEventListener("input",e=>{S.ex=e.target.value/100;playing=false;save();});
+  $("play").addEventListener("click",play);
+  $("viewBtn").addEventListener("click",()=>{if(T){T.cam.th=-.5;T.cam.ph=1.02;T.cam.zoom=1;T.idle=true;}guideStep=-1;setIso(null);renderGuide();});
+  $("soundBtn").setAttribute("aria-pressed",S.sound);
+  $("soundBtn").addEventListener("click",()=>{S.sound=!S.sound;$("soundBtn").setAttribute("aria-pressed",S.sound);save();if(S.sound)click(false);});
+  $("swatches").innerHTML=PAINTS.map((c,i)=>`<button class="sw" data-c="${c}" style="background:${c}" aria-label="Paint colour ${i+1}" aria-pressed="${i===0}"></button>`).join("");
+  const pick=c=>{paintColor=c;document.querySelectorAll(".sw").forEach(s=>s.setAttribute("aria-pressed",s.dataset.c===c));};
+  $("swatches").addEventListener("click",e=>{const b=e.target.closest(".sw");if(b)pick(b.dataset.c);});
+  $("paintPick").addEventListener("input",e=>pick(e.target.value));
+  $("paintBtn").addEventListener("click",()=>{paintMode=!paintMode;$("paintBtn").setAttribute("aria-pressed",paintMode);$("paintbar").classList.toggle("on",paintMode);$("hint").style.opacity=0;if(paintMode&&isolated&&isolated!=="caps")setIso(null);});
+  $("paintClear").addEventListener("click",()=>{st().paint={};applyMods();});
+  $("copy").addEventListener("click",()=>{const done=m=>{$("copied").textContent=m;setTimeout(()=>{$("copied").textContent="";},2200);};
+    try{navigator.clipboard.writeText(buildText()).then(()=>done("Copied"),()=>done("Copy was blocked here"));}catch(e){done("Copy was blocked here");}});
+  $("reset").addEventListener("click",()=>{st().mods=Object.assign({},B().stock);st().paint={};applyMods();});
+}
+
+initUI();
+if(window.THREE){initGL();if(T)initPointer();}else{$("nogl").style.display="flex";}
+applyMods();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(T)applyMods();});
+</script>
+</body>
+</html>
