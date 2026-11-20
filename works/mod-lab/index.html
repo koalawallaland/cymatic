@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>if(/[?&]embed\b/.test(location.search))document.documentElement.classList.add("embed")</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mod Lab</title>
@@ -134,7 +135,7 @@ figcaption{margin-top:5px;font-size:11px;color:var(--mute)}
 @media (prefers-reduced-motion:reduce){#cctv::after,#camRec i{animation:none}}
 
 @media (min-width:900px){
-  body{flex-direction:row}
+  html:not(.embed) body{flex-direction:row}
   #sheet{border-top:0;border-left:1px solid var(--line)}
   #sheet.open{flex-basis:420px}
   #sheet>*{min-width:420px}
@@ -142,6 +143,12 @@ figcaption{margin-top:5px;font-size:11px;color:var(--mute)}
   .obj{width:72px}.obj svg{width:48px;height:48px}.obj{font-size:9px}
   #hint{bottom:128px}#lift{bottom:104px}#paintbar{bottom:150px;left:50%;right:auto;transform:translateX(-50%);width:min(520px,calc(100% - 24px))}
 }
+/* embedded as the home-page station: sheet slides over the stage instead of resizing it */
+html.embed #brand h1{font-size:15px}
+html.embed #sheet{position:absolute;left:0;right:0;bottom:0;height:74%;flex:none;border:0;border-top:1px solid var(--line);border-radius:14px 14px 0 0;z-index:8;transform:translateY(102%);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+html.embed #sheet.open{transform:none;flex-basis:auto}
+html.embed #monitor{width:min(46vw,210px);top:40px}
+html.embed #lift{bottom:78px}html.embed #hint{bottom:118px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
