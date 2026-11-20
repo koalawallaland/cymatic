@@ -194,6 +194,11 @@
 <style id="desk-board-css">
 .stage[data-stage] > .minikb,.stage[data-stage] > .minitrays{display:none!important}
 .desk-board{position:absolute;z-index:4;left:16%;top:57%;width:38%;container-type:inline-size}
+/* the dimensional look: gentle tilt, thick white case with a lip, sculpted caps */
+.desk-board .board{transform:perspective(120cqw) rotateX(24deg);transform-origin:50% 100%;padding:calc(var(--u) * .34) calc(var(--u) * .34) calc(var(--u) * .4)!important;border-radius:calc(var(--u) * .5)!important;background:linear-gradient(170deg,#ffffff,#f1eefa 60%,#e2dcf2)!important;box-shadow:0 calc(var(--u) * .16) 0 #d6cfea,0 calc(var(--u) * .3) 0 #b9aed6,0 calc(var(--u) * .75) calc(var(--u) * .7) calc(var(--u) * -.2) #1a0f2ccc,inset 0 2px #fff!important}
+.desk-board .socket{border-radius:calc(var(--u) * .14)}
+.desk-board .cap .top{border-radius:calc(var(--u) * .2)!important;box-shadow:inset 0 calc(var(--u) * -.13) 0 #0000002e,inset 0 calc(var(--u) * .06) 0 #ffffff8c,0 calc(var(--u) * .05) calc(var(--u) * .05) #0005!important}
+
 .desk-board > section{margin:0}
 .desk-board .win{font-size:11px}
 .desk-board .bar{display:none}
