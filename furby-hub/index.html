@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Furby Hub</title>
+<style>
+  :root{
+    --ink:#f4f1ff; --dim:#b9b3d6; --glass:rgba(255,255,255,.07); --edge:rgba(255,255,255,.22);
+    --pink:#ff7ad9; --cyan:#7af0ff; --violet:#a98bff; --lime:#b8ff9a;
+    --holo:linear-gradient(110deg,#7af0ff,#a98bff 35%,#ff7ad9 65%,#ffe27a);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    min-height:100vh; color:var(--ink);
+    font-family:"Avenir Next","Futura","Trebuchet MS",ui-rounded,system-ui,sans-serif;
+    background:
+      radial-gradient(60vmax 40vmax at 10% -10%, rgba(169,139,255,.55), transparent 60%),
+      radial-gradient(50vmax 40vmax at 100% 10%, rgba(122,240,255,.35), transparent 60%),
+      radial-gradient(60vmax 50vmax at 60% 110%, rgba(255,122,217,.40), transparent 60%),
+      #0b0820;
+    background-attachment:fixed;
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:28px 18px 60px}
+  header{display:flex;align-items:center;gap:16px;margin-bottom:8px;flex-wrap:wrap}
+  .orb{width:54px;height:54px;border-radius:50%;flex:none;
+    background:radial-gradient(circle at 32% 28%,#fff 0 8%,#d8fbff 14%,#7af0ff 35%,#a98bff 62%,#ff7ad9 90%);
+    box-shadow:0 0 28px rgba(122,240,255,.6),inset -6px -8px 14px rgba(40,10,90,.5);
+    animation:float 5s ease-in-out infinite}
+  h1{margin:0;font-size:clamp(30px,6vw,52px);letter-spacing:.04em;font-weight:800;
+    background:linear-gradient(90deg,#fff,#b8f3ff,#ffc2f0,#d9c2ff,#fff,#b8f3ff);background-size:300% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 8s linear infinite}
+  .sub{color:var(--dim);margin:0 0 22px;max-width:62ch;line-height:1.5}
+  @keyframes float{50%{transform:translateY(-6px)}}
+  @keyframes shine{to{background-position:300% 0}}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,470px),1fr));gap:20px;align-items:start}
+  .card{background:var(--glass);border:1px solid var(--edge);border-radius:26px;padding:22px;
+    backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);
+    box-shadow:0 10px 40px rgba(5,0,30,.45),inset 0 1px 0 rgba(255,255,255,.25)}
+  .card h2{margin:0 0 4px;font-size:22px;display:flex;align-items:center;gap:10px}
+  .tag{font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:99px;
+    border:1px solid var(--edge);color:var(--cyan)}
+  .tag.exp{color:#ffe27a}
+  .note{color:var(--dim);font-size:13.5px;line-height:1.5;margin:6px 0 14px}
+  h3{margin:20px 0 8px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);font-weight:700}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  button{
+    font:inherit;font-size:14px;color:var(--ink);cursor:pointer;border:1px solid var(--edge);
+    background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.05));
+    padding:9px 15px;border-radius:99px;transition:transform .15s,box-shadow .2s,background .3s;
+  }
+  button:hover:not(:disabled){transform:translateY(-1px);background:var(--holo);color:#1a1040;
+    box-shadow:0 6px 22px rgba(169,139,255,.5);border-color:transparent}
+  button:active:not(:disabled){transform:translateY(0) scale(.97)}
+  button:disabled{opacity:.38;cursor:not-allowed}
+  button.main{background:var(--holo);color:#1a1040;font-weight:700;border-color:transparent;padding:11px 22px}
+  button.on{box-shadow:0 0 0 2px var(--lime),0 0 18px rgba(184,255,154,.5)}
+  .status{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--dim)}
+  .dot{width:10px;height:10px;border-radius:50%;background:#6b6590}
+  .dot.live{background:var(--lime);box-shadow:0 0 12px var(--lime)}
+  .dot.busy{background:#ffe27a;box-shadow:0 0 12px #ffe27a}
+  label{font-size:13px;color:var(--dim)}
+  input[type=number],input[type=text]{
+    width:76px;font:inherit;color:var(--ink);background:rgba(0,0,0,.3);border:1px solid var(--edge);
+    border-radius:12px;padding:8px 10px}
+  input[type=color]{width:46px;height:38px;border:1px solid var(--edge);border-radius:12px;background:none;padding:2px;cursor:pointer}
+  input[type=range]{width:100%;accent-color:var(--violet)}
+  .sw{width:30px;height:30px;border-radius:50%;padding:0;border:2px solid rgba(255,255,255,.5)}
+  .mood{display:grid;grid-template-columns:110px 1fr 36px;gap:10px;align-items:center;margin:4px 0;font-size:13px;color:var(--dim)}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;min-height:30px}
+  .chip{font-size:12px;padding:4px 10px;border-radius:99px;background:rgba(122,240,255,.14);border:1px solid rgba(122,240,255,.4);color:var(--cyan)}
+  .chip.hot{background:rgba(255,122,217,.2);border-color:rgba(255,122,217,.6);color:#ffc2f0}
+  .banner{border:1px solid rgba(255,226,122,.5);background:rgba(255,226,122,.1);color:#ffe9a6;
+    padding:12px 14px;border-radius:16px;font-size:14px;line-height:1.5;margin-bottom:16px}
+  .banner.warn{border-color:rgba(255,122,217,.6);background:rgba(255,122,217,.1);color:#ffd0f3}
+  pre#log{margin:0;max-height:200px;overflow:auto;font:12px/1.5 ui-monospace,Menlo,monospace;color:#c9c3ee;
+    background:rgba(0,0,0,.35);border:1px solid var(--edge);border-radius:16px;padding:12px;white-space:pre-wrap}
+  .duet{margin-top:20px;text-align:center}
+  details summary{cursor:pointer;color:var(--dim);font-size:13px;margin:16px 0 8px}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+  /* ===================== NURSERY (egg hatching world) ===================== */
+  .nursery{padding:0;overflow:hidden;margin-bottom:20px}
+  .nursery-head{padding:20px 22px 6px}
+  .nursery-foot{padding:6px 22px 22px}
+  .scene{position:relative;width:100%;aspect-ratio:16/9;min-height:340px;max-height:560px;overflow:hidden;
+    touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;
+    border-top:1px solid var(--edge);border-bottom:1px solid var(--edge)}
+  .scene svg.bg{position:absolute;inset:0;width:100%;height:100%;display:block}
+  #bubbles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .bubble{position:absolute;bottom:-70px;border-radius:50%;pointer-events:none;
+    background:radial-gradient(circle at 30% 28%,rgba(255,255,255,.95),rgba(255,255,255,.12) 38%,rgba(170,230,255,.22) 68%,rgba(255,160,240,.35));
+    border:1px solid rgba(255,255,255,.75);animation:rise var(--d,12s) linear infinite;animation-delay:var(--dl,0s)}
+  @keyframes rise{0%{transform:translate(0,0);opacity:0}8%{opacity:1}50%{transform:translate(16px,-240px)}100%{transform:translate(-8px,-520px);opacity:0}}
+  .tw{transform-box:fill-box;transform-origin:center;animation:tw 2.8s ease-in-out infinite}
+  @keyframes tw{0%,100%{opacity:.25;transform:scale(.6) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(45deg)}}
+  .sign{position:absolute;top:12px;left:50%;translate:-50% 0;z-index:6;padding:7px 18px;border-radius:99px;pointer-events:none;
+    background:var(--holo);color:#2a1060;font-weight:800;letter-spacing:.08em;font-size:14px;white-space:nowrap;
+    box-shadow:0 6px 22px rgba(169,139,255,.55),inset 0 1px 0 rgba(255,255,255,.7)}
+  .sign small{font-weight:600;letter-spacing:.04em;opacity:.8}
+  .eggbox{position:absolute;left:50%;bottom:2.5%;translate:-50% 0;width:clamp(150px,30%,250px);z-index:4;cursor:pointer;touch-action:manipulation}
+  .egg{width:72%;margin:0 auto -17%;position:relative;z-index:2;transform-origin:50% 100%;
+    animation:bob 3.2s ease-in-out infinite;transition:opacity .25s,scale .25s}
+  .egg svg{display:block;width:100%;overflow:visible;filter:drop-shadow(0 8px 14px rgba(120,70,200,.35));animation:irid 9s ease-in-out infinite}
+  .egg svg.wob{animation:wob .45s ease, irid 9s ease-in-out infinite}
+  .egg.gone{opacity:0;scale:1.25;pointer-events:none}
+  @keyframes bob{50%{transform:translateY(-5px)}}
+  @keyframes irid{50%{filter:drop-shadow(0 8px 14px rgba(120,70,200,.35)) hue-rotate(40deg)}}
+  @keyframes wob{0%{transform:rotate(0)}20%{transform:rotate(-9deg) scale(1.03)}45%{transform:rotate(8deg)}70%{transform:rotate(-4deg)}100%{transform:rotate(0)}}
+  .crack{opacity:0;transition:opacity .35s}
+  .st1 .c1,.st2 .c1,.st2 .c2,.st3 .c1,.st3 .c2,.st3 .c3{opacity:1}
+  .keycap{width:100%;display:block;position:relative;z-index:1;filter:drop-shadow(0 10px 16px rgba(90,50,170,.35))}
+  .creature{position:absolute;left:50%;bottom:7%;translate:-50% 0;width:clamp(130px,27%,220px);z-index:5;cursor:pointer;
+    animation:pop .7s cubic-bezier(.2,1.6,.4,1) both}
+  .creature svg{width:100%;display:block;filter:drop-shadow(0 8px 12px rgba(90,50,170,.35))}
+  .creature.hop{animation:hop .5s ease}
+  @keyframes pop{0%{scale:0;rotate:-25deg}100%{scale:1;rotate:0deg}}
+  @keyframes hop{40%{translate:-50% -22px}100%{translate:-50% 0}}
+  .spark{position:absolute;pointer-events:none;z-index:7;font-size:22px;color:#fff;text-shadow:0 0 10px #ff7ad9,0 0 18px #7af0ff;
+    animation:spk .95s ease-out forwards}
+  @keyframes spk{to{transform:translate(var(--dx,0),-70px) scale(1.7) rotate(40deg);opacity:0}}
+  .shard{position:absolute;width:15px;height:20px;clip-path:polygon(50% 0,100% 100%,0 100%);z-index:7;pointer-events:none;
+    animation:shard .95s ease-out forwards}
+  @keyframes shard{from{transform:translate(0,0) rotate(0);opacity:1}to{transform:translate(var(--dx),var(--dy)) rotate(var(--r));opacity:0}}
+  .hint{position:absolute;left:50%;top:58px;translate:-50% 0;z-index:6;pointer-events:none;
+    font-size:14px;color:#3b1a7a;background:rgba(255,255,255,.7);padding:5px 14px;border-radius:99px;backdrop-filter:blur(6px);
+    animation:bob 2.4s ease-in-out infinite;white-space:nowrap}
+  .meter{height:14px;border-radius:99px;background:rgba(0,0,0,.3);border:1px solid var(--edge);overflow:hidden;margin:16px 0 12px}
+  #meterFill{height:100%;width:0;background:var(--holo);border-radius:99px;transition:width .3s}
+  .nursery-foot label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+  .nursery-foot input[type=checkbox]{accent-color:var(--pink);width:18px;height:18px}
+  .reveal{margin:14px 0 0;padding:12px 16px;border-radius:18px;border:1px solid var(--edge);background:rgba(255,255,255,.07);line-height:1.5;font-size:14px}
+  .reveal b{font-size:17px}
+  .rar{font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:2px 9px;border-radius:99px;margin-left:6px;border:1px solid currentColor}
+  .rar.common,.dexcard.common{--rc:#7af0ff}.rar.rare,.dexcard.rare{--rc:#a98bff}
+  .rar.epic,.dexcard.epic{--rc:#ff7ad9}.rar.legendary,.dexcard.legendary{--rc:#ffe27a}
+  .rar{color:var(--rc)}
+  .dex{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+  .dexcard{border-radius:18px;padding:8px 6px 10px;text-align:center;border:1px solid var(--rc,var(--edge));
+    background:rgba(255,255,255,.06);box-shadow:inset 0 0 18px rgba(255,255,255,.04)}
+  .dexcard.legendary:not(.locked){box-shadow:0 0 18px rgba(255,226,122,.35)}
+  .dexart svg{width:84px;height:84px}
+  .dexcard.locked .dexart{filter:brightness(0) opacity(.3)}
+  .dexname{font-size:13px;font-weight:700}
+  .dexmeta{font-size:11px;color:var(--dim);text-transform:capitalize}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="orb" aria-hidden="true"></div>
+    <h1>FURBY HUB</h1>
+  </header>
+  <p class="sub">An original hatchery and control panel for your Furbies. Hatch Squishlings in the nursery, then connect the Furby Connect (Bluetooth) and Furby Boom (sound) so they cheer along. Works in Chrome. For the Furby Connect's Bluetooth on an iPad, open this page in the free Bluefy app.</p>
+
+  <div id="btBanner" class="banner warn" hidden></div>
+
+  <section class="card nursery" id="nursery">
+    <div class="nursery-head">
+      <h2>Sunny Koala Nursery <span class="tag">egg hatching</span></h2>
+      <p class="note">Tap the egg to keep it warm. When it cracks, a Squishling pops out! Connect your Furbies in the panels below and they'll cheer along.</p>
+    </div>
+    <div class="scene" id="scene">
+      <svg class="bg" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a9b8ff"/><stop offset=".5" stop-color="#ffcdf0"/><stop offset="1" stop-color="#fff0d2"/></linearGradient>
+          <radialGradient id="sunG"><stop offset="0" stop-color="#fffbe0"/><stop offset="1" stop-color="#ffd86b"/></radialGradient>
+          <linearGradient id="h1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8ffe3"/><stop offset="1" stop-color="#9fe8d0"/></linearGradient>
+          <linearGradient id="h2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9ccff"/><stop offset="1" stop-color="#b9a4ff"/></linearGradient>
+          <linearGradient id="h3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd0ee"/><stop offset="1" stop-color="#ffb3dd"/></linearGradient>
+          <radialGradient id="lantG"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#ffc2ec"/><stop offset="1" stop-color="#ff7ad9"/></radialGradient>
+          <path id="spk" d="M0 -10Q2 -2 10 0Q2 2 0 10Q-2 2 -10 0Q-2 -2 0 -10Z"/>
+        </defs>
+        <rect width="800" height="400" fill="url(#sky)"/>
+        <!-- rainbow -->
+        <g fill="none" stroke-width="11" opacity=".85" stroke-linecap="round">
+          <path d="M440 330A210 210 0 0 1 860 330" stroke="#ff9bb8"/><path d="M451 330A199 199 0 0 1 849 330" stroke="#ffc08a"/>
+          <path d="M462 330A188 188 0 0 1 838 330" stroke="#fff08a"/><path d="M473 330A177 177 0 0 1 827 330" stroke="#a8f0c0"/>
+          <path d="M484 330A166 166 0 0 1 816 330" stroke="#a8dcff"/><path d="M495 330A155 155 0 0 1 805 330" stroke="#cdb8ff"/>
+        </g>
+        <!-- clouds -->
+        <g fill="#fff" opacity=".92"><ellipse cx="260" cy="70" rx="42" ry="16"/><ellipse cx="290" cy="60" rx="28" ry="18"/><ellipse cx="236" cy="62" rx="22" ry="14"/>
+          <ellipse cx="610" cy="48" rx="38" ry="14"/><ellipse cx="636" cy="40" rx="24" ry="15"/></g>
+        <!-- sun with a sleepy-happy face -->
+        <g transform="translate(112 92)"><circle r="66" fill="#fff6c0" opacity=".38"/><circle r="45" fill="url(#sunG)"/>
+          <path d="M-18 -4q5 -7 11 0M7 -4q5 -7 11 0" stroke="#7a4a2a" fill="none" stroke-width="3" stroke-linecap="round"/>
+          <ellipse cx="-24" cy="8" rx="8" ry="5" fill="#ff8fc7" opacity=".55"/><ellipse cx="24" cy="8" rx="8" ry="5" fill="#ff8fc7" opacity=".55"/>
+          <path d="M-6 8q6 7 12 0" stroke="#7a4a2a" fill="none" stroke-width="3" stroke-linecap="round"/></g>
+        <!-- hills -->
+        <path d="M0 292Q150 222 300 282T600 272T800 294V400H0Z" fill="url(#h1)"/>
+        <path d="M0 336Q200 286 400 332T800 316V400H0Z" fill="url(#h2)"/>
+        <path d="M0 372Q200 344 420 370T800 358V400H0Z" fill="url(#h3)"/>
+        <!-- flowers -->
+        <g><circle cx="330" cy="318" r="7" fill="#fff"/><circle cx="330" cy="318" r="3" fill="#ffd86b"/>
+           <circle cx="520" cy="324" r="7" fill="#ffc2ec"/><circle cx="520" cy="324" r="3" fill="#ffd86b"/>
+           <circle cx="190" cy="350" r="7" fill="#fff"/><circle cx="190" cy="350" r="3" fill="#ffd86b"/>
+           <circle cx="650" cy="352" r="7" fill="#fff"/><circle cx="650" cy="352" r="3" fill="#ffd86b"/>
+           <circle cx="420" cy="360" r="6" fill="#ffe6f6"/><circle cx="420" cy="360" r="2.5" fill="#ffd86b"/></g>
+        <!-- napping koala on the hill -->
+        <g transform="translate(200 262)">
+          <circle cx="-22" cy="-16" r="13" fill="#cfc8ea"/><circle cx="22" cy="-16" r="13" fill="#cfc8ea"/>
+          <circle cx="-22" cy="-16" r="7" fill="#ffc2e2"/><circle cx="22" cy="-16" r="7" fill="#ffc2e2"/>
+          <ellipse cx="0" cy="2" rx="30" ry="25" fill="#dcd5f4"/><ellipse cx="0" cy="6" rx="7" ry="5" fill="#4a2f78"/>
+          <path d="M-18 -2q5 5 10 0M8 -2q5 5 10 0" stroke="#4a2f78" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+          <ellipse cx="-20" cy="9" rx="6" ry="3.5" fill="#ff8fc7" opacity=".5"/><ellipse cx="20" cy="9" rx="6" ry="3.5" fill="#ff8fc7" opacity=".5"/>
+          <text x="34" y="-18" font-size="13" fill="#7a5ad0" font-weight="700">z</text><text x="44" y="-30" font-size="10" fill="#7a5ad0" font-weight="700">z</text></g>
+        <!-- shoji screens + lanterns -->
+        <g fill="rgba(255,255,255,.3)" stroke="rgba(255,255,255,.85)" stroke-width="2.5">
+          <rect x="-6" y="30" width="104" height="380" rx="4"/><rect x="702" y="30" width="104" height="380" rx="4"/></g>
+        <g stroke="rgba(255,255,255,.7)" stroke-width="1.6">
+          <path d="M30 30V400M64 30V400M-6 130H98M-6 230H98M-6 320H98M738 30V400M772 30V400M702 130H806M702 230H806M702 320H806"/></g>
+        <g><path d="M48 30V62M754 30V62" stroke="#fff" stroke-width="2"/>
+          <circle cx="48" cy="80" r="19" fill="url(#lantG)"/><circle cx="754" cy="80" r="19" fill="url(#lantG)"/>
+          <circle cx="48" cy="80" r="34" fill="#ff7ad9" opacity=".18"/><circle cx="754" cy="80" r="34" fill="#ff7ad9" opacity=".18"/></g>
+        <!-- Y3K sparkles -->
+        <g fill="#fff">
+          <use href="#spk" class="tw" transform="translate(170 40) scale(1.1)" style="animation-delay:0s"/>
+          <use href="#spk" class="tw" transform="translate(380 36) scale(.9)" style="animation-delay:.7s"/>
+          <use href="#spk" class="tw" transform="translate(560 110) scale(1.3)" style="animation-delay:1.3s"/>
+          <use href="#spk" class="tw" transform="translate(300 150) scale(.8)" style="animation-delay:.3s"/>
+          <use href="#spk" class="tw" transform="translate(690 190) scale(1)" style="animation-delay:1.9s"/>
+          <use href="#spk" class="tw" transform="translate(130 200) scale(.9)" style="animation-delay:1.1s"/>
+          <use href="#spk" class="tw" transform="translate(470 120) scale(.7)" style="animation-delay:2.2s"/></g>
+      </svg>
+      <div id="bubbles"></div>
+      <div class="sign">SQUISH! <small>&times; koalawallaland</small></div>
+      <div class="hint" id="hint">tap the egg &#9825;</div>
+      <div class="eggbox" id="eggbox">
+        <div class="egg" id="egg"></div>
+        <svg class="keycap" viewBox="0 0 260 110" aria-hidden="true">
+          <defs>
+            <linearGradient id="kcB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9ddff"/><stop offset="1" stop-color="#a98bff"/></linearGradient>
+            <linearGradient id="kcD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4c4ff"/><stop offset="1" stop-color="#fff5ff"/></linearGradient>
+          </defs>
+          <path d="M10 72L34 24Q40 12 56 12H204Q220 12 226 24L250 72Q258 100 230 102H30Q2 100 10 72Z" fill="url(#kcB)" stroke="rgba(255,255,255,.8)" stroke-width="2"/>
+          <ellipse cx="130" cy="42" rx="92" ry="22" fill="url(#kcD)"/>
+          <path d="M38 78Q130 96 222 78" stroke="rgba(255,255,255,.55)" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M122 82l4-6 4 6-4 6z" fill="#ff9bdc" opacity=".8"/>
+        </svg>
+      </div>
+      <div class="creature" id="creature" hidden></div>
+      <div id="fx"></div>
+    </div>
+    <div class="nursery-foot">
+      <div class="meter" aria-label="Egg warmth"><div id="meterFill"></div></div>
+      <div class="row">
+        <button class="main" id="newEgg">New egg</button>
+        <label><input type="checkbox" id="nvConnect" checked> Furby Connect cheers</label>
+        <label><input type="checkbox" id="nvBoom"> Furby Boom cheers</label>
+      </div>
+      <div class="reveal" id="reveal" hidden></div>
+      <h3>Squishlings found <span id="foundCount"></span></h3>
+      <div class="dex" id="dex"></div>
+    </div>
+  </section>
+
+  <div class="grid">
+
+    <!-- ===================== CONNECT ===================== -->
+    <section class="card" id="connectCard">
+      <h2>Furby Connect <span class="tag">Bluetooth</span></h2>
+      <p class="note">Wake your Furby Connect (tickle its tummy), keep it close, then press Connect and pick "Furby" in the list. Close any other app that might be connected to it.</p>
+      <div class="row">
+        <button class="main" id="connBtn">Connect</button>
+        <span class="status"><span class="dot" id="connDot"></span><span id="connState">Not connected</span></span>
+      </div>
+
+      <h3>Make him do things</h3>
+      <div class="row" id="actionBtns"></div>
+
+      <h3>Antenna light</h3>
+      <div class="row">
+        <input type="color" id="antColor" value="#ff7ad9" aria-label="Antenna color">
+        <button class="sw" data-c="#ff7ad9" style="background:#ff7ad9" aria-label="pink"></button>
+        <button class="sw" data-c="#7af0ff" style="background:#7af0ff" aria-label="cyan"></button>
+        <button class="sw" data-c="#a98bff" style="background:#a98bff" aria-label="violet"></button>
+        <button class="sw" data-c="#b8ff9a" style="background:#b8ff9a" aria-label="green"></button>
+        <button class="sw" data-c="#ff3b3b" style="background:#ff3b3b" aria-label="red"></button>
+        <button class="sw" data-c="#000000" style="background:#000" aria-label="off"></button>
+        <button id="eyesBtn" class="on">Eye light</button>
+      </div>
+
+      <h3>Mood</h3>
+      <div id="moods"></div>
+
+      <h3>Senses</h3>
+      <div class="row" style="margin-bottom:8px">
+        <button id="streamBtn">Live motion stream</button>
+        <button id="debugBtn">Eye debug screen</button>
+      </div>
+      <div class="chips" id="senses"><span class="chip">touch, tilt, or tickle him</span></div>
+
+      <details>
+        <summary>Pick an exact action (advanced)</summary>
+        <div class="row">
+          <label>input <input type="number" id="a1" min="0" max="255"></label>
+          <label>index <input type="number" id="a2" min="0" max="255"></label>
+          <label>sub <input type="number" id="a3" min="0" max="255"></label>
+          <label>specific <input type="number" id="a4" min="0" max="255"></label>
+          <button id="customBtn">Go</button>
+        </div>
+        <p class="note">Leave later boxes empty to let Furby choose randomly. Numbers come from the community's action list in the open-source bluefluff project.</p>
+      </details>
+    </section>
+
+    <!-- ===================== BOOM ===================== -->
+    <section class="card" id="boomCard">
+      <h2>Furby Boom <span class="tag exp">Sound · experimental</span></h2>
+      <p class="note">The Boom has no Bluetooth. Its old app whispered commands as very high-pitched tones. Put the Boom's face near your Mac's speaker, keep volume low, press <b>Wake him up</b>, then try the buttons. The tone scheme was mapped for the 2012 Furby, so some Boom commands may not respond.</p>
+      <div class="row">
+        <button class="main" id="listenBtn">Wake him up</button>
+        <button id="keepBtn">Keep listening</button>
+        <span class="status"><span class="dot" id="boomDot"></span><span id="boomState">Idle</span></span>
+      </div>
+      <h3>Volume (start low)</h3>
+      <input type="range" id="vol" min="0" max="100" value="30">
+      <p class="note" style="margin:4px 0 0">Bluetooth speakers and headphones usually cut these tones. Use the Mac's own speakers.</p>
+
+      <h3>Feed</h3>
+      <div class="row" id="boomFeed"></div>
+      <h3>Do something</h3>
+      <div class="row" id="boomDo"></div>
+      <h3>Ask</h3>
+      <div class="row" id="boomAsk"></div>
+
+      <details>
+        <summary>Send any command number (advanced)</summary>
+        <div class="row">
+          <label>0 to 1023 <input type="number" id="rawCmd" min="0" max="1023" value="350"></label>
+          <button id="rawBtn">Play</button>
+        </div>
+      </details>
+    </section>
+  </div>
+
+  <div class="duet"><button class="main" id="duetBtn">Duet: make both sing</button></div>
+
+  <h3 style="margin-top:30px">Log</h3>
+  <pre id="log"></pre>
+</div>
+
+<script>
+'use strict';
+/* ============================ shared ============================ */
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function log(...a){
+  const el = $('log');
+  el.textContent += a.join(' ') + '\n';
+  const lines = el.textContent.split('\n');
+  if (lines.length > 300) el.textContent = lines.slice(-250).join('\n');
+  el.scrollTop = el.scrollHeight;
+}
+const hex = dv => {
+  const u = dv instanceof DataView ? new Uint8Array(dv.buffer, dv.byteOffset, dv.byteLength) : dv;
+  return Array.from(u, b => b.toString(16).padStart(2,'0')).join(' ');
+};
+function hexToRgb(h){ const n = parseInt(h.slice(1),16); return [(n>>16)&255,(n>>8)&255,n&255]; }
+
+/* ======================= FURBY CONNECT (BLE) ======================= */
+const FLUFF = 'dab91435-b5a1-e29c-b041-bcd562613bde';
+const CHARS = {
+  gpListen:'dab91382-b5a1-e29c-b041-bcd562613bde',
+  gpWrite :'dab91383-b5a1-e29c-b041-bcd562613bde',
+};
+const MOODS = ['Excited','Displeased','Tired','Full','Well'];  // protocol types 0..4
+const ACTIONS = [
+  ['Reactions',[1,2,3,4,5,6]],['Sing',[17]],['Dance & move',[9,10,11]],['Chat',[8]],
+  ['Yum, food!',[15]],['Munch',[14]],['Hiccup',[16]],['Burp & poop',[7]],['Toot',[19]],
+  ['Hungry',[23]],['Bored',[24,25]],['Sick',[22]],['Dropped!',[21]],['Loud noise',[20]],
+  ['Hears music',[18]],['Sleepy',[12]],['Wake up',[27]],['Go to sleep',[28]],
+];
+
+let dev = null, gpW = null, gpL = null, connected = false, lastSend = 0, keepTimer = null;
+let queue = Promise.resolve(), eyesOn = true, streaming = false, groupFixed = false;
+
+function setConn(state, text){
+  $('connDot').className = 'dot ' + (state||'');
+  $('connState').textContent = text;
+}
+function enableConnect(on){
+  document.querySelectorAll('#connectCard button:not(#connBtn), #connectCard input[type=color], #connectCard input[type=range], #connectCard input[type=number]')
+    .forEach(el => el.disabled = !on);
+}
+
+function send(bytes){
+  if (!gpW) return Promise.reject(new Error('Not connected'));
+  const job = queue.then(async () => {
+    lastSend = performance.now();
+    await gpW.writeValue(new Uint8Array(bytes));
+  });
+  queue = job.catch(() => {});
+  return job;
+}
+
+function onGP(ev){
+  const b = ev.target.value, t = b.getUint8(0);
+  if (t === 0x22) return;                         // keepalive "I'm here"
+  if (t === 0x21){ showSenses(b); return; }       // sensors
+  log('Furby says:', hex(b));
+  if (t === 0x20 && b.getUint8(1) === 0x19 && !groupFixed){
+    groupFixed = true;
+    log('Group not active, sending the fix and trying again...');
+    send([0xe0,0,0,0,1]).catch(e => log(e.message));
+  }
+}
+
+function showSenses(b){
+  const chips = [];
+  const b1=b.getUint8(1), b2=b.getUint8(2), b4=b.getUint8(4);
+  let ant='';
+  if (b1&2) ant='left'; if (b1&1) ant='right';
+  if (b2===0xc0) ant='down'; else if (b2&0x40) ant='forward'; else if (b2&0x80) ant='back';
+  if (ant) chips.push(['antenna ' + ant,false]);
+  const orient = [[1,'upright'],[2,'upside-down'],[4,'on right side'],[8,'on left side'],[0x20,'leaning back'],[0x40,'tilted right'],[0x80,'tilted left']];
+  for (const [m,n] of orient) if (b4&m){ chips.push([n,false]); break; }
+  const touch = [[1,'back of head'],[2,'tummy'],[4,'right side'],[8,'left side'],[0x10,'tail pulled'],[0x20,'tongue pushed']];
+  for (const [m,n] of touch) if (b2&m) chips.push([n+' touched',true]);
+  const box = $('senses'); box.textContent = '';
+  if (!chips.length) chips.push(['resting',false]);
+  for (const [t,hot] of chips){
+    const s = document.createElement('span'); s.className = 'chip' + (hot?' hot':''); s.textContent = t; box.appendChild(s);
+  }
+}
+
+async function connectFurby(){
+  try{
+    setConn('busy','Looking for Furby...');
+    dev = await navigator.bluetooth.requestDevice({
+      filters:[{namePrefix:'Furby'}], optionalServices:[FLUFF]
+    });
+    dev.addEventListener('gattserverdisconnected', onDisc);
+    setConn('busy','Connecting...');
+    const server = await dev.gatt.connect();
+    const svc = await server.getPrimaryService(FLUFF);
+    gpW = await svc.getCharacteristic(CHARS.gpWrite);
+    gpL = await svc.getCharacteristic(CHARS.gpListen);
+    gpL.addEventListener('characteristicvaluechanged', onGP);
+    await gpL.startNotifications();
+    connected = true; groupFixed = false; queue = Promise.resolve();
+    $('connBtn').textContent = 'Disconnect';
+    setConn('live','Connected');
+    enableConnect(true);
+    keepTimer = setInterval(() => {
+      if (connected && performance.now() - lastSend > 3000) send([0x20,0x06]).catch(()=>{});
+    }, 1000);
+    log('Connected to', dev.name || 'Furby');
+    for (const c of ['#ff7ad9','#7af0ff','#a98bff']){ await setAntenna(c); await sleep(350); }
+  }catch(e){
+    log('Connect problem:', e.message);
+    setConn('', e.name === 'NotFoundError' ? 'No Furby chosen' : 'Could not connect');
+  }
+}
+function onDisc(){
+  connected = false; clearInterval(keepTimer); gpW = gpL = null;
+  $('connBtn').textContent = 'Connect'; setConn('', 'Not connected'); enableConnect(false);
+  streaming = false; $('streamBtn').classList.remove('on');
+  log('Furby disconnected');
+}
+function disconnectFurby(){ try{ dev && dev.gatt.disconnect(); }catch(e){ log(e.message); } }
+
+const setAntenna = hexColor => { const [r,g,b] = hexToRgb(hexColor); $('antColor').value = hexColor; return send([0x14,r,g,b]); };
+function doAction(inputs){
+  const inp = inputs[Math.floor(Math.random()*inputs.length)];
+  return send([0x10,0,inp]).catch(e => log(e.message));
+}
+function customAction(){
+  const v = ['a1','a2','a3','a4'].map(id => $(id).value).filter(x => x !== '').map(Number);
+  if (!v.length || v.some(n => !(n >= 0 && n <= 255))) return log('Enter numbers from 0 to 255');
+  const op = [0x10,0x11,0x12,0x13][v.length-1];
+  send([op,0,...v]).catch(e => log(e.message));
+}
+
+function buildConnectUI(){
+  const ab = $('actionBtns');
+  for (const [name,inputs] of ACTIONS){
+    const b = document.createElement('button'); b.textContent = name;
+    b.onclick = () => doAction(inputs); ab.appendChild(b);
+  }
+  const mo = $('moods');
+  MOODS.forEach((name,type) => {
+    const row = document.createElement('div'); row.className = 'mood';
+    row.innerHTML = `<span>${name}</span><input type="range" min="0" max="100" value="50"><span>50</span>`;
+    const r = row.querySelector('input'), v = row.querySelector('span:last-child');
+    r.oninput = () => v.textContent = r.value;
+    r.onchange = () => send([0x24,1,type,Number(r.value)]).catch(e => log(e.message));
+    mo.appendChild(row);
+  });
+  $('connBtn').onclick = () => connected ? disconnectFurby() : connectFurby();
+  $('antColor').oninput = e => setAntenna(e.target.value).catch(()=>{});
+  document.querySelectorAll('.sw').forEach(b => b.onclick = () => setAntenna(b.dataset.c).catch(()=>{}));
+  $('eyesBtn').onclick = () => { eyesOn = !eyesOn; $('eyesBtn').classList.toggle('on', eyesOn); send([0xcd, eyesOn?1:0]).catch(e => log(e.message)); };
+  $('streamBtn').onclick = () => { streaming = !streaming; $('streamBtn').classList.toggle('on', streaming); send([0x20, streaming?0x0d:0x0e]).catch(e => log(e.message)); };
+  $('debugBtn').onclick = () => send([0xdb]).catch(e => log(e.message));
+  $('customBtn').onclick = customAction;
+  enableConnect(false);
+}
+
+/* ======================= FURBY BOOM (sound) ======================= */
+// Tone scheme from the open-source Hacksby project (MIT): a command 0..1023 is sent as
+// two packets of 5 bits each, as short hops between four data pitches around 17.5 kHz.
+const FREQ = {'0':16386,'1':16943,'X':17500,'3':18057,'2':18614};
+const CHECK = ['0000','0110','0210','0300','1023','1133','1233','1323','0120','0201','0330','1021','1103','1222','1313','2021',
+ '0220','0330','1000','1110','1203','1313','2000','2110','0300','1011','1120','1201','1323','2011','2120','2201',
+ '1033','1123','1223','1333','2033','2123','2223','2333','1113','1232','1303','2031','2113','2232','2303','3012',
+ '1213','1303','2010','2100','2213','2303','3033','3123','1333','2001','2130','2211','2333','3022','3113','3232'];
+
+function packetDigits(v){            // v: 0..63 (first packet 0..31, second packet 32..63)
+  const bits = '11' + v.toString(2).padStart(6,'0');
+  let q = ''; for (let i=0;i<8;i+=2) q += parseInt(bits.substr(i,2),2);
+  return q + CHECK[v] + '1032';
+}
+let actx = null, master = null;
+function audio(){
+  if (!actx){
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    master = actx.createGain(); master.connect(actx.destination);
+  }
+  if (actx.state === 'suspended') actx.resume();
+  master.gain.value = Math.pow($('vol').value/100, 2) * 0.8;   // gentle curve, never full blast
+  return actx;
+}
+function schedulePacket(t0, digits){
+  const syms = ['X']; for (const d of digits){ syms.push(d,'X'); }       // X d X d ... X
+  const osc = actx.createOscillator(), g = actx.createGain();
+  osc.type = 'sine'; osc.connect(g); g.connect(master);
+  let t = t0 + 0.005;
+  osc.frequency.setValueAtTime(FREQ[syms[0]], t);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(1, t + 0.005);
+  for (let i=0;i<syms.length;i++){
+    osc.frequency.setValueAtTime(FREQ[syms[i]], t);
+    t += 0.016;
+    if (i < syms.length-1){ osc.frequency.linearRampToValueAtTime(FREQ[syms[i+1]], t + 0.004); t += 0.004; }
+  }
+  g.gain.setValueAtTime(1, t); g.gain.linearRampToValueAtTime(0, t + 0.005);
+  osc.start(t0); osc.stop(t + 0.02);
+  return t + 0.005;
+}
+function playCommand(n){
+  n = Math.max(0, Math.min(1023, n|0));
+  const ctx = audio(), t0 = ctx.currentTime + 0.05;
+  const end1 = schedulePacket(t0, packetDigits(n >> 5));
+  const t2 = end1 + 0.49;
+  schedulePacket(t2, packetDigits((n & 31) + 32));
+  log('Boom: playing command', n);
+  $('boomState').textContent = 'Sent ' + n; $('boomDot').className = 'dot busy';
+  setTimeout(() => { $('boomDot').className = 'dot' + (keepOn ? ' live' : ''); $('boomState').textContent = keepOn ? 'Keeping him listening' : 'Idle'; }, 1250);
+}
+
+let keepOn = false, keepT = null;
+function setKeep(on){
+  keepOn = on; $('keepBtn').classList.toggle('on', on);
+  clearInterval(keepT);
+  if (on){ playCommand(820); keepT = setInterval(() => playCommand(820), 40000); }
+  $('boomDot').className = 'dot' + (on ? ' live' : '');
+  $('boomState').textContent = on ? 'Keeping him listening' : 'Idle';
+}
+
+const BOOM = {
+  feed:[['Yum!',350],['Small snack',352],['Banana-sized',353],['Slurpy',354],['Drink',355],['Hard & yucky',356],['Not tasty',358]],
+  doit:[['Laugh',863],['Sing',868],['Talk',869],['Purr',866],['Burp',864],['Toot',865],['Sneeze',867],['Yawn',718],['Sleep',862],
+        ['Cough',711],['Whisper',719],['Happy',710],['Hungry!',712],['Tummy touch',713],['Song 1',721],['Song 2',722],['Song 3',723],['Song 4',724]],
+  ask:[['Who are you?',813]],
+};
+function buildBoomUI(){
+  const mk = (id, list) => { const box = $(id); for (const [n,c] of list){ const b = document.createElement('button'); b.textContent = n; b.title = 'command ' + c; b.onclick = () => playCommand(c); box.appendChild(b); } };
+  mk('boomFeed', BOOM.feed); mk('boomDo', BOOM.doit); mk('boomAsk', BOOM.ask);
+  $('listenBtn').onclick = () => playCommand(820);
+  $('keepBtn').onclick = () => setKeep(!keepOn);
+  $('rawBtn').onclick = () => playCommand(Number($('rawCmd').value));
+  $('vol').oninput = () => { if (master) master.gain.value = Math.pow($('vol').value/100, 2) * 0.8; };
+}
+
+/* ============================ NURSERY ============================ */
+(function(){
+  const EGG = 'M100 8C150 8 188 90 188 160C188 215 150 252 100 252C50 252 12 215 12 160C12 90 50 8 100 8Z';
+  const PALS = [
+    {c:['#fffaff','#dccfff','#aef3ff','#ffc9f0'], tint:'#a98bff'},   // pearl
+    {c:['#fff4ea','#ffd2e2','#ffe3ae','#ffc2f0'], tint:'#ff7ad9'},   // peach
+    {c:['#f2fffb','#b8f3ff','#c9baff','#ffd8f5'], tint:'#7af0ff'},   // aqua
+  ];
+  const eyes = (x,y,k=1,c='#2a1650') => `<g transform="translate(${x} ${y}) scale(${k})"><circle cx="-20" r="6.5" fill="${c}"/><circle cx="20" r="6.5" fill="${c}"/><circle cx="-18" cy="-2.5" r="2.3" fill="#fff"/><circle cx="22" cy="-2.5" r="2.3" fill="#fff"/></g>`;
+  const blush = (x,y,k=1) => `<g transform="translate(${x} ${y}) scale(${k})"><ellipse cx="-33" cy="9" rx="8" ry="5" fill="#ff8fc7" opacity=".55"/><ellipse cx="33" cy="9" rx="8" ry="5" fill="#ff8fc7" opacity=".55"/></g>`;
+  const mouth = (x,y,k=1,c='#2a1650') => `<path transform="translate(${x} ${y}) scale(${k})" d="M-6 8q6 7 12 0" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round"/>`;
+  const face = (x,y,k=1) => eyes(x,y,k) + blush(x,y,k) + mouth(x,y,k);
+  const SP = (x,y,s,c='#fff') => `<path d="M0 -10Q2 -2 10 0Q2 2 0 10Q-2 2 -10 0Q-2 -2 0 -10Z" transform="translate(${x} ${y}) scale(${s})" fill="${c}"/>`;
+  const wrap = (defs, body) => `<svg viewBox="0 0 160 160" aria-hidden="true"><defs>${defs}</defs><ellipse cx="80" cy="150" rx="46" ry="7" fill="#7a4ad0" opacity=".16"/>${body}</svg>`;
+  const lin = (id, stops, vertical=true) => `<linearGradient id="${id}" x1="0" y1="0" x2="${vertical?0:1}" y2="1">${stops.map((s,i)=>`<stop offset="${i/(stops.length-1)}" stop-color="${s}"/>`).join('')}</linearGradient>`;
+
+  const CREATURES = [
+    {id:'bao', name:'Bao Bean', rar:'common', w:30, color:'#ffb3c8', blurb:'Warm, squishy, and secretly smells like dumplings.',
+      svg:()=>wrap(`<radialGradient id="cBao" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset=".7" stop-color="#ffeee6"/><stop offset="1" stop-color="#ffd2cf"/></radialGradient>`,
+        `<path d="M22 100C22 58 50 36 80 36S138 58 138 100C138 128 112 142 80 142S22 128 22 100Z" fill="url(#cBao)"/>
+         <path d="M80 38C70 46 62 56 58 66M80 38C90 46 98 56 102 66M80 38V60M80 38C66 40 54 46 46 56M80 38C94 40 106 46 114 56" fill="none" stroke="#f3c7c0" stroke-width="2.5" stroke-linecap="round"/>
+         <circle cx="80" cy="36" r="6" fill="#ffe1da"/>${face(80,98,1.1)}`)},
+    {id:'koala', name:'Koala Bub', rar:'common', w:26, color:'#c6b3ff', blurb:'Naps most of the day, then wants a big hug.',
+      svg:()=>wrap('',
+        `<circle cx="34" cy="56" r="25" fill="#cfc8ea"/><circle cx="126" cy="56" r="25" fill="#cfc8ea"/>
+         <circle cx="34" cy="56" r="13" fill="#ffc2e2"/><circle cx="126" cy="56" r="13" fill="#ffc2e2"/>
+         <ellipse cx="80" cy="94" rx="54" ry="50" fill="#ddd6f4"/>${eyes(80,86,1.05)}${blush(80,86,1.05)}
+         <ellipse cx="80" cy="98" rx="12" ry="9" fill="#4a2f78"/><ellipse cx="76" cy="95" rx="3.5" ry="2" fill="#fff" opacity=".6"/>`)},
+    {id:'kitty', name:'Rainbow Kitty', rar:'rare', w:14, color:'#ff7ad9', blurb:'Every purr leaves a tiny rainbow behind.',
+      svg:()=>wrap(lin('cKit',['#ffb3d9','#ffcfa8','#fff1a8','#b8f5cf','#a8e4ff','#cdb8ff']),
+        `<path d="M126 122q32 -2 26 -38" fill="none" stroke="#cdb8ff" stroke-width="11" stroke-linecap="round"/>
+         <path d="M34 74L38 28Q40 20 48 26L76 48Z" fill="#ffb3d9"/><path d="M126 74L122 28Q120 20 112 26L84 48Z" fill="#ffb3d9"/>
+         <path d="M44 62L46 40L62 52Z" fill="#fff" opacity=".8"/><path d="M116 62L114 40L98 52Z" fill="#fff" opacity=".8"/>
+         <circle cx="80" cy="96" r="55" fill="url(#cKit)"/>
+         <path d="M20 96H44M22 108L44 104M140 96H116M138 108L116 104" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".85"/>
+         ${face(80,98,1.05)}`)},
+    {id:'keycap', name:'Keycap Critter', rar:'rare', w:12, color:'#a98bff', blurb:'Goes click-clack when it is happy.',
+      svg:()=>wrap(lin('cKey',['#e8dcff','#b8a4ff'])+lin('cDish',['#d9ccff','#fff6ff']),
+        `<ellipse cx="56" cy="148" rx="13" ry="7" fill="#9e86f0"/><ellipse cx="104" cy="148" rx="13" ry="7" fill="#9e86f0"/>
+         <circle cx="20" cy="100" r="9" fill="#b8a4ff"/><circle cx="140" cy="100" r="9" fill="#b8a4ff"/>
+         <path d="M24 130L38 52Q40 40 54 40H106Q120 40 122 52L136 130Q138 146 122 146H38Q22 146 24 130Z" fill="url(#cKey)" stroke="#fff" stroke-opacity=".7" stroke-width="2"/>
+         <path d="M46 56Q48 50 56 50H104Q112 50 114 56L122 106Q112 114 80 114Q48 114 38 106Z" fill="url(#cDish)"/>
+         ${face(80,86,.95)}${SP(80,63,.8,'#ffb3e6')}`)},
+    {id:'bubble', name:'Bubble Baby', rar:'rare', w:10, color:'#7af0ff', blurb:'Floats along and giggles at everything.',
+      svg:()=>wrap(`<radialGradient id="cBub" cx=".4" cy=".35" r=".7"><stop offset=".55" stop-color="#fff" stop-opacity=".05"/><stop offset=".85" stop-color="#bfe9ff" stop-opacity=".55"/><stop offset="1" stop-color="#ffb8ee" stop-opacity=".8"/></radialGradient>`,
+        `<circle cx="80" cy="82" r="62" fill="url(#cBub)" stroke="#fff" stroke-width="2.5" stroke-opacity=".9"/>
+         <circle cx="56" cy="118" r="9" fill="#ffe5d8"/><circle cx="104" cy="118" r="9" fill="#ffe5d8"/>
+         <circle cx="80" cy="88" r="31" fill="#ffe5d8"/>
+         <path d="M78 58q-9 -11 2 -15q9 2 3 11" fill="none" stroke="#c79a7a" stroke-width="3" stroke-linecap="round"/>
+         <path d="M92 62l12 -6l-2 13z" fill="#ff8fc7"/><path d="M104 56l4 12l-12 -4z" fill="#ff8fc7"/>
+         ${face(80,92,.78)}
+         <path d="M36 62Q42 42 62 32" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".85"/><circle cx="44" cy="80" r="3.5" fill="#fff" opacity=".8"/>`)},
+    {id:'resin', name:'Resin Drop', rar:'epic', w:6, color:'#7af0ff', blurb:'Poured fresh. Sparkles like a pastel gem.',
+      svg:()=>wrap(lin('cRes',['#aef3ff','#a98bff','#ff9bdc'])+`<linearGradient id="cResH" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>`,
+        `<path d="M80 16C108 56 136 82 136 108C136 136 112 150 80 150C48 150 24 136 24 108C24 82 52 56 80 16Z" fill="url(#cRes)" opacity=".92" stroke="#fff" stroke-opacity=".8" stroke-width="2.5"/>
+         <path d="M58 70C64 56 72 44 80 34" stroke="url(#cResH)" stroke-width="6" fill="none" stroke-linecap="round"/>
+         <circle cx="52" cy="124" r="5" fill="#fff" opacity=".4"/><circle cx="110" cy="128" r="3.5" fill="#fff" opacity=".4"/><circle cx="104" cy="92" r="4" fill="#fff" opacity=".35"/>
+         <path d="M110 112l6 -3l1 6z" fill="#ffe27a"/><path d="M46 100l5 -4l3 5z" fill="#ffe27a"/>
+         ${face(80,110,.92)}${SP(130,40,1.1)}${SP(28,52,.8)}`)},
+    {id:'moon', name:'Cloud Moon', rar:'epic', w:5, color:'#ffe27a', blurb:'Glows softly and keeps the whole nursery cozy.',
+      svg:()=>wrap(lin('cMoon',['#fff8c2','#ffe08a']),
+        `<circle cx="80" cy="76" r="52" fill="url(#cMoon)"/><circle cx="104" cy="52" r="7" fill="#ffeaa0"/><circle cx="52" cy="58" r="5" fill="#ffeaa0"/>
+         ${face(80,76,.95)}
+         <g fill="#fff"><circle cx="44" cy="120" r="26"/><circle cx="80" cy="126" r="30"/><circle cx="116" cy="120" r="26"/><rect x="44" y="120" width="72" height="34" rx="6"/></g>
+         <g fill="#e8defc"><circle cx="60" cy="136" r="5"/><circle cx="100" cy="140" r="6"/></g>
+         ${SP(130,28,1.2,'#ffe27a')}${SP(30,30,.9)}`)},
+    {id:'cosmo', name:'Cosmo Baby', rar:'legendary', w:2.2, color:'#d9b3ff', blurb:'A tiny star-traveler who only wants cuddles.',
+      svg:()=>wrap(`<radialGradient id="cCos" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#f6ecff"/><stop offset=".55" stop-color="#c6b3ff"/><stop offset="1" stop-color="#8fe9ff"/></radialGradient>`,
+        `<path d="M62 52L46 22M98 52L114 22" stroke="#b9a2ff" stroke-width="4.5" stroke-linecap="round"/>
+         ${SP(46,18,1.5,'#ffe27a')}${SP(114,18,1.5,'#ffe27a')}
+         <circle cx="30" cy="130" r="10" fill="#c6b3ff"/><circle cx="130" cy="130" r="10" fill="#c6b3ff"/>
+         <ellipse cx="80" cy="92" rx="57" ry="53" fill="url(#cCos)" stroke="#fff" stroke-opacity=".7" stroke-width="2"/>
+         <ellipse cx="55" cy="94" rx="14" ry="17" fill="#2a1650"/><ellipse cx="105" cy="94" rx="14" ry="17" fill="#2a1650"/>
+         <circle cx="50" cy="86" r="5.5" fill="#fff"/><circle cx="61" cy="101" r="2.6" fill="#fff"/><circle cx="100" cy="86" r="5.5" fill="#fff"/><circle cx="111" cy="101" r="2.6" fill="#fff"/>
+         <ellipse cx="34" cy="114" rx="9" ry="5.5" fill="#ff8fc7" opacity=".6"/><ellipse cx="126" cy="114" rx="9" ry="5.5" fill="#ff8fc7" opacity=".6"/>
+         <path d="M74 114q6 7 12 0" fill="none" stroke="#5a3a8a" stroke-width="3" stroke-linecap="round"/>
+         ${SP(80,62,.95,'#ffb3e6')}${SP(18,64,.7)}${SP(144,76,.6)}`)},
+  ];
+
+  const eggSVG = (p, uid) => {
+    const g = 'eg' + uid, c = p.c;
+    const crack = (cls, d) => `<g class="crack ${cls}"><path d="${d}" fill="none" stroke="#fff6b8" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity=".7" filter="url(#${g}b)"/><path d="${d}" fill="none" stroke="#6a3fc0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+    return `<svg viewBox="0 0 200 260" aria-hidden="true"><defs>
+      <linearGradient id="${g}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c[0]}"/><stop offset=".35" stop-color="${c[1]}"/><stop offset=".7" stop-color="${c[2]}"/><stop offset="1" stop-color="${c[3]}"/></linearGradient>
+      <radialGradient id="${g}h" cx=".3" cy=".25" r=".55"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <filter id="${g}b" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="4"/></filter></defs>
+      <path d="${EGG}" fill="url(#${g})" stroke="rgba(255,255,255,.95)" stroke-width="3"/>
+      <path d="${EGG}" fill="url(#${g}h)"/>
+      <path d="M44 150Q40 118 56 88" stroke="#fff" stroke-opacity=".7" stroke-width="6" fill="none" stroke-linecap="round"/>
+      ${SP(60,62,1,'#fff')}${SP(142,92,.8,'#fff')}${SP(46,126,.7,'#fff')}${SP(154,150,.9,'#fff')}${SP(128,52,.6,'#fff')}
+      <circle cx="76" cy="38" r="2.5" fill="#fff"/><circle cx="150" cy="122" r="2.2" fill="#fff"/><circle cx="36" cy="176" r="2.2" fill="#fff"/>
+      <path d="M68 170q9 -10 18 0M114 170q9 -10 18 0" fill="none" stroke="#5a3a8a" stroke-width="4.5" stroke-linecap="round"/>
+      <ellipse cx="62" cy="186" rx="11" ry="6" fill="#ff8fc7" opacity=".6"/><ellipse cx="138" cy="186" rx="11" ry="6" fill="#ff8fc7" opacity=".6"/>
+      <path d="M92 184q8 8 16 0" fill="none" stroke="#5a3a8a" stroke-width="3.5" stroke-linecap="round"/>
+      ${crack('c1','M100 12L92 40L106 58L96 80')}
+      ${crack('c2','M96 80L112 98L102 118L118 136M92 40L74 52L80 70')}
+      ${crack('c3','M118 136L104 156L120 178M102 118L82 126L88 146M106 58L128 66L122 86')}
+    </svg>`;
+  };
+
+  /* ---- state ---- */
+  const scene = $('scene'), eggEl = $('egg'), eggbox = $('eggbox'), cre = $('creature'), fx = $('fx'),
+        hint = $('hint'), fill = $('meterFill'), reveal = $('reveal');
+  let taps = 0, need = 13, stage = 0, busy = false, hatched = false, pal = PALS[0], uid = 0, lastFx = 0, coll = {};
+  try { coll = JSON.parse(localStorage.getItem('furbyhub.squishlings') || '{}') || {}; } catch(e){}
+  const save = () => { try { localStorage.setItem('furbyhub.squishlings', JSON.stringify(coll)); } catch(e){} };
+  const rand = (a,b) => a + Math.random()*(b-a);
+  const wantConnect = () => $('nvConnect').checked && connected;
+  const wantBoom = () => $('nvBoom').checked && actx;
+
+  function renderDex(){
+    const box = $('dex'); box.textContent = ''; let found = 0;
+    for (const c of CREATURES){
+      const n = coll[c.id] || 0; if (n) found++;
+      const d = document.createElement('div'); d.className = 'dexcard ' + c.rar + (n ? '' : ' locked');
+      d.innerHTML = `<div class="dexart">${c.svg()}</div><div class="dexname">${n ? c.name : '???'}</div><div class="dexmeta">${n ? '&times;' + n + ' &middot; ' + c.rar : 'not found yet'}</div>`;
+      box.appendChild(d);
+    }
+    $('foundCount').textContent = found + ' / ' + CREATURES.length;
+  }
+
+  function newEgg(){
+    pal = PALS[Math.floor(Math.random()*PALS.length)];
+    taps = 0; stage = 0; busy = false; hatched = false; need = 12 + Math.floor(Math.random()*4);
+    eggEl.innerHTML = eggSVG(pal, ++uid);
+    eggEl.className = 'egg st0';
+    cre.hidden = true; cre.innerHTML = ''; reveal.hidden = true;
+    fill.style.width = '0'; hint.hidden = false; hint.textContent = 'tap the egg ♡';
+    $('newEgg').classList.remove('main'); $('newEgg').textContent = 'Swap for a new egg';
+  }
+
+  function wobble(){ const s = eggEl.querySelector('svg'); s.classList.remove('wob'); void s.getBoundingClientRect(); s.classList.add('wob'); }
+  function spark(x, y, glyphs = ['✦','♡','✧','✶']){
+    for (let i = 0; i < 4; i++){
+      const s = document.createElement('span'); s.className = 'spark';
+      s.textContent = glyphs[Math.floor(Math.random()*glyphs.length)];
+      s.style.left = (x + rand(-22,22)) + 'px'; s.style.top = (y + rand(-14,10)) + 'px'; s.style.setProperty('--dx', rand(-50,50) + 'px');
+      fx.appendChild(s); setTimeout(() => s.remove(), 1000);
+    }
+  }
+  function shards(){
+    const sr = scene.getBoundingClientRect(), er = eggEl.getBoundingClientRect();
+    const cx = er.left - sr.left + er.width/2, cy = er.top - sr.top + er.height*0.5, cols = pal.c.concat(['#fff','#ffe27a']);
+    for (let i = 0; i < 16; i++){
+      const s = document.createElement('div'); s.className = 'shard';
+      s.style.left = cx + 'px'; s.style.top = cy + 'px'; s.style.background = cols[i % cols.length];
+      const a = rand(0, Math.PI*2), d = rand(70, 190);
+      s.style.setProperty('--dx', Math.cos(a)*d + 'px'); s.style.setProperty('--dy', (Math.sin(a)*d - 40) + 'px'); s.style.setProperty('--r', rand(-540,540) + 'deg');
+      fx.appendChild(s); setTimeout(() => s.remove(), 1000);
+    }
+  }
+
+  /* ---- Furby reactions ---- */
+  function furbyTap(){
+    const now = performance.now(); if (now - lastFx < 800) return; lastFx = now;
+    if (wantConnect()){ setAntenna(pal.tint).catch(()=>{}); setTimeout(() => { if (connected) setAntenna('#000000').catch(()=>{}); }, 320); }
+  }
+  function furbyCrack(s){
+    if (wantConnect()) doAction([1,2,3,4,5,6]);
+    if (s === 3 && wantBoom()) playCommand(710);
+  }
+  async function furbyHatch(c){
+    if (wantConnect()){
+      try{
+        if (c.rar === 'legendary') for (const k of ['#ff7ad9','#ffe27a','#b8ff9a','#7af0ff','#a98bff']){ await setAntenna(k); await sleep(260); }
+        await setAntenna(c.color);
+        await doAction(c.rar === 'common' ? [1,2,3,4,5,6] : [17]);
+      }catch(e){}
+    }
+    if (wantBoom()) playCommand(c.rar === 'common' ? 863 : 868);
+  }
+
+  /* ---- gameplay ---- */
+  function tap(ev){
+    if (busy || hatched) return;
+    const r = scene.getBoundingClientRect();
+    taps++; wobble(); spark(ev.clientX - r.left, ev.clientY - r.top);
+    const ratio = taps / need; fill.style.width = Math.min(100, ratio*100) + '%';
+    const s = ratio >= 1 ? 3 : ratio >= .8 ? 3 : ratio >= .55 ? 2 : ratio >= .25 ? 1 : 0;
+    if (s !== stage){ stage = s; eggEl.className = 'egg st' + stage; furbyCrack(stage); hint.textContent = stage === 3 ? 'almost there!' : 'keep going ♡'; }
+    furbyTap();
+    if (taps >= need) hatch();
+  }
+
+  function roll(){
+    let t = CREATURES.reduce((a,c) => a + c.w, 0), x = Math.random()*t;
+    for (const c of CREATURES){ x -= c.w; if (x <= 0) return c; }
+    return CREATURES[0];
+  }
+
+  async function hatch(){
+    busy = true; hint.hidden = true; wobble();
+    await sleep(500);
+    shards(); eggEl.classList.add('gone');
+    const c = roll(); coll[c.id] = (coll[c.id] || 0) + 1; save();
+    cre.innerHTML = c.svg(); cre.hidden = false; cre.style.animation = 'none'; void cre.offsetWidth; cre.style.animation = '';
+    const sr = scene.getBoundingClientRect(), er = eggbox.getBoundingClientRect();
+    spark(er.left - sr.left + er.width/2, er.top - sr.top + 60, ['✦','♡','✧','✶','❀']);
+    reveal.innerHTML = `<b>${c.name}</b><span class="rar ${c.rar}">${c.rar}</span><br>${c.blurb}`; reveal.hidden = false;
+    hatched = true; busy = false;
+    $('newEgg').classList.add('main'); $('newEgg').textContent = 'Hatch another egg';
+    renderDex();
+    furbyHatch(c);
+  }
+
+  eggbox.addEventListener('pointerdown', e => { e.preventDefault(); tap(e); });
+  cre.addEventListener('pointerdown', e => {
+    e.preventDefault(); cre.classList.remove('hop'); void cre.offsetWidth; cre.classList.add('hop');
+    const r = scene.getBoundingClientRect(); spark(e.clientX - r.left, e.clientY - r.top, ['♡','✦']);
+  });
+  $('newEgg').onclick = newEgg;
+
+  // floating bubbles (Bubble Park)
+  const bub = $('bubbles');
+  for (let i = 0; i < 16; i++){
+    const b = document.createElement('div'), s = rand(14, 50);
+    b.className = 'bubble'; b.style.width = b.style.height = s + 'px'; b.style.left = rand(2, 96) + '%';
+    b.style.setProperty('--d', rand(9, 18) + 's'); b.style.setProperty('--dl', '-' + rand(0, 16) + 's'); bub.appendChild(b);
+  }
+
+  renderDex(); newEgg();
+})();
+
+/* ============================ duet ============================ */
+$('duetBtn').onclick = async () => {
+  if (connected) doAction([17]);
+  playCommand(868);
+};
+
+/* ============================ start ============================ */
+buildConnectUI(); buildBoomUI();
+if (!navigator.bluetooth){
+  const b = $('btBanner'); b.hidden = false;
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  b.textContent = ios
+    ? 'Chrome and Safari on iPad cannot do Bluetooth, so the Furby Connect panel is off here. Open this same page in the free Bluefy app to connect it. The egg nursery and the Furby Boom sound panel work right here.'
+    : 'This browser cannot do Web Bluetooth, so the Furby Connect panel is off here. Open this page in Chrome on a Mac, PC or Android. The egg nursery and the Furby Boom sound panel still work.';
+  $('connBtn').disabled = true;
+}
+log('Ready. Furby Connect: press Connect. Furby Boom: press Wake him up.');
+</script>
+</body>
+</html>
