@@ -416,7 +416,7 @@
       <stop stop-color="#f3c4e7"/><stop offset=".24" stop-color="#977f9d"/><stop offset=".65" stop-color="#515066"/><stop offset="1" stop-color="#273e46"/>
     </linearGradient>
     <linearGradient id="pod-jelly" x1=".15" y1="0" x2=".85" y2="1">
-      <stop stop-color="#f3ffd4"/><stop offset=".24" style="stop-color:var(--slime-light)"/><stop offset=".63" style="stop-color:var(--slime)"/><stop offset="1" stop-color="#38978c"/>
+      <stop stop-color="#fff1f8"/><stop offset=".24" style="stop-color:var(--slime-light)"/><stop offset=".63" style="stop-color:var(--slime)"/><stop offset="1" stop-color="#bd397d"/>
     </linearGradient>
     <radialGradient id="pod-eye" cx=".35" cy=".24" r=".84">
       <stop stop-color="#49345f"/><stop offset=".55" stop-color="#241932"/><stop offset=".83" stop-color="#171c2e"/><stop offset="1" stop-color="#85a9ad"/>
@@ -431,8 +431,8 @@
     </g>
   </defs>
   <ellipse cx="110" cy="219" rx="85" ry="11" fill="#413259" opacity=".22"/>
-  <path d="M16 213Q18 205 40 206Q61 203 79 198Q112 193 145 202Q160 206 184 205Q202 204 204 211Q205 218 185 218Q176 219 170 222Q162 227 147 223Q135 219 124 224Q107 231 93 226Q83 222 70 224Q56 228 44 220Q36 216 26 218Q16 219 16 213Z" fill="url(#pod-jelly)" stroke="#448e88" stroke-width="1.6"/>
-  <path d="M23 212Q31 209 40 211M150 220Q157 222 164 219M179 210l10-1" fill="none" stroke="#f8fff1" stroke-width="2.7" stroke-linecap="round"/>
+  <path d="M16 213Q18 205 40 206Q61 203 79 198Q112 193 145 202Q160 206 184 205Q202 204 204 211Q205 218 185 218Q176 219 170 222Q162 227 147 223Q135 219 124 224Q107 231 93 226Q83 222 70 224Q56 228 44 220Q36 216 26 218Q16 219 16 213Z" fill="url(#pod-jelly)" stroke="#ad3d72" stroke-width="1.6"/>
+  <path d="M23 212Q31 209 40 211M150 220Q157 222 164 219M179 210l10-1" fill="none" stroke="#fff4fb" stroke-width="2.7" stroke-linecap="round"/>
   <path d="M110 49C75 47 40 72 26 122C12 167 24 198 58 211C87 222 136 225 167 209C199 193 205 159 191 117C177 76 144 48 110 49Z" fill="url(#pod-skin)" stroke="#353647" stroke-width="3"/>
   <use href="#pod-ribs"/><use href="#pod-ribs" transform="translate(220 0) scale(-1 1)"/>
   <ellipse cx="110" cy="88" rx="62" ry="32" fill="#212034"/>
@@ -445,7 +445,7 @@
     <path d="M31 114Q38 74 58 53Q77 32 94 23Q101 19 104 27Q107 39 109 51L105 72L94 89Q71 104 52 106Z" fill="url(#pod-skin)" stroke="#42394c" stroke-width="3"/>
     <path d="M38 100Q55 68 75 62Q56 79 50 98M65 59Q74 44 87 39" fill="none" stroke="url(#pod-rib)" stroke-width="5" stroke-linecap="round"/>
     <path d="M94 25Q104 16 105 30Q104 44 111 51L105 72Q101 76 101 88Q100 95 96 93Q93 91 95 82Q90 87 86 85Q82 81 89 75Q100 65 103 52Q97 40 98 34Q99 29 94 25Z" fill="url(#pod-jelly)"/>
-    <path d="M100 27Q101 37 103 42" fill="none" stroke="#fffde4" stroke-width="2.7" stroke-linecap="round"/>
+    <path d="M100 27Q101 37 103 42" fill="none" stroke="#fff5fa" stroke-width="2.7" stroke-linecap="round"/>
   </g>
   <g class="pod-right">
     <path d="M109 51Q112 33 122 23Q127 19 133 25Q163 44 177 72Q187 88 191 115L168 108Q144 105 126 93Q116 81 106 73Z" fill="url(#pod-skin)" stroke="#41364b" stroke-width="3"/>
@@ -455,7 +455,7 @@
   <g class="pod-front">
     <path d="M45 105Q71 91 84 73Q99 54 108 49Q112 46 116 52Q134 74 153 89Q165 97 179 102Q169 120 144 125Q113 132 89 125Q59 123 45 105Z" fill="url(#pod-rib)" stroke="#554656" stroke-width="3"/>
     <path d="M51 108Q82 96 98 69Q105 58 110 55Q115 53 119 64Q122 72 119 76Q116 80 114 74Q111 67 107 74Q101 81 99 90Q97 99 93 100Q87 101 89 92Q79 99 74 112Q71 124 67 124Q63 124 64 117Q65 112 60 113Z" fill="url(#pod-jelly)"/>
-    <path d="M73 103Q85 94 91 83M107 64l3-4" fill="none" stroke="#f7ffea" stroke-width="3" stroke-linecap="round"/>
+    <path d="M73 103Q85 94 91 83M107 64l3-4" fill="none" stroke="#fff0f6" stroke-width="3" stroke-linecap="round"/>
   </g>
   <g class="pod-face">
     <ellipse cx="60" cy="165" rx="11" ry="5.5" fill="#f49ec4" opacity=".92"/><ellipse cx="159" cy="165" rx="11" ry="5.5" fill="#f49ec4" opacity=".92"/>
@@ -920,9 +920,9 @@ const furbies = furbyButtons.map(button => ({
 /* ============================ NURSERY ============================ */
 (function(){
   const PALS = [
-    {c:['#dfffad','#a2ef68','#79cf8f','#bcf8dd'], tint:'#a2ef68'},
-    {c:['#eaffc7','#a9efd2','#80e4ca','#c7fad7'], tint:'#80e4ca'},
-    {c:['#f6ffd3','#cbfa80','#9cd968','#d5ffb0'], tint:'#cbfa80'}
+    {c:['#ffd2e9','#ff74b8','#ec4c9c','#ffb4dc'], tint:'#ff74b8'},
+    {c:['#ffd8e5','#ff86a9','#ea6593','#ffb6ca'], tint:'#ff86a9'},
+    {c:['#ffd4ef','#fa72c2','#db4ba1','#ffafe0'], tint:'#fa72c2'}
   ];
   const eyes = (x,y,k=1,c='#2a1650') => `<g transform="translate(${x} ${y}) scale(${k})"><circle cx="-20" r="6.5" fill="${c}"/><circle cx="20" r="6.5" fill="${c}"/><circle cx="-18" cy="-2.5" r="2.3" fill="#fff"/><circle cx="22" cy="-2.5" r="2.3" fill="#fff"/></g>`;
   const blush = (x,y,k=1) => `<g transform="translate(${x} ${y}) scale(${k})"><ellipse cx="-33" cy="9" rx="8" ry="5" fill="#ff8fc7" opacity=".55"/><ellipse cx="33" cy="9" rx="8" ry="5" fill="#ff8fc7" opacity=".55"/></g>`;
@@ -1050,7 +1050,7 @@ const furbies = furbyButtons.map(button => ({
   }
   function shards(){
     const sr = scene.getBoundingClientRect(), er = eggEl.getBoundingClientRect();
-    const cx = er.left - sr.left + er.width/2, cy = er.top - sr.top + er.height*0.5, cols = pal.c.concat(['#fff','#ffe27a']);
+    const cx = er.left - sr.left + er.width/2, cy = er.top - sr.top + er.height*0.5, cols = pal.c.concat(['#fff','#ffe4f2']);
     for (let i = 0; i < 16; i++){
       const s = document.createElement('div'); s.className = 'shard';
       s.style.left = cx + 'px'; s.style.top = cy + 'px'; s.style.background = cols[i % cols.length];
