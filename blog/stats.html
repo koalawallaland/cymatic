@@ -7,6 +7,7 @@
 <body><main><h1>Journal · read-only counters</h1>
 <p class="muted">This page checks counts without adding views. It does not expose visitors' identities, cities, or IP addresses. Anyone with this link can read these public counts; it is not password-protected.</p>
 <section><h2>Journal index opens</h2><div class="number" id="index-count" aria-live="polite">—</div><p class="muted" id="index-status">Waiting to check</p></section>
+<section><h2>Rest in Peace Bush Baby page sessions</h2><div class="number" id="ponyo-count" aria-live="polite">—</div><p class="muted" id="ponyo-status">Waiting to check</p></section>
 <section><h2>Pusheen Daisies page sessions</h2><div class="number" id="pusheen-count" aria-live="polite">—</div><p class="muted" id="pusheen-status">Waiting to check</p></section>
 <section><h2>Aluminum Ghosts page sessions</h2><div class="number" id="aluminum-count" aria-live="polite">—</div><p class="muted" id="aluminum-status">Waiting to check</p></section>
 <section><h2>koe pocket players (not you)</h2><div class="number" id="koe-count" aria-live="polite">—</div><p class="muted" id="koe-status">Waiting to check</p><p class="muted">One per browser session, the first time someone plays a note on koe pocket. Started November 9, 2026.</p></section>
@@ -16,7 +17,7 @@
 <p><a href="aluminum-ghosts/index.html?v=20261107">Back to journal</a></p></main>
 <script>
 (() => {
- const keys={pusheen:"koalawallaland_cymatic_pusheen_daisies_visits_20261118_v1",index:"koalawallaland_cymatic_journal_index_20261108_v1",aluminum:"koalawallaland_cymatic_aluminum_ghosts_visits_20261108_a71c",koe:"koalawallaland_cymatic_koe_plays_20261109_v1"};
+ const keys={ponyo:"koalawallaland_cymatic_rest_in_peace_bush_baby_visits_20261125_v1",pusheen:"koalawallaland_cymatic_pusheen_daisies_visits_20261118_v1",index:"koalawallaland_cymatic_journal_index_20261108_v1",aluminum:"koalawallaland_cymatic_aluminum_ghosts_visits_20261108_a71c",koe:"koalawallaland_cymatic_koe_plays_20261109_v1"};
  const btn=document.getElementById("refresh");
  async function read(name){
   const count=document.getElementById(name+"-count"),status=document.getElementById(name+"-status");

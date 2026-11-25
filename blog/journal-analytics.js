@@ -6,6 +6,7 @@
   const script = document.currentScript;
   const slug = script?.dataset?.journalTrack;
   const keys = {
+    ponyo: "koalawallaland_cymatic_rest_in_peace_bush_baby_visits_20261125_v1",
     index: "koalawallaland_cymatic_journal_index_20261108_v1",
     aluminum: "koalawallaland_cymatic_aluminum_ghosts_visits_20261108_a71c",
     pusheen: "koalawallaland_cymatic_pusheen_daisies_visits_20261118_v1"
