@@ -229,7 +229,7 @@
 
   .hub-intro {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) clamp(14rem, 25vw, 18rem);
+    grid-template-columns: minmax(0, 1fr) clamp(20rem, 40vw, 26rem);
     align-items: start;
     gap: 1.25rem 2rem;
     margin-bottom: 1.25rem;
@@ -270,9 +270,96 @@
     border-radius: 4px;
     background: #242233;
   }
+  .hub-shelf {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    align-items: end;
+    gap: clamp(8px, 1.4vw, 16px);
+  }
+  .furby-tv {
+    position: relative;
+    min-width: 0;
+    margin-bottom: 2px;
+    color: #fff2fc;
+    border: 1px solid #b9a9cf;
+    border-radius: 16px 18px 10px 10px;
+    background: linear-gradient(135deg, #c3b7ce, #8d7c9c 28%, #726280 72%, #57475f);
+    box-shadow: inset 2px 2px 1px #ecdeed90, inset -3px -3px 2px #443747, 0 5px 0 -2px #40374c, 0 8px 14px #09061f85;
+  }
+  .furby-tv-link {
+    display: block;
+    padding: 7px 8px 0;
+    border-radius: inherit;
+    color: inherit;
+    text-decoration: none;
+  }
+  .furby-tv-glass {
+    display: block;
+    overflow: hidden;
+    position: relative;
+    border: 4px solid #332d3c;
+    border-radius: 12% / 9%;
+    background: #181522;
+    box-shadow: 0 1px 0 #e8daeb90, 0 -1px 2px #302639;
+  }
+  .furby-tv-glass video {
+    display: block;
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+  }
+  .furby-tv-glass::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow: inset 0 0 6px 1px #1f132e66;
+    background: linear-gradient(145deg, #fff2, transparent 34%);
+  }
+  .furby-tv-label {
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+    margin-right: 30px;
+    font-size: .875rem;
+    font-weight: 700;
+    line-height: 1.1;
+    text-shadow: 0 1px 2px #302438;
+  }
+  .furby-tv-link:hover .furby-tv-label { text-decoration: underline; }
+  .furby-tv-link:focus-visible, .furby-tv-power:focus-visible { outline: 3px solid #ffe27a; outline-offset: 3px; }
+  .furby-tv-power {
+    position: absolute;
+    right: 4px;
+    bottom: 1px;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .furby-tv-power[hidden] { display: none; }
+  .furby-tv-power::before {
+    content: "▶";
+    display: grid;
+    place-items: center;
+    width: 21px;
+    height: 19px;
+    border: 1px solid #4b4055;
+    border-radius: 6px;
+    color: #eadff3;
+    background: #443a4d;
+    box-shadow: inset 0 1px 0 #b6a5bc, 0 1px 0 #c6b7d0;
+    font-size: 10px;
+  }
+  .furby-tv-power[data-playing]::before { content: "Ⅱ"; color: #c5ffae; }
+  button.furby-tv-power:hover:not(:disabled) { transform: none; background: transparent; box-shadow: none; }
   @media (max-width: 44rem) {
     .hub-intro { grid-template-columns: minmax(0, 1fr); }
-    .nursery-window { width: min(100%, 19rem); }
+    .hub-shelf { width: min(100%, 26rem); }
   }
 </style>
 </head>
@@ -293,14 +380,27 @@
 
       <a class="home-shortcut" href="#home">Play with my Furbies <span aria-hidden="true">↓</span></a>
     </div>
-    <aside class="nursery-window" aria-labelledby="nursery-window-title">
-      <h2 id="nursery-window-title">Nursery window</h2>
-      <video id="nursery-window-video" width="720" height="406" controls muted loop playsinline
-             preload="none" poster="window-view.jpg" aria-label="Sunlight and moving shadows on a window shade">
-        <source src="window-view.mp4" type="video/mp4">
-        <a href="window-view.mp4">Watch the window video</a>
-      </video>
+    <aside class="hub-shelf" aria-label="Nursery window and Furby World TV">
+      <section class="nursery-window" aria-labelledby="nursery-window-title">
+        <h2 id="nursery-window-title">Nursery window</h2>
+        <video id="nursery-window-video" width="720" height="406" controls muted loop playsinline
+               preload="none" poster="window-view.jpg" aria-label="Sunlight and moving shadows on a window shade">
+          <source src="window-view.mp4" type="video/mp4">
+          <a href="window-view.mp4">Watch the window video</a>
+        </video>
+      </section>
+      <div class="furby-tv">
+        <a class="furby-tv-link" href="#home" aria-label="Enter Furby World and play with Crystal and Coral">
+          <span class="furby-tv-glass">
+            <video id="furby-tv-video" width="384" height="430" muted loop playsinline preload="none"
+                   poster="furby-tv.jpg" src="furby-tv.mp4" aria-hidden="true"></video>
+          </span>
+          <span class="furby-tv-label">Furby World</span>
+        </a>
+        <button class="furby-tv-power" type="button" aria-label="Play TV clip" title="Play TV clip" hidden></button>
+      </div>
     </aside>
+
   </div>
   <div id="btBanner" class="banner warn" hidden></div>
 
@@ -403,7 +503,7 @@
     </div>
   </section>
 
-  <section class="card nursery" id="home">
+  <section class="card nursery" id="home" tabindex="-1">
     <div class="nursery-head">
       <h2>Squishling Home <span class="tag">pet care</span></h2>
       <p class="note">Pick a friend. Tap the rug to walk, tap your friend for pats, or drag them to the bowl or potty.</p>
@@ -1324,9 +1424,27 @@ log('Ready. Furby Connect: press Connect. Furby Boom: press Wake him up.');
 (() => {
   const video = document.getElementById("nursery-window-video");
   const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  if (!motion.matches) video.play().catch(() => {});
+  const tv = document.getElementById("furby-tv-video");
+  const power = document.querySelector(".furby-tv-power");
+  const updatePower = () => {
+    const label = tv.paused ? "Play TV clip" : "Pause TV clip";
+    power.setAttribute("aria-label", label);
+    power.title = label;
+    power.toggleAttribute("data-playing", !tv.paused);
+  };
+  tv.addEventListener("play", updatePower);
+  tv.addEventListener("pause", updatePower);
+  power.hidden = false;
+  power.addEventListener("click", () => {
+    if (tv.paused) tv.play().catch(updatePower);
+    else tv.pause();
+  });
+  if (!motion.matches) {
+    video.play().catch(() => {});
+    tv.play().catch(updatePower);
+  }
   motion.addEventListener?.("change", event => {
-    if (event.matches) video.pause();
+    if (event.matches) { video.pause(); tv.pause(); }
   });
 })();
 </script>
