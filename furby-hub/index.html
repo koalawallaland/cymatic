@@ -227,6 +227,53 @@
   .furby-picker button:focus-visible,.panel-portrait:focus-visible,.home-shortcut:focus-visible{outline:3px solid #ffe27a;outline-offset:3px}
   @media(max-width:460px){.furby-picker{gap:6px}.furby-pick{font-size:13px;padding-right:9px}.furby-pick .furby-art{width:29px;height:34px}}
 
+  .hub-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(14rem, 25vw, 18rem);
+    align-items: start;
+    gap: 1.25rem 2rem;
+    margin-bottom: 1.25rem;
+  }
+  .hub-intro .home-shortcut { margin-bottom: 0; }
+  .nursery-window {
+    min-width: 0;
+    padding: 0 5px 5px;
+    border: 1px solid #beb2e6;
+    border-radius: 14px 14px 8px 8px;
+    background: linear-gradient(128deg, #342f4f, #544469 57%, #31334c);
+    box-shadow: inset 0 1px 0 #ede6ff70, 0 5px 0 -2px #978ba8, 0 9px 17px #07051c66;
+  }
+  .nursery-window h2 {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    margin: 0;
+    padding: .45rem .5rem;
+    font-size: .875rem;
+    font-weight: 600;
+  }
+  .nursery-window h2::before {
+    content: "";
+    width: .75rem;
+    height: .75rem;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    color: var(--cyan);
+    background: linear-gradient(currentColor, currentColor) center / 1px 100% no-repeat,
+                linear-gradient(currentColor, currentColor) center / 100% 1px no-repeat;
+  }
+  .nursery-window video {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid #201b35;
+    border-radius: 4px;
+    background: #242233;
+  }
+  @media (max-width: 44rem) {
+    .hub-intro { grid-template-columns: minmax(0, 1fr); }
+    .nursery-window { width: min(100%, 19rem); }
+  }
 </style>
 </head>
 <body>
@@ -236,13 +283,25 @@
       <clipPath id="coral-l"><path d="M0,0 L139,0 L129,102 L109,116 L91,135 L76,153 L0,163 Z"/></clipPath><clipPath id="coral-r"><path d="M245,0 L400,0 L400,171 L312,148 L292,128 L276,114 L259,103 Z"/></clipPath>
       <clipPath id="coral-body"><path clip-rule="evenodd" d="M0 0H400V440H0Z M0,0 L139,0 L129,102 L109,116 L91,135 L76,153 L0,163 Z M245,0 L400,0 L400,171 L312,148 L292,128 L276,114 L259,103 Z"/></clipPath></defs></svg>
 <div class="wrap">
-  <header>
-    <div class="orb" aria-hidden="true"></div>
-    <h1>FURBY HUB</h1>
-  </header>
-  <p class="sub">An original hatchery and control panel for your Furbies. Hatch Squishlings in the nursery, take them home to feed, play and potty-train, then connect the Furby Connect (Bluetooth) and Furby Boom (sound) so they cheer along. Works in Chrome. For the Furby Connect's Bluetooth on an iPad, open this page in the free Bluefy app.</p>
+  <div class="hub-intro">
+    <div>
+      <header>
+        <div class="orb" aria-hidden="true"></div>
+        <h1>FURBY HUB</h1>
+      </header>
+      <p class="sub">An original hatchery and control panel for your Furbies. Hatch Squishlings in the nursery, take them home to feed, play and potty-train, then connect the Furby Connect (Bluetooth) and Furby Boom (sound) so they cheer along. Works in Chrome. For the Furby Connect's Bluetooth on an iPad, open this page in the free Bluefy app.</p>
 
-  <a class="home-shortcut" href="#home">Play with my Furbies <span aria-hidden="true">↓</span></a>
+      <a class="home-shortcut" href="#home">Play with my Furbies <span aria-hidden="true">↓</span></a>
+    </div>
+    <aside class="nursery-window" aria-labelledby="nursery-window-title">
+      <h2 id="nursery-window-title">Nursery window</h2>
+      <video id="nursery-window-video" width="720" height="406" controls muted loop playsinline
+             preload="none" poster="window-view.jpg" aria-label="Sunlight and moving shadows on a window shade">
+        <source src="window-view.mp4" type="video/mp4">
+        <a href="window-view.mp4">Watch the window video</a>
+      </video>
+    </aside>
+  </div>
   <div id="btBanner" class="banner warn" hidden></div>
 
   <section class="card nursery" id="nursery">
@@ -1260,6 +1319,16 @@ if (!navigator.bluetooth){
   $('connBtn').disabled = true;
 }
 log('Ready. Furby Connect: press Connect. Furby Boom: press Wake him up.');
+</script>
+<script>
+(() => {
+  const video = document.getElementById("nursery-window-video");
+  const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  if (!motion.matches) video.play().catch(() => {});
+  motion.addEventListener?.("change", event => {
+    if (event.matches) video.pause();
+  });
+})();
 </script>
 </body>
 </html>
