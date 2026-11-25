@@ -274,7 +274,28 @@
     background: linear-gradient(currentColor, currentColor) center / 1px 100% no-repeat,
                 linear-gradient(currentColor, currentColor) center / 100% 1px no-repeat;
   }
-  .nursery-window video {
+  .window-titlebar { display: flex; align-items: center; justify-content: space-between; }
+  .window-titlebar h2 { min-width: 0; }
+  #window-motion {
+    flex: none;
+    width: 2.5rem;
+    min-height: 2.5rem;
+    padding: 0;
+    color: var(--ink);
+    background: transparent;
+    border: 0;
+    font-size: 1rem;
+  }
+  .window-view { display: block; position: relative; color: white; }
+  .window-expand {
+    position: absolute; right: 4px; bottom: 4px;
+    padding: 1px 5px; border-radius: 4px;
+    background: #191529ab; color: white; font: 1rem/1.2 system-ui;
+  }
+  .window-view:focus-visible, #window-motion:focus-visible {
+    outline: 3px solid #ffe27a; outline-offset: 2px;
+  }
+  .window-view img {
     display: block;
     width: 100%;
     height: auto;
@@ -314,12 +335,17 @@
     </div>
     <aside class="hub-shelf" aria-label="Nursery window and Furby World TV">
       <section class="nursery-window" aria-labelledby="nursery-window-title">
-        <h2 id="nursery-window-title">Nursery window</h2>
-        <video id="nursery-window-video" width="720" height="406" controls muted loop playsinline
-               preload="none" poster="window-view.jpg" aria-label="Sunlight and moving shadows on a window shade">
-          <source src="window-view.mp4" type="video/mp4">
-          <a href="window-view.mp4">Watch the window video</a>
-        </video>
+        <div class="window-titlebar">
+          <h2 id="nursery-window-title">Nursery window</h2>
+          <button type="button" id="window-motion" aria-label="Pause window loop" title="Pause window loop" hidden></button>
+        </div>
+        <a class="window-view" href="window-view.mp4" aria-label="Open full-size nursery window video">
+          <picture>
+            <source type="image/webp" media="(prefers-reduced-motion: no-preference)" srcset="window-loop.webp">
+            <img src="window-view.jpg" width="720" height="406" alt="Sunlight and moving shadows on a window shade">
+          </picture>
+          <span class="window-expand" aria-hidden="true">⛶</span>
+        </a>
       </section>
       <div class="furby-tv">
         <a class="furby-tv-link" href="#home" aria-label="Enter Furby World and play with Crystal and Coral">
@@ -1414,10 +1440,20 @@ log('Ready. Furby Connect: press Connect. Furby Boom: press Wake him up.');
 <script src="tv.js"></script>
 <script>
 (() => {
-  const video = document.getElementById("nursery-window-video");
-  const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  if (!motion.matches) video.play().catch(() => {});
-  motion.addEventListener?.("change", event => { if (event.matches) video.pause(); });
+  const toggle = document.getElementById("window-motion");
+  const source = document.querySelector(".window-view source");
+  const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+  function setMotion(playing) {
+    source.media = playing ? "all" : "not all";
+    const action = playing ? "Pause window loop" : "Play window loop";
+    toggle.setAttribute("aria-label", action);
+    toggle.title = action;
+    toggle.textContent = playing ? "Ⅱ" : "▶";
+  }
+  setMotion(!preference.matches);
+  toggle.hidden = false;
+  toggle.addEventListener("click", () => setMotion(source.media !== "all"));
+  preference.addEventListener("change", () => setMotion(!preference.matches));
 })();
 </script>
 </body>
