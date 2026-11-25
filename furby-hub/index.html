@@ -145,6 +145,58 @@
   .dexcard.locked .dexart{filter:brightness(0) opacity(.3)}
   .dexname{font-size:13px;font-weight:700}
   .dexmeta{font-size:11px;color:var(--dim);text-transform:capitalize}
+
+  /* ===================== SQUISHLING HOME (pet care) ===================== */
+  .home-scene{aspect-ratio:16/9;min-height:340px}
+  .station{position:absolute;z-index:3;pointer-events:none;bottom:5%}
+  .station svg{width:100%;display:block;filter:drop-shadow(0 6px 10px rgba(90,50,170,.28))}
+  #potty{left:3%;width:clamp(86px,15%,130px)}
+  #bowl{right:4%;width:clamp(96px,17%,150px)}
+  #bowlFood{position:absolute;left:50%;bottom:44%;width:46%;translate:-50% 0;transition:opacity .25s,scale .25s}
+  #bowlFood.out{opacity:0;scale:.3}
+  #potty.urgent svg{animation:glowp 1s ease-in-out infinite}
+  @keyframes glowp{50%{filter:drop-shadow(0 0 16px #ff7ad9) drop-shadow(0 0 4px #fff)}}
+  #potty.flush::after{content:"\2726 \2727 \2726";position:absolute;left:50%;top:-10px;translate:-50% 0;font-size:22px;color:#fff;
+    text-shadow:0 0 10px #7af0ff,0 0 16px #ff7ad9;animation:spk 1.1s ease-out forwards}
+  .pet{position:absolute;left:50%;bottom:7%;translate:-50% 0;width:clamp(110px,21%,180px);z-index:5;touch-action:none;cursor:grab;
+    user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+  .pet.lift{cursor:grabbing;z-index:9}
+  .petart svg{width:100%;display:block;overflow:visible;filter:drop-shadow(0 8px 12px rgba(90,50,170,.3));
+    transform-origin:50% 100%;animation:breathe 2.8s ease-in-out infinite}
+  .pet.walk .petart svg{animation:hopwalk .42s ease-in-out infinite}
+  .pet.eat .petart svg{animation:chomp .34s ease-in-out infinite}
+  .pet.happy .petart svg{animation:jumpy .55s ease 2}
+  .pet.sit .petart svg{animation:sitting 1s ease-in-out infinite;translate:0 8%}
+  .pet.no .petart svg{animation:nope .5s ease}
+  .pet.lift .petart svg{animation:dangle .6s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.03,.965)}}
+  @keyframes hopwalk{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-12px) rotate(3deg)}}
+  @keyframes chomp{0%,100%{transform:scale(1,1)}50%{transform:scale(1.07,.9)}}
+  @keyframes jumpy{0%,100%{transform:translateY(0) scale(1,1)}35%{transform:translateY(-26px) scale(.95,1.08)}70%{transform:translateY(0) scale(1.08,.9)}}
+  @keyframes sitting{0%,100%{transform:scale(1,.94)}50%{transform:scale(1.02,.9)}}
+  @keyframes nope{20%{transform:translateX(-8px)}50%{transform:translateX(8px)}80%{transform:translateX(-4px)}}
+  @keyframes dangle{50%{transform:rotate(6deg)}0%,100%{transform:rotate(-6deg)}}
+  .thought{position:absolute;left:50%;bottom:104%;translate:-50% 0;white-space:nowrap;font-size:13px;color:#3b1a7a;
+    background:rgba(255,255,255,.88);padding:5px 12px;border-radius:99px;box-shadow:0 4px 14px rgba(90,50,170,.25);
+    animation:bob 2s ease-in-out infinite;pointer-events:none}
+  .thought[hidden]{display:none}
+  .homeEmpty{position:absolute;inset:0;z-index:12;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;
+    background:rgba(40,20,90,.55);backdrop-filter:blur(3px);color:#fff;font-size:16px;line-height:1.5}
+  .homeEmpty[hidden]{display:none}
+  .needs{display:grid;gap:8px;margin:16px 0 4px}
+  .need{display:grid;grid-template-columns:70px 1fr 40px;gap:10px;align-items:center;font-size:13px;color:var(--dim)}
+  .bar{height:12px;border-radius:99px;background:rgba(0,0,0,.3);border:1px solid var(--edge);overflow:hidden}
+  .bar i{display:block;height:100%;width:50%;border-radius:99px;transition:width .5s,background .5s;background:var(--holo)}
+  .bar i.low{background:linear-gradient(90deg,#ff7a7a,#ffb86b)}
+  .foodbtn{display:inline-flex;align-items:center;gap:8px;padding:6px 14px 6px 8px}
+  .foodbtn svg{width:30px;height:30px}
+  .pbub{position:absolute;z-index:8;border-radius:50%;cursor:pointer;touch-action:manipulation;
+    background:radial-gradient(circle at 30% 28%,rgba(255,255,255,.95),rgba(255,255,255,.15) 40%,rgba(170,230,255,.3) 70%,rgba(255,160,240,.45));
+    border:1.5px solid rgba(255,255,255,.85);animation:bob 2.2s ease-in-out infinite}
+  .pbub.pop{animation:popb .25s ease-out forwards;pointer-events:none}
+  @keyframes popb{to{transform:scale(1.8);opacity:0}}
+  .dexcard:not(.locked){cursor:pointer}
+  .dexcard:not(.locked):hover{transform:translateY(-2px)}
 </style>
 </head>
 <body>
@@ -153,7 +205,7 @@
     <div class="orb" aria-hidden="true"></div>
     <h1>FURBY HUB</h1>
   </header>
-  <p class="sub">An original hatchery and control panel for your Furbies. Hatch Squishlings in the nursery, then connect the Furby Connect (Bluetooth) and Furby Boom (sound) so they cheer along. Works in Chrome. For the Furby Connect's Bluetooth on an iPad, open this page in the free Bluefy app.</p>
+  <p class="sub">An original hatchery and control panel for your Furbies. Hatch Squishlings in the nursery, take them home to feed, play and potty-train, then connect the Furby Connect (Bluetooth) and Furby Boom (sound) so they cheer along. Works in Chrome. For the Furby Connect's Bluetooth on an iPad, open this page in the free Bluefy app.</p>
 
   <div id="btBanner" class="banner warn" hidden></div>
 
@@ -253,6 +305,67 @@
       <div class="reveal" id="reveal" hidden></div>
       <h3>Squishlings found <span id="foundCount"></span></h3>
       <div class="dex" id="dex"></div>
+    </div>
+  </section>
+
+  <section class="card nursery" id="home">
+    <div class="nursery-head">
+      <h2>Squishling Home <span class="tag">pet care</span></h2>
+      <p class="note">Tap the buttons, or drag your Squishling onto the potty or his bowl. Tap him for pats. Your real Furbies cheer along.</p>
+    </div>
+    <div class="scene home-scene" id="hscene">
+      <svg class="bg" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e7dcff"/><stop offset="1" stop-color="#ffd9ee"/></linearGradient>
+          <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9d2"/><stop offset="1" stop-color="#ffd3b8"/></linearGradient>
+          <linearGradient id="rug" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffb3e0"/><stop offset=".5" stop-color="#cdb8ff"/><stop offset="1" stop-color="#a8e4ff"/></linearGradient>
+          <radialGradient id="hl" cx=".5" cy=".5"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#ffc2ec"/></radialGradient>
+          <path id="spk2" d="M0 -10Q2 -2 10 0Q2 2 0 10Q-2 2 -10 0Q-2 -2 0 -10Z"/>
+        </defs>
+        <rect width="800" height="400" fill="url(#wall)"/>
+        <rect y="238" width="800" height="26" fill="#fff" opacity=".35"/>
+        <path d="M0 262H800V400H0Z" fill="url(#floor)"/>
+        <path d="M0 296H800M0 332H800M0 368H800" stroke="#ffc7a6" stroke-width="2" opacity=".7"/>
+        <ellipse cx="400" cy="344" rx="250" ry="38" fill="url(#rug)" opacity=".85"/>
+        <ellipse cx="400" cy="344" rx="214" ry="30" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="4 10" opacity=".8"/>
+        <!-- window with rainbow -->
+        <g transform="translate(300 60)"><rect width="200" height="130" rx="14" fill="#cfeaff" stroke="#fff" stroke-width="6"/>
+          <g fill="none" stroke-width="7" opacity=".9"><path d="M30 120A70 70 0 0 1 170 120" stroke="#ff9bb8"/><path d="M38 120A62 62 0 0 1 162 120" stroke="#fff08a"/><path d="M46 120A54 54 0 0 1 154 120" stroke="#a8f0c0"/><path d="M54 120A46 46 0 0 1 146 120" stroke="#cdb8ff"/></g>
+          <path d="M100 0V130M0 65H200" stroke="#fff" stroke-width="5"/><circle cx="160" cy="30" r="14" fill="#fff3a8"/></g>
+        <!-- shoji panel + lantern -->
+        <g fill="rgba(255,255,255,.35)" stroke="rgba(255,255,255,.9)" stroke-width="2.5"><rect x="640" y="40" width="130" height="200" rx="4"/></g>
+        <path d="M683 40V240M727 40V240M640 110H770M640 175H770" stroke="rgba(255,255,255,.75)" stroke-width="1.6"/>
+        <path d="M120 0V40" stroke="#fff" stroke-width="2"/><circle cx="120" cy="62" r="22" fill="url(#hl)"/><circle cx="120" cy="62" r="40" fill="#ff7ad9" opacity=".16"/>
+        <!-- shelf with keycaps -->
+        <rect x="190" y="118" width="96" height="8" rx="4" fill="#fff" opacity=".85"/>
+        <g><rect x="198" y="96" width="22" height="22" rx="5" fill="#ffb3d9" stroke="#fff" stroke-width="1.5"/><rect x="226" y="96" width="22" height="22" rx="5" fill="#a8e4ff" stroke="#fff" stroke-width="1.5"/><rect x="254" y="96" width="22" height="22" rx="5" fill="#cdb8ff" stroke="#fff" stroke-width="1.5"/></g>
+        <g fill="#fff"><use href="#spk2" class="tw" transform="translate(70 120) scale(1)"/><use href="#spk2" class="tw" transform="translate(560 90) scale(.9)" style="animation-delay:1s"/><use href="#spk2" class="tw" transform="translate(600 210) scale(.7)" style="animation-delay:1.8s"/></g>
+      </svg>
+      <div class="station" id="potty">
+        <svg viewBox="0 0 120 130" aria-hidden="true"><defs><linearGradient id="pt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#d9ccff"/></linearGradient></defs>
+          <path d="M28 14Q28 4 40 4H80Q92 4 92 14V50H28Z" fill="url(#pt)" stroke="#fff" stroke-width="2"/>
+          <ellipse cx="60" cy="58" rx="44" ry="13" fill="#ffb3e0" stroke="#fff" stroke-width="2"/>
+          <ellipse cx="60" cy="58" rx="30" ry="8" fill="#b9a2ff"/>
+          <path d="M14 64Q10 118 60 122Q110 118 106 64Q60 78 14 64Z" fill="url(#pt)" stroke="#fff" stroke-width="2"/>
+          <path d="M60 80l4 9 10 1-8 6 3 10-9-6-9 6 3-10-8-6 10-1z" fill="#ffb3e0"/></svg></div>
+      <div class="station" id="bowl"><div id="bowlFood"></div>
+        <svg viewBox="0 0 120 70" aria-hidden="true"><defs><linearGradient id="bw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd0ee"/><stop offset="1" stop-color="#ff9bdc"/></linearGradient></defs>
+          <path d="M6 18H114Q112 62 60 66Q8 62 6 18Z" fill="url(#bw)" stroke="#fff" stroke-width="2.5"/><ellipse cx="60" cy="18" rx="54" ry="10" fill="#fff" opacity=".8"/>
+          <path d="M60 52c-12 -8 -14 -16 -7 -19c4 -2 7 1 7 4c0 -3 3 -6 7 -4c7 3 5 11 -7 19z" fill="#fff" opacity=".9"/></svg></div>
+      <div class="pet" id="pet" hidden><div class="thought" id="thought" hidden></div><div class="petart" id="petart"></div></div>
+      <div id="hfx"></div>
+      <div class="homeEmpty" id="homeEmpty">Hatch a Squishling in the nursery above, then tap <b>&nbsp;Take home&nbsp;</b> &#9825;</div>
+    </div>
+    <div class="nursery-foot">
+      <div class="needs" id="needs"></div>
+      <h3>Feed</h3>
+      <div class="row" id="foods"></div>
+      <h3>Care &amp; play</h3>
+      <div class="row">
+        <button id="btnPotty">Potty time</button>
+        <button id="btnPlay">Bubble play</button>
+        <button id="btnPat">Pats &amp; cuddles</button>
+      </div>
     </div>
   </section>
 
@@ -652,6 +765,7 @@ function buildBoomUI(){
          ${SP(80,62,.95,'#ffb3e6')}${SP(18,64,.7)}${SP(144,76,.6)}`)},
   ];
 
+  window.SQUISH_CREATURES = CREATURES;
   const eggSVG = (p, uid) => {
     const g = 'eg' + uid, c = p.c;
     const crack = (cls, d) => `<g class="crack ${cls}"><path d="${d}" fill="none" stroke="#fff6b8" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity=".7" filter="url(#${g}b)"/><path d="${d}" fill="none" stroke="#6a3fc0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>`;
@@ -688,6 +802,7 @@ function buildBoomUI(){
     for (const c of CREATURES){
       const n = coll[c.id] || 0; if (n) found++;
       const d = document.createElement('div'); d.className = 'dexcard ' + c.rar + (n ? '' : ' locked');
+      if (n){ d.title = 'Take ' + c.name + ' home'; d.onclick = () => document.dispatchEvent(new CustomEvent('takehome', {detail:{id:c.id}})); }
       d.innerHTML = `<div class="dexart">${c.svg()}</div><div class="dexname">${n ? c.name : '???'}</div><div class="dexmeta">${n ? '&times;' + n + ' &middot; ' + c.rar : 'not found yet'}</div>`;
       box.appendChild(d);
     }
@@ -771,7 +886,8 @@ function buildBoomUI(){
     cre.innerHTML = c.svg(); cre.hidden = false; cre.style.animation = 'none'; void cre.offsetWidth; cre.style.animation = '';
     const sr = scene.getBoundingClientRect(), er = eggbox.getBoundingClientRect();
     spark(er.left - sr.left + er.width/2, er.top - sr.top + 60, ['✦','♡','✧','✶','❀']);
-    reveal.innerHTML = `<b>${c.name}</b><span class="rar ${c.rar}">${c.rar}</span><br>${c.blurb}`; reveal.hidden = false;
+    reveal.innerHTML = `<b>${c.name}</b><span class="rar ${c.rar}">${c.rar}</span><br>${c.blurb}<br><button class="main" id="takeHome" style="margin-top:10px">Take ${c.name} home &#9825;</button>`; reveal.hidden = false;
+    $('takeHome').onclick = () => document.dispatchEvent(new CustomEvent('takehome', {detail:{id:c.id}}));
     hatched = true; busy = false;
     $('newEgg').classList.add('main'); $('newEgg').textContent = 'Hatch another egg';
     renderDex();
@@ -796,6 +912,184 @@ function buildBoomUI(){
   renderDex(); newEgg();
 })();
 
+/* ============================ SQUISHLING HOME ============================ */
+(function(){
+  const CRE = window.SQUISH_CREATURES || [];
+  const scene = $('hscene'), pet = $('pet'), art = $('petart'), thought = $('thought'), potty = $('potty'),
+        bowl = $('bowl'), bowlFood = $('bowlFood'), hfx = $('hfx'), empty = $('homeEmpty');
+  const FOODS = [
+    {id:'bao',  name:'Bao',          v:28, svg:`<svg viewBox="0 0 48 48"><path d="M5 30C5 16 14 9 24 9S43 16 43 30C43 40 35 44 24 44S5 40 5 30Z" fill="#fff7f1" stroke="#f3c7c0" stroke-width="2"/><path d="M24 10C20 14 17 18 16 22M24 10C28 14 31 18 32 22M24 10V20" stroke="#f3c7c0" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="17" cy="33" r="2" fill="#2a1650"/><circle cx="31" cy="33" r="2" fill="#2a1650"/></svg>`},
+    {id:'berry',name:'Strawberry',   v:20, svg:`<svg viewBox="0 0 48 48"><path d="M24 44C10 36 6 22 12 16C18 12 22 14 24 16C26 14 30 12 36 16C42 22 38 36 24 44Z" fill="#ff7a9c" stroke="#fff" stroke-width="2"/><path d="M16 12Q24 6 32 12Q24 16 16 12Z" fill="#8fe0a8"/><circle cx="18" cy="26" r="1.8" fill="#fff5b8"/><circle cx="28" cy="24" r="1.8" fill="#fff5b8"/><circle cx="24" cy="33" r="1.8" fill="#fff5b8"/></svg>`},
+    {id:'tea',  name:'Bubble tea',   v:24, svg:`<svg viewBox="0 0 48 48"><path d="M30 4L26 18" stroke="#ff7ad9" stroke-width="3" stroke-linecap="round"/><path d="M11 16H37L34 43Q34 45 31 45H17Q14 45 14 43Z" fill="#ffe3f2" stroke="#fff" stroke-width="2"/><path d="M12 24H36L34 43Q34 45 31 45H17Q14 45 14 43Z" fill="#f2c7ff" opacity=".9"/><circle cx="19" cy="40" r="2.5" fill="#6a3fc0"/><circle cx="25" cy="41" r="2.5" fill="#6a3fc0"/><circle cx="30" cy="39" r="2.5" fill="#6a3fc0"/><rect x="9" y="12" width="30" height="5" rx="2.5" fill="#fff"/></svg>`},
+    {id:'cake', name:'Rainbow cake', v:34, svg:`<svg viewBox="0 0 48 48"><path d="M6 20H42V40Q42 44 38 44H10Q6 44 6 40Z" fill="#fff" stroke="#fff" stroke-width="1"/><rect x="6" y="22" width="36" height="6" fill="#ffb3d9"/><rect x="6" y="28" width="36" height="6" fill="#fff08a"/><rect x="6" y="34" width="36" height="8" fill="#a8e4ff"/><path d="M6 20Q10 12 18 16Q24 8 30 16Q38 12 42 20Z" fill="#fff" stroke="#ffd0ee" stroke-width="2"/><circle cx="24" cy="10" r="3" fill="#ff7a9c"/></svg>`},
+  ];
+  const KEY = 'furbyhub.pet';
+  let st = {id:null, tummy:60, fun:60, potty:10};
+  try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && s.id) st = s; } catch(e){}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e){} };
+  const clamp = (v) => Math.max(0, Math.min(100, v));
+  const rand = (a,b) => a + Math.random()*(b-a);
+  let busy = false, dragging = false, pos = 50, lastCheer = 0, playOn = false, selected = null;
+  const POTTY_X = 14, BOWL_X = 85;
+
+  /* ---- needs UI ---- */
+  const NEEDS = [['Tummy','tummy',true],['Fun','fun',true],['Potty need','potty',false]];
+  const needsBox = $('needs');
+  for (const [label,key] of NEEDS){
+    const r = document.createElement('div'); r.className = 'need';
+    r.innerHTML = `<span>${label}</span><div class="bar"><i id="bar_${key}"></i></div><span id="num_${key}">0</span>`;
+    needsBox.appendChild(r);
+  }
+  function refresh(){
+    for (const [label,key,goodHigh] of NEEDS){
+      const v = Math.round(st[key]), i = $('bar_' + key);
+      i.style.width = v + '%'; $('num_' + key).textContent = v;
+      i.classList.toggle('low', goodHigh ? v < 25 : v > 80);
+    }
+    potty.classList.toggle('urgent', st.potty > 80 && !busy);
+    if (busy || dragging) return;
+    let t = '';
+    if (st.potty > 80) t = 'potty time! ★';
+    else if (st.tummy < 25) t = 'tummy rumbly... ♡';
+    else if (st.fun < 25) t = "let's play! ✦";
+    thought.hidden = !t; thought.textContent = t;
+  }
+  function say(t, ms = 1800){ thought.hidden = false; thought.textContent = t; clearTimeout(say.t); say.t = setTimeout(refresh, ms); }
+
+  /* ---- foods ---- */
+  const foodsBox = $('foods');
+  for (const f of FOODS){
+    const b = document.createElement('button'); b.className = 'foodbtn'; b.innerHTML = f.svg + `<span>${f.name}</span>`;
+    b.onclick = () => feed(f); foodsBox.appendChild(b);
+  }
+
+  /* ---- Furby reactions ---- */
+  function cheer(kind){
+    const now = performance.now(); if (now - lastCheer < 1200) return; lastCheer = now;
+    if ($('nvConnect').checked && connected){
+      if (kind === 'feed') setAntenna('#b8ff9a').catch(()=>{});
+      if (kind === 'pat')  setAntenna('#ff7ad9').catch(()=>{});
+      doAction({feed:[15], potty:[7], play:[9,10,11], pat:[1,2,3,4,5,6]}[kind]);
+    }
+    if ($('nvBoom').checked && actx) playCommand({feed:350, potty:864, play:863, pat:710}[kind]);
+  }
+
+  /* ---- effects ---- */
+  function spark(x, y, glyphs = ['♡','✦','✧']){
+    for (let i = 0; i < 4; i++){
+      const s = document.createElement('span'); s.className = 'spark'; s.textContent = glyphs[i % glyphs.length];
+      s.style.left = (x + rand(-20,20)) + 'px'; s.style.top = (y + rand(-10,10)) + 'px'; s.style.setProperty('--dx', rand(-40,40) + 'px');
+      hfx.appendChild(s); setTimeout(() => s.remove(), 1000);
+    }
+  }
+  function sparkAtPet(g){ const sr = scene.getBoundingClientRect(), pr = pet.getBoundingClientRect(); spark(pr.left - sr.left + pr.width/2, pr.top - sr.top + 10, g); }
+  const flag = (cls, ms) => { pet.classList.add(cls); return sleep(ms).then(() => pet.classList.remove(cls)); };
+
+  /* ---- movement ---- */
+  async function walkTo(pct){
+    const dist = Math.abs(pct - pos); if (dist < 1) return;
+    const dur = Math.min(1.6, dist/50*1.2 + .3);
+    pet.style.transition = `left ${dur}s ease-in-out, bottom .3s`; pet.classList.add('walk'); pos = pct; pet.style.left = pct + '%';
+    await sleep(dur*1000 + 60); pet.classList.remove('walk');
+  }
+
+  /* ---- actions ---- */
+  async function feed(food){
+    if (busy || !st.id) return;
+    if (st.tummy > 92){ say('too full! ♡'); flag('no', 520); return; }
+    busy = true; thought.hidden = true;
+    bowlFood.innerHTML = food.svg; bowlFood.classList.remove('out');
+    await walkTo(BOWL_X - 14);
+    pet.classList.add('eat'); await sleep(1500); pet.classList.remove('eat');
+    bowlFood.classList.add('out'); await sleep(250); bowlFood.innerHTML = '';
+    st.tummy = clamp(st.tummy + food.v); st.potty = clamp(st.potty + 16); st.fun = clamp(st.fun + 4);
+    sparkAtPet(); flag('happy', 1100); cheer('feed'); say('yum! ♡', 1800);
+    busy = false; save(); refresh();
+  }
+  async function goPotty(){
+    if (busy || !st.id) return;
+    busy = true; thought.hidden = true; potty.classList.remove('urgent');
+    await walkTo(POTTY_X + 2);
+    if (st.potty < 25){ say('not yet...', 1500); flag('no', 520); await sleep(600); busy = false; refresh(); return; }
+    pet.classList.add('sit'); await sleep(2200); pet.classList.remove('sit');
+    potty.classList.remove('flush'); void potty.offsetWidth; potty.classList.add('flush'); setTimeout(() => potty.classList.remove('flush'), 1200);
+    st.potty = 0; st.fun = clamp(st.fun + 8);
+    sparkAtPet(['★','✦','♡']); flag('happy', 1100); cheer('potty'); say('yay, all done! ★', 2200);
+    busy = false; save(); refresh();
+  }
+  function startPlay(){
+    if (!st.id || playOn) return; playOn = true;
+    const sr = scene.getBoundingClientRect(); let left = 6;
+    for (let i = 0; i < 6; i++){
+      const b = document.createElement('div'), s = rand(38, 64); b.className = 'pbub';
+      b.style.width = b.style.height = s + 'px'; b.style.left = rand(14, 78) + '%'; b.style.top = rand(10, 42) + '%'; b.style.animationDelay = (-rand(0,2)) + 's';
+      b.addEventListener('pointerdown', e => {
+        e.preventDefault(); if (b.classList.contains('pop')) return; b.classList.add('pop'); setTimeout(() => b.remove(), 260);
+        const r = scene.getBoundingClientRect(); spark(e.clientX - r.left, e.clientY - r.top, ['✦','✧']);
+        st.fun = clamp(st.fun + 7); flag('happy', 600); save(); refresh(); cheer('play');
+        if (--left === 0){ playOn = false; say('that was fun! ♡'); }
+      });
+      scene.appendChild(b);
+    }
+    setTimeout(() => { scene.querySelectorAll('.pbub').forEach(x => x.remove()); playOn = false; }, 12000);
+  }
+  function patPet(x, y){
+    st.fun = clamp(st.fun + 3); spark(x, y, ['♡']); flag('happy', 600); cheer('pat'); save(); refresh();
+  }
+
+  /* ---- dragging the pet onto things ---- */
+  const hit = (a, b) => !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+  let drag = null;
+  pet.addEventListener('pointerdown', e => {
+    if (busy) return; e.preventDefault(); pet.setPointerCapture(e.pointerId);
+    drag = {x:e.clientX, y:e.clientY, moved:false};
+  });
+  pet.addEventListener('pointermove', e => {
+    if (!drag) return;
+    if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 9){ drag.moved = true; dragging = true; pet.classList.add('lift'); thought.hidden = true; }
+    if (!drag.moved) return;
+    const r = scene.getBoundingClientRect(), pr = pet.getBoundingClientRect();
+    const px = Math.max(6, Math.min(94, (e.clientX - r.left)/r.width*100));
+    pet.style.transition = 'none'; pet.style.left = px + '%'; pos = px;
+    pet.style.bottom = Math.max(r.height*0.07, r.bottom - e.clientY - pr.height/2) + 'px';
+  });
+  const endDrag = async e => {
+    if (!drag) return; const d = drag; drag = null;
+    if (!d.moved){ const r = scene.getBoundingClientRect(); patPet(e.clientX - r.left, e.clientY - r.top - 20); return; }
+    dragging = false; pet.classList.remove('lift');
+    const pr = pet.getBoundingClientRect();
+    pet.style.transition = 'bottom .35s cubic-bezier(.3,1.6,.5,1)'; pet.style.bottom = '';
+    if (hit(pr, potty.getBoundingClientRect())) goPotty();
+    else if (hit(pr, bowl.getBoundingClientRect())) feed(FOODS[0]);
+    else refresh();
+  };
+  pet.addEventListener('pointerup', endDrag); pet.addEventListener('pointercancel', endDrag);
+
+  /* ---- buttons ---- */
+  $('btnPotty').onclick = goPotty; $('btnPlay').onclick = startPlay;
+  $('btnPat').onclick = () => { if (!st.id) return; const r = scene.getBoundingClientRect(), pr = pet.getBoundingClientRect(); patPet(pr.left - r.left + pr.width/2, pr.top - r.top); };
+
+  /* ---- bring a pet home ---- */
+  function setPet(id, fresh){
+    const c = CRE.find(x => x.id === id); if (!c) return;
+    if (fresh || st.id !== id) st = {id, tummy:60, fun:60, potty:10};
+    art.innerHTML = c.svg(); pet.hidden = false; empty.hidden = true; pos = 50; pet.style.left = '50%'; pet.style.bottom = '';
+    bowlFood.innerHTML = ''; save(); refresh();
+  }
+  document.addEventListener('takehome', e => { setPet(e.detail.id, false); $('home').scrollIntoView({behavior:'smooth', block:'start'}); });
+
+  /* ---- life ---- */
+  setInterval(() => {
+    if (!st.id) return;
+    st.tummy = clamp(st.tummy - 1); st.fun = clamp(st.fun - .8); st.potty = clamp(st.potty + (st.tummy > 20 ? 1.1 : .4));
+    save(); refresh();
+  }, 4000);
+  setInterval(() => { if (st.id && !busy && !dragging && !playOn && Math.random() < .6) walkTo(rand(30, 70)); }, 7000);
+
+  if (st.id) setPet(st.id, false);
+  refresh();
+})();
+
 /* ============================ duet ============================ */
 $('duetBtn').onclick = async () => {
   if (connected) doAction([17]);
@@ -808,8 +1102,8 @@ if (!navigator.bluetooth){
   const b = $('btBanner'); b.hidden = false;
   const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   b.textContent = ios
-    ? 'Chrome and Safari on iPad cannot do Bluetooth, so the Furby Connect panel is off here. Open this same page in the free Bluefy app to connect it. The egg nursery and the Furby Boom sound panel work right here.'
-    : 'This browser cannot do Web Bluetooth, so the Furby Connect panel is off here. Open this page in Chrome on a Mac, PC or Android. The egg nursery and the Furby Boom sound panel still work.';
+    ? 'Chrome and Safari on iPad cannot do Bluetooth, so the Furby Connect panel is off here. Open this same page in the free Bluefy app to connect it. The egg nursery, the pet home and the Furby Boom sound panel work right here.'
+    : 'This browser cannot do Web Bluetooth, so the Furby Connect panel is off here. Open this page in Chrome on a Mac, PC or Android. The egg nursery, the pet home and the Furby Boom sound panel still work.';
   $('connBtn').disabled = true;
 }
 log('Ready. Furby Connect: press Connect. Furby Boom: press Wake him up.');
