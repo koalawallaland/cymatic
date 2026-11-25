@@ -1,0 +1,89 @@
+  .furby-tv {
+    position: relative;
+    min-width: 0;
+    margin-bottom: 2px;
+    color: #fff2fc;
+    border: 1px solid #b9a9cf;
+    border-radius: 16px 18px 10px 10px;
+    background: linear-gradient(135deg, #c3b7ce, #8d7c9c 28%, #726280 72%, #57475f);
+    box-shadow: inset 2px 2px 1px #ecdeed90, inset -3px -3px 2px #443747, 0 5px 0 -2px #40374c, 0 8px 14px #09061f85;
+  }
+  .furby-tv-link {
+    display: block;
+    box-sizing: border-box;
+    padding: 7px 8px 0;
+    border-radius: inherit;
+    color: inherit;
+    text-decoration: none;
+  }
+  .furby-tv-glass {
+    display: block;
+    overflow: hidden;
+    position: relative;
+    border: 4px solid #332d3c;
+    border-radius: 12% / 9%;
+    background: #181522;
+    box-shadow: 0 1px 0 #e8daeb90, 0 -1px 2px #302639;
+  }
+  .furby-tv-glass video {
+    display: block;
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+  }
+  .furby-tv-glass::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow: inset 0 0 6px 1px #1f132e66;
+    background: linear-gradient(145deg, #fff2, transparent 34%);
+  }
+  .furby-tv-label {
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+    margin-right: 30px;
+    font-size: .875rem;
+    font-weight: 700;
+    line-height: 1.1;
+    text-shadow: 0 1px 2px #302438;
+  }
+  .furby-tv-link:hover .furby-tv-label { text-decoration: underline; }
+  .furby-tv-link:focus-visible, .furby-tv-power:focus-visible { outline: 3px solid #ffe27a; outline-offset: 3px; }
+  .furby-tv-power {
+    position: absolute;
+    right: 4px;
+    bottom: 1px;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .furby-tv-power[hidden] { display: none; }
+  .furby-tv-power::before {
+    content: "▶";
+    display: grid;
+    place-items: center;
+    width: 21px;
+    height: 19px;
+    border: 1px solid #4b4055;
+    border-radius: 6px;
+    color: #eadff3;
+    background: #443a4d;
+    box-shadow: inset 0 1px 0 #b6a5bc, 0 1px 0 #c6b7d0;
+    font-size: 10px;
+  }
+  .furby-tv-power[data-playing]::before { content: "Ⅱ"; color: #c5ffae; }
+  button.furby-tv-power:hover:not(:disabled) { transform: none; background: transparent; box-shadow: none; }
+
+  .side.right > .furby-tv {
+    width: min(100%, 10.25rem);
+    align-self: center;
+    order: -1;
+    scroll-margin-top: 1rem;
+  }
