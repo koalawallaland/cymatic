@@ -1,4 +1,4 @@
-import {buildBoba} from './boba-renderer.mjs?v=6';
+import {buildBoba} from './boba-renderer.mjs?v=8';
 export function initAR({onPet,onPaw,onFetch}){
  const $=id=>document.getElementById(id);
  const dialog=$('boba-ar'),launch=$('boba-ar-launch'),video=$('boba-ar-video'),world=$('boba-ar-world'),dog=$('boba-ar-dog'),hint=$('boba-ar-hint'),size=$('boba-ar-size');
