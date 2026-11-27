@@ -1,6 +1,7 @@
 // Original articulated, volumetric Samoyed. Coordinates are in scene units;
 // each coat tuft is real mesh geometry, not a camera-facing photo.
 import * as THREE from '../squish/vendor/three.module.js';
+import {createSoftwareRenderer} from './boba-soft3d.mjs';
 const v=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z);
 const pi=Math.PI;
 function rng(seed=1138){return()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296;};}
@@ -9,9 +10,10 @@ const c=(hex)=>new THREE.Color(hex);
 const paint=(color,roughness=.9)=>new THREE.MeshStandardMaterial({color,roughness,metalness:0});
 const cream=paint('#e4d8cd'),muzzleMat=paint('#f5eee5'),innerEar=paint('#be9d96',.96),black=paint('#302b2c',.36),noseMat=paint('#292326',.32),iris=paint('#382b26',.28),mouth=paint('#4c3938',.88),toe=paint('#ded2c9',.84);
 const furMat=new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:1,metalness:0});
-const globe=new THREE.SphereGeometry(1,24,16);
+const globe=new THREE.SphereGeometry(1,24,16),smallGlobe=new THREE.SphereGeometry(1,14,10);
+let lowDetail=false;
 const group=(parent,x=0,y=0,z=0)=>{const g=new THREE.Group();g.position.set(x,y,z);parent.add(g);return g;};
-function oval(parent,mat,xyz,radii,rotation=null){const m=new THREE.Mesh(globe,mat);m.position.set(...xyz);m.scale.set(...radii);if(rotation)m.rotation.set(...rotation);parent.add(m);return m;}
+function oval(parent,mat,xyz,radii,rotation=null){const m=new THREE.Mesh(lowDetail?smallGlobe:globe,mat);m.position.set(...xyz);m.scale.set(...radii);if(rotation)m.rotation.set(...rotation);parent.add(m);return m;}
 function curve(parent,pts,material,radius=.009){const path=new THREE.CatmullRomCurve3(pts.map(p=>v(...p)));const m=new THREE.Mesh(new THREE.TubeGeometry(path,24,radius,6,false),material);parent.add(m);return m;}
 // Coat: curved leaf-like locks. The base is an ellipsoid undercoat; overlapping
 // tiny tapered, directional tufts catch light from every viewing angle.
@@ -19,7 +21,7 @@ function coat(parent,xyz,radii,opts={}){
  const g=group(parent,...xyz);if(opts.rotation)g.rotation.set(...opts.rotation);
  const [rx,ry,rz]=radii;
  oval(g,opts.base||cream,[0,0,0],radii);
- const count=Math.round((opts.n??1600)*.85), length=(opts.length??.065)*.82, width=(opts.width??.013)*1.17, lift=(opts.lift??.32)*.72;
+ const count=Math.round((opts.n??1600)*(lowDetail?.40:.85)), length=(opts.length??.065)*.82, width=(opts.width??.013)*(lowDetail?1.67:1.17), lift=(opts.lift??.32)*.72;
  const flow=v(...(opts.flow||[0,-.88,-.45])).normalize();
  const roots=[],colors=[],idx=[],normals=[];
  const rootColor=c(opts.root||'#e5dacf'),tipColor=c(opts.tip||'#fffaf2');
@@ -124,7 +126,7 @@ function dogModel(scene){
 }
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 export function buildBoba3D(host,{rotateGesture=true}={}){
- const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});
+ let renderer;try{renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});}catch{renderer=createSoftwareRenderer();}
  renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.65));renderer.setClearColor(0,0);
  renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
  renderer.domElement.className='boba-3d-canvas';renderer.domElement.setAttribute('aria-hidden','true');
@@ -133,7 +135,7 @@ export function buildBoba3D(host,{rotateGesture=true}={}){
  const key=new THREE.DirectionalLight(0xfff2e4,2.55);key.position.set(3,5,4);scene.add(key);
  const fill=new THREE.DirectionalLight(0xe1e9ff,1.25);fill.position.set(-3,2,1);scene.add(fill);
  const rim=new THREE.DirectionalLight(0xffe7d6,1.30);rim.position.set(0,3,-3);scene.add(rim);
- const model=dogModel(scene);
+ lowDetail=!!renderer.isSoftware;const model=dogModel(scene);lowDetail=false;
  // Contact shadow on the invisible floor also works over rear-camera video.
  const shadowCanvas=document.createElement('canvas');shadowCanvas.width=128;shadowCanvas.height=128;
  const ctx=shadowCanvas.getContext('2d'),grad=ctx.createRadialGradient(64,64,4,64,64,62);grad.addColorStop(0,'rgba(43,32,43,.33)');grad.addColorStop(.5,'rgba(43,32,43,.20)');grad.addColorStop(1,'rgba(43,32,43,0)');ctx.fillStyle=grad;ctx.fillRect(0,0,128,128);
@@ -166,7 +168,7 @@ export function buildBoba3D(host,{rotateGesture=true}={}){
   model.ball.visible=active&&action==='fetch';if(model.ball.visible)model.ball.position.set(.50+Math.sin(t*4)*.1,.075+Math.max(0,Math.sin(t*7))*.07*fx,.34);
   cameraPose();renderer.render(scene,camera);
  }
- function loop(now){raf=0;if(!visible||disposed)return;if(now-lastFrame>36){lastFrame=now;if(!document.body.classList.contains('boba-ar-open')||host.closest('#boba-ar'))draw(now);}if(!motion.matches)raf=requestAnimationFrame(loop);}
+ function loop(now){raf=0;if(!visible||disposed)return;if(now-lastFrame>(renderer.isSoftware?(action==='idle'?240:90):36)){lastFrame=now;if(!document.body.classList.contains('boba-ar-open')||host.closest('#boba-ar'))draw(now);}if(!motion.matches)raf=requestAnimationFrame(loop);}
  const run=()=>{if(!visible||disposed)return;if(motion.matches)draw(performance.now());else if(!raf)raf=requestAnimationFrame(loop);};
  function turn(delta){yaw+=delta;draw(performance.now());run();}
  let drag=null,suppress=false;
@@ -182,7 +184,7 @@ export function buildBoba3D(host,{rotateGesture=true}={}){
  host.append(renderer.domElement);const resize=new ResizeObserver(size);resize.observe(host);
  const io=new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;if(!visible&&raf){cancelAnimationFrame(raf);raf=0;}else run();});io.observe(host);
  motion.addEventListener?.('change',()=>{if(raf)cancelAnimationFrame(raf);raf=0;run();});size();run();
- return {kind:'3d',play(next){action=next;start=performance.now();draw(start);run();},turn,reset(){yaw=.45;pitch=.19;draw(performance.now());},dispose(){disposed=true;resize.disconnect();io.disconnect();if(raf)cancelAnimationFrame(raf);renderer.dispose();renderer.domElement.remove();}};
+ return {kind:'3d',software:!!renderer.isSoftware,play(next){action=next;start=performance.now();draw(start);run();},turn,reset(){yaw=.45;pitch=.19;draw(performance.now());},dispose(){disposed=true;resize.disconnect();io.disconnect();if(raf)cancelAnimationFrame(raf);renderer.dispose();renderer.domElement.remove();}};
 }
 // Exportable group tree used by offline asset checks; the actual daycare builds the same model.
 export function makeBobaModel(){const scene=new THREE.Scene();const model=dogModel(scene);scene.updateMatrixWorld(true);return model.root;}
