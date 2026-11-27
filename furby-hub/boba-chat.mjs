@@ -1,7 +1,7 @@
 import {respond} from './boba-dialogue.mjs?v=4';
-import {buildBoba} from './boba-renderer.mjs?v=8';
+import {buildBoba} from './boba-renderer.mjs?v=9';
 import {initCare} from './boba-care.mjs';
-import {initAR} from './boba-ar.mjs?v=8';
+import {initAR} from './boba-ar.mjs?v=9';
 import {initSounds} from './boba-sounds.mjs';
 import {initVoice} from './boba-voice.mjs?v=4';
 const $=id=>document.getElementById(id);

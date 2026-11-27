@@ -124,3 +124,12 @@
 #boba-corner .boba-3d-controls button{font-size:12px;min-height:42px;padding:7px 10px;white-space:nowrap}
 .boba-ar-actions:has(#boba-ar-turn){grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(max-width:390px){.boba-ar-actions:has(#boba-ar-turn){grid-template-columns:repeat(2,minmax(0,1fr))}.boba-3d-controls{justify-content:center;text-align:center}}
+
+.boba-return-run,.boba-thrown-ball{position:absolute;pointer-events:none;z-index:3}
+.boba-return-run{width:auto;transform:translate(-50%,-100%);filter:drop-shadow(0 4px 3px #29242c38)}
+.boba-thrown-ball{width:22px;height:22px;border-radius:50%;transform:translate(-50%,-55%);background:radial-gradient(ellipse at 0 50%,transparent 44%,#fffbc9 48% 52%,transparent 57%),radial-gradient(circle at 32% 24%,#f1ff99,#a9c734 60%,#658b23);box-shadow:0 2px 4px #302f3429}
+.boba-ar-dog.boba-away{opacity:0;pointer-events:none}
+.aim-throw,.aim-throw .boba-ar-dog{cursor:crosshair}
+#boba-floor{display:flex;align-items:center;justify-content:center;gap:8px;color:#fff0ff;border:1px solid #d9bcff70;background:#463357;border-radius:12px;padding:5px 12px;text-decoration:none;font-weight:650}
+#boba-floor img{height:32px;width:25px;object-fit:contain}
+.boba-ar-controls{overflow-y:auto;max-height:50dvh}

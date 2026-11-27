@@ -183,6 +183,7 @@ export function buildBoba3D(host,{rotateGesture=true}={}){
  const ctx=shadowCanvas.getContext('2d'),grad=ctx.createRadialGradient(64,64,4,64,64,62);grad.addColorStop(0,'rgba(43,32,43,.33)');grad.addColorStop(.5,'rgba(43,32,43,.20)');grad.addColorStop(1,'rgba(43,32,43,0)');ctx.fillStyle=grad;ctx.fillRect(0,0,128,128);
  const map=new THREE.CanvasTexture(shadowCanvas),shadow=new THREE.Mesh(new THREE.PlaneGeometry(1.0,1.6),new THREE.MeshBasicMaterial({map,transparent:true,depthWrite:false}));shadow.rotation.x=-pi/2;shadow.position.set(0,.007,-.12);scene.add(shadow);
  let yaw=.18, pitch=.14, distance=3, action='idle',start=performance.now(),raf=0,visible=true,disposed=false,w=0,h=0,lastFrame=0;
+ let touchX=0,touchY=0,lastTouch=-Infinity;
  const motion=matchMedia('(prefers-reduced-motion: reduce)');
  function cameraPose(){camera.position.set(Math.sin(yaw)*distance, .65+Math.sin(pitch)*distance,Math.cos(yaw)*distance);camera.lookAt(0,.67,0);}
  function size(){
@@ -205,7 +206,10 @@ export function buildBoba3D(host,{rotateGesture=true}={}){
   model.torso.scale.set(1+wave*.006,1+wave*.009,1+wave*.004);
   model.head.rotation.z=fx*(action==='cuddle'?-.12:action==='paw'?.09:0)+wave*.015;
   model.head.rotation.x=fx*(quiet?.09:action==='treat'?Math.sin(t*10)*.075:action==='talk'?Math.sin(t*10)*.035:fetching&&t<.85?Math.sin(t/.85*pi)*.20:trotting?Math.sin(gait)*.025:0);
-  model.head.rotation.y=fx*(move?Math.sin(t*6)*.06:0);
+  const lean=clamp(1-(now-lastTouch)/1450,0,1);
+  model.head.rotation.y=fx*(move?Math.sin(t*6)*.06:0)+touchX*.30*lean;
+  model.head.rotation.z-=touchX*.16*lean;
+  model.head.rotation.x+=(touchY*.14-.08)*lean;
   model.tail.rotation.y=motion.matches?0:Math.sin(now*(active?.013:.0045))*(active&&!quiet?.27:.075);
   model.tail.rotation.z=motion.matches?0:Math.sin(now*.006)*.04;
   for(const paw of model.paws){
@@ -215,7 +219,7 @@ export function buildBoba3D(host,{rotateGesture=true}={}){
     if(trotting)paw.g.position.y+=Math.max(0,stride)*.035*fx;
     if(active&&action==='paw'&&paw.front&&paw.side===1){paw.g.rotation.x=-.88*fx;paw.g.position.y+=.09*fx;}
   }
-  const blink=(now%4400)>4250&&!motion.matches?Math.max(.15,Math.abs((now%4400)-4325)/75):1;model.eyes.forEach(e=>e.scale.y=blink);
+  const blink=(now%4400)>4250&&!motion.matches?Math.max(.15,Math.abs((now%4400)-4325)/75):1;model.eyes.forEach(e=>e.scale.y=blink*(1-lean*.42));
   model.ball.visible=fetching;
   if(fetching){
     if(t<.85&&!motion.matches){model.ball.position.set(.32*(1-t/.85),.066+Math.sin(t/.85*pi)*.065,.70);}
@@ -239,7 +243,7 @@ export function buildBoba3D(host,{rotateGesture=true}={}){
  host.append(renderer.domElement);const resize=new ResizeObserver(size);resize.observe(host);
  const io=new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;if(!visible&&raf){cancelAnimationFrame(raf);raf=0;}else run();});io.observe(host);
  motion.addEventListener?.('change',()=>{if(raf)cancelAnimationFrame(raf);raf=0;run();});size();run();
- return {kind:'3d',software:!!renderer.isSoftware,play(next){action=next;start=performance.now();draw(start);run();},turn,reset(){yaw=.18;pitch=.14;draw(performance.now());},dispose(){disposed=true;resize.disconnect();io.disconnect();if(raf)cancelAnimationFrame(raf);renderer.dispose();renderer.domElement.remove();}};
+ return {kind:'3d',software:!!renderer.isSoftware,stroke(x,y){touchX=clamp(2*x-1,-1,1);touchY=clamp(2*y-1,-1,1);lastTouch=performance.now();run();},play(next){action=next;start=performance.now();draw(start);run();},turn,reset(){yaw=.18;pitch=.14;draw(performance.now());},dispose(){disposed=true;resize.disconnect();io.disconnect();if(raf)cancelAnimationFrame(raf);renderer.dispose();renderer.domElement.remove();}};
 }
 // Exportable group tree used by offline asset checks; the actual daycare builds the same model.
 export function makeBobaModel(software=false){const scene=new THREE.Scene();lowDetail=software;const model=dogModel(scene);lowDetail=false;scene.updateMatrixWorld(true);return model.root;}
