@@ -1,3 +1,4 @@
+import {reliefWall} from './relief.js';
 import {colors,names,kinds,flows,fresh,title,describe,art,shelfObject} from './maker.js?v=worktop3';
 import {wallConfig} from '../../wall/config.js';
 import {floor} from './tour.js?v=worktop3';
@@ -62,16 +63,6 @@ function play(r,message=''){
 let sound=false;
 function tiles(host,items){for(const r of items){const b=document.createElement('button');b.className='tile';b.innerHTML=shelfObject(r)+'<strong>'+title(r)+'</strong><small>'+describe(r)+'</small>';b.onclick=()=>play(r);host.append(b)}}
 function myShelf(){room.innerHTML='<h2>My shelf</h2><p>'+ (shelf.length?'Pick a design to play again.':'Your finished designs will appear here. Try a studio sample while the shelf is empty.')+'</p><div class="grid"></div>';tiles(room.querySelector('.grid'),shelf.length?shelf:[fresh(0),{...fresh(1),shape:1,pigment:1},{...fresh(2),finish:2,pigment:2}]);}
-async function wall(){
- const token=visit;let spot=0;const slimes=shelf.filter(r=>r.kind===2);
- room.innerHTML='<h2>Slime wall</h2><p>Tap a patch to play with it. Pick a jar from your shelf to leave a public splat.</p><label>Jar to splat <select></select></label><div class="wall" aria-label="Shared slime wall"></div><div class="buttons"><button class="primary post">Splat here</button><button class="refresh">Refresh wall</button></div><p class="note" role="status"></p><h3>Visitor designs</h3><div class="grid"></div>';
- const select=room.querySelector('select'),board=room.querySelector('.wall'),note=room.querySelector('.note'),post=room.querySelector('.post'),grid=room.querySelector('.grid');
- select.add(new Option('Choose a finished slime',''));slimes.forEach((r,i)=>select.add(new Option(title(r)+' · '+describe(r),String(i))));if(slimes.length)select.value='0';
- function paint(){board.replaceChildren();for(let i=0;i<24;i++){const r=displays.find(v=>v.kind===2&&v.spot===i),b=document.createElement('button');b.setAttribute('aria-pressed',i===spot);b.setAttribute('aria-label','Patch '+(i+1)+(r?' · '+title(r):' · empty'));if(r){b.style.setProperty('--paint',colors[r.pigment]);b.innerHTML='<span></span>'}else b.textContent='+';b.onclick=()=>{spot=i;paint();board.children[i].focus();note.replaceChildren('Patch '+(i+1)+' selected. ');if(r){const open=document.createElement('button');open.textContent='Play with '+title(r);open.onclick=()=>play(r);note.append(open)}};board.append(b)}grid.replaceChildren();tiles(grid,displays.filter((r,i,a)=>a.findIndex(x=>key(x)===key(r))===i));post.disabled=!slimes.length||select.value==='';}
- select.onchange=paint;
- async function load(){note.textContent='Opening the shared wall…';try{const res=await fetch(api+'?select=*&order=id.desc&limit=240',{headers});if(!res.ok)throw Error();const rows=await res.json();if(token!==visit)return;displays=rows.filter(valid);paint();note.textContent=displays.length?'Pick a patch or visit a design below.':'The wall is fresh. Make a slime to leave its first splat.'}catch{if(token===visit)note.textContent='The shared wall is offline. Your shelf is still here.'}}
- post.onclick=async()=>{const r=slimes[Number(select.value)];if(!r)return;post.disabled=true;try{const res=await fetch(api,{method:'POST',headers,body:JSON.stringify({...clean(r),spot})});if(!res.ok&&res.status!==409)throw Error();if(token!==visit)return;await load();if(token===visit&&displays.some(v=>v.spot===spot&&key(v)===key(r)))note.textContent='Splat! Your slime is on the shared wall.'}catch{if(token===visit)note.textContent='Could not place that splat. Your jar is safe on your shelf.'}finally{post.disabled=false}};
- room.querySelector('.refresh').onclick=load;paint();await load();
-}
+function wall(){reliefWall(room,{shelf,api,headers,valid,play,tiles,key})}
 function route(){visit++;const page=location.hash.slice(1)||'squishy';document.querySelectorAll('nav a,header a').forEach(a=>{if(a.hash==='#'+page)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});if(page==='wall')wall();else if(page==='shelf')myShelf();else if(page==='floor')floor(room,play);else make(Math.max(0,labels.indexOf(page)));if(location.hash)window.scrollTo({top:0})}
 window.addEventListener('hashchange',route);document.addEventListener('click',e=>{const a=e.target.closest('a');if(a&&a.hash&&a.hash===location.hash){e.preventDefault();route()}});route();
