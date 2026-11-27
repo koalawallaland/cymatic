@@ -1,4 +1,4 @@
-import {colors,names,kinds,flows,fresh,title,describe,art} from './maker.js';
+import {colors,names,kinds,flows,fresh,title,describe,art} from './maker.js?v=worktop2';
 import {wallConfig} from '../../wall/config.js';
 import {floor} from './tour.js';
 const room=document.querySelector('#room');
@@ -14,13 +14,23 @@ const headers={apikey:wallConfig.publishableKey,'Content-Type':'application/json
 function clean(r){return Object.fromEntries(fields.map(k=>[k,r[k]]))}
 function save(r){shelf=[clean(r),...shelf.filter(item=>key(item)!==key(r))].slice(0,80);try{localStorage.setItem('sunnymoo-shelf-v1',JSON.stringify(shelf));return true}catch{return false}}
 function pulse(tray){tray.classList.remove('motion');void tray.offsetWidth;tray.classList.add('motion')}
+const sceneModule=import('./bench.js?v=worktop2').catch(()=>null);
+const gesture={
+ master:'Slide your shape onto the silver tray',mould:'Tilt the cup to pour the mould',core:'Slide the core into place',cast:'Tilt the cup to cast the skin',peel:'Pull the mould open',fill:'Press the pump to fill the skin',seal:'Press the plug into place',coreColor:'Rub colour into the centre',bath:'Tilt the cup of melted wax',dip:'Drag down to dip, then lift',cool:'Tap to skip the cooling time',crack:'Press the shell until it cracks',bowl:'Pour the base into the bowl',stir:'Swirl your finger to mix',activate:'Tilt in a little activator',fold:'Pull the slime, then let go',scent:'Tap to finish the blend',jar:'Scoop your slime into the jar'
+};
+function renderBench(tray,r,stage,count,animate=false){
+ tray.dataset.phase=stage;tray.style.setProperty('--tint',colors[r.pigment]);tray.innerHTML=art(r,stage,count);
+ if(r.kind!==2&&r.shape===0&&['master','mould'].includes(stage)){const image=new Image();image.src='../../desk/galaxy-steamer-bao.webp';image.alt='';image.className='original-toy';tray.append(image)}
+ sceneModule.then(module=>{if(module&&tray.isConnected)module.showBench(tray,r,stage,count,animate)});
+}
 function make(kind){
  const d=drafts.get(kind)||{r:fresh(kind),index:0,count:0};drafts.set(kind,d);
  const steps=flows[kind],s=steps[d.index],r=d.r;
  const goal=({fill:3,mould:2,cast:2,dip:r.finish+1,fold:3,activate:2})[s.art]||1;
- room.innerHTML='<h2>'+['Squishy studio','Wax cracking studio','Slime kitchen'][kind]+'</h2><div class="bench"><div class="tray">'+art(r,s.art,d.count)+'</div><article><p class="label">STEP '+(d.index+1)+' OF '+steps.length+'</p><h3>'+s.title+'</h3><p>'+s.hint+'</p><div class="choices"></div><div class="buttons"><button class="primary action">'+s.action+'</button>'+(d.index?'<button class="back">Back one step</button>':'')+'</div><p class="note" role="status"></p></article></div>';
+ room.innerHTML='<h2>'+['Squishy studio','Wax cracking studio','Slime kitchen'][kind]+'</h2><div class="bench"><div class="tray"></div><article><div class="step-line"><h3>'+gesture[s.art]+'</h3><small aria-label="Step '+(d.index+1)+' of '+steps.length+'">'+(d.index+1)+' / '+steps.length+'</small></div><div class="choices"></div><div class="buttons"><button class="primary action">'+s.action+'</button>'+(d.index?'<button class="back">Back one step</button>':'')+'</div><p class="note" role="status"></p><details class="science"><summary>How it works</summary><p>'+s.hint+'</p></details></article></div>';
  const choices=room.querySelector('.choices'),tray=room.querySelector('.tray');
- if(s.options)s.options.forEach((o,i)=>{const b=document.createElement('button');b.setAttribute('aria-pressed',r[s.key]===i);if(s.key==='pigment'||s.key==='accent')b.innerHTML='<span class="swatch" style="background:'+colors[i]+'"></span>';b.append(o);b.onclick=()=>{r[s.key]=i;d.count=0;make(kind);room.querySelectorAll('.choices button')[i].focus()};choices.append(b)});
+ renderBench(tray,r,s.art,d.count);
+ if(s.options)s.options.forEach((o,i)=>{const b=document.createElement('button');b.setAttribute('aria-pressed',r[s.key]===i);if(s.key==='pigment'||s.key==='accent')b.innerHTML='<span class="swatch" style="background:'+colors[i]+'"></span>';if(s.key==='shape'&&kind!==2)b.dataset.shape=String(i);b.append(o);b.onclick=()=>{r[s.key]=i;d.count=0;make(kind);room.querySelectorAll('.choices button')[i].focus()};choices.append(b)});
  if(d.count)room.querySelector('.note').textContent=d.count+' of '+goal+' complete';
  room.querySelector('.back')?.addEventListener('click',()=>{d.index--;d.count=0;make(kind)});
  const next=room.querySelector('.action');
@@ -29,16 +39,16 @@ function make(kind){
  tray.onpointerdown=e=>{contact=e.pointerId;tray.setPointerCapture(e.pointerId)};
  tray.onpointerup=e=>{if(contact===e.pointerId)next.click();contact=null};tray.onpointercancel=()=>contact=null;
  tray.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();next.click()}};
- next.onclick=()=>{if(next.disabled||d.busy)return;d.count++;next.disabled=true;pulse(tray);tray.innerHTML=art(r,s.art,d.count);
+ next.onclick=()=>{if(next.disabled||d.busy)return;d.count++;next.disabled=true;pulse(tray);renderBench(tray,r,s.art,d.count,true);
  const status=room.querySelector('.note');status.textContent=d.count<goal?d.count+' of '+goal+' complete. Keep going!':'Ready!';
  if(d.count<goal){status.textContent=s.art==='fill'?['','One pump. The pocket is filling.','Two pumps. Watch the gel rise.'][d.count]:s.art==='dip'?'Coat '+d.count+' is cool. Ready for the next dip.':d.count+' of '+goal+' complete. Keep going!';next.disabled=false;return}
  const token=visit;d.busy=true;choices.querySelectorAll('button').forEach(b=>b.disabled=true);const back=room.querySelector('.back');if(back)back.disabled=true;
- setTimeout(()=>{d.busy=false;d.count=0;d.index++;if(d.index===steps.length){drafts.delete(kind);const stored=save(r);if(token===visit||location.hash==='#'+labels[kind]){play(r,stored?'On your shelf.':'On your shelf for this visit.')}}else if(token===visit||location.hash==='#'+labels[kind]){make(kind);room.querySelector('.action').focus({preventScroll:true})}},430)};
+ setTimeout(()=>{d.busy=false;d.count=0;d.index++;if(d.index===steps.length){drafts.delete(kind);const stored=save(r);if(token===visit||location.hash==='#'+labels[kind]){play(r,stored?'On your shelf.':'On your shelf for this visit.')}}else if(token===visit||location.hash==='#'+labels[kind]){make(kind);room.querySelector('.action').focus({preventScroll:true})}},750)};
 }
 function play(r,message=''){
  let presses=0,start=null;room.innerHTML='<h2>'+title(r)+'</h2><div class="bench"><div class="tray interactive" role="button" tabindex="0" aria-label="Play with '+title(r)+'"></div><article><p>'+describe(r)+'</p><div class="buttons"><button class="primary press"></button><button class="reset">Reset toy</button><button class="keep">Keep on my shelf</button><button class="share">Exhibit this design</button><a class="btn" href="#wall">Visit the wall</a></div><p role="status" class="note"></p></article></div>';
  const tray=room.querySelector('.tray'),button=room.querySelector('.press'),note=room.querySelector('.note');
- function draw(){tray.innerHTML=art(r,'play',presses);button.textContent=r.kind===1?(presses>=r.finish+3?'Dip again':'Crack the shell'):r.kind===2?'Stretch and fold':'Squeeze';}
+ function draw(){renderBench(tray,r,'play',presses,presses>0);button.textContent=r.kind===1?(presses>=r.finish+3?'Dip again':'Crack the shell'):r.kind===2?'Stretch and fold':'Squeeze';}
  function act(dist=0){presses=r.kind===1&&presses>=r.finish+3?0:presses+1;draw();
  tray.style.setProperty('--wide',r.kind===2?Math.min(1.52,1.2+dist/400+(2-r.filling)*.05):1.18-r.filling*.03);tray.style.setProperty('--flat',r.kind===2?.67+r.filling*.05:.68+r.filling*.06);pulse(tray);
  note.textContent=r.kind===1?(presses===0?'Fresh shell.':presses>=r.finish+3?'The centre is free!':'Crack '+presses+'!'):r.kind===2?['The slime stretches into a ribbon.','Fold it into a soft swirl.'][presses%2]:['Boop! The skin springs back.','The filling moves under your fingers.'][presses%2];
@@ -62,5 +72,5 @@ async function wall(){
  post.onclick=async()=>{const r=slimes[Number(select.value)];if(!r)return;post.disabled=true;try{const res=await fetch(api,{method:'POST',headers,body:JSON.stringify({...clean(r),spot})});if(!res.ok&&res.status!==409)throw Error();if(token!==visit)return;await load();if(token===visit&&displays.some(v=>v.spot===spot&&key(v)===key(r)))note.textContent='Splat! Your slime is on the shared wall.'}catch{if(token===visit)note.textContent='Could not place that splat. Your jar is safe on your shelf.'}finally{post.disabled=false}};
  room.querySelector('.refresh').onclick=load;paint();await load();
 }
-function route(){visit++;const page=location.hash.slice(1)||'squishy';document.querySelectorAll('nav a,header a').forEach(a=>{if(a.hash==='#'+page)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});if(page==='wall')wall();else if(page==='shelf')myShelf();else if(page==='floor')floor(room,play);else make(Math.max(0,labels.indexOf(page)));if(location.hash)room.scrollIntoView({block:'start'})}
+function route(){visit++;const page=location.hash.slice(1)||'squishy';document.querySelectorAll('nav a,header a').forEach(a=>{if(a.hash==='#'+page)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});if(page==='wall')wall();else if(page==='shelf')myShelf();else if(page==='floor')floor(room,play);else make(Math.max(0,labels.indexOf(page)));if(location.hash)window.scrollTo({top:0})}
 window.addEventListener('hashchange',route);document.addEventListener('click',e=>{const a=e.target.closest('a');if(a&&a.hash&&a.hash===location.hash){e.preventDefault();route()}});route();
