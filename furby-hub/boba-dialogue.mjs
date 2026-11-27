@@ -1,18 +1,18 @@
 // Local, finite conversation library. No model, network, accounts, or saved conversations.
-const replies = {
-  hello: ['Woof! Look who came to visit! Would you like a paw, a cuddle, or a game?', 'Hiii! My tail is doing little circles. Want to play fetch?'],
-  love: ['I’m doing my happiest Samoyed smile! How about a fluffy virtual cuddle?', 'Big fluffy woof! Here’s a virtual paw print for you. 🐾'],
-  pet: ['Ooooh, scratch behind my ears! My tail is wagging!', 'Aaaah… perfect! I’m a little cloud of fluff.'],
-  paw: ['Paw up! High five! 🐾', 'One very fluffy paw, coming right up!'],
-  fetch: ['Ready, set, FETCH! I brought the ball back. Again?', 'Zoomies! I caught the pretend tennis ball.'],
-  food: ['Imaginary dog treats? Yes, please! Nom nom. Real dogs should only eat food their grown-ups say is safe.', 'Crunch crunch! Thank you for the pretend treat.'],
+export const replies = {
+  hello: ['Hey, buddy! I’m happy to see you. Want to play?', 'Hi, friend! My tail is wagging. Want to play fetch?'],
+  love: ['I’m doing my happiest Samoyed smile! How about a fluffy virtual cuddle?', 'Here’s a big fluffy paw print for you.'],
+  pet: ['That feels nice. Thank you for the gentle pats!', 'Aw, thank you. I’m one happy fluffy boy.'],
+  paw: ['Paw up! High five!', 'One very fluffy paw, coming right up!'],
+  fetch: ['Ready, set, fetch! I brought the ball back. Want to go again?', 'Zoomies! I caught the pretend tennis ball.'],
+  food: ['Imaginary dog treats? Yes, please! Nom nom. Real dogs should only eat food their grown-ups say is safe.', 'Thanks for the pretend treat. Yum!'],
   walk: ['A little pretend walk around the daycare? Pitter-patter, pitter-patter!', 'I know the way to the rainbow rug! Let’s trot over.'],
   sit: ['Sitting like a very good cloud. 🐾', 'Sit! Ta-da! I’m ready for my next trick.'],
-  sleep: ['Yaaawn. I’m curling up on my pretend bed. You can take a break too.', 'Goodnight, little daycare visitor. Sweet dreams!'],
+  sleep: ['I’m sleepy. I’m curling up on my pretend bed. You can take a break too.', 'Goodnight, little daycare visitor. Sweet dreams!'],
   joke: ['Why did the dog sit in the shade? Because he didn’t want to be a hot dog! 🌭', 'What do dogs say when they send mail? You’ve got airmail! Woof!'],
   story: ['Once there was a snow-cloud puppy who found a tiny pink star. He carried it to the nursery, and now it lights up the rainbow rug. The end! ✨', 'A little white puppy met two colorful Furbies. They built a blanket fort and filled it with pretend treats. Then they all took a cozy nap.'],
   sad: ['Aww. That sounds hard. You can take your time. Would you like a pretend cuddle? You can tell a trusted grown-up how you feel, too.', 'It’s okay to have big feelings. I can do a quiet little paw wave. A trusted grown-up can help with the real-life stuff.'],
-  happy: ['Yay! Happy tail wiggle! Want to celebrate with a little fetch game?', 'Woof woof! That sounds nice.'],
+  happy: ['Yay! Happy tail wiggle! Want to celebrate with a little fetch game?', 'That sounds really nice!'],
   thanks: ['You’re welcome! Here’s a little tail wag. 🐾', 'Anytime! Want to try another daycare game?'],
   color: ['My pretend favorite color is lavender, like a little fluffy cloud at sunset.', 'Pink and icy blue! They remind me of the rainbow rug.'],
   dog: ['I’m the pretend daycare version of a Samoyed: a fluffy white dog with a curly tail!', 'Samoyeds have big fluffy coats and happy-looking faces. Woof!'],
@@ -25,7 +25,7 @@ const replies = {
   help: ['If you feel hurt or unsafe, please go to a trusted grown-up right now. I’m only a pretend puppy and can’t help in the real world.'],
   private: ['Let’s keep names, addresses, phone numbers and other private details to ourselves. Want to play a game instead?'],
   goodbye: ['Bye for now! Have fun wherever you go. 🐾'],
-  unknown: ['Woof? I’m a little pretend puppy, so I don’t understand everything. Try asking for a story, a trick, or a cuddle!', 'I’m not sure what that means, but I can tell a silly joke, play fetch, or give you a paw.']
+  unknown: ['I’m a little pretend puppy, so I don’t understand everything. Try asking for a story, a trick, or a cuddle!', 'I’m not sure what that means, but I can tell a silly joke, play fetch, or give you a paw.']
 };
 const rules = [
   ['help', /\b(?:kill|suicid\w*|hurt myself|hurt me|hurting me|unsafe|abuse\w*|emergency|someone hit me|want to die|don.t want to live|can.t breathe|being bullied|bully\w*|being hurt|bleeding|someone touched me)\b/i],
