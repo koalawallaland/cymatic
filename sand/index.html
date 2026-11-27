@@ -1,0 +1,123 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sand Table — Koala Walla Land</title><meta name="description" content="A little sand table. Carve a line and it repeats around the middle into a mandala. Scatter shells, then let the wave wash it clean."><link rel="icon" href="../favicon.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=Atkinson+Hyperlegible:wght@400;700&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#16131b;--ink:#eae6f2;--muted:#9c93ad;--accent:#ff7ab8;--line:#2c2637;--mono:"Space Mono",monospace}
+*{box-sizing:border-box}
+html{background:var(--bg);color:var(--ink);font:17px/1.6 "Atkinson Hyperlegible",system-ui,sans-serif;-webkit-text-size-adjust:100%}
+body{margin:0;background:radial-gradient(70% 45% at 18% 8%,rgba(255,47,158,.22),transparent 70%),radial-gradient(60% 40% at 92% 4%,rgba(88,216,245,.14),transparent 70%),var(--bg);min-height:100vh}
+header.site{max-width:56rem;margin:0 auto;padding:1.25rem 1.25rem 0}
+header.site nav{display:flex;gap:1.25rem;align-items:baseline;font:.85rem var(--mono)}
+header.site .home{font:700 1.05rem Syne,sans-serif;margin-right:auto;text-decoration:none;color:var(--ink)}
+a{color:var(--accent);text-underline-offset:3px}
+main{max-width:56rem;margin:0 auto;padding:1rem 1.25rem 4rem}
+h1{font:700 2.1rem/1.15 Syne,sans-serif;margin:.5rem 0 .25rem}
+.meta{font:.8rem var(--mono);color:var(--muted)}
+.tools{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;margin:1rem 0 .7rem}
+.group{display:flex;gap:.3rem;align-items:center}
+button,select,.chk{min-height:42px;padding:.4rem .8rem;color:var(--ink);background:#211a2c;border:1px solid #5d5072;border-radius:8px;font:.8rem var(--mono)}
+button{cursor:pointer}button:hover{border-color:var(--accent)}button:disabled{opacity:.5;cursor:not-allowed}
+button:focus-visible,select:focus-visible,input:focus-visible+span,a:focus-visible{outline:2px solid #58d8f5;outline-offset:3px}
+.tools button[aria-pressed=true]{background:#58d8f5;color:#16131b;border-color:#58d8f5}
+.swatch{width:38px;padding:0;border:2px solid #5d5072!important;border-radius:50%!important}
+.swatch[aria-pressed=true]{outline:2px solid #fff;outline-offset:1px}
+.chk{display:inline-flex;gap:.45rem;align-items:center;cursor:pointer}.chk input{accent-color:#58d8f5}
+#sand{display:block;width:100%;height:auto;border-radius:14px;border:1px solid #5d5072;touch-action:none;cursor:crosshair;box-shadow:0 10px 40px #0008}
+#say{min-height:1.6em;margin:.7rem 0 0}
+@media(max-width:520px){h1{font-size:1.7rem}button,select,.chk{font-size:.72rem;padding:.35rem .55rem}}
+</style></head><body>
+<header class="site"><nav><a class="home" href="../home.html">koalawallaland</a><a href="../desk/index.html">desk</a><a href="../wall/index.html">graffiti wall</a></nav></header>
+<main>
+<h1>Sand Table</h1>
+<p class="meta">Carve a line and it repeats around the middle. Scatter shells wherever you like.</p>
+<div class="tools" role="group" aria-label="Sand table tools">
+  <span class="group" role="group" aria-label="Tool">
+    <button type="button" data-tool="carve" aria-pressed="true">carve</button>
+    <button type="button" data-tool="pen" aria-pressed="false">draw</button>
+    <button type="button" data-tool="shell" aria-pressed="false">shells</button>
+  </span>
+  <span class="group" id="colors" role="group" aria-label="Line color for draw">
+    <button type="button" class="swatch" data-color="#6b72c9" style="background:#6b72c9" aria-label="Periwinkle" aria-pressed="true"></button>
+    <button type="button" class="swatch" data-color="#ff7ab8" style="background:#ff7ab8" aria-label="Pink" aria-pressed="false"></button>
+    <button type="button" class="swatch" data-color="#58d8f5" style="background:#58d8f5" aria-label="Cyan" aria-pressed="false"></button>
+    <button type="button" class="swatch" data-color="#d8ff3e" style="background:#d8ff3e" aria-label="Lime" aria-pressed="false"></button>
+    <button type="button" class="swatch" data-color="#ffffff" style="background:#ffffff" aria-label="White" aria-pressed="false"></button>
+  </span>
+  <label class="group" style="gap:.4rem"><span class="meta">points</span>
+    <select id="sym" aria-label="Number of repeats around the middle"><option>6</option><option>8</option><option selected>12</option><option>16</option></select></label>
+  <label class="chk"><input type="checkbox" id="mirror"><span>mirror</span></label>
+  <button type="button" id="undo">undo</button>
+  <button type="button" id="wave">wave ~</button>
+  <button type="button" id="save">save picture</button>
+</div>
+<canvas id="sand" width="1200" height="800" aria-label="Sand table. Drag with your pointer to carve a mandala."></canvas>
+<p id="say" class="meta" role="status" aria-live="polite">Drag across the sand.</p>
+<p class="meta"><a href="../desk/index.html">← back to the desk</a></p>
+</main>
+<script>
+const W=1200,H=800,CX=600,CY=400,$=id=>document.getElementById(id);
+const canvas=$('sand'),ctx=canvas.getContext('2d');
+const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const base=document.createElement('canvas');base.width=W;base.height=H;
+(function(){
+  const c=base.getContext('2d');let seed=7;const rnd=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
+  const g=c.createRadialGradient(CX,CY,60,CX,CY,720);g.addColorStop(0,'#efd5a2');g.addColorStop(1,'#d8b072');c.fillStyle=g;c.fillRect(0,0,W,H);
+  for(let i=0;i<12;i++){c.save();c.translate(CX,CY);c.rotate(i*Math.PI/6);
+    const gr=c.createLinearGradient(0,0,640,0);gr.addColorStop(0,'rgba(110,80,40,0)');gr.addColorStop(.18,'rgba(110,80,40,.2)');gr.addColorStop(1,'rgba(110,80,40,0)');
+    c.fillStyle=gr;c.beginPath();c.moveTo(0,-30);c.lineTo(640,0);c.lineTo(0,30);c.closePath();c.fill();c.restore();}
+  for(let i=0;i<6000;i++){const x=rnd()*W,y=rnd()*H;c.fillStyle=rnd()>.5?'rgba(255,246,220,.55)':'rgba(120,85,40,.35)';c.fillRect(x,y,rnd()*2+1,rnd()*2+1);}
+})();
+let tool='carve',color='#6b72c9',acts=[],active=null,busy=false;
+const say=t=>{$('say').textContent=t;};
+const hints={carve:'Drag across the sand.',pen:'Drag to draw a colored line.',shell:'Tap or drag to place shells.'};
+function withCopies(a,fn){for(let k=0;k<a.sym;k++)for(const f of a.mirror?[1,-1]:[1]){ctx.save();ctx.translate(CX,CY);ctx.rotate(2*Math.PI*k/a.sym);ctx.scale(1,f);ctx.translate(-CX,-CY);fn();ctx.restore();}}
+function seg(a,p,q){withCopies(a,()=>{
+  ctx.lineCap=ctx.lineJoin='round';
+  if(a.tool==='carve'){
+    ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(q[0],q[1]);ctx.shadowColor='rgba(90,60,25,.35)';ctx.shadowBlur=9;ctx.strokeStyle='rgba(150,112,62,.5)';ctx.lineWidth=7;ctx.stroke();ctx.shadowBlur=0;
+    ctx.beginPath();ctx.moveTo(p[0]-2,p[1]-2);ctx.lineTo(q[0]-2,q[1]-2);ctx.strokeStyle='rgba(255,246,220,.6)';ctx.lineWidth=1.6;ctx.stroke();
+  }else{ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(q[0],q[1]);ctx.strokeStyle=a.color;ctx.lineWidth=7;ctx.globalAlpha=.92;ctx.stroke();ctx.globalAlpha=1;}
+});}
+const shellColors=['#b68fd8','#4fc08d','#ff7fb1','#f6a94b','#8fd3f5','#f3e27a'];
+function shell(s){ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.rot);const col=shellColors[s.kind];
+  ctx.shadowColor='rgba(90,60,25,.35)';ctx.shadowBlur=6;ctx.shadowOffsetY=2;ctx.fillStyle=col;ctx.beginPath();
+  if(s.kind%3===2)ctx.arc(0,0,13,0,7);else ctx.ellipse(0,0,s.kind%3?20:25,16,0,0,7);ctx.fill();ctx.shadowColor='transparent';
+  if(s.kind%3===2){ctx.fillStyle='rgba(255,255,255,.85)';ctx.beginPath();ctx.arc(-4,-4,3.6,0,7);ctx.fill();}
+  else{ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=2.2;ctx.beginPath();for(let t=0;t<9;t+=.2){ctx.lineTo(Math.cos(t)*1.7*t*.8,Math.sin(t)*1.7*t*.6);}ctx.stroke();}
+  ctx.restore();}
+function drawAct(a){if(a.tool==='shell'){a.items.forEach(shell);return;}if(a.pts.length===1)seg(a,a.pts[0],a.pts[0]);for(let i=1;i<a.pts.length;i++)seg(a,a.pts[i-1],a.pts[i]);}
+function redraw(clipX){ctx.clearRect(0,0,W,H);ctx.drawImage(base,0,0);ctx.save();if(clipX!=null){ctx.beginPath();ctx.rect(clipX,0,W-clipX,H);ctx.clip();}acts.forEach(drawAct);ctx.restore();$('undo').disabled=busy||!acts.length;$('wave').disabled=busy||!acts.length;}
+const total=()=>acts.reduce((n,a)=>n+(a.pts?.length||0)+(a.items?.length||0),0);
+const pt=e=>{const b=canvas.getBoundingClientRect();return[Math.max(0,Math.min(W,(e.clientX-b.left)/b.width*W)),Math.max(0,Math.min(H,(e.clientY-b.top)/b.height*H))];};
+const stamp=p=>({x:p[0],y:p[1],kind:Math.floor(Math.random()*6),rot:Math.random()*Math.PI*2});
+canvas.addEventListener('pointerdown',e=>{
+  if(e.button!==0||busy)return;e.preventDefault();
+  if(total()>25000){say('The sand is full. Let the wave wash it clean.');return;}
+  canvas.setPointerCapture(e.pointerId);const p=pt(e);
+  const sym=+$('sym').value,mirror=$('mirror').checked;
+  active=tool==='shell'?{tool,items:[stamp(p)]}:{tool,color,sym,mirror,pts:[p]};
+  acts.push(active);if(tool==='shell')shell(active.items[0]);else seg(active,p,p);redraw_buttons();
+});
+canvas.addEventListener('pointermove',e=>{
+  if(!active)return;const p=pt(e);
+  if(active.tool==='shell'){const l=active.items.at(-1);if(Math.hypot(p[0]-l.x,p[1]-l.y)>46){const s=stamp(p);active.items.push(s);shell(s);}return;}
+  const l=active.pts.at(-1);if(Math.hypot(p[0]-l[0],p[1]-l[1])<3||total()>25000)return;active.pts.push(p);seg(active,l,p);
+});
+for(const ev of['pointerup','pointercancel'])canvas.addEventListener(ev,()=>{active=null;});
+function redraw_buttons(){$('undo').disabled=busy||!acts.length;$('wave').disabled=busy||!acts.length;}
+document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{tool=b.dataset.tool;document.querySelectorAll('[data-tool]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('colors').style.opacity=tool==='pen'?1:.45;say(hints[tool]);});
+document.querySelectorAll('[data-color]').forEach(b=>b.onclick=()=>{color=b.dataset.color;document.querySelectorAll('[data-color]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));if(tool!=='pen')document.querySelector('[data-tool=pen]').click();});
+$('undo').onclick=()=>{if(busy)return;acts.pop();redraw();};
+$('wave').onclick=()=>{
+  if(busy||!acts.length)return;
+  if(calm){acts=[];redraw();say('The sand is smooth again.');return;}
+  busy=true;redraw_buttons();const t0=performance.now(),dur=1400;
+  (function frame(now){
+    const t=Math.min(1,(now-t0)/dur),front=-160+t*(W+320);redraw(front+90);
+    const foam=ctx.createLinearGradient(front-90,0,front+90,0);foam.addColorStop(0,'rgba(120,200,225,0)');foam.addColorStop(.6,'rgba(190,236,246,.8)');foam.addColorStop(1,'rgba(255,255,255,.9)');
+    ctx.fillStyle=foam;ctx.fillRect(front-90,0,180,H);
+    ctx.fillStyle='rgba(150,120,80,.12)';ctx.fillRect(0,0,Math.max(0,front-90),H);
+    if(t<1)requestAnimationFrame(frame);else{acts=[];busy=false;redraw();say('The sand is smooth again.');}
+  })(t0);
+};
+$('save').onclick=()=>canvas.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='sand-mandala.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);say('Saved your sand picture.');});
+$('colors').style.opacity=.45;redraw();
+</script></body></html>
