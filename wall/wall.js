@@ -1,9 +1,12 @@
 import {wallConfig} from './config.js';
 import {bricks,renderDrawing} from './render.js';
+import {loadPinned,drawPinned} from './pinned.js';
 const $=id=>document.getElementById(id),canvas=$('wall'),ctx=canvas.getContext('2d');
 const configured=Boolean(wallConfig.supabaseUrl&&wallConfig.publishableKey);
 const api=`${wallConfig.supabaseUrl}/functions/v1/graffiti-wall`;
 const background=document.createElement('canvas');background.width=1200;background.height=800;const backgroundCtx=background.getContext('2d');bricks(backgroundCtx);
+let art=[];
+function paintWall(){bricks(backgroundCtx);drawPinned(backgroundCtx,art);for(const p of [...posts].reverse())renderDrawing(backgroundCtx,p.drawing);}
 const draftKey='kwl-wall-draft-v2',sessionKey='kwl-wall-visitor-v1';
 let tool='spray',color='#ff7ab8',active=null,posting=false,feedBusy=false,refreshAgain=false,reportId=null,next=null,etag=null,posts=[],viewingOlder=false;
 let draft={id:crypto.randomUUID(),v:1,strokes:[]},session=null;
@@ -48,7 +51,7 @@ function gallery(){
     const name=document.createElement('p');name.textContent=p.name;const time=document.createElement('time');time.dateTime=p.created_at;time.textContent=new Date(p.created_at).toLocaleString();
     const report=document.createElement('button');report.type='button';report.textContent='Report drawing';report.setAttribute('aria-label',`Report drawing by ${p.name}`);report.onclick=()=>{reportId=p.id;$('report-notice').textContent='';$('report-dialog').showModal();};
     card.append(art,name,time,report);return card;
-  });bricks(backgroundCtx);for(const p of [...posts].reverse())renderDrawing(backgroundCtx,p.drawing);$('gallery').replaceChildren(...cards);$('feed-state').textContent=posts.length?`${posts.length} shared drawing${posts.length===1?'':'s'} shown.`:'The wall is waiting for its first drawing. ♡';$('more').hidden=!next;redraw();
+  });paintWall();$('gallery').replaceChildren(...cards);$('feed-state').textContent=posts.length?`${posts.length} shared drawing${posts.length===1?'':'s'} shown.`:'The wall is waiting for its first drawing. ♡';$('more').hidden=!next;redraw();
 }
 async function load(older=false){
   if(!configured){$('connection').textContent='Shared saving is being connected. Drawing still works here.';$('feed-state').textContent='Shared drawings will appear once the backend is connected.';return;}
@@ -70,4 +73,4 @@ $('publish-form').onsubmit=async e=>{
 };
 $('cancel-report').onclick=()=>$('report-dialog').close();
 $('report-form').onsubmit=async e=>{e.preventDefault();const b=$('report-form').querySelector('button[type=submit]');b.disabled=true;$('report-notice').textContent='Sending report…';try{const data=await write({action:'report',postId:reportId,reason:$('reason').value});posts=posts.filter(p=>p.id!==reportId);gallery();say('Report received. Katie can review it.');$('report-dialog').close();}catch(error){$('report-notice').textContent=error.message;}finally{b.disabled=false;}};
-redraw();save();load();setInterval(()=>{if(!document.hidden&&!viewingOlder)load();},60000);
+redraw();save();load();loadPinned().then(items=>{art=items;paintWall();redraw();});setInterval(()=>{if(!document.hidden&&!viewingOlder)load();},60000);

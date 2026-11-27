@@ -118,14 +118,17 @@
 <script type="module">
   import { wallConfig } from './wall/config.js';
   import { bricks, renderDrawing } from './wall/render.js';
+  import { loadPinned, drawPinned } from './wall/pinned.js';
   const peek = document.querySelector('.wallpeek');
   if (wallConfig.supabaseUrl) {
     fetch(`${wallConfig.supabaseUrl}/functions/v1/graffiti-wall`, { signal: AbortSignal.timeout(10000) })
       .then(r => r.ok ? r.json() : null)
-      .then(data => {
+      .then(async data => {
         if (!data?.posts?.length) return;
         const ctx = peek.querySelector('canvas').getContext('2d');
+        const art = await loadPinned();
         bricks(ctx);
+        drawPinned(ctx, art);
         for (const p of [...data.posts].reverse()) renderDrawing(ctx, p.drawing);
         peek.hidden = false;
       })
