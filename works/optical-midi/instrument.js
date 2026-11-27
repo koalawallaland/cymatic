@@ -12,13 +12,13 @@ let mode=0,phaseTime=0,last=0,motion=!reduced.matches,velocity=.55,played=57,mid
 const colors={cobalt:['#080b19','#5795e8','#c2d7f2'],ink:['#e7dccb','#302837','#73665d'],pink:['#200d21','#e94ca8','#f7b8df'],pearl:['#16142a','#a7abed','#f0b9da'],chroma:['#1d1724','#e0c3a6','#f4b7da']};
 function shade(i=0,alpha=1){const h=(values.hue+i+360)%360;return palette==='chroma'? `hsla(${h},72%,65%,${alpha})`:palette==='cobalt'?`hsla(${h},76%,65%,${alpha})`:palette==='pink'?`hsla(${h+125},76%,68%,${alpha})`:palette==='pearl'?`hsla(${h+35},52%,76%,${alpha})`: `rgba(43,35,49,${alpha})`;}
 // SERAPH is a permanent, clean foreground layer. The exact outline from
-// KT's original spectral sticker is preserved; no grain, strobing or noise.
+// KT's original spectral sticker is preserved, including its restored heart; no grain, strobing or noise.
 const eyeImg=new Image(),eyeColor=document.createElement('canvas'),eyeRim=document.createElement('canvas');
 eyeColor.width=eyeRim.width=360;eyeColor.height=eyeRim.height=443;
 const ec=eyeColor.getContext('2d'),er=eyeRim.getContext('2d');
 let eyeReady=false;
 eyeImg.onload=()=>{eyeReady=true;refresh()};
-eyeImg.src='./seraph-eye-mask.png';
+eyeImg.src='./seraph-eye-heart-mask.png';
 function eyeColorAt(offset,alpha=1,saturation=82,lightness=68){
  const h=(values.hue+offset+(palette==='pink'?125:palette==='pearl'?35:0)+3600)%360;
  if(palette==='ink')return 'rgba(48,36,49,'+alpha+')';
@@ -126,10 +126,26 @@ window.addEventListener('keyup',e=>{const i=keyboard.indexOf(e.key.toLowerCase()
 function midiMessage(e){const [status,a,b]=e.data,kind=status&0xf0,source='m'+(e.currentTarget?.id||e.target?.id||'input')+':'+(status&15)+':'+a;if(kind===0x90&&b>0&&visible)noteOn(a,b,source);else if(kind===0x80||(kind===0x90&&b===0))noteOff(source);else if(kind===0xb0&&a>=20&&a<=26){const d=defs[a-20];update(d[0],mix(d[2],d[3],b/127))}else if(kind===0xb0&&(a===120||a===123))releaseAll()}
 function connectInputs(){const inputs=[...midiAccess.inputs.values()];inputs.forEach(i=>i.onmidimessage=midiMessage);$('midi-status').textContent=inputs.length?'MIDI connected: '+inputs.map(i=>i.name||'controller').join(', '):'MIDI available; plug in a controller.'}
 $('midi').addEventListener('click',async()=>{if(!navigator.requestMIDIAccess){$('midi-status').textContent='Web MIDI is unavailable in this browser. The on-screen and computer keys work without it.';return}try{midiAccess=await navigator.requestMIDIAccess({sysex:false});connectInputs();midiAccess.onstatechange=()=>{releaseAll();connectInputs()};$('midi').textContent='MIDI connected'}catch{$('midi-status').textContent='MIDI access was not granted. Use the keys below.'}});
-let editions=[],plate=0,platePlaying=false;
-function renderPlate(){if(!editions.length)return;const e=editions[plate];const image=$('plate-image'),video=$('plate-video');image.src='plates/'+e.poster;image.hidden=platePlaying;video.hidden=!platePlaying;if(platePlaying){const source='plates/'+e.animation;if(video.getAttribute('src')!==source)video.src=source;video.play().catch(()=>{platePlaying=false;renderPlate()})}else{video.pause();video.removeAttribute('src');video.load()};$('plate-image').alt=e.name+' — SERAPH art';$('plate-number').textContent=String(plate+1).padStart(2,'0')+' / '+editions.length;$('plate-title').textContent=e.name;$('edition-name').textContent=e.name;$('edition-description').textContent=e.description;$('plate-play').textContent=platePlaying?'Pause animation':'Play animation';$('plate-play').setAttribute('aria-pressed',String(platePlaying));[...$('thumbs').children].forEach((b,i)=>b.setAttribute('aria-pressed',String(i===plate)))}
+let editions=[],plate=0,platePlaying=false,plateRenderId=0;
+function renderPlate(){
+ if(!editions.length)return;
+ const e=editions[plate],image=$('plate-image'),video=$('plate-video'),request=++plateRenderId;
+ const poster='plates/'+e.poster,source='plates/'+e.animation,playing=platePlaying&&!visible;
+ image.src=poster;image.alt=e.name+' — SERAPH art';image.hidden=playing;video.hidden=!playing;
+ video.poster=poster;video.muted=true;video.playsInline=true;video.autoplay=playing;
+ if(playing){
+  if(video.getAttribute('src')!==source)video.src=source;
+  // Muted inline autoplay works on compatible mobile browsers. If playback
+  // is denied, keep the still visible and leave the manual play control.
+  video.play().catch(()=>{if(request===plateRenderId&&platePlaying&&!visible){platePlaying=false;renderPlate()}});
+ }else{video.pause();if(visible&&video.hasAttribute('src')){video.removeAttribute('src');video.load()}}
+ $('plate-number').textContent=String(plate+1).padStart(2,'0')+' / '+editions.length;
+ $('plate-title').textContent=e.name;$('edition-name').textContent=e.name;$('edition-description').textContent=e.description;
+ $('plate-play').textContent=playing?'Pause animation':'Play animation';$('plate-play').setAttribute('aria-pressed',String(playing));
+ [...$('thumbs').children].forEach((b,i)=>b.setAttribute('aria-pressed',String(i===plate)));
+}
 async function loadPlates(){try{editions=await (await fetch('editions.json?v=duo-1')).json();$('plate-count').textContent=editions.length;editions.forEach((e,i)=>{const b=document.createElement('button');const img=new Image();img.src='plates/'+e.poster;img.loading='lazy';img.alt='';b.append(img,document.createTextNode(String(i+1).padStart(2,'0')+' '+e.name));b.addEventListener('click',()=>{plate=i;renderPlate()});$('thumbs').append(b)});renderPlate()}catch{$('edition-name').textContent='Plates could not load';$('edition-description').textContent='Refresh the page to try again.'}}
-function switchTab(showInstrument){visible=showInstrument;$('instrument').hidden=!showInstrument;$('plates').hidden=showInstrument;$('tab-instrument').setAttribute('aria-pressed',String(showInstrument));$('tab-plates').setAttribute('aria-pressed',String(!showInstrument));if(showInstrument){platePlaying=false;renderPlate();refresh()}else{releaseAll();if(raf){cancelAnimationFrame(raf);raf=0}renderPlate()}}
+function switchTab(showInstrument){const enteringPlates=visible&&!showInstrument;visible=showInstrument;$('instrument').hidden=!showInstrument;$('plates').hidden=showInstrument;$('tab-instrument').setAttribute('aria-pressed',String(showInstrument));$('tab-plates').setAttribute('aria-pressed',String(!showInstrument));if(showInstrument){platePlaying=false;renderPlate();refresh()}else{if(enteringPlates)platePlaying=!reduced.matches;releaseAll();if(raf){cancelAnimationFrame(raf);raf=0}renderPlate()}}
 $('tab-instrument').addEventListener('click',()=>switchTab(true));$('tab-plates').addEventListener('click',()=>switchTab(false));$('plate-prev').addEventListener('click',()=>{if(editions.length){plate=(plate+editions.length-1)%editions.length;renderPlate()}});$('plate-next').addEventListener('click',()=>{if(editions.length){plate=(plate+1)%editions.length;renderPlate()}});$('plate-play').addEventListener('click',()=>{platePlaying=!platePlaying;renderPlate()});
 $('play-seraph').addEventListener('click',()=>{switchTab(true);$('instrument').scrollIntoView({block:'start',behavior:'auto'});});
 $('motion').setAttribute('aria-pressed',String(motion));$('motion').textContent='Motion: '+(motion?'on':'off');loadPlates();noteText();refresh();if(location.hash==='#plates')switchTab(false);
