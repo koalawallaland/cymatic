@@ -7,69 +7,6 @@
     "animation": "spectral-lenticular.anim.mp4"
   },
   {
-    "id": "Opal-Lenticular",
-    "name": "Opal Lenticular",
-    "description": "A white, opalescent eye set into a spectrum that rolls across the surface.",
-    "poster": "opal-lenticular.webp",
-    "animation": "opal-lenticular.anim.mp4"
-  },
-  {
-    "id": "Interference-Lenticular",
-    "name": "Interference Lenticular",
-    "description": "Dense interference waves move behind the luminous eye.",
-    "poster": "interference-lenticular.webp",
-    "animation": "interference-lenticular.anim.mp4"
-  },
-  {
-    "id": "Chroma-Press-Lenticular",
-    "name": "Chroma Press",
-    "description": "A chromatic press proof with electric patches of color and geometric interference.",
-    "poster": "chroma-press-lenticular.webp",
-    "animation": "chroma-press-lenticular.anim.mp4"
-  },
-  {
-    "id": "Heart-Integral",
-    "name": "Heart Integral",
-    "description": "The little handwritten heart is preserved, with a quiet nod to its accidental resemblance to an integral sign.",
-    "poster": "heart-integral.webp",
-    "animation": "heart-integral.anim.mp4"
-  },
-  {
-    "id": "Yin-Yang",
-    "name": "Yin\u2013Yang",
-    "description": "Interwoven black and white outlines, layered together over spectral interference.",
-    "poster": "yin-yang.webp",
-    "animation": "yin-yang.anim.mp4"
-  },
-  {
-    "id": "Prism-Pearl",
-    "name": "Prism Pearl",
-    "description": "A pastel pearl edition with a prism enclosing the eye.",
-    "poster": "prism-pearl.webp",
-    "animation": "prism-pearl.anim.mp4"
-  },
-  {
-    "id": "Hidden-Prism",
-    "name": "Hidden Prism",
-    "description": "The prism emerges from the negative space instead of sitting on top of the artwork.",
-    "poster": "hidden-prism.webp",
-    "animation": "hidden-prism.anim.mp4"
-  },
-  {
-    "id": "Hidden-Prism-XL",
-    "name": "Hidden Prism XL",
-    "description": "The hidden triangle extends beyond the image, letting the geometry remain implied.",
-    "poster": "hidden-prism-xl.webp",
-    "animation": "hidden-prism-xl.anim.mp4"
-  },
-  {
-    "id": "Aligned-Prism",
-    "name": "Aligned Prism",
-    "description": "The prism aligns with the square optical canvas.",
-    "poster": "aligned-prism.webp",
-    "animation": "aligned-prism.anim.mp4"
-  },
-  {
     "id": "Wide-Prism",
     "name": "Wide Prism",
     "description": "A wider hidden-prism angle in a pastel field of iridescent light.",
