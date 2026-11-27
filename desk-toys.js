@@ -689,6 +689,55 @@
   layerButton.addEventListener("click",()=>{if(presetSelect.value)drawStudy(presetSelect.value);else traceStatus.textContent="Choose a geometric study first.";});
 
 
+  // Geometry of the Invisible — use the shared engine that drives Optical 4rt.
+  const geometryURL = new URL("geometry-engine.js?v=invisible-1", document.currentScript.src);
+  const geometryPanel = document.createElement("details");
+  geometryPanel.className = "dt-field";
+  geometryPanel.style.cssText = "grid-column:1/-1;display:block;padding:10px;border:1px solid #8b779f;border-radius:9px;background:#332a43;color:#f5dfef";
+  geometryPanel.innerHTML = '<summary style="cursor:pointer;font-weight:700">✧ Geometry of the Invisible</summary><p style="font-size:.82rem;margin:8px 0">Staves · SERAPH · KT glyphs · mathematical fields</p><div data-geometry-body>Loading studies…</div>';
+  toolsPanel.insertBefore(geometryPanel,presetPanel);
+  import(geometryURL.href).then(({families,makeStudy,studySVG})=>{
+    const body=geometryPanel.querySelector("[data-geometry-body]");
+    body.innerHTML='<label for="dt-invisible-mode">Study</label><select id="dt-invisible-mode">'+families.map(f=>'<option value="'+f.id+'">'+f.name+'</option>').join("")+'</select><canvas data-geometry-preview width="330" height="330" role="img" aria-label="Selected geometry study preview" style="display:block;width:100%;max-width:244px;height:auto;background:#181222;border:1px solid #735a90;border-radius:8px;margin:4px auto"></canvas><div data-geometry-params></div><p data-geometry-detail aria-live="polite" style="font-size:.75rem;line-height:1.4;margin:2px 0;color:#f8c6ec"></p><small data-geometry-note style="line-height:1.4"></small><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px"><button type="button" class="dt-button" data-geometry-add>Add to paper</button><button type="button" class="dt-button" data-geometry-save>Export SVG</button><button type="button" class="dt-button" data-geometry-png>Save ink PNG</button><a class="dt-button" data-geometry-midi style="text-align:center;align-content:center">Play in MIDI ↗</a></div><small style="display:block;margin-top:5px">After adding a study, use Liquid Geometry to dip closed cells. SVG exports clean single-color linework for print; not a production-ready lenticular interlace.</small><small data-geometry-source></small>';
+    body.style.cssText="display:grid;gap:6px";
+    const find=q=>body.querySelector(q),sel=find("select"),par=find("[data-geometry-params]"),preview=find("canvas"),pc=preview.getContext("2d");
+    const source=find("[data-geometry-source]"),paramSets={
+      stave:[["sym","Branches",3,16,8,1],["density","Crossbars",2,6,4,1],["phase","Rotation °",0,360,0,1]],
+      seraph:[["density","Feathers / wing",2,12,7,1],["phase","Rotation °",0,360,0,1]],
+      glyph:[["density","Ligatures",2,8,5,1],["phase","Rotation °",0,360,0,1]],
+      lagrange:[["mu","Mass fraction μ",.005,.5,.08,.005],["density","Contour levels",2,12,7,1]],
+      mohr:[["sx","σx (MPa)",-100,100,80,1],["sy","σy (MPa)",-100,100,-20,1],["tau","τxy (MPa)",-100,100,30,1],["theta","Plane angle θ (°)",0,180,35,1]]
+    };
+    let params={},current=null,queued=0;
+    const drawPaths=(target,m,c,r,stroke,width)=>{target.save();target.lineJoin="round";target.lineCap="round";target.lineWidth=width;
+      // Batch by group, so thousands of contour segments remain inexpensive.
+      const groups=new Map();for(const p of m.paths){if(!groups.has(p.group))groups.set(p.group,[]);groups.get(p.group).push(p)}
+      for(const [g,paths] of groups){target.strokeStyle=stroke(g);target.beginPath();
+        for(const {pts,closed} of paths){pts.forEach(([x,y],i)=>i?target.lineTo(c+x*r,c+y*r):target.moveTo(c+x*r,c+y*r));if(closed)target.closePath()}
+        target.stroke();
+      }target.restore();
+    };
+    function updatePreview(){
+      queued=0;current=makeStudy(sel.value,params);const w=preview.width,r=w*.455,c=w/2;
+      pc.fillStyle="#181222";pc.fillRect(0,0,w,w);drawPaths(pc,current,c,r,g=>palette[g%palette.length],1.4);
+      pc.font="12px sans-serif";pc.fillStyle="#fff0f9";for(const {x,y,text} of current.labels){pc.beginPath();pc.arc(c+x*r,c+y*r,2.7,0,turn);pc.fill();const left=text==="L1"||text==="L3",below=text==="m₁"||text==="m₂"||text==="L5";pc.textAlign=left?"right":"left";pc.fillText(text,c+x*r+(left?-5:5),c+y*r+(below?14:-5))}
+      find("[data-geometry-detail]").textContent=current.detail;
+    }
+    function sync(){if(queued){cancelAnimationFrame(queued);queued=0}updatePreview()}
+    function setup(){
+      params={};par.replaceChildren();par.style.cssText="display:grid;gap:4px";
+      for(const [k,name,min,max,def,step] of paramSets[sel.value]){params[k]=def;const wrap=document.createElement("label"),out=document.createElement("output"),input=document.createElement("input");wrap.style.cssText="display:grid;grid-template-columns:1fr auto;gap:2px";wrap.append(document.createTextNode(name),out,input);input.type="range";input.min=min;input.max=max;input.step=step;input.value=def;input.style.cssText="grid-column:1/-1;width:100%;accent-color:#f5b8f1";out.value=def;input.addEventListener("input",()=>{params[k]=Number(input.value);out.value=input.value;if(!queued)queued=requestAnimationFrame(updatePreview)});par.append(wrap)}
+      find("[data-geometry-note]").textContent=families.find(f=>f.id===sel.value).note;
+      source.replaceChildren();if(sel.value==="lagrange"||sel.value==="mohr"||sel.value==="stave"){const a=document.createElement("a");a.href=sel.value==="lagrange"?"https://science.nasa.gov/wp-content/uploads/2023/07/3322_lagrange.pdf":sel.value==="mohr"?"https://web.mit.edu/course/3/3.11/www/pset03/Rec8.pdf":"https://handrit.is/about?lang=en";a.target="_blank";a.rel="noopener noreferrer";a.style.color="#ffe2fa";a.textContent=sel.value==="lagrange"?"NASA • mathematical background":sel.value==="mohr"?"MIT • stress transformations":"Handrit.is • manuscript collection";source.append(a)}
+      find("[data-geometry-midi]").href=new URL("works/optical-midi/?mode="+sel.value,geometryURL).href;sync();
+    }
+    sel.addEventListener("change",setup);setup();
+    function download(blob,name){if(!blob)return;const a=document.createElement("a"),url=URL.createObjectURL(blob);a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+    find("[data-geometry-add]").addEventListener("click",()=>{sync();stopTrace();drawPaths(ink,current,center,ring*.93,g=>palette[(g+layerCount)%palette.length],2.3);layerCount++;clear.disabled=false;traceStatus.textContent="Added "+families.find(f=>f.id===sel.value).name+" to paper. Dip it in Liquid Geometry."});
+    find("[data-geometry-save]").addEventListener("click",()=>{sync();download(new Blob([studySVG(current)],{type:"image/svg+xml"}),"KT-"+sel.value+".svg")});
+    find("[data-geometry-png]").addEventListener("click",()=>{inkCanvas.toBlob(blob=>download(blob,"KT-geometry-ink.png"),"image/png")});
+  }).catch(()=>{geometryPanel.querySelector("[data-geometry-body]").textContent="The geometry engine could not load. The original Spirograph and Liquid Geometry still work."});
+  
   // Liquid Geometry: convert the *current* ink raster into a planar dipping frame.
   // A flood fill distinguishes closed compartments from the open exterior.
   // The optics approximate reflected thin-film interference, not a full fluid solver.
