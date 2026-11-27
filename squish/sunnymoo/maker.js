@@ -67,3 +67,9 @@ export function art(r,phase='play',progress=0){
  (pouring?'<g class="stream"><path d="m104 45 45 26 12 64" fill="none" stroke="'+hue+'" stroke-width="9" stroke-linecap="round"/><path d="m70 29 36-13 22 45-40 12z" fill="#e9f8f9" stroke="#546370" stroke-width="3"/></g>':'')+
  (phase==='seal'?'<rect x="147" y="71" width="20" height="13" rx="5" fill="#765e80"/>':'')+'</svg>';
 }
+
+export function shelfObject(r){
+ if(r.kind===0&&r.shape===0)return '<div class="shelf-object bao"><img alt="" src="../../desk/galaxy-steamer-bao.webp"></div>';
+ const contents=r.kind===2?['gloss','butter','foam'][r.finish]:r.kind===1?'wax':'gel';
+ return '<div aria-hidden="true" class="shelf-object '+contents+'" style="--sample:'+colors[r.pigment]+';--inside:'+colors[r.accent]+'"><i></i></div>';
+}

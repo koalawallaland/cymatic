@@ -1,4 +1,4 @@
-import {fresh,colors,names,title,art} from './maker.js';
+import {fresh,colors,names,title,shelfObject} from './maker.js?v=worktop3';
 const rooms=['Texture vats','Ripple lake','Slime falls','Wobble mirrors','Sound garden','Splat sling'];
 const activities=[
  null,
@@ -14,7 +14,7 @@ export function floor(host,play){
  const tabs=host.querySelector('.tabs'),area=host.querySelector('.activity');
  function show(){[...tabs.children].forEach((b,i)=>b.setAttribute('aria-pressed',current===i));
  if(!current){area.innerHTML='<h3>25 texture vats</h3><p>Try a studio batch. Each vat opens a slime you can stretch and keep.</p><div class="grid"></div>';const grid=area.querySelector('.grid');
- for(let i=0;i<25;i++){const r={...fresh(2),pigment:i%6,finish:Math.floor(i/6)%3,filling:Math.floor(i/3)%3,shape:Math.floor(i/9),charm:Math.floor(i/12)};const b=document.createElement('button');b.className='tile';b.innerHTML=art(r)+'<strong>'+title(r)+'</strong><small>Vat '+(i+1)+' · '+['soft','stretchy','firm'][r.filling]+'</small>';b.onclick=()=>play(r,'From the Sunnymoo studio vats.');grid.append(b)}return}
+ for(let i=0;i<25;i++){const r={...fresh(2),pigment:i%6,finish:Math.floor(i/6)%3,filling:Math.floor(i/3)%3,shape:Math.floor(i/9),charm:Math.floor(i/12)};const b=document.createElement('button');b.className='tile';b.innerHTML=shelfObject(r)+'<strong>'+title(r)+'</strong><small>Vat '+(i+1)+' · '+['soft','stretchy','firm'][r.filling]+'</small>';b.onclick=()=>play(r,'From the Sunnymoo studio vats.');grid.append(b)}return}
  const [hint,verb,unit]=activities[current];area.innerHTML='<h3>'+rooms[current]+'</h3><div class="bench"><div class="tray"></div><article><p>'+hint+'</p><div class="knob"></div><button class="primary">'+verb+'</button><p class="note" role="status"></p></article></div>';
  if(current>=4){const label=document.createElement('label');label.textContent=current===4?'Garden voice ':'Pull distance ';const sel=document.createElement('select');(current===4?['Bubble','Bell','Hum']:['Near','Middle','Far']).forEach((n,i)=>sel.add(new Option(n,''+i)));sel.value=''+setting;sel.onchange=()=>{setting=Number(sel.value);draw()};label.append(sel);area.querySelector('.knob').append(label)}
  const tray=area.querySelector('.tray');

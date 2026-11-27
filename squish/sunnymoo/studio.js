@@ -1,6 +1,6 @@
-import {colors,names,kinds,flows,fresh,title,describe,art} from './maker.js?v=worktop2';
+import {colors,names,kinds,flows,fresh,title,describe,art,shelfObject} from './maker.js?v=worktop3';
 import {wallConfig} from '../../wall/config.js';
-import {floor} from './tour.js';
+import {floor} from './tour.js?v=worktop3';
 const room=document.querySelector('#room');
 const labels=['squishy','wax','slime'];
 const fields=['kind','shape','pigment','finish','filling','accent','charm'];
@@ -15,6 +15,7 @@ function clean(r){return Object.fromEntries(fields.map(k=>[k,r[k]]))}
 function save(r){shelf=[clean(r),...shelf.filter(item=>key(item)!==key(r))].slice(0,80);try{localStorage.setItem('sunnymoo-shelf-v1',JSON.stringify(shelf));return true}catch{return false}}
 function pulse(tray){tray.classList.remove('motion');void tray.offsetWidth;tray.classList.add('motion')}
 const sceneModule=import('./bench.js?v=worktop2').catch(()=>null);
+const toolLabel={master:'Set on tray',mould:'Pour mould rubber',core:'Slide in the core',cast:'Pour tinted silicone',peel:'Peel it free',fill:'Pump gel',seal:'Seal and squeeze'};
 const gesture={
  master:'Slide your shape onto the silver tray',mould:'Tilt the cup to pour the mould',core:'Slide the core into place',cast:'Tilt the cup to cast the skin',peel:'Pull the mould open',fill:'Press the pump to fill the skin',seal:'Press the plug into place',coreColor:'Rub colour into the centre',bath:'Tilt the cup of melted wax',dip:'Drag down to dip, then lift',cool:'Tap to skip the cooling time',crack:'Press the shell until it cracks',bowl:'Pour the base into the bowl',stir:'Swirl your finger to mix',activate:'Tilt in a little activator',fold:'Pull the slime, then let go',scent:'Tap to finish the blend',jar:'Scoop your slime into the jar'
 };
@@ -27,7 +28,7 @@ function make(kind){
  const d=drafts.get(kind)||{r:fresh(kind),index:0,count:0};drafts.set(kind,d);
  const steps=flows[kind],s=steps[d.index],r=d.r;
  const goal=({fill:3,mould:2,cast:2,dip:r.finish+1,fold:3,activate:2})[s.art]||1;
- room.innerHTML='<h2>'+['Squishy studio','Wax cracking studio','Slime kitchen'][kind]+'</h2><div class="bench"><div class="tray"></div><article><div class="step-line"><h3>'+gesture[s.art]+'</h3><small aria-label="Step '+(d.index+1)+' of '+steps.length+'">'+(d.index+1)+' / '+steps.length+'</small></div><div class="choices"></div><div class="buttons"><button class="primary action">'+s.action+'</button>'+(d.index?'<button class="back">Back one step</button>':'')+'</div><p class="note" role="status"></p><details class="science"><summary>How it works</summary><p>'+s.hint+'</p></details></article></div>';
+ room.innerHTML='<h2>'+['Squishy studio','Wax cracking studio','Slime kitchen'][kind]+'</h2><div class="bench"><div class="tray"></div><article><div class="step-line"><h3>'+gesture[s.art]+'</h3><small aria-label="Step '+(d.index+1)+' of '+steps.length+'">'+(d.index+1)+' / '+steps.length+'</small></div><div class="choices"></div><div class="buttons"><button class="primary action">'+(toolLabel[s.art]||s.action)+'</button>'+(d.index?'<button class="back">Back one step</button>':'')+'</div><p class="note" role="status"></p><details class="science"><summary>How it works</summary><p>'+s.hint+'</p></details></article></div>';
  const choices=room.querySelector('.choices'),tray=room.querySelector('.tray');
  renderBench(tray,r,s.art,d.count);
  if(s.options)s.options.forEach((o,i)=>{const b=document.createElement('button');b.setAttribute('aria-pressed',r[s.key]===i);if(s.key==='pigment'||s.key==='accent')b.innerHTML='<span class="swatch" style="background:'+colors[i]+'"></span>';if(s.key==='shape'&&kind!==2)b.dataset.shape=String(i);b.append(o);b.onclick=()=>{r[s.key]=i;d.count=0;make(kind);room.querySelectorAll('.choices button')[i].focus()};choices.append(b)});
@@ -59,7 +60,7 @@ function play(r,message=''){
  if(r.kind===1){const b=document.createElement('button');const toggle=()=>{b.textContent=sound?'Crackle sound on':'Crackle sound off';b.setAttribute('aria-pressed',sound)};b.onclick=()=>{sound=!sound;toggle()};toggle();room.querySelector('.buttons').append(b)}
 }
 let sound=false;
-function tiles(host,items){for(const r of items){const b=document.createElement('button');b.className='tile';b.innerHTML=art(r)+'<strong>'+title(r)+'</strong><small>'+describe(r)+'</small>';b.onclick=()=>play(r);host.append(b)}}
+function tiles(host,items){for(const r of items){const b=document.createElement('button');b.className='tile';b.innerHTML=shelfObject(r)+'<strong>'+title(r)+'</strong><small>'+describe(r)+'</small>';b.onclick=()=>play(r);host.append(b)}}
 function myShelf(){room.innerHTML='<h2>My shelf</h2><p>'+ (shelf.length?'Pick a design to play again.':'Your finished designs will appear here. Try a studio sample while the shelf is empty.')+'</p><div class="grid"></div>';tiles(room.querySelector('.grid'),shelf.length?shelf:[fresh(0),{...fresh(1),shape:1,pigment:1},{...fresh(2),finish:2,pigment:2}]);}
 async function wall(){
  const token=visit;let spot=0;const slimes=shelf.filter(r=>r.kind===2);
