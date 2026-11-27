@@ -85,7 +85,7 @@ export function mountSlime(host,r,material){
   render(now);dirty=moving>.028;
  }
  const point=e=>{const b=canvas.getBoundingClientRect();return {x:clamp((e.clientX-b.left)*W/b.width,1,W-2),y:clamp((e.clientY-b.top)*H/b.height,1,H-2)}};
- function say(txt){host.parentElement?.querySelector('.touch-status')?.replaceChildren(txt)}
+ function say(txt){host.closest('.exhibit-stage')?.querySelector('.touch-status')?.replaceChildren(txt)}
  canvas.onpointerdown=e=>{if(pts.size>=2)return;const p=point(e);canvas.setPointerCapture(e.pointerId);pts.set(e.pointerId,{...p,start:p});poke(p,0,0,1.7);say('Press · leave an impression');};
  canvas.onpointermove=e=>{
   const prev=pts.get(e.pointerId);if(!prev)return;const p=point(e),dx=p.x-prev.x,dy=p.y-prev.y;pts.set(e.pointerId,{...p,start:prev.start});if(Math.hypot(dx,dy)<1)return;
