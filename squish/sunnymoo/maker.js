@@ -26,7 +26,7 @@ step('Seal the opening','Seat the matching plug, let the silicone bond cure, the
 step('Shape the soft centre','Choose the shape of a soft centre that can give way when you press it.','master','Shape the centre','shape',shapes),
 step('Tint the centre','Pick the colour that will peek through the cracks.','coreColor','Tint the centre','accent',palette),
 step('Prepare the wax bath','The studio warmer melts the wax. Pick a shell colour for the first dip.','bath','Melt the wax','pigment',palette),
-step('Dip and drain','Lift the centre so extra wax drips back. More cooled coats make a thicker shell.','dip','Dip the centre','finish',['One coat','Two coats','Three coats']),
+step('Dip, drain and cool','Lift the centre so extra wax drips back. More cooled coats make a thicker shell.','dip','Dip and cool one coat','finish',['One coat','Two coats','Three coats']),
 step('Cool the shell','As the wax cools it turns solid. The soft centre can still bend underneath.','cool','Finish cooling'),
 step('Try the first crack','Press gently. The centre bends farther than the solid coat can, so a crack opens.','crack','Crack and shelve it')
 ],[
@@ -47,12 +47,15 @@ export function art(r,phase='play',progress=0){
  const mould=['mould','core','cast','peel'].includes(phase),bowl=['bowl','stir','activate','fold','scent','bath','dip'].includes(phase);
  const pouring=['cast','mould','fill','activate','stir','dip'].includes(phase),center=wax&&(['master','coreColor'].includes(phase)||progress>=r.finish+3);
  const hue=center?colors[r.accent]:colors[r.pigment],liquid=['fill','seal','play'].includes(phase);
+ const pumping=phase==='fill', pouringMould=phase==='mould';
+ const level=pumping?207-Math.min(progress,3)*39:193-Math.min(progress,2)*47;
  const thick=phase==='cast'||phase==='core'||phase==='peel'||(r.kind===0&&liquid);
  const cracks=wax&&!center&&(phase==='crack'||progress>0);
  return '<svg viewBox="0 0 320 250" aria-hidden="true"><defs><radialGradient id="'+id+'" cx="32%" cy="20%" r="83%"><stop stop-color="#fff5f6"/><stop offset=".36" stop-color="'+hue+'"/><stop offset="1" stop-color="'+hue+'" stop-opacity=".76"/></radialGradient><clipPath id="c'+id+'"><path d="'+shape+'"/></clipPath></defs><ellipse cx="161" cy="217" rx="111" ry="11" fill="#49635d" opacity=".2"/>'+
  (mould?'<rect x="44" y="80" width="232" height="141" rx="24" fill="#ae9fcd" stroke="#635273" stroke-width="4"/><path d="M48 148h225" stroke="#736389" stroke-dasharray="7 4"/>':'')+
  '<g class="toy"><path d="'+shape+'" fill="url(#'+id+')" fill-opacity="'+(r.kind===0&&r.finish===0&&thick?.72:1)+'" stroke="#6b5066" stroke-width="'+(wax?3+r.finish:3)+'"/>'+
- (thick?'<path d="'+shape+'" transform="translate(21 24) scale(.87)" fill="'+(liquid?hue:'#ecf4e8')+'" stroke="#876e86" stroke-dasharray="5 4"/>':'')+
+ (thick?'<path d="'+shape+'" transform="translate(21 24) scale(.87)" fill="'+(pumping?'#f9f5f1':liquid?hue:'#ecf4e8')+'" stroke="#876e86" stroke-dasharray="5 4"/>':'')+
+ ((pumping||pouringMould)&&progress?'<g clip-path="url(#c'+id+')"><path d="M52 '+level+'q40 -9 82 0t85 0t65 -2v135H52z" fill="'+(pumping?hue:'#a78fc2')+'" opacity=".88"/></g>':'')+
  (((slime&&r.finish===2)||(r.kind===0&&r.filling===2&&liquid))?'<g clip-path="url(#c'+id+')">'+bits+'</g>':'')+
  (slime&&r.finish===1?'<path d="M88 174q45-43 90-15t54 7m-129 28q30-23 64-10t49-4" stroke="#fff7db" fill="none" stroke-width="7" opacity=".8"/>':'')+
  (r.kind===0&&r.finish===2?'<path d="m119 125 3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="white"/>':'')+

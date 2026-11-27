@@ -23,11 +23,17 @@ function make(kind){
  if(s.options)s.options.forEach((o,i)=>{const b=document.createElement('button');b.setAttribute('aria-pressed',r[s.key]===i);if(s.key==='pigment'||s.key==='accent')b.innerHTML='<span class="swatch" style="background:'+colors[i]+'"></span>';b.append(o);b.onclick=()=>{r[s.key]=i;d.count=0;make(kind);room.querySelectorAll('.choices button')[i].focus()};choices.append(b)});
  if(d.count)room.querySelector('.note').textContent=d.count+' of '+goal+' complete';
  room.querySelector('.back')?.addEventListener('click',()=>{d.index--;d.count=0;make(kind)});
- const next=room.querySelector('.action');next.onclick=()=>{if(next.disabled)return;d.count++;next.disabled=true;pulse(tray);tray.innerHTML=art(r,s.art,d.count);
+ const next=room.querySelector('.action');
+ tray.classList.add('interactive');tray.tabIndex=0;tray.setAttribute('role','button');tray.setAttribute('aria-label',s.action);
+ let contact=null;
+ tray.onpointerdown=e=>{contact=e.pointerId;tray.setPointerCapture(e.pointerId)};
+ tray.onpointerup=e=>{if(contact===e.pointerId)next.click();contact=null};tray.onpointercancel=()=>contact=null;
+ tray.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();next.click()}};
+ next.onclick=()=>{if(next.disabled||d.busy)return;d.count++;next.disabled=true;pulse(tray);tray.innerHTML=art(r,s.art,d.count);
  const status=room.querySelector('.note');status.textContent=d.count<goal?d.count+' of '+goal+' complete. Keep going!':'Ready!';
- if(d.count<goal){next.disabled=false;return}
- const token=visit;choices.querySelectorAll('button').forEach(b=>b.disabled=true);const back=room.querySelector('.back');if(back)back.disabled=true;
- setTimeout(()=>{d.count=0;d.index++;if(d.index===steps.length){drafts.delete(kind);const stored=save(r);if(token===visit){play(r,stored?'On your shelf.':'On your shelf for this visit.')}}else if(token===visit){make(kind);room.querySelector('.action').focus({preventScroll:true})}},430)};
+ if(d.count<goal){status.textContent=s.art==='fill'?['','One pump. The pocket is filling.','Two pumps. Watch the gel rise.'][d.count]:s.art==='dip'?'Coat '+d.count+' is cool. Ready for the next dip.':d.count+' of '+goal+' complete. Keep going!';next.disabled=false;return}
+ const token=visit;d.busy=true;choices.querySelectorAll('button').forEach(b=>b.disabled=true);const back=room.querySelector('.back');if(back)back.disabled=true;
+ setTimeout(()=>{d.busy=false;d.count=0;d.index++;if(d.index===steps.length){drafts.delete(kind);const stored=save(r);if(token===visit||location.hash==='#'+labels[kind]){play(r,stored?'On your shelf.':'On your shelf for this visit.')}}else if(token===visit||location.hash==='#'+labels[kind]){make(kind);room.querySelector('.action').focus({preventScroll:true})}},430)};
 }
 function play(r,message=''){
  let presses=0,start=null;room.innerHTML='<h2>'+title(r)+'</h2><div class="bench"><div class="tray interactive" role="button" tabindex="0" aria-label="Play with '+title(r)+'"></div><article><p>'+describe(r)+'</p><div class="buttons"><button class="primary press"></button><button class="reset">Reset toy</button><button class="keep">Keep on my shelf</button><button class="share">Exhibit this design</button><a class="btn" href="#wall">Visit the wall</a></div><p role="status" class="note"></p></article></div>';
