@@ -1,14 +1,16 @@
+import {families,makeStudy} from "../../geometry-engine.js?v=invisible-1";
 const $=id=>document.getElementById(id),canvas=$('display'),ctx=canvas.getContext('2d');
 const TAU=Math.PI*2, clamp=(v,a,b)=>Math.min(b,Math.max(a,v)), mix=(a,b,t)=>a+(b-a)*t;
 const modes=[
- ['Nodal field','✳'],['Light lattice','◇'],['Chromatic matrix','⠿'],['Warped checker','▧'],['Dot relief','⠚'],['Nested facets','⬡'],['Radial checker','◉'],['Moiré rings','◎'],['Spirograph','✺'],['Interference weave','⋈']
+ ['Nodal field','✳'],['Light lattice','◇'],['Chromatic matrix','⠿'],['Warped checker','▧'],['Dot relief','⠚'],['Nested facets','⬡'],['Radial checker','◉'],['Moiré rings','◎'],['Spirograph','✺'],['Interference weave','⋈'],...families.map(f=>[f.name,f.glyph])
 ];
 const defs=[
  ['freq','Frequency',40,1200,220,1,'Hz'],['sym','Symmetry',2,16,6,1,''],['warp','Warp',0,100,36,1,'%'],['phase','Phase',0,360,0,1,'°'],['density','Density',8,48,26,1,''],['hue','Hue',0,360,205,1,'°'],['speed','Speed',0,100,18,1,'%']
 ];
 const values=Object.fromEntries(defs.map(([k,,,,v])=>[k,v])),controls={},keys=new Map(),active=new Map();
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-let mode=0,phaseTime=0,last=0,motion=!reduced.matches,velocity=.55,played=57,midiAccess=null,palette='cobalt',raf=0,visible=true,energy=0;
+const requestedMode=families.findIndex(f=>f.id===new URLSearchParams(location.search).get('mode'));
+let mode=requestedMode<0?0:10+requestedMode,phaseTime=0,last=0,motion=!reduced.matches,velocity=.55,played=57,midiAccess=null,palette='cobalt',raf=0,visible=true,energy=0;
 const colors={cobalt:['#080b19','#5795e8','#c2d7f2'],ink:['#e7dccb','#302837','#73665d'],pink:['#200d21','#e94ca8','#f7b8df'],pearl:['#16142a','#a7abed','#f0b9da'],chroma:['#1d1724','#e0c3a6','#f4b7da']};
 function shade(i=0,alpha=1){const h=(values.hue+i+360)%360;return palette==='chroma'? `hsla(${h},72%,65%,${alpha})`:palette==='cobalt'?`hsla(${h},76%,65%,${alpha})`:palette==='pink'?`hsla(${h+125},76%,68%,${alpha})`:palette==='pearl'?`hsla(${h+35},52%,76%,${alpha})`: `rgba(43,35,49,${alpha})`;}
 // SERAPH is a permanent, clean foreground layer. The exact outline from
@@ -43,6 +45,7 @@ function drawSeraph(w,t,pitch){
  for(let i=0;i<8;i++){const a=i*TAU/8;ctx.drawImage(eyeRim,x+Math.cos(a)*3.6,y+Math.sin(a)*3.6,W,H)}
  ctx.globalAlpha=1;ctx.shadowColor=ink?'rgba(98,67,92,.22)':eyeColorAt(25,.48,70,71);ctx.shadowBlur=ink?3:9+energy*3;ctx.drawImage(eyeColor,x,y,W,H);ctx.restore();
 }
+let studyKey='',studyModel=null;
 function draw(){
  const pattern=mode;
  const w=canvas.width,c=w/2,R=w*.465,t=values.phase*Math.PI/180+phaseTime,n=values.density,s=values.sym,warp=values.warp/100,pitch=Math.log2(values.freq/110),amp=.67+.22*velocity;
@@ -99,9 +102,23 @@ function draw(){
  }else if(pattern===8){
   const f=2+s,inner=(s+Math.round(pitch)+1)/(s+6),distance=R*(.11+.27*warp);for(let j=0;j<Math.max(4,n/4);j++){const pts=[];for(let i=0;i<=720;i++){const a=i/720*TAU*6,phase=t*.15+j*.065;pts.push([(R*.70-R*.36*inner)*Math.cos(a+phase)+distance*Math.cos(f*a+phase),(R*.70-R*.36*inner)*Math.sin(a+phase)-distance*Math.sin(f*a+phase)])}line(pts,shade(j*12+pitch*10,.84),1.5)}
   for(let i=0;i<n*2;i++){const a=i*TAU/(n*2),x=R*Math.cos(a),y=R*Math.sin(a),X=R*Math.cos(a*s+t*.08),Y=R*Math.sin(a*s+t*.08);line(Array.from({length:13},(_,j)=>[mix(x,X,j/12),mix(y,Y,j/12)]),shade(i*4,.27),.8)}
- }else{
+ }else if(pattern===9){
   for(const sign of [-1,1])for(let j=0;j<n;j++){const pts=[];for(let i=0;i<=120;i++){const x=-R+2*R*i/120,y=-R+2*R*j/(n-1)+warp*R*.13*Math.sin(x/R*s+sign*t*.6+j*.31+pitch);pts.push(rotate(x,y,sign*Math.PI/4))}ctx.save();ctx.beginPath();ctx.arc(0,0,R,0,TAU);ctx.clip();line(pts,shade(sign*45+j*4,.72),1.45);ctx.restore()}
+ }else{
+  const family=families[pattern-10],params={sym:s,density:Math.round(n/4),phase:values.phase,mu:.005+.495*warp,sx:80,sy:-60+120*(n-8)/40,tau:Math.max(-100,Math.min(100,30+pitch*25)),theta:values.phase/2};
+  const key=family.id+JSON.stringify(params);
+  if(key!==studyKey){studyKey=key;studyModel=makeStudy(family.id,params)}
+  const groups=new Map();
+  for(const p of studyModel.paths){if(!groups.has(p.group))groups.set(p.group,[]);groups.get(p.group).push(p)}
+  // Scientific shape is calculated first. Apply decorative cymatic displacement
+  // only to the MIDI visualization, not to the source coordinates or SVG.
+  for(const [g,paths] of groups){ctx.beginPath();
+   for(const {pts,closed} of paths){pts.forEach(([x,y],i)=>{const v=bend(x*R,y*R);i?ctx.lineTo(...v):ctx.moveTo(...v)});if(closed)ctx.closePath()}
+   ctx.strokeStyle=shade(g*32+pitch*12,.82);ctx.lineWidth=family.id==='lagrange'?1.35:1.8;ctx.stroke();
+  }
  }
+ const mathNote=$('study-note');
+ if(mathNote){mathNote.hidden=pattern<10;if(pattern>=10)mathNote.textContent=families[pattern-10].note+' '+studyModel.detail+' MIDI background is artistically displaced; use the desk Spirograph for unwarped geometry.'}
  ctx.restore();
  drawSeraph(w,t,pitch);
  ctx.restore();
@@ -113,7 +130,8 @@ function update(k,v,redraw=true){const d=defs.find(x=>x[0]===k);v=clamp(Number(v
 function noteText(){const hz=values.freq,n=Math.round(69+12*Math.log2(hz/440));const names=['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];$('note-display').textContent=names[(n%12+12)%12]+(Math.floor(n/12)-1)+' · '+hz+' Hz'}
 defs.forEach(d=>{const [k,label,min,max,v,step,unit]=d,wrap=document.createElement('div');wrap.className='knob';wrap.innerHTML=`<label for="knob-${k}">${label}</label><div class="dial" aria-hidden="true" title="Drag up or down"></div><output for="knob-${k}"></output><input type="range" id="knob-${k}" min="${min}" max="${max}" value="${v}" step="${step}">`;const dial=wrap.querySelector('.dial'),input=wrap.querySelector('input'),out=wrap.querySelector('output');controls[k]={dial,input,out};input.addEventListener('input',()=>update(k,input.value));let start=null;dial.addEventListener('pointerdown',e=>{dial.setPointerCapture(e.pointerId);start={y:e.clientY,v:values[k]}});dial.addEventListener('pointermove',e=>{if(start)update(k,start.v+(start.y-e.clientY)*(max-min)/140)});for(const event of ['pointerup','pointercancel','lostpointercapture'])dial.addEventListener(event,()=>start=null);$('knobs').append(wrap);out.value=v+unit;dial.style.setProperty('--angle',(-135+(v-min)/(max-min)*270)+'deg')});
 modes.forEach(([name,glyph],i)=>{const b=document.createElement('button');b.type='button';b.innerHTML=`<span class="glyph" aria-hidden="true">${glyph}</span><span>${name}</span>`;b.setAttribute('aria-pressed',String(i===mode));b.addEventListener('click',()=>{mode=i;[...$('presets').children].forEach((el,j)=>el.setAttribute('aria-pressed',String(j===i)));refresh()});$('presets').append(b)});
-$('palette').addEventListener('change',e=>{palette=e.target.value;refresh()});$('reset').addEventListener('click',()=>{phaseTime=0;defs.forEach(d=>update(d[0],d[4],false));velocity=.55;energy=0;refresh()});
+$('save-display')?.addEventListener('click',()=>{draw();canvas.toBlob(blob=>{if(!blob)return;const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download='KT-optical-geometry.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)},'image/png')});
+$('palette').addEventListener('change' ,e=>{palette=e.target.value;refresh()});$('reset').addEventListener('click',()=>{phaseTime=0;defs.forEach(d=>update(d[0],d[4],false));velocity=.55;energy=0;refresh()});
 $('motion').addEventListener('click',()=>{motion=!motion;$('motion').setAttribute('aria-pressed',String(motion));$('motion').textContent='Motion: '+(motion?'on':'off');if(!motion&&raf){cancelAnimationFrame(raf);raf=0}refresh()});
 reduced.addEventListener('change',e=>{if(e.matches&&motion)$('motion').click();if(e.matches&&platePlaying){platePlaying=false;renderPlate()}});
 // MIDI controls only the visual surface. No audio context or noise source.
