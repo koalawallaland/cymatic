@@ -114,3 +114,13 @@
 .boba-voice-options{display:flex;gap:8px;align-items:center;min-width:0}
 #boba-corner #boba-voice-picker{min-width:0;flex:1;width:100%;min-height:44px;font:inherit;font-size:14px;border-radius:12px;padding:8px 10px;color:#f9efff;background:#382950;border:1px solid #a995d464}
 #boba-corner #boba-voice-preview{flex-shrink:0;padding:8px 12px;color:#ffe5ad;border-color:#ffc98a5c}
+
+/* Volumetric Boba fits the same pastel daycare and live camera play area. */
+.boba-stage .boba-3d-canvas,.boba-ar-dog .boba-3d-canvas{display:block;position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+#boba-stage[data-rig=3d]{touch-action:pan-y;cursor:grab}
+#boba-stage[data-rig=3d]:active{cursor:grabbing}
+.boba-3d-controls{width:100%;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:7px;color:#dcd1f9;font-size:12px}
+.boba-3d-controls>div{display:flex;gap:8px;flex-wrap:wrap}
+#boba-corner .boba-3d-controls button{font-size:12px;min-height:42px;padding:7px 10px;white-space:nowrap}
+.boba-ar-actions:has(#boba-ar-turn){grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:390px){.boba-ar-actions:has(#boba-ar-turn){grid-template-columns:repeat(2,minmax(0,1fr))}.boba-3d-controls{justify-content:center;text-align:center}}

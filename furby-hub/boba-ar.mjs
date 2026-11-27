@@ -1,4 +1,4 @@
-import {buildBoba} from './boba-realistic.mjs';
+import {buildBoba} from './boba-renderer.mjs?v=5';
 export function initAR({onPet,onPaw,onFetch}){
  const $=id=>document.getElementById(id);
  const dialog=$('boba-ar'),launch=$('boba-ar-launch'),video=$('boba-ar-video'),world=$('boba-ar-world'),dog=$('boba-ar-dog'),hint=$('boba-ar-hint'),size=$('boba-ar-size');
@@ -31,7 +31,7 @@ export function initAR({onPet,onPaw,onFetch}){
    if(open)return;open=true;priorFocus=document.activeElement;dialog.hidden=false;
    if(typeof dialog.showModal==='function')dialog.showModal();document.body.classList.add('boba-ar-open');
    placing=false;$('boba-ar-place').setAttribute('aria-pressed','false');say('Preview mode. Turn on the camera with a grown-up to see Boba in your room.');
-   if(!loading){loading=buildBoba(dog).then(r=>{rig=r;$('boba-ar-fallback').hidden=true;}).catch(()=>{loading=null;});}
+   if(!loading){loading=buildBoba(dog,{rotateGesture:false}).then(r=>{rig=r;$('boba-ar-fallback').hidden=true;dog.dataset.rig=r.kind;$('boba-ar-turn').disabled=r.kind!=='3d';$('boba-ar-mode').textContent=r.kind==='3d'?'3D camera play · stay in a safe spot':'Portrait camera play · stay in a safe spot';}).catch(()=>{loading=null;});}
    $('boba-ar-close').focus();
  });
  $('boba-ar-close').addEventListener('click',close);
@@ -39,6 +39,7 @@ export function initAR({onPet,onPaw,onFetch}){
  dialog.addEventListener('close',()=>{if(open)close()});
  $('boba-ar-camera').addEventListener('click',()=>{if(stream){stopCamera();say('Camera off. You can still play in preview mode.');}else camera();});
  $('boba-ar-place').addEventListener('click',()=>setPlace(!placing));
+ $('boba-ar-turn').addEventListener('click',()=>{rig?.turn?.(Math.PI/3);say('There’s Boba from another angle! Stroke his coat to pet him.');});
  $('boba-ar-center').addEventListener('click',()=>{dog.style.left='50%';dog.style.top='73%';setPlace(false);});
  size.addEventListener('input',()=>dog.style.setProperty('--ar-dog-width',size.value+'%'));
  world.addEventListener('pointerdown',e=>{if(placing){position(e.clientX,e.clientY);setPlace(false);}});
