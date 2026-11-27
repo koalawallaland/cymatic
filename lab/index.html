@@ -17,7 +17,7 @@
 @media(max-width:420px){.lab-nav a,.lab-nav button{font-size:12px;padding:7px 9px}.lab-dialog{padding:16px}.printer-art{height:190px}#prompt{font-size:15px}}
 </style>
 <title>Mini Resin Lab</title>
-</head><body>
+<style id="lab-community-cap-style">.lab-community-link{display:block;text-align:center;font:600 12px/1.4 system-ui,sans-serif;padding:9px 10px;margin:6px auto 2px;border:1px solid #c091c5;border-radius:14px;color:#fce4ff;background:#322141;text-decoration:none;min-height:40px;max-width:420px}.lab-community-link:focus-visible{outline:2px solid white;outline-offset:2px}.lab-community-tip{font-size:11px;color:#e0bfef;margin:0;text-align:center}</style></head><body>
 
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -249,7 +249,7 @@ label.name{display:flex;flex-direction:column;gap:5px;font-size:13px}
       <div id="sets"></div>
       <p id="note"></p>
       <div id="board"><div id="keys"></div></div>
-      <div id="tray" aria-label="Keycap tray"></div>
+      <div id="tray" aria-label="Keycap tray"></div><a href="../community-caps/#publish-section" class="lab-community-link">✧ Share a saved cast / browse the community tray ↗</a>
     </div>
     <div id="tLab" class="row" hidden><button id="toRoom">Back to the keyboard</button><button id="start" class="go">Start a pour</button></div>
     <div id="tFill" class="row">
@@ -272,7 +272,7 @@ label.name{display:flex;flex-direction:column;gap:5px;font-size:13px}
     <div id="tReveal" hidden style="display:flex;flex-direction:column;gap:9px">
       <p id="loot"></p>
       <label class="name" id="nameBox" for="capName">Name your colorway<input id="capName" maxlength="32" autocomplete="off"></label>
-      <button id="toKb" class="go">Put it on the keyboard</button>
+      <button id="toKb" class="go">Put it on the keyboard</button><p class="lab-community-tip">Your cast is saved privately. Visit the community tray after saving if you want to share it.</p>
       <div class="row"><button id="turn">Turn it over</button><button id="again">Pour again</button></div>
     </div>
   </footer>
