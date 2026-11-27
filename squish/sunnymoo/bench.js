@@ -5,7 +5,7 @@ import {refineReferenceItems} from '../reference-details.mjs';
 import {canvasRenderer} from './canvas-renderer.js';
 import {colors} from './maker.js';
 let renderer,scene,camera,pivot,prop,stream,batch,mould,observer,frame,canvas,host,recipe,phase,count;
-let library,loading,stamp=0,start=0,contact=null,move=0,twist=0,parts=[],shell=[];
+let library,loading,stamp=0,start=0,contact=null,touchY=0,moveY=0,move=0,twist=0,parts=[],shell=[];
 const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches;
 const makeMat=(color,roughness=.3,metalness=0)=>new T.MeshStandardMaterial({color,roughness,metalness});
 function mesh(parent,geometry,material,x=0,y=0,z=0){const obj=new T.Mesh(geometry,material);obj.position.set(x,y,z);parent.add(obj);return obj}
@@ -59,14 +59,14 @@ function build(){
  stream=cylinder(batch,-.76,.85,.18,.045,.066,.8,makeMat(phase==='mould'?'#a3ddd4':hue,.13));stream.visible=false;
  resize();
 }
-function tick(now){if(!host?.isConnected)return;const t=Math.min(1,(now-start)/950),pulse=reduced?0:Math.sin(Math.max(0,t)*Math.PI);const hand=contact===null?0:.16;
- pivot.rotation.y=twist;pivot.position.x=phase==='master'&&contact!==null?move*.72:0;pivot.scale.set(1+pulse*.13+hand,1-pulse*.18-hand,1+pulse*.12);if(phase==='fill')pivot.scale.multiplyScalar(.74+Math.min(count,3)*.09);if(phase==='dip')pivot.position.y=-.23-pulse*.25;else pivot.position.y=-.23;
- if(prop){prop.rotation.z=-.46-pulse*.55;prop.position.x=-1.02+move*.25}stream.visible=pourPhases.has(phase)&&(pulse>.15||contact!==null);if(parts.length)for(let i=0;i<parts.length;i++)parts[i].position.x=(i?1:-1)*(1.05+(phase==='peel'?pulse*.4:0));renderer.render(scene,camera);
+function tick(now){if(!host?.isConnected)return;const t=Math.min(1,(now-start)/950),pulse=reduced?0:Math.sin(Math.max(0,t)*Math.PI);const hand=contact===null?0:.16;const stretch=contact!==null&&['fold','play','stir'].includes(phase)?Math.abs(move)*.45:0;
+ pivot.rotation.y=twist;pivot.position.x=phase==='master'&&contact!==null?move*.72:0;pivot.scale.set(1+pulse*.13+hand+stretch,1-pulse*.18-hand-stretch*.42,1+pulse*.12);if(phase==='fill')pivot.scale.multiplyScalar(.74+Math.min(count,3)*.09);if(phase==='dip')pivot.position.y=-.23-pulse*.25-Math.max(0,moveY)*.4;else pivot.position.y=-.23;
+ if(prop){prop.rotation.z=-.46-pulse*.55-Math.abs(move)*.95;prop.position.x=-1.02+move*.7;prop.position.y=1.59-moveY*.48}stream.visible=pourPhases.has(phase)&&(pulse>.15||contact!==null);if(parts.length)for(let i=0;i<parts.length;i++)parts[i].position.x=(i?1:-1)*(1.05+(phase==='peel'?pulse*.4:0));renderer.render(scene,camera);
  if(t<1)frame=requestAnimationFrame(tick)}
 function wake(){cancelAnimationFrame(frame);frame=requestAnimationFrame(tick)}
 export function showBench(tray,r,stage,progress=0,animate=false){
  try{if(!renderer)init();if(host!==tray){if(host)observer.unobserve(host);host=tray;observer.observe(host);contact=null;move=0;twist=0;
- tray.addEventListener('pointerdown',e=>{contact=e.clientX;wake()});tray.addEventListener('pointermove',e=>{if(contact===null)return;move=Math.max(-1,Math.min(1,(e.clientX-contact)/90));twist=move*.9;wake()});for(const name of ['pointerup','pointercancel','lostpointercapture'])tray.addEventListener(name,()=>{contact=null;wake()});}
+ tray.addEventListener('pointerdown',e=>{contact=e.clientX;touchY=e.clientY;moveY=0;move=0;wake()});tray.addEventListener('pointermove',e=>{if(contact===null)return;moveY=Math.max(-1,Math.min(1,(e.clientY-touchY)/72));move=Math.max(-1,Math.min(1,(e.clientX-contact)/90));twist=move*.9;wake()});for(const name of ['pointerup','pointercancel','lostpointercapture'])tray.addEventListener(name,()=>{contact=null;moveY=0;move=0;wake()});}
  recipe=r;phase=stage;count=progress;const id=++stamp;tray.append(canvas);build();if(animate)start=performance.now();wake();
  if(!library&&r.kind!==2&&r.shape<2)models().then(list=>{if(list.length&&id===stamp&&host.isConnected){build();wake()}});
  }catch{canvas?.remove()}
