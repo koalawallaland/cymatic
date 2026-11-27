@@ -1,7 +1,7 @@
 import {respond} from './boba-dialogue.mjs?v=4';
-import {buildBoba} from './boba-realistic.mjs';
+import {buildBoba} from './boba-renderer.mjs?v=5';
 import {initCare} from './boba-care.mjs';
-import {initAR} from './boba-ar.mjs';
+import {initAR} from './boba-ar.mjs?v=5';
 import {initSounds} from './boba-sounds.mjs';
 import {initVoice} from './boba-voice.mjs?v=4';
 const $=id=>document.getElementById(id);
@@ -46,12 +46,15 @@ if(root && stage && log && input && status){
     say('Woof! I’m virtual Boba. Come sit with me!');act('idle');
   });
   say('Hey, buddy! I’m Boba. Want to chat, play fetch, or give me a paw?');
-  // Load the recovered photo-like 2D character; no WebGL or microphone.
+  // Prefer the articulated 3D dog; the previous realistic portrait is a graceful fallback.
+  $('boba-turn-left').addEventListener('click',()=>rig?.turn?.(-Math.PI/4));$('boba-turn-right').addEventListener('click',()=>rig?.turn?.(Math.PI/4));
   let loading=false;
   async function initRig(){
     if(loading)return;loading=true;
     try{
-      rig=await buildBoba(stage);fallback.hidden=true;stage.dataset.rig='ready';
+      rig=await buildBoba(stage,{rotateGesture:true});fallback.hidden=true;stage.dataset.rig=rig.kind;
+      $('boba-view-status').textContent=rig.kind==='3d'?'3D Boba · drag to turn, tap to pet':'Animated portrait · 3D unavailable on this device';
+      $('boba-turn-left').disabled=rig.kind!=='3d';$('boba-turn-right').disabled=rig.kind!=='3d';
       if(stage.dataset.action!=='idle')rig.play(stage.dataset.action);
     }catch{stage.dataset.rig='fallback';}
   }
