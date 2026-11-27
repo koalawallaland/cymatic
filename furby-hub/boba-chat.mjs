@@ -1,5 +1,5 @@
 import {respond} from './boba-dialogue.mjs';
-import {buildBoba} from './boba-rig.mjs';
+import {buildBoba} from './boba-realistic.mjs';
 const $=id=>document.getElementById(id);
 const root=$('boba-corner'), stage=$('boba-stage'), log=$('boba-log'), input=$('boba-input'), status=$('boba-status');
 if(root && stage && log && input && status){
@@ -58,14 +58,12 @@ if(root && stage && log && input && status){
   });
   findVoice();synth?.addEventListener?.('voiceschanged',findVoice);
   say('Woof! I’m virtual Boba. Want to chat, play fetch, or give me a paw?');
-  // Load existing local Three.js engine after the chat works; fallback stays visible
-  // if a device cannot render WebGL. No camera or microphone permission needed.
+  // Load the recovered photo-like 2D character; no WebGL, camera, or microphone.
   let loading=false;
   async function initRig(){
     if(loading)return;loading=true;
     try{
-      const THREE=await import('../squish/vendor/three.module.js');
-      rig=buildBoba(THREE,stage);fallback.hidden=true;stage.dataset.rig='ready';
+      rig=await buildBoba(stage);fallback.hidden=true;stage.dataset.rig='ready';
       if(stage.dataset.action!=='idle')rig.play(stage.dataset.action);
     }catch{stage.dataset.rig='fallback';}
   }
