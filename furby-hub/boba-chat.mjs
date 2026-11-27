@@ -1,10 +1,14 @@
 import {respond} from './boba-dialogue.mjs';
 import {buildBoba} from './boba-realistic.mjs';
+import {initCare} from './boba-care.mjs';
+import {initAR} from './boba-ar.mjs';
+import {initSounds} from './boba-sounds.mjs';
 const $=id=>document.getElementById(id);
 const root=$('boba-corner'), stage=$('boba-stage'), log=$('boba-log'), input=$('boba-input'), status=$('boba-status');
 if(root && stage && log && input && status){
   const speech=$('boba-voice'), fallback=$('boba-fallback');
   const synth=window.speechSynthesis;
+  let ar=null,care=null;const sounds=initSounds();
   let rig=null, last='', lastReply='', actionTimer=0, voice=null;
   const labels={idle:'Ready for a visit',wag:'Happy tail wag!',cuddle:'Fluffy cuddles',paw:'Paw up!',fetch:'Fetch!',treat:'Nom nom!',walk:'Pitter-patter!',sit:'Good dog!',rest:'Sleepy puppy',talk:'Woof woof!',quiet:'Quiet little paw'};
   function say(text,who='dog'){
@@ -18,7 +22,7 @@ if(root && stage && log && input && status){
   }
   function act(action){
     stage.dataset.action=action;status.textContent=labels[action]||labels.idle;
-    rig?.play(action);
+    rig?.play(action);ar?.play(action);sounds.play(action);
     clearTimeout(actionTimer);
     actionTimer=setTimeout(()=>{stage.dataset.action='idle';status.textContent=labels.idle;rig?.play('idle');},2600);
   }
@@ -73,8 +77,10 @@ if(root && stage && log && input && status){
     say(reply.text);act(reply.action);speak(reply.text);
   }
   $('boba-form').addEventListener('submit',event=>{event.preventDefault();send(input.value);input.value='';});
-  root.querySelectorAll('[data-boba-prompt]').forEach(button=>button.addEventListener('click',()=>send(button.dataset.bobaPrompt)));
-  stage.addEventListener('click',()=>send('Pet Boba'));
+  root.querySelectorAll('[data-boba-prompt]').forEach(button=>button.addEventListener('click',()=>{send(button.dataset.bobaPrompt);if(button.dataset.bobaPrompt==='Pet Boba')care?.interact('pet');if(button.dataset.bobaPrompt==='Play fetch')care?.interact('fetch');}));
+  stage.addEventListener('click',()=>{send('Pet Boba');care?.interact('pet');});
+  care=initCare({act,say,speak});
+  ar=initAR({onPet:()=>{send('Pet Boba');care?.interact('pet');},onPaw:()=>send('High five!'),onFetch:()=>{send('Play fetch');care?.interact('fetch');}});
   $('boba-clear').addEventListener('click',()=>{
     if(voice)synth.cancel();last='';lastReply='';log.replaceChildren();input.value='';
     say('Woof! I’m virtual Boba. Come sit with me!');act('idle');
@@ -86,7 +92,7 @@ if(root && stage && log && input && status){
   });
   findVoice();synth?.addEventListener?.('voiceschanged',findVoice);
   say('Woof! I’m virtual Boba. Want to chat, play fetch, or give me a paw?');
-  // Load the recovered photo-like 2D character; no WebGL, camera, or microphone.
+  // Load the recovered photo-like 2D character; no WebGL or microphone.
   let loading=false;
   async function initRig(){
     if(loading)return;loading=true;
