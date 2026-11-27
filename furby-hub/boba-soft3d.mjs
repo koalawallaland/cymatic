@@ -11,7 +11,7 @@ export function createSoftwareRenderer(){
  const layer=document.createElement('canvas'),lctx=layer.getContext('2d',{alpha:true});
  let w=1,h=1,rgba=new Uint8ClampedArray(4),depth=new Float32Array(1),pixels=null;
  const key=new THREE.Vector3(.44,.78,.45).normalize(),fill=new THREE.Vector3(-.75,.42,.34).normalize();
- function setSize(width,height){const scale=Math.min(1,420/Math.max(width,height));w=Math.max(1,Math.round(width*scale));h=Math.max(1,Math.round(height*scale));if(pixels&&domElement.width===w&&domElement.height===h)return;domElement.width=layer.width=w;domElement.height=layer.height=h;
+ function setSize(width,height){const scale=Math.min(1.35,540/Math.max(width,height));w=Math.max(1,Math.round(width*scale));h=Math.max(1,Math.round(height*scale));if(pixels&&domElement.width===w&&domElement.height===h)return;domElement.width=layer.width=w;domElement.height=layer.height=h;
    pixels=lctx.createImageData(w,h);rgba=pixels.data;depth=new Float32Array(w*h);}
  function render(scene,camera){
    if(!pixels)return;
@@ -36,7 +36,7 @@ export function createSoftwareRenderer(){
        sz[i]=a[2]*x+a[6]*y+a[10]*z+a[14];
        let nx=n[0]*normals[j]+n[3]*normals[j+1]+n[6]*normals[j+2],ny=n[1]*normals[j]+n[4]*normals[j+1]+n[7]*normals[j+2],nz=n[2]*normals[j]+n[5]*normals[j+1]+n[8]*normals[j+2];
        const inv=1/(Math.hypot(nx,ny,nz)||1);nx*=inv;ny*=inv;nz*=inv;
-       const lambert=.57+.36*Math.max(0,nx*key.x+ny*key.y+nz*key.z)+.19*Math.max(0,nx*fill.x+ny*fill.y+nz*fill.z)+.13*Math.max(0,ny);
+       const lambert=.52+.31*Math.max(0,nx*key.x+ny*key.y+nz*key.z)+.11*Math.max(0,nx*fill.x+ny*fill.y+nz*fill.z)+.06*Math.max(0,ny);
        red[i]=gamma((colors?colors[j]:mr)*lambert);green[i]=gamma((colors?colors[j+1]:mg)*lambert);blue[i]=gamma((colors?colors[j+2]:mb)*lambert);
      }
      const inds=g.index?.array, len=inds?inds.length:N;
