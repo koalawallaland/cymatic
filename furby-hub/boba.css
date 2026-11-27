@@ -30,3 +30,11 @@
 #boba-corner :focus-visible,.boba-shortcut:focus-visible{outline:3px solid #b8ff9a;outline-offset:3px}
 @media(max-width:640px){#boba-corner .boba-layout{grid-template-columns:1fr;padding:10px 14px 16px}.boba-stage{min-height:250px}.boba-chatlog{max-height:240px}.boba-shortcut{margin:8px 0 0}}
 @media(prefers-reduced-motion:reduce){.boba-stage .boba-fallback{transition:none}}
+
+/* Original lifelike Boba artwork and 2D articulated renderer. */
+.boba-stage{min-height:340px}
+.boba-stage canvas.boba-realistic-canvas{pointer-events:none}
+.boba-stage .boba-fallback{position:absolute;bottom:13.5%;height:74%;width:80%;max-width:none;object-fit:contain;object-position:50% 100%;filter:drop-shadow(0 6px 8px #503c762c)}
+.boba-stage .boba-fallback[hidden]{display:none!important}
+.boba-msg.me strong{color:#634ca2}
+@media(max-width:640px){.boba-stage{min-height:300px;aspect-ratio:1/1}}
