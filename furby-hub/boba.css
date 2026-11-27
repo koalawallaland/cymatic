@@ -107,3 +107,10 @@
 @media(max-width:640px){#boba-corner .boba-layout{grid-template-columns:minmax(0,1fr);gap:12px;padding:10px 14px 16px}#boba-corner .boba-stage{grid-row:1;aspect-ratio:1/1;min-height:0}#boba-corner .boba-visit-tools{grid-row:2}#boba-corner .boba-care{grid-row:3}#boba-corner .boba-chatbox{grid-column:1;grid-row:4}.boba-care{padding:13px}.boba-ar-controls{gap:6px}}
 @media(max-height:480px) and (orientation:landscape){.boba-ar{display:grid;grid-template-columns:1fr 245px;grid-template-rows:auto 1fr}.boba-ar-top{grid-column:1/-1;padding:5px 12px}.boba-ar-world{grid-column:1;grid-row:2}.boba-ar-controls{grid-column:2;grid-row:2;overflow:auto}}
 @media(prefers-reduced-motion:reduce){.boba-petted .boba-ar-heart{animation:none;opacity:0}}
+
+/* Voice picker is always visible and touch-friendly on phones. */
+.boba-voice-panel{display:grid;gap:7px;padding:10px 12px;background:#241b3d;border:1px solid #ac98df45;border-radius:14px}
+.boba-voice-panel>label{font-size:12px;color:#d8c6f5;font-weight:700}
+.boba-voice-options{display:flex;gap:8px;align-items:center;min-width:0}
+#boba-corner #boba-voice-picker{min-width:0;flex:1;width:100%;min-height:44px;font:inherit;font-size:14px;border-radius:12px;padding:8px 10px;color:#f9efff;background:#382950;border:1px solid #a995d464}
+#boba-corner #boba-voice-preview{flex-shrink:0;padding:8px 12px;color:#ffe5ad;border-color:#ffc98a5c}
